@@ -1,0 +1,1529 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"struct",
+				"struct-unit\tstruct …;"
+			],
+			[
+				"new_",
+				"new_combined"
+			],
+			[
+				"i",
+				"if"
+			],
+			[
+				"asser",
+				"assert_eq\tassert_eq!(…, …)"
+			],
+			[
+				"long",
+				"longest_palindrome"
+			],
+			[
+				"use",
+				"used_odd"
+			],
+			[
+				"lef",
+				"left_result"
+			],
+			[
+				"Unalan",
+				"Unbalanced"
+			],
+			[
+				"orig",
+				"orig_image"
+			],
+			[
+				"origin",
+				"origin_y"
+			],
+			[
+				"is",
+				"IsValidInvalidString"
+			],
+			[
+				"OglRen",
+				"OglRenderAPITrait"
+			],
+			[
+				"OglRend",
+				"OglRenderAPITrait"
+			],
+			[
+				"Gengar",
+				"gengar_render_opengl"
+			],
+			[
+				"glCreate",
+				"glCreateShader"
+			],
+			[
+				"func_glCreate",
+				"func_glCreateShader"
+			],
+			[
+				"glGet",
+				"glGetShaderiv"
+			],
+			[
+				"glEn",
+				"glEnableVertexAttribArray"
+			],
+			[
+				"glEna",
+				"func_glEnableVertexAttribArray"
+			],
+			[
+				"func_glGen",
+				"func_glGenTextures"
+			],
+			[
+				"MOUSe",
+				"MOUSE_LEFT_DOWN"
+			],
+			[
+				"vecTh",
+				"VecThreeFloat"
+			],
+			[
+				"loc",
+				"local_position"
+			],
+			[
+				"Vec",
+				"VecThreeFloat"
+			],
+			[
+				"local",
+				"local_position"
+			],
+			[
+				"local_",
+				"local_rotation_x"
+			],
+			[
+				"VecThr",
+				"VecThreeFloat"
+			],
+			[
+				"Vector",
+				"VecThreeFloat"
+			],
+			[
+				"render",
+				"render_commands"
+			],
+			[
+				"ren",
+				"render_command"
+			],
+			[
+				"gl_u",
+				"gl_uniform_4fv"
+			],
+			[
+				"Ve",
+				"VecThreeFloat"
+			],
+			[
+				"image_",
+				"image_bytes_cursor"
+			],
+			[
+				"gl_tex",
+				"gl_tex_parameter_i"
+			],
+			[
+				"func_glDraw",
+				"func_glDrawElements"
+			],
+			[
+				"gl_buff",
+				"gl_buffer_data_u32"
+			],
+			[
+				"gl_get",
+				"gl_get_uniform_location"
+			],
+			[
+				"pror",
+				"programs"
+			],
+			[
+				"WebGl",
+				"WebGlProgram"
+			],
+			[
+				"Web",
+				"WebGlBuffer"
+			],
+			[
+				"vao",
+				"vaos"
+			],
+			[
+				"gl_create_",
+				"gl_create_vertex_array"
+			],
+			[
+				"We",
+				"WebGlShader"
+			],
+			[
+				"GAME",
+				"GAME_DLL_PATH"
+			],
+			[
+				"GAME_DLL_",
+				"game_dll_current_path"
+			],
+			[
+				"laod_",
+				"load_game_dll"
+			],
+			[
+				"file",
+				"file_write_time"
+			],
+			[
+				"gengar_",
+				"gengar_render_opengl"
+			],
+			[
+				"cube_",
+				"cube_model"
+			],
+			[
+				"move_",
+				"move_to_line_end"
+			],
+			[
+				"projection",
+				"projection_mat"
+			],
+			[
+				"proje",
+				"projection_mat"
+			],
+			[
+				"pro",
+				"projection_type"
+			],
+			[
+				"mouse",
+				"mouse_pos"
+			],
+			[
+				"on",
+				"on_release"
+			],
+			[
+				"on_",
+				"on_release"
+			],
+			[
+				"Shad",
+				"ShaderUniform"
+			],
+			[
+				"bas",
+				"basic_shader_frag"
+			],
+			[
+				"gl_shader",
+				"gl_shader_type"
+			],
+			[
+				"globa",
+				"global_prog"
+			],
+			[
+				"rene",
+				"render_api"
+			],
+			[
+				"F",
+				"fn"
+			],
+			[
+				"exter_",
+				"extern_global_glCreateProgram"
+			],
+			[
+				"shader",
+				"shader_source"
+			],
+			[
+				"output",
+				"output_length"
+			],
+			[
+				"extern_global_glSahd",
+				"extern_global_glShaderInfoLog"
+			],
+			[
+				"GL",
+				"GL_COMPILE_STATUS"
+			],
+			[
+				"extern_global",
+				"extern_global_glShaderSource"
+			],
+			[
+				"bsi",
+				"basic_shader_vert"
+			],
+			[
+				"glcle",
+				"glClearColor"
+			],
+			[
+				"sug",
+				"suggested_pixel_format_index"
+			],
+			[
+				"t",
+				"TARGET_MS"
+			],
+			[
+				"upgra",
+				"upgradeAccum"
+			],
+			[
+				"upgr",
+				"upgradeParticles"
+			],
+			[
+				"boost",
+				"boostParticles"
+			],
+			[
+				"refresh",
+				"refreshTimeMinutes"
+			],
+			[
+				"broa",
+				"broadcasterId"
+			],
+			[
+				"user",
+				"usersShips"
+			],
+			[
+				"channel",
+				"channelChatMessageEventInput"
+			],
+			[
+				"event",
+				"channelFollowEventInput"
+			],
+			[
+				"targ",
+				"targetObj"
+			],
+			[
+				"Unity",
+				"UnityEvent"
+			],
+			[
+				"cur",
+				"currentStationID"
+			],
+			[
+				"sttion",
+				"StationEntry"
+			],
+			[
+				"Station",
+				"StationEntry"
+			],
+			[
+				"station",
+				"StationEntry"
+			],
+			[
+				"target",
+				"targetObj"
+			],
+			[
+				"tar",
+				"targetObj"
+			],
+			[
+				"ortho",
+				"orthoSizeTarget"
+			],
+			[
+				"deat",
+				"deathDisplay"
+			],
+			[
+				"death",
+				"deathDisplayParent"
+			],
+			[
+				"Build",
+				"BuildTurret"
+			],
+			[
+				"enem",
+				"enemyTarget"
+			],
+			[
+				"enemy",
+				"enemyTargets"
+			],
+			[
+				"eneis",
+				"enemiesPerWave"
+			],
+			[
+				"FolloerList",
+				"FollowerListResponse"
+			],
+			[
+				"web",
+				"websocketID"
+			],
+			[
+				"Open",
+				"OpenWebsocket"
+			],
+			[
+				"Soket",
+				"SocketOnMessage"
+			],
+			[
+				"act",
+				"activeTokens"
+			],
+			[
+				"erro",
+				"errorVal"
+			],
+			[
+				"error",
+				"errorVal"
+			],
+			[
+				"device",
+				"deviceObationTokenPollSeconds"
+			],
+			[
+				"follow",
+				"followersHistory"
+			],
+			[
+				"message",
+				"OnMessage"
+			],
+			[
+				"messag",
+				"messageType"
+			],
+			[
+				"Twit",
+				"TwitchOAuthScope"
+			],
+			[
+				"targetChange",
+				"targetChangeTime"
+			],
+			[
+				"targetCh",
+				"targetChangeAccum"
+			],
+			[
+				"shake",
+				"shakeRetargetAccum"
+			],
+			[
+				"curr",
+				"currTarget"
+			],
+			[
+				"V",
+				"Vector3"
+			],
+			[
+				"shakeReg",
+				"shakeRetargetAccum"
+			],
+			[
+				"ShakeRe",
+				"ShakeRetarget"
+			],
+			[
+				"construction",
+				"constructionCheck"
+			],
+			[
+				"cons",
+				"constructTargetPos"
+			],
+			[
+				"construct",
+				"constructTimer"
+			],
+			[
+				"con",
+				"constructTimer"
+			],
+			[
+				"constru",
+				"constructTargetPos"
+			],
+			[
+				"const",
+				"constructTargetPos"
+			],
+			[
+				"construc",
+				"ConstructStep"
+			],
+			[
+				"constr",
+				"constructTimer"
+			],
+			[
+				"collec",
+				"collectTimer"
+			],
+			[
+				"popLimi",
+				"popLimit"
+			],
+			[
+				"food",
+				"foodGrowth"
+			],
+			[
+				"To",
+				"ToWorldPos"
+			],
+			[
+				"Gimo",
+				"GizmoDraw"
+			],
+			[
+				"v",
+				"Vector2"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					""
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Automatic"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Run"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Run (with args)..."
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Check"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Test"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Test (with args)..."
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Bench"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Clean"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Document"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Clippy"
+				],
+				[
+					"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+					"Script"
+				]
+			],
+			[
+				"Packages/Rust Enhanced/RustEnhanced.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"test",
+				"Build With: RustEnhanced - Test"
+			],
+			[
+				"enhan",
+				"Build With: RustEnhanced - Test"
+			],
+			[
+				"insatll",
+				"Package Control: Install Package"
+			],
+			[
+				"rust",
+				"Preferences: Rust Enhanced Settings"
+			],
+			[
+				"clean",
+				"Build With: RustEnhanced - Clean"
+			],
+			[
+				"binding",
+				"Formatter: Key Bindings"
+			],
+			[
+				"rustfmt",
+				"RustFmt: Format Buffer"
+			],
+			[
+				"isntall",
+				"Package Control: Install Package"
+			],
+			[
+				"rustenhance",
+				"Preferences: Rust Enhanced Settings"
+			],
+			[
+				"rustenhanced sett",
+				"Preferences: Rust Enhanced Settings"
+			],
+			[
+				"theme",
+				"UI: Select Color Scheme"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"settings",
+				"Preferences: Rust Enhanced Settings"
+			],
+			[
+				"format",
+				"SublimeAStyleFormatter: Format Current File"
+			],
+			[
+				"binidng",
+				"Preferences: Key Bindings"
+			],
+			[
+				"comment",
+				"Toggle Comment"
+			],
+			[
+				"package",
+				"Package Control: Disable Package"
+			],
+			[
+				"rein",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"reind",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"reing",
+				"Package Control: Revert Built-in Package"
+			],
+			[
+				"key",
+				"Preferences: Key Bindings"
+			],
+			[
+				"indent",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"word",
+				"Preferences: WordHighlight Settings"
+			],
+			[
+				"high",
+				"Preferences: WordHighlight Settings"
+			],
+			[
+				"wordhigh",
+				"Preferences: WordHighlight Settings"
+			],
+			[
+				"color",
+				"UI: Select Color Scheme"
+			],
+			[
+				"select theme",
+				"UI: Select Color Scheme"
+			],
+			[
+				"teme",
+				"UI: Select Theme"
+			],
+			[
+				"keybind",
+				"Preferences: Key Bindings"
+			],
+			[
+				"idnent",
+				"Indentation: Reindent Lines"
+			],
+			[
+				":w",
+				":w - Save"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 112.0,
+		"history":
+		[
+			"cargo test",
+			"test"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Digital Archive/Game Development/Active/spec"
+	],
+	"file_history":
+	[
+		"/C/Digital Archive/Game Development/Active/spec/ghostly_sublime.sublime-workspace",
+		"/C/Digital Archive/Game Development/Active/spec/ghostly_sublime.sublime-project",
+		"/C/Users/perma/Downloads/.csharpierrc",
+		"/C/Digital Archive/RustProjects/sharpup/src/main.rs",
+		"/C/Digital Archive/RustProjects/sharpup/src/ast.rs",
+		"/C/Users/perma/Downloads/MainMenuController.cs",
+		"/C/Digital Archive/Game Development/Active/setup.bat",
+		"/C/Digital Archive/RustProjects/sharpup/resources/test_file.cs",
+		"/C/Digital Archive/RustProjects/Grind75/valid_parentheses/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/merge_two_sorted_lists/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/best_time_to_buy_and_sell/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/balanced_binary_tree/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/queue_using_stacks/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/ransom_note/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/climb_stairs/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/longest_palindrome/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/majority_element/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/add_binary/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/diameter_of_binary_tree/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/middle_of_linked_list/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/maximum_depth_binary_tree/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/contains_duplicates/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/maximum_subarray/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/insert_interval/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/zero_one_matrix/src/lib.rs",
+		"/C/Digital Archive/RustProjects/csfmt/MainMenuController.cs",
+		"/C/Digital Archive/RustProjects/Grind75/valid_palindrome/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/invert_binary_tree/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/valid_anagram/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/binary_search/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/lowest_common_ancestor/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/zero_one_matrix/resources.md",
+		"/C/Digital Archive/RustProjects/Grind75/flood_fill/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/two_sum/src/lib.rs",
+		"/C/Digital Archive/RustProjects/Grind75/two_sum/src/main.rs",
+		"/C/Digital Archive/RustProjects/Graphite/editor/src/messages/tool/tool_messages/text_tool.rs",
+		"/C/Digital Archive/RustProjects/Graphite/frontend/src/main.ts",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game/src/game.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game/src/state.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/index.html",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/src/lib.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/engine_resources/shaders/color.fs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/color.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/vectors.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/engine_resources/shaders/color.vs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/render/material.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/model.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/render/vao.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/state.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/matricies/matrix_four_four.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/debug.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game/Cargo.toml",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/src/webgl.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/src/webgl/webgl_render_api.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/src/webgl/webgl_render.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/Cargo.toml",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/vectors.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/matricies.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/matricies/matrix_four_four.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/obj.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/model.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_render_opengl/generated_gl_functions_and_types.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_render_opengl/Cargo.toml",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_renderapi_opengl_windows/src/wgl_api.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_render_opengl/src/gengar_render_opengl.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/render/render_command.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/render.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/engine_resources/shaders/basic.fs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/engine_resources/shaders/basic.vs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/render/camera.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/obj.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/testing_resources/obj_test.txt",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/transform.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/render/camera.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/render/shader.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/render/vao.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/error.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/render/image.rs",
+		"/C/Users/perma/.cargo/registry/src/index.crates.io-6f17d22bba15001f/khronos_api-3.1.0/src/lib.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_renderapi_opengl_windows/Cargo.toml",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_renderapi_opengl_windows/src/lib.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/render.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/resources.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/state.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game/src/game/state.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/ascii.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_windows/src/main.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/transform.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/cargo.toml",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_windows/src/gl.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_windows/Cargo.toml",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_render_opengl/src/lib.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_renderapi_opengl_windows/readme.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game/readme.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/.appveyor.yml",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/readme.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_render_opengl/readme.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/readme.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_windows/readme.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/readme.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/npm_start_server.bat",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/lib.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/render/shader.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_renderapi_opengl_windows/target/debug/.fingerprint/windows-a2754bc8d6ae3ddd/invoked.timestamp",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_render_opengl/src/render.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/Cargo.toml",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/render/render_command.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/engine/color.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_renderapi_opengl_windows/Cargo.lock",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/www/node_modules/select-hose/test/api-test.js",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/www/index.html",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/www/index.js",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/www/package.json",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/firebase_hosting/public/index.js",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/firebase_hosting/public/index.html",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/pkg/README.md",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/www/node_modules/crypto-browserify/test/random-fill.js",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/www/node_modules/lodash/min.js",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/src/render/image.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/target/debug/.fingerprint/ghostly_game_windows-d918e6463c05d614/dep-bin-ghostly_game_windows",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/src/utils.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_render_opengl/src/ogl_render.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/target/debug/ghostly_game.d",
+		"/C/Digital Archive/Game Development/Active/ghostly/target/debug/ghostly_game_web.d",
+		"/C/Digital Archive/Game Development/Active/ghostly/gengar_engine/.idea/gengar_engine.iml",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game/src/lib.rs",
+		"/C/Digital Archive/Game Development/Active/ghostly/ghostly_game_web/src/render_api.rs"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 101.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"isdemomode",
+			"start",
+			");\n",
+			"max",
+			"            ']' => {\n                if !top_char_correct('[', &mut stack) {\n                    return Ok(false);\n                }\n            }"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 35.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.astyle_error_message":
+	{
+		"height": 0.0
+	},
+	"output.exec":
+	{
+		"height": 203.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/Rust Enhanced/RustEnhanced.sublime-build",
+	"project": "spec.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": false,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"main",
+				"frontend\\src\\main.ts"
+			],
+			[
+				"game",
+				"ghostly_game\\src\\game.rs"
+			],
+			[
+				"obj",
+				"gengar_engine\\src\\obj.rs"
+			],
+			[
+				"lib",
+				"ghostly_game_web\\src\\lib.rs"
+			],
+			[
+				"opengl",
+				"gengar_render_opengl\\src\\gengar_render_opengl.rs"
+			],
+			[
+				"opengl_",
+				"gengar_render_opengl\\src\\gengar_render_opengl.rs"
+			],
+			[
+				"webgl",
+				"ghostly_game_web\\src\\webgl\\webgl_render.rs"
+			],
+			[
+				"gengar_rende",
+				"gengar_render_opengl\\src\\gengar_render_opengl.rs"
+			],
+			[
+				"wgl",
+				"gengar_renderapi_opengl_windows\\src\\wgl_api.rs"
+			],
+			[
+				"inde",
+				"ghostly_game_web\\www\\index.js"
+			],
+			[
+				"vecto",
+				"gengar_engine\\src\\vectors.rs"
+			],
+			[
+				"game state",
+				"ghostly_game\\src\\state.rs"
+			],
+			[
+				"state",
+				"gengar_engine\\src\\state.rs"
+			],
+			[
+				"trra",
+				"gengar_engine\\src\\transform.rs"
+			],
+			[
+				"tranf",
+				"ghostly_game_web\\www\\node_modules\\crypto-browserify\\test\\random-fill.js"
+			],
+			[
+				"camera",
+				"gengar_engine\\src\\render\\camera.rs"
+			],
+			[
+				"bas",
+				"gengar_engine\\engine_resources\\shaders\\basic.fs"
+			],
+			[
+				"color",
+				"gengar_engine\\src\\color.rs"
+			],
+			[
+				"game sate",
+				"ghostly_game_web\\www\\node_modules\\select-hose\\test\\api-test.js"
+			],
+			[
+				"",
+				"gengar_render_opengl\\src\\gengar_render_opengl.rs"
+			],
+			[
+				"basic",
+				"gengar_engine\\engine_resources\\shaders\\basic.fs"
+			],
+			[
+				"webgl_",
+				"ghostly_game_web\\src\\webgl\\webgl_render.rs"
+			],
+			[
+				"ba",
+				"gengar_engine\\engine_resources\\shaders\\basic.fs"
+			],
+			[
+				"shad",
+				"gengar_engine\\src\\render\\shader.rs"
+			],
+			[
+				"shader",
+				"gengar_engine\\src\\render\\shader.rs"
+			],
+			[
+				"ren",
+				"gengar_engine\\src\\render.rs"
+			],
+			[
+				"rrend",
+				"gengar_engine\\src\\render\\render_command.rs"
+			],
+			[
+				"we",
+				"ghostly_game_web\\src\\webgl\\webgl_render.rs"
+			],
+			[
+				"engine state",
+				"gengar_engine\\src\\state.rs"
+			],
+			[
+				"webgl_ren",
+				"ghostly_game_web\\src\\webgl\\webgl_render.rs"
+			],
+			[
+				"b",
+				"gengar_engine\\engine_resources\\shaders\\basic.fs"
+			],
+			[
+				"webgl_rener",
+				"ghostly_game_web\\src\\webgl\\webgl_render_api.rs"
+			],
+			[
+				"model",
+				"gengar_engine\\src\\model.rs"
+			],
+			[
+				"open",
+				"gengar_render_opengl\\src\\gengar_render_opengl.rs"
+			],
+			[
+				"openg",
+				"gengar_render_opengl\\src\\gengar_render_opengl.rs"
+			],
+			[
+				"min",
+				"ghostly_game_web\\www\\node_modules\\lodash\\min.js"
+			],
+			[
+				"shade",
+				"gengar_engine\\src\\render\\shader.rs"
+			],
+			[
+				"render",
+				"gengar_engine\\src\\render.rs"
+			],
+			[
+				"image",
+				"gengar_engine\\src\\render\\image.rs"
+			],
+			[
+				"basi",
+				"gengar_engine\\engine_resources\\shaders\\basic.fs"
+			],
+			[
+				"vec",
+				"gengar_engine\\src\\vectors.rs"
+			],
+			[
+				"matrix",
+				"gengar_engine\\src\\matricies\\matrix_four_four.rs"
+			],
+			[
+				"transform",
+				"gengar_engine\\src\\transform.rs"
+			],
+			[
+				"debug",
+				"gengar_engine\\src\\debug.rs"
+			],
+			[
+				"render_co",
+				"gengar_engine\\src\\render\\render_command.rs"
+			],
+			[
+				"matr",
+				"gengar_engine\\src\\matricies\\matrix_four_four.rs"
+			],
+			[
+				"engine",
+				"gengar_engine\\src\\engine.rs"
+			],
+			[
+				"webgl_render",
+				"ghostly_game_web\\src\\webgl\\webgl_render.rs"
+			],
+			[
+				"matri",
+				"gengar_engine\\src\\matricies\\matrix_four_four.rs"
+			],
+			[
+				"debg",
+				"target\\debug\\.fingerprint\\ghostly_game_windows-d918e6463c05d614\\dep-bin-ghostly_game_windows"
+			],
+			[
+				"colo",
+				"gengar_engine\\engine_resources\\shaders\\color.vs"
+			],
+			[
+				"wgl_api",
+				"gengar_renderapi_opengl_windows\\src\\wgl_api.rs"
+			],
+			[
+				"lib.rs",
+				"ghostly_game_web\\src\\lib.rs"
+			],
+			[
+				"co",
+				"gengar_engine\\src\\color.rs"
+			],
+			[
+				"de",
+				"gengar_engine\\src\\debug.rs"
+			],
+			[
+				"wgl_",
+				"gengar_renderapi_opengl_windows\\src\\wgl_api.rs"
+			],
+			[
+				"MAIN",
+				"ghostly_game_windows\\src\\main.rs"
+			],
+			[
+				"ogl",
+				"C:\\Digital Archive\\Game Development\\Active\\ghostly\\gengar_render_opengl\\src\\ogl_render.rs"
+			],
+			[
+				"vectors",
+				"gengar_engine\\src\\vectors.rs"
+			],
+			[
+				"vect",
+				"gengar_engine\\src\\vectors.rs"
+			],
+			[
+				"vector",
+				"gengar_engine\\src\\vectors.rs"
+			],
+			[
+				"debyug",
+				"target\\debug\\ghostly_game.d"
+			],
+			[
+				"game.",
+				"ghostly_game\\src\\game.rs"
+			],
+			[
+				"ogl_ren",
+				"C:\\Digital Archive\\Game Development\\Active\\ghostly\\gengar_render_opengl\\src\\ogl_render.rs"
+			],
+			[
+				"vao",
+				"gengar_engine\\src\\render\\vao.rs"
+			],
+			[
+				"engine stat",
+				"gengar_engine\\src\\state.rs"
+			],
+			[
+				"game.rs",
+				"ghostly_game\\src\\game.rs"
+			],
+			[
+				"wgl_render",
+				"ghostly_game_web\\src\\webgl\\webgl_render_api.rs"
+			],
+			[
+				"camer",
+				"gengar_engine\\src\\render\\camera.rs"
+			],
+			[
+				"game.r",
+				"ghostly_game\\src\\game.rs"
+			],
+			[
+				"basicvs",
+				"gengar_engine\\engine_resources\\shaders\\basic.vs"
+			],
+			[
+				"rend",
+				"gengar_engine\\src\\render\\render_command.rs"
+			],
+			[
+				"color.rs",
+				"gengar_engine\\src\\color.rs"
+			],
+			[
+				"col",
+				"gengar_engine\\engine_resources\\shaders\\color.vs"
+			],
+			[
+				"webgl_re",
+				"ghostly_game_web\\src\\webgl\\webgl_render.rs"
+			],
+			[
+				"mater",
+				"gengar_engine\\src\\render\\material.rs"
+			],
+			[
+				"sha",
+				"gengar_engine\\src\\render\\shader.rs"
+			],
+			[
+				"materila",
+				"gengar_engine\\src\\render\\material.rs"
+			],
+			[
+				"render_comm",
+				"gengar_engine\\src\\render\\render_command.rs"
+			],
+			[
+				"ghostly_game_web",
+				"target\\debug\\ghostly_game_web.d"
+			],
+			[
+				"enge",
+				"gengar_engine\\.idea\\gengar_engine.iml"
+			],
+			[
+				"engine.rs",
+				"gengar_engine\\src\\engine.rs"
+			],
+			[
+				"er",
+				"gengar_engine\\src\\engine\\error.rs"
+			],
+			[
+				"erro",
+				"gengar_engine\\src\\engine\\error.rs"
+			],
+			[
+				"rende",
+				"gengar_engine\\src\\engine\\render.rs"
+			],
+			[
+				"error",
+				"gengar_engine\\src\\engine\\error.rs"
+			],
+			[
+				"webglrenerapi",
+				"ghostly_game_web\\src\\webgl\\webgl_render_api.rs"
+			],
+			[
+				"ogl_api",
+				"gengar_renderapi_opengl_windows\\src\\wgl_api.rs"
+			],
+			[
+				"read",
+				"ghostly_game_web\\readme.md"
+			],
+			[
+				"cargo",
+				"ghostly_game\\Cargo.toml"
+			],
+			[
+				"npm",
+				"ghostly_game_web\\npm_start_server.bat"
+			],
+			[
+				"uril",
+				"target\\wasm32-unknown-unknown\\release\\.fingerprint\\cfg-if-4221d8769e3b4ff6\\lib-cfg_if"
+			],
+			[
+				"index.js",
+				"ghostly_game_web\\www\\index.js"
+			],
+			[
+				"util",
+				"ghostly_game_web\\src\\utils.rs"
+			],
+			[
+				"mian",
+				"ghostly_game_windows\\src\\main.rs"
+			],
+			[
+				"agme",
+				"ghostly_game\\src\\game.rs"
+			],
+			[
+				"mode",
+				"gengar_engine\\src\\engine\\model.rs"
+			],
+			[
+				"ogl_",
+				"gengar_render_opengl\\src\\ogl_render.rs"
+			],
+			[
+				"sta",
+				"ghostly_game\\src\\game\\state.rs"
+			],
+			[
+				"sat",
+				"ghostly_game\\src\\state.rs"
+			],
+			[
+				"comm",
+				"gengar_engine\\src\\engine\\render\\render_command.rs"
+			],
+			[
+				"rener",
+				"gengar_engine\\src\\engine\\render.rs"
+			],
+			[
+				"mat",
+				"gengar_engine\\src\\engine\\matricies\\matrix_four_four.rs"
+			],
+			[
+				"eng",
+				"gengar_engine\\src\\engine.rs"
+			],
+			[
+				"enign",
+				"gengar_engine\\src\\engine.rs"
+			],
+			[
+				"ascii",
+				"gengar_engine\\src\\engine\\ascii.rs"
+			],
+			[
+				"ve",
+				"gengar_engine\\src\\engine\\vectors.rs"
+			],
+			[
+				"ma",
+				"gengar_engine\\src\\engine\\matricies\\matrix_four_four.rs"
+			],
+			[
+				"tran",
+				"gengar_engine\\src\\engine\\transform.rs"
+			],
+			[
+				"cam",
+				"gengar_engine\\src\\engine\\render\\camera.rs"
+			],
+			[
+				"gen",
+				"gengar_render_opengl\\generated_gl_functions_and_types.rs"
+			],
+			[
+				"en",
+				"gengar_engine\\src\\engine.rs"
+			],
+			[
+				"sahder",
+				"gengar_engine\\src\\engine\\render\\shader.rs"
+			],
+			[
+				"sh",
+				"gengar_engine\\src\\engine\\render\\shader.rs"
+			],
+			[
+				"r",
+				"gengar_engine\\src\\engine\\render.rs"
+			],
+			[
+				"rcommad",
+				"gengar_engine\\src\\engine\\render\\render_command.rs"
+			],
+			[
+				"render_command",
+				"gengar_engine\\src\\engine\\render\\render_command.rs"
+			],
+			[
+				"matricies",
+				"gengar_engine\\src\\engine\\matricies.rs"
+			],
+			[
+				"vert",
+				"gengar_engine\\src\\engine\\vectors.rs"
+			],
+			[
+				"vs",
+				"gengar_engine\\engine_resources\\shaders\\basic.vs"
+			],
+			[
+				"fs",
+				"gengar_engine\\engine_resources\\shaders\\basic.fs"
+			],
+			[
+				"w",
+				"gengar_renderapi_opengl_windows\\src\\wgl_api.rs"
+			],
+			[
+				"wg",
+				"gengar_renderapi_opengl_windows\\src\\wgl_api.rs"
+			],
+			[
+				"redn",
+				"gengar_engine\\src\\engine\\render.rs"
+			],
+			[
+				"v3",
+				"gengar_engine\\src\\engine\\v3.rs"
+			],
+			[
+				"err",
+				"gengar_engine\\src\\engine\\error.rs"
+			],
+			[
+				"gener",
+				"gengar_render_opengl\\generated_gl_functions_and_types.rs"
+			],
+			[
+				"generate",
+				"gengar_render_opengl\\generated_gl_functions_and_types.rs"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"graph",
+				"C:\\Digital Archive\\RustProjects\\Graphite\\graphite.sublime-project"
+			],
+			[
+				"",
+				"C:\\Digital Archive\\Game Development\\Active\\gengar_engine\\gengar_engine_sublime.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 35.0,
+		"last_filter": "gettask",
+		"selected_items":
+		[
+			[
+				"gettask",
+				"GetTask"
+			]
+		],
+		"width": 592.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 354.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
