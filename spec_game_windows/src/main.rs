@@ -8,7 +8,7 @@
 
 use gengar_engine::{error::Error as EngineError, state::Input, vectors::*};
 use gengar_render_opengl::*;
-use ghostly_game;
+use spec_game;
 
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::Graphics::OpenGL::*;
@@ -29,9 +29,9 @@ const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
 
 const GAME_DLL_PATH: PCSTR =
-    s!("C:/Digital Archive/Game Development/Active/ghostly/target/debug/ghostly_game.dll");
+    s!("C:/Digital Archive/Game Development/Active/spec/target/debug/spec_game.dll");
 const GAME_DLL_CURRENT_PATH: PCSTR =
-    s!("C:/Digital Archive/Game Development/Active/ghostly/target/debug/ghostly_game_current.dll");
+    s!("C:/Digital Archive/Game Development/Active/spec/target/debug/spec_game_current.dll");
 
 type FuncWglChoosePixelFormatARB =
     extern "stdcall" fn(HDC, *const i32, *const f32, u32, *mut i32, *mut i32) -> i32;
@@ -45,12 +45,12 @@ static mut MOUSE_RIGHT_DOWN: bool = false;
 static mut KEYBOARD: [bool; 128] = [false; 128];
 
 type FuncGameInit = fn(
-    &mut ghostly_game::state::State,
+    &mut spec_game::state::State,
     &mut gengar_engine::state::State,
     &gengar_render_opengl::OglRenderApi,
 );
 type FuncGameLoop = fn(
-    &mut ghostly_game::state::State,
+    &mut spec_game::state::State,
     &mut gengar_engine::state::State,
     &gengar_engine::state::Input,
 );
@@ -87,7 +87,7 @@ fn main() {
         let main_window_handle = CreateWindowExA(
             WINDOW_EX_STYLE::default(),
             wc.lpszClassName,
-            s!("Ghostly"),
+            s!("Spec"),
             WS_OVERLAPPEDWINDOW | WS_VISIBLE,
             CW_USEDEFAULT,
             CW_USEDEFAULT,
@@ -241,7 +241,7 @@ fn main() {
         let render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
 
         let mut engine_state = gengar_engine::state::State::new(resolution);
-        let mut game_state = ghostly_game::state::State::new();
+        let mut game_state = spec_game::state::State::new();
 
         let mut input = gengar_engine::state::Input::new();
 

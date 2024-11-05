@@ -1,5 +1,5 @@
 [package]
-name = "ghostly_game"
+name = "spec_game"
 version = "0.1.0"
 edition = "2021"
 

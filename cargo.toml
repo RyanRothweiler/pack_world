@@ -6,7 +6,7 @@ members = [
     "gengar_engine",
     "gengar_render_opengl",
     "gengar_renderapi_opengl_windows",
-    "ghostly_game",
-    "ghostly_game_windows",
-    "ghostly_game_web",
+    "spec_game",
+    "spec_game_windows",
+    "spec_game_web",
 ]
