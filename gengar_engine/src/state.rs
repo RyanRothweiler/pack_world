@@ -10,6 +10,8 @@ pub struct State {
 
     pub shader_color: Shader,
     pub basic_shader: Shader,
+    pub font_sdf: Shader,
+
     pub model_sphere: Model,
 
     pub frame: i64,
@@ -32,16 +34,20 @@ impl State {
         let mut state = State {
             basic_shader: Shader::new_empty(),
             shader_color: Shader::new_empty(),
-            frame: 0,
+            font_sdf: Shader::new_empty(),
+
             render_commands: vec![],
             game_debug_render_commands: vec![],
             camera: Camera::new(
-                ProjectionType::Perspective(ProjectionInfo { focal_length: 0.95 }),
+                // ProjectionType::Perspective { focal_length: 0.95 },
+                ProjectionType::Orthographic,
                 window_resolution,
             ),
             window_resolution,
             model_sphere: Model::new(),
             transforms: vec![],
+
+            frame: 0,
         };
 
         state.camera.transform.local_position.z = 5.0;

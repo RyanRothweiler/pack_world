@@ -134,7 +134,12 @@ fn render_list(
             }
         }
 
-        (render_api.gl_bind_vertex_array_engine)(command.vao_id).unwrap();
+        let vao_id = match &command.kind {
+            VertexDataKind::Vao { id } => id,
+            VertexDataKind::Dynamic { mesh } => todo!(),
+        };
+
+        (render_api.gl_bind_vertex_array_engine)(*vao_id).unwrap();
         (render_api.gl_draw_arrays)(WebGl2RenderingContext::TRIANGLES as i32, &command.indices);
     }
 }

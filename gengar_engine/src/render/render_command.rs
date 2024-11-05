@@ -1,6 +1,7 @@
 use crate::{
     matricies::matrix_four_four::*,
     model::*,
+    rect::*,
     render::{camera::*, material::Material, shader::*, vao::Vao},
     transform::*,
     vectors::*,
@@ -8,8 +9,15 @@ use crate::{
 use std::collections::HashMap;
 
 #[derive(Clone)]
+pub enum VertexDataKind {
+    Vao { id: u32 },
+    Dynamic { mesh: Vec<VecThreeFloat> },
+}
+
+#[derive(Clone)]
 pub struct RenderCommand {
-    pub vao_id: u32,
+    pub kind: VertexDataKind,
+
     pub prog_id: u32,
     pub indices: Vec<u32>,
     pub uniforms: HashMap<String, UniformData>,
@@ -30,9 +38,36 @@ impl RenderCommand {
         );
 
         RenderCommand {
-            vao_id: model.vao.id,
+            kind: VertexDataKind::Vao { id: model.vao.id },
             prog_id: material.shader.unwrap().prog_id,
             indices: model.indices.clone(),
+            uniforms: uniforms,
+        }
+    }
+
+    pub fn new_rect(rect: &Rect, z: f64, material: &Material) -> Self {
+        let mut mesh: Vec<VecThreeFloat> = vec![];
+
+        mesh.push(VecThreeFloat::new(rect.top_left.x, rect.top_left.y, z));
+        mesh.push(VecThreeFloat::new(
+            rect.top_right().x,
+            rect.top_right().y,
+            z,
+        ));
+        mesh.push(VecThreeFloat::new(
+            rect.bottom_left().x,
+            rect.bottom_left().y,
+            z,
+        ));
+
+        let indices: Vec<u32> = vec![0, 1, 2];
+
+        let uniforms: HashMap<String, UniformData> = material.uniforms.clone();
+
+        RenderCommand {
+            kind: VertexDataKind::Dynamic { mesh: mesh },
+            prog_id: material.shader.unwrap().prog_id,
+            indices: indices,
             uniforms: uniforms,
         }
     }

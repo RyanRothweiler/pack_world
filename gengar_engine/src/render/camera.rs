@@ -4,7 +4,8 @@ use crate::{
 };
 
 pub enum ProjectionType {
-    Perspective(ProjectionInfo),
+    Perspective { focal_length: f64 },
+    Orthographic,
 }
 
 pub struct Camera {
@@ -20,10 +21,6 @@ pub struct Camera {
     pub near_plane: f64,
     pub far_plane: f64,
     pub fov: f64,
-}
-
-pub struct ProjectionInfo {
-    pub focal_length: f64,
 }
 
 impl Camera {
@@ -49,12 +46,12 @@ impl Camera {
 
     pub fn update_matricies(&mut self) {
         match &self.projection_type {
-            ProjectionType::Perspective(info) => {
+            ProjectionType::Perspective { focal_length } => {
                 let aspect: f64 = self.resolution.x / self.resolution.y;
 
                 let a = 1.0;
                 let b = aspect;
-                let c = info.focal_length;
+                let c = focal_length;
 
                 let d = (self.near_plane + self.far_plane) / (self.near_plane - self.far_plane);
                 let e =
@@ -66,6 +63,30 @@ impl Camera {
                 self.projection_mat.set(2, 2, d);
                 self.projection_mat.set(3, 2, e);
                 self.projection_mat.set(2, 3, -1.0);
+            }
+
+            ProjectionType::Orthographic => {
+                let width = self.resolution.x * 0.5;
+                let height = self.resolution.y * 0.5;
+
+                let left = width * -0.5;
+                let right = width * 0.5;
+                let top = height * 0.5;
+                let bottom = height * -0.5;
+
+                let tx = -((right + left) / (right - left));
+                let ty = -((top + bottom) / (top - bottom));
+                let tz = -((self.far_plane + self.near_plane) / (self.far_plane - self.near_plane));
+
+                self.projection_mat = M44::new_identity();
+                self.projection_mat.set(0, 0, 2.0 / (right - left));
+                self.projection_mat.set(1, 1, 2.0 / (top - bottom));
+                self.projection_mat
+                    .set(2, 2, -2.0 / (self.far_plane - self.near_plane));
+
+                self.projection_mat.set(3, 0, tx);
+                self.projection_mat.set(3, 1, ty);
+                self.projection_mat.set(3, 2, tz);
             }
         }
 

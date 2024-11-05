@@ -9,6 +9,7 @@ pub mod error;
 pub mod matricies;
 pub mod model;
 pub mod obj;
+pub mod rect;
 pub mod render;
 pub mod state;
 pub mod transform;
@@ -23,7 +24,6 @@ use state::*;
 use transform::*;
 use vectors::*;
 
-// TODO rename engine_init
 pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     es.basic_shader = Shader::compile(
         include_str!("../engine_resources/shaders/basic.vs"),
@@ -35,6 +35,13 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     es.shader_color = Shader::compile(
         include_str!("../engine_resources/shaders/color.vs"),
         include_str!("../engine_resources/shaders/color.fs"),
+        render_api,
+    )
+    .unwrap();
+
+    es.font_sdf = Shader::compile(
+        include_str!("../engine_resources/shaders/font_sdf.vs"),
+        include_str!("../engine_resources/shaders/font_sdf.fs"),
         render_api,
     )
     .unwrap();

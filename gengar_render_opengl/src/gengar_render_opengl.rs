@@ -449,7 +449,12 @@ fn render_list(
             }
         }
 
-        render_api.platform_api.bind_vertex_array(command.vao_id);
+        let vao_id = match &command.kind {
+            VertexDataKind::Vao { id } => id,
+            VertexDataKind::Dynamic { mesh } => todo!(),
+        };
+
+        render_api.platform_api.bind_vertex_array(*vao_id);
         render_api
             .platform_api
             .draw_elements(GL_TRIANGLES, &command.indices);

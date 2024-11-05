@@ -1,6 +1,12 @@
-use crate::{error::*, state::*, vectors::*};
 use png;
 use std::{fs::File, path::Path};
+
+use crate::{
+    error::*, model::*, rect::*, render::material::Material, state::*, transform::*, vectors::*,
+};
+use image::*;
+use render_command::*;
+use shader::*;
 
 pub mod camera;
 pub mod image;
@@ -8,10 +14,6 @@ pub mod material;
 pub mod render_command;
 pub mod shader;
 pub mod vao;
-
-use image::*;
-use render_command::*;
-use shader::*;
 
 // Render backend independent calls
 pub trait RenderApi {
