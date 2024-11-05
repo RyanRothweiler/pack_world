@@ -69,10 +69,10 @@ impl Camera {
                 let width = self.resolution.x * 0.5;
                 let height = self.resolution.y * 0.5;
 
-                let left = width * -0.5;
-                let right = width * 0.5;
-                let top = height * 0.5;
-                let bottom = height * -0.5;
+                let left = 0.0;
+                let right = width;
+                let top = 0.0;
+                let bottom = height;
 
                 let tx = -((right + left) / (right - left));
                 let ty = -((top + bottom) / (top - bottom));

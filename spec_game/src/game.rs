@@ -10,6 +10,7 @@ use gengar_engine::{
     matricies::matrix_four_four::*,
     model::*,
     obj,
+    rect::*,
     render::{
         image::Image, load_image, material::*, render_command::RenderCommand, shader::*, vao::*,
         RenderApi,
@@ -72,6 +73,15 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         let image_bytes_cursor = Cursor::new(include_bytes!("../resources/monkey_testing/AO.png"));
         gs.ao = load_image(image_bytes_cursor).unwrap();
         gs.ao.gl_id = Some(render_api.upload_texture(&gs.ao, true).unwrap());
+    }
+
+    // ui test material
+    {
+        gs.ui_mat.shader = Some(es.shader_color);
+        gs.ui_mat.uniforms.insert(
+            "color".to_string(),
+            UniformData::VecFour(Color::new(1.0, 0.0, 0.0, 0.0).into()),
+        );
     }
 
     // monkey material
@@ -137,11 +147,11 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         if input.mouse_left.pressing {
             let sens = 0.001;
             gs.monkey_vel.y = gs.monkey_vel.y + (input.mouse_pos_delta.x * sens);
+
             gs.monkey_vel.x = gs.monkey_vel.x + (input.mouse_pos_delta.y * sens);
         }
 
         gs.monkey_vel = gs.monkey_vel * 0.9;
-
         let monkey_transform: &mut Transform = &mut es.transforms[gs.monkey_trans.unwrap()];
         monkey_transform.local_rotation.y = monkey_transform.local_rotation.y + gs.monkey_vel.y;
         monkey_transform.local_rotation.x = monkey_transform.local_rotation.x + gs.monkey_vel.x;
@@ -157,6 +167,12 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         &es.transforms[gs.monkey_trans.unwrap()],
         &gs.model_monkey,
         &gs.monkey_material,
+    ));
+
+    es.render_commands.push(RenderCommand::new_rect(
+        &Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(100.0, 100.0)),
+        0.0,
+        &gs.ui_mat,
     ));
 
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();

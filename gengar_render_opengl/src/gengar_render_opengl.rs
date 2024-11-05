@@ -449,12 +449,20 @@ fn render_list(
             }
         }
 
-        let vao_id = match &command.kind {
-            VertexDataKind::Vao { id } => id,
-            VertexDataKind::Dynamic { mesh } => todo!(),
+        let vao_id: u32 = match &command.kind {
+            VertexDataKind::Vao { id } => *id,
+            VertexDataKind::DynamicMesh { mesh } => {
+                let vao = Vao::new(render_api);
+
+                // location is assumed 0. All shaders vertex positions are at location 0... for now.
+                vao.upload_v3(render_api, mesh, &command.indices, 0)
+                    .unwrap();
+
+                vao.id
+            }
         };
 
-        render_api.platform_api.bind_vertex_array(*vao_id);
+        render_api.platform_api.bind_vertex_array(vao_id);
         render_api
             .platform_api
             .draw_elements(GL_TRIANGLES, &command.indices);

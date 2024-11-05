@@ -11,7 +11,7 @@ use std::collections::HashMap;
 #[derive(Clone)]
 pub enum VertexDataKind {
     Vao { id: u32 },
-    Dynamic { mesh: Vec<VecThreeFloat> },
+    DynamicMesh { mesh: Vec<VecThreeFloat> },
 }
 
 #[derive(Clone)]
@@ -65,7 +65,8 @@ impl RenderCommand {
         let uniforms: HashMap<String, UniformData> = material.uniforms.clone();
 
         RenderCommand {
-            kind: VertexDataKind::Dynamic { mesh: mesh },
+            kind: VertexDataKind::DynamicMesh { mesh: mesh },
+
             prog_id: material.shader.unwrap().prog_id,
             indices: indices,
             uniforms: uniforms,
