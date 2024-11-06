@@ -277,8 +277,14 @@ fn main() {
                 GetCursorPos(&mut cursor_info).unwrap();
                 ScreenToClient(main_window_handle, &mut cursor_info);
 
+                // Some windows api could be used to get this dynamically.
+                let title_bar_height: f64 = 40.0;
+
                 let prev_pos = input.mouse_pos;
-                input.mouse_pos = VecTwo::new(cursor_info.x as f64, cursor_info.y as f64);
+                input.mouse_pos = VecTwo::new(
+                    cursor_info.x as f64,
+                    cursor_info.y as f64 + title_bar_height,
+                );
                 input.mouse_pos_delta = VecTwo::new(
                     prev_pos.x - cursor_info.x as f64,
                     prev_pos.y - cursor_info.y as f64,
@@ -301,7 +307,7 @@ fn main() {
                 .global_matrix
                 .get_position();
 
-            render(&mut engine_state, light_trans, &render_api);
+            render(&mut engine_state, light_trans, &resolution, &render_api);
 
             wglSwapLayerBuffers(device_context, gl::WGL_SWAP_MAIN_PLANE).unwrap();
 

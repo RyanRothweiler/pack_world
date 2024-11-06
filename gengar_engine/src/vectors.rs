@@ -121,6 +121,17 @@ impl Mul<f64> for VecTwo {
     }
 }
 
+impl Add for VecTwo {
+    type Output = Self;
+
+    fn add(self, input: Self) -> Self {
+        Self {
+            x: self.x + input.x,
+            y: self.y + input.y,
+        }
+    }
+}
+
 // Used for any FFI C stuff. Like ogl graphics rendering
 #[repr(C)]
 pub struct VecTwoC {

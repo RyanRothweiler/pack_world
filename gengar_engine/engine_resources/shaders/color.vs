@@ -10,5 +10,5 @@ uniform vec4 color;
 void main()
 {
     oColor = color;
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model vec4(aPos, 1.0);
 }

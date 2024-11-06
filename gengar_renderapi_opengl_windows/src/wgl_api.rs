@@ -12,8 +12,7 @@ use gengar_render_opengl::*;
 
 use libc;
 
-use windows::core::*;
-use windows::Win32::Graphics::OpenGL::*;
+use windows::{core::*, Win32::Graphics::OpenGL::*};
 
 const GL_FLOAT: i32 = 0x1406;
 const GL_UNSIGNED_INT: i32 = 0x1405;
@@ -298,6 +297,12 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         let ptr = indecies.as_ptr() as *const libc::c_void;
         (self.glDrawElements)(mode, indecies.len() as i32, GL_UNSIGNED_INT, ptr);
     }
+
+    fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
+        unsafe {
+            glViewport(x, y, width, height);
+        }
+    }
 }
 
 static mut extern_global_wgl_methods: Option<WglMethods> = None;
@@ -326,7 +331,7 @@ pub fn get_ogl_render_api() -> OglRenderApi {
             glCompileShader: wgl_get_proc_address!(s!("glCompileShader")),
             glShaderSource: wgl_get_proc_address!(s!("glShaderSource")),
             glCreateShader: wgl_get_proc_address!(s!("glCreateShader")),
-
+            // glViewport: wgl_get_proc_address!(s!("glViewport")),
             glGetUniformLocation: wgl_get_proc_address!(s!("glGetUniformLocation")),
             glUniform1f: wgl_get_proc_address!(s!("glUniform1f")),
             glUniform1i: wgl_get_proc_address!(s!("glUniform1i")),

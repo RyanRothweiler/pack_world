@@ -166,6 +166,7 @@ pub trait OGLPlatformImpl {
     fn use_program(&self, prog_id: u32);
     fn active_texture(&self, id: i32);
     fn draw_elements(&self, mode: i32, indecies: &Vec<u32>);
+    fn viewport(&self, x: i32, y: i32, width: i32, height: i32);
 
     fn buffer_data_v3(&self, buf_id: i32, data: &Vec<VecThreeFloat>, usage: i32);
     fn buffer_data_v2(&self, buf_id: i32, data: &Vec<VecTwo>, usage: i32);
@@ -349,7 +350,16 @@ impl EngineRenderApiTrait for OglRenderApi {
     }
 }
 
-pub fn render(es: &mut EngineState, light_pos: VecThreeFloat, render_api: &OglRenderApi) {
+pub fn render(
+    es: &mut EngineState,
+    light_pos: VecThreeFloat,
+    resolution: &VecTwo,
+    render_api: &OglRenderApi,
+) {
+    render_api
+        .platform_api
+        .viewport(0, 0, resolution.x as i32, resolution.y as i32);
+
     render_api.platform_api.enable(GL_DEPTH_TEST);
 
     render_api.platform_api.depth_func(GL_LEQUAL);

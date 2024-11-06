@@ -66,13 +66,13 @@ impl Camera {
             }
 
             ProjectionType::Orthographic => {
-                let width = self.resolution.x * 0.5;
-                let height = self.resolution.y * 0.5;
+                let width: f64 = self.resolution.x;
+                let height: f64 = self.resolution.y;
 
-                let left = 0.0;
-                let right = width;
-                let top = 0.0;
-                let bottom = height;
+                let left: f64 = 0.0;
+                let right: f64 = width;
+                let top: f64 = 0.0;
+                let bottom: f64 = height;
 
                 let tx = -((right + left) / (right - left));
                 let ty = -((top + bottom) / (top - bottom));
@@ -87,6 +87,7 @@ impl Camera {
                 self.projection_mat.set(3, 0, tx);
                 self.projection_mat.set(3, 1, ty);
                 self.projection_mat.set(3, 2, tz);
+                self.projection_mat.set(3, 3, 1.0);
             }
         }
 

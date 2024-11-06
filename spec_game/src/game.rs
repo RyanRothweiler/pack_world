@@ -147,7 +147,6 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         if input.mouse_left.pressing {
             let sens = 0.001;
             gs.monkey_vel.y = gs.monkey_vel.y + (input.mouse_pos_delta.x * sens);
-
             gs.monkey_vel.x = gs.monkey_vel.x + (input.mouse_pos_delta.y * sens);
         }
 
@@ -169,11 +168,11 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         &gs.monkey_material,
     ));
 
-    es.render_commands.push(RenderCommand::new_rect(
-        &Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(100.0, 100.0)),
-        0.0,
-        &gs.ui_mat,
-    ));
+    let mut r = Rect::new_square(10.0);
+
+    r.set_center(input.mouse_pos);
+    es.render_commands
+        .push(RenderCommand::new_rect(&r, -1.0, &gs.ui_mat));
 
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
 }

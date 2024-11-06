@@ -13,6 +13,20 @@ impl Rect {
         }
     }
 
+    pub fn new_square(size: f64) -> Self {
+        Rect::new_size(size, size)
+    }
+
+    pub fn new_size(width: f64, height: f64) -> Self {
+        let half_width = width * 0.5;
+        let half_height = height * 0.5;
+
+        Self {
+            top_left: VecTwo::new(-half_width, -half_height),
+            bottom_right: VecTwo::new(half_width, half_height),
+        }
+    }
+
     pub fn top_right(&self) -> VecTwo {
         VecTwo {
             x: self.bottom_right.x,
@@ -34,6 +48,14 @@ impl Rect {
     pub fn height(&self) -> f64 {
         (self.top_left.y - self.bottom_right.y).abs()
     }
+
+    pub fn set_center(&mut self, center: VecTwo) {
+        let half_width = self.width();
+        let half_height = self.height();
+
+        self.top_left = center - VecTwo::new(half_width, half_height);
+        self.bottom_right = center + VecTwo::new(half_width, half_height);
+    }
 }
 
 mod test {
@@ -46,5 +68,14 @@ mod test {
         assert_eq!(r.bottom_left(), VecTwo::new(10.0, 20.0));
         assert_eq!(r.width(), 10.0);
         assert_eq!(r.height(), 10.0);
+    }
+
+    #[test]
+    fn center() {
+        let mut r = Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(20.0, 30.0));
+        r.set_center(VecTwo::new(5.0, 5.0));
+
+        assert_eq!(r.top_left, VecTwo::new(0.0, 10.0));
+        assert_eq!(r.bottom_right, VecTwo::new(10.0, 10.0));
     }
 }
