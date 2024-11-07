@@ -1,5 +1,4 @@
 use crate::{error::*, model::*, vectors::*};
-
 use std::path::Path;
 
 pub fn load_file(file_path: &Path) -> Result<Model, Error> {

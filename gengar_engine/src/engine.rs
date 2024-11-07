@@ -8,12 +8,15 @@ pub mod debug;
 pub mod error;
 pub mod matricies;
 pub mod model;
-pub mod obj;
 pub mod rect;
 pub mod render;
 pub mod state;
 pub mod transform;
 pub mod vectors;
+
+// loaders
+pub mod json;
+pub mod obj;
 
 use ascii::*;
 use color::*;
