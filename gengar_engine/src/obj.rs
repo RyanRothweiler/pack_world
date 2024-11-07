@@ -144,7 +144,6 @@ impl Token {
 
 struct Tokenizer {
     pub data: Vec<char>,
-    // pub data: String,
     pub index: usize,
 }
 

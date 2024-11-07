@@ -13,14 +13,14 @@ struct Json {}
 enum Token {
     OpenCurly,
     ClosedCurly,
-    Identifier(String),
+    String(String),
+    Float(f64),
     Colon,
     End,
 }
 
 struct Tokenizer {
     pub data: Vec<char>,
-    // pub data: String,
     pub index: usize,
 }
 
@@ -118,8 +118,45 @@ impl Tokenizer {
                 return Ok(Token::ClosedCurly);
 
                 //
-            } else if c == '\"' {
-                // identifier
+            } else if c == ':' {
+                // colon
+
+                self.advance();
+                return Ok(Token::Colon);
+
+                //
+            } else if c.is_numeric() || c == '-' {
+                // float
+
+                let mut neg = 1.0;
+                if c == '-' {
+                    self.advance();
+                    neg = -1.0;
+                }
+
+                // found number
+                self.move_to_num();
+                let num_start = self.index;
+
+                self.move_until(|c| !c.is_numeric() && c != '.');
+
+                let num_end = self.index;
+
+                // Tokenizer didn't move, so at end of string
+                if num_start == num_end {
+                    return Ok(Token::End);
+                }
+
+                let sub = match self.extract(num_start, num_end) {
+                    Some(v) => v,
+                    None => return Ok(Token::End),
+                };
+                let num: f64 = sub.parse()?;
+                return Ok(Token::Float(num * neg));
+
+                //
+            } else if c == '"' {
+                // string
 
                 self.advance();
 
@@ -134,7 +171,7 @@ impl Tokenizer {
                     None => return Ok(Token::End),
                 };
 
-                return Ok(Token::Identifier(sub));
+                return Ok(Token::String(sub));
 
                 //
             } else {
@@ -167,25 +204,19 @@ mod test {
     use super::*;
 
     #[test]
-    fn tokens_curlies() {
-        let input = "{}";
+    fn tokens() {
+        let input = "{ \"first_idea\" : 123 }";
         let mut tokenizer = Tokenizer::new(&input);
 
         assert_eq!(tokenizer.get_next_token().unwrap(), Token::OpenCurly);
-        assert_eq!(tokenizer.get_next_token().unwrap(), Token::ClosedCurly);
-        assert_eq!(tokenizer.get_next_token().unwrap(), Token::End);
-    }
 
-    #[test]
-    fn tokens_identifier() {
-        let input = "{ \"first_idea\" }";
-        let mut tokenizer = Tokenizer::new(&input);
-
-        assert_eq!(tokenizer.get_next_token().unwrap(), Token::OpenCurly);
         assert_eq!(
             tokenizer.get_next_token().unwrap(),
-            Token::Identifier("first_idea".into())
+            Token::String("first_idea".into())
         );
+        assert_eq!(tokenizer.get_next_token().unwrap(), Token::Colon);
+        assert_eq!(tokenizer.get_next_token().unwrap(), Token::Float(123.0));
+
         assert_eq!(tokenizer.get_next_token().unwrap(), Token::ClosedCurly);
         assert_eq!(tokenizer.get_next_token().unwrap(), Token::End);
     }
