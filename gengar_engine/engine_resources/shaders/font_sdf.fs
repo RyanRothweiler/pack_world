@@ -11,7 +11,6 @@ uniform float edge;
 const float width = 0.5;
 const float pxRange = 10.0;
 
-
 float median(float r, float g, float b) {
     return max(min(r, g), min(max(r, g), b));
 }
@@ -30,5 +29,6 @@ void main()
 	float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
 	vec4 bgColor = vec4(0,0,0,0);
 	vec4 fgColor = color;
+	
 	FragColor = mix(bgColor, fgColor, opacity);
 }
