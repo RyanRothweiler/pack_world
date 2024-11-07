@@ -25,9 +25,9 @@ use transform::*;
 use vectors::*;
 
 pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
-    es.basic_shader = Shader::compile(
-        include_str!("../engine_resources/shaders/basic.vs"),
-        include_str!("../engine_resources/shaders/basic.fs"),
+    es.pbr_shader = Shader::compile(
+        include_str!("../engine_resources/shaders/pbr.vs"),
+        include_str!("../engine_resources/shaders/pbr.fs"),
         render_api,
     )
     .unwrap();
@@ -42,6 +42,13 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     es.font_sdf = Shader::compile(
         include_str!("../engine_resources/shaders/font_sdf.vs"),
         include_str!("../engine_resources/shaders/font_sdf.fs"),
+        render_api,
+    )
+    .unwrap();
+
+    es.color_texture_shader = Shader::compile(
+        include_str!("../engine_resources/shaders/color_texture.vs"),
+        include_str!("../engine_resources/shaders/color_texture.fs"),
         render_api,
     )
     .unwrap();

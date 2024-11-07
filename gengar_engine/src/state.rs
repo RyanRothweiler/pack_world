@@ -8,8 +8,9 @@ use crate::{
 pub struct State {
     pub window_resolution: VecTwo,
 
+    pub pbr_shader: Shader,
     pub shader_color: Shader,
-    pub basic_shader: Shader,
+    pub color_texture_shader: Shader,
     pub font_sdf: Shader,
 
     pub model_sphere: Model,
@@ -34,7 +35,8 @@ pub struct State {
 impl State {
     pub fn new(window_resolution: VecTwo) -> Self {
         let mut state = State {
-            basic_shader: Shader::new_empty(),
+            pbr_shader: Shader::new_empty(),
+            color_texture_shader: Shader::new_empty(),
             shader_color: Shader::new_empty(),
             font_sdf: Shader::new_empty(),
 

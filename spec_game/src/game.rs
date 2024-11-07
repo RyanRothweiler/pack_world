@@ -77,15 +77,23 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     // ui test material
     {
-        gs.ui_mat.shader = Some(es.shader_color);
+        gs.ui_mat.shader = Some(es.color_texture_shader);
         gs.ui_mat.uniforms.insert(
             "color".to_string(),
-            UniformData::VecFour(Color::new(1.0, 0.0, 0.0, 0.0).into()),
+            UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 1.0).into()),
+        );
+
+        gs.ui_mat.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.albedo.gl_id.unwrap(),
+                texture_slot: 0,
+            }),
         );
     }
 
     // monkey material
-    gs.monkey_material.shader = Some(es.basic_shader);
+    gs.monkey_material.shader = Some(es.pbr_shader);
     gs.monkey_material.uniforms.insert(
         "tex".to_string(),
         UniformData::Texture(TextureInfo {
@@ -168,7 +176,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         &gs.monkey_material,
     ));
 
-    let mut r = Rect::new_square(10.0);
+    let mut r = Rect::new_square(100.0);
 
     r.set_center(input.mouse_pos);
     es.ui_render_commands

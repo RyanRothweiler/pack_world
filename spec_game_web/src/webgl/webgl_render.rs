@@ -136,7 +136,7 @@ fn render_list(
 
         let vao_id = match &command.kind {
             VertexDataKind::Vao { id } => id,
-            VertexDataKind::DynamicMesh { mesh } => todo!(),
+            VertexDataKind::DynamicMesh { mesh, uvs } => todo!(),
         };
 
         (render_api.gl_bind_vertex_array_engine)(*vao_id).unwrap();

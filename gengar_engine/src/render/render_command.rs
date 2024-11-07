@@ -10,8 +10,13 @@ use std::collections::HashMap;
 
 #[derive(Clone)]
 pub enum VertexDataKind {
-    Vao { id: u32 },
-    DynamicMesh { mesh: Vec<VecThreeFloat> },
+    Vao {
+        id: u32,
+    },
+    DynamicMesh {
+        mesh: Vec<VecThreeFloat>,
+        uvs: Vec<VecTwo>,
+    },
 }
 
 #[derive(Clone)]
@@ -79,12 +84,24 @@ impl RenderCommand {
         ));
 
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
+        let uvs: Vec<VecTwo> = vec![
+            VecTwo::new(0.0, 0.0),
+            VecTwo::new(1.0, 0.0),
+            VecTwo::new(0.0, 1.0),
+            //
+            VecTwo::new(0.0, 1.0),
+            VecTwo::new(1.0, 0.0),
+            VecTwo::new(1.0, 1.0),
+        ];
 
         let mut uniforms: HashMap<String, UniformData> = material.uniforms.clone();
         uniforms.insert("model".to_string(), UniformData::M44(M44::new_identity()));
 
         RenderCommand {
-            kind: VertexDataKind::DynamicMesh { mesh: mesh },
+            kind: VertexDataKind::DynamicMesh {
+                mesh: mesh,
+                uvs: uvs,
+            },
 
             prog_id: material.shader.unwrap().prog_id,
             indices: indices,
