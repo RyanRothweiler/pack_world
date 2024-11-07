@@ -26,6 +26,9 @@ pub enum Error {
     WebGlNoContext,
     WebGlNoState,
 
+    // json
+    JsonInvalidToken,
+
     MissingGameDLL,
 }
 

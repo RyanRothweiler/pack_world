@@ -1,13 +1,57 @@
 use crate::{error::*, model::*, vectors::*};
-use std::path::Path;
+use std::{collections::HashMap, path::Path};
 
-/*
-pub fn load(input: &str) {
+pub fn load(input: &str) -> Result<JsonNode, Error> {
     let mut tokenizer = Tokenizer::new(input);
-}
-*/
 
-struct Json {}
+    let mut head = JsonNode::new();
+
+    tokenizer.get_next_token()?.require(Token::OpenCurly)?;
+
+    loop {
+        let token = tokenizer.get_next_token()?;
+        match token {
+            // start of a new entry
+            Token::String(entry_id) => {
+                tokenizer.get_next_token()?.require(Token::Colon)?;
+
+                let data_token = tokenizer.get_next_token()?;
+                match data_token {
+                    Token::String(data) => {
+                        head.entries.insert(entry_id, JsonData::String(data));
+                    }
+                    Token::Float(data) => {
+                        head.entries.insert(entry_id, JsonData::Float(data));
+                    }
+                    _ => return Err(Error::JsonInvalidToken),
+                };
+            }
+
+            Token::End => return Ok(head),
+            _ => continue,
+        }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub enum JsonData {
+    String(String),
+    Float(f64),
+    Class(JsonNode),
+}
+
+#[derive(PartialEq, Debug)]
+pub struct JsonNode {
+    pub entries: HashMap<String, JsonData>,
+}
+
+impl JsonNode {
+    pub fn new() -> Self {
+        Self {
+            entries: HashMap::new(),
+        }
+    }
+}
 
 #[derive(PartialEq, Debug)]
 enum Token {
@@ -17,6 +61,15 @@ enum Token {
     Float(f64),
     Colon,
     End,
+}
+
+impl Token {
+    pub fn require(&self, t: Token) -> Result<(), Error> {
+        if *self == t {
+            return Ok(());
+        }
+        return Err(Error::JsonInvalidToken);
+    }
 }
 
 struct Tokenizer {
@@ -219,5 +272,33 @@ mod test {
 
         assert_eq!(tokenizer.get_next_token().unwrap(), Token::ClosedCurly);
         assert_eq!(tokenizer.get_next_token().unwrap(), Token::End);
+    }
+
+    #[test]
+    fn single_string() {
+        let input = "{ \"first_idea\" : \"string here man\", \"second_idea\": \"even more\" }";
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 2);
+
+        assert_eq!(
+            data.entries["first_idea"],
+            JsonData::String("string here man".into())
+        );
+        assert_eq!(
+            data.entries["second_idea"],
+            JsonData::String("even more".into())
+        );
+    }
+
+    #[test]
+    fn single_float() {
+        let input = "{ \"first_idea\" : 10.0, \"second_idea\": 10.5 }";
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 2);
+
+        assert_eq!(data.entries["first_idea"], JsonData::Float(10.0));
+        assert_eq!(data.entries["second_idea"], JsonData::Float(10.5));
     }
 }
