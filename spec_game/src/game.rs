@@ -171,7 +171,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     let mut r = Rect::new_square(10.0);
 
     r.set_center(input.mouse_pos);
-    es.render_commands
+    es.ui_render_commands
         .push(RenderCommand::new_rect(&r, -1.0, &gs.ui_mat));
 
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();

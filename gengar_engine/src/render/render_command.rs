@@ -80,7 +80,8 @@ impl RenderCommand {
 
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
 
-        let uniforms: HashMap<String, UniformData> = material.uniforms.clone();
+        let mut uniforms: HashMap<String, UniformData> = material.uniforms.clone();
+        uniforms.insert("model".to_string(), UniformData::M44(M44::new_identity()));
 
         RenderCommand {
             kind: VertexDataKind::DynamicMesh { mesh: mesh },

@@ -55,6 +55,7 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
 pub fn engine_frame_start(state: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
     // reset render lists
     state.render_commands = vec![];
+    state.ui_render_commands = vec![];
 
     state.frame = state.frame + 1;
 
@@ -63,6 +64,7 @@ pub fn engine_frame_start(state: &mut State, _input: &Input, _render_api: &impl 
 
 pub fn engine_frame_end(es: &mut State) {
     es.camera.update_matricies();
+    es.ui_camera.update_matricies();
 
     Transform::update_all(&mut es.transforms);
 }

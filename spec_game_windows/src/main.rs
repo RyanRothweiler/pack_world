@@ -287,7 +287,7 @@ fn main() {
                 );
                 input.mouse_pos_delta = VecTwo::new(
                     prev_pos.x - cursor_info.x as f64,
-                    prev_pos.y - cursor_info.y as f64,
+                    prev_pos.y - (cursor_info.y as f64 + title_bar_height),
                 );
 
                 // Keyboard

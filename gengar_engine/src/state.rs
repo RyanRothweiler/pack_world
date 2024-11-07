@@ -16,13 +16,15 @@ pub struct State {
 
     pub frame: i64,
 
-    pub render_commands: Vec<RenderCommand>,
-
     // the game runs its its own dll. so the debug render commands is in the dll memory space
     // after the game frame ends, the game passes its debug render cammers here
     pub game_debug_render_commands: Vec<RenderCommand>,
 
+    pub render_commands: Vec<RenderCommand>,
     pub camera: Camera,
+
+    pub ui_render_commands: Vec<RenderCommand>,
+    pub ui_camera: Camera,
 
     // Pseudo ecs stuff.
     // This doesn't handle 'deallocation'
@@ -37,20 +39,24 @@ impl State {
             font_sdf: Shader::new_empty(),
 
             render_commands: vec![],
+            ui_render_commands: vec![],
+
             game_debug_render_commands: vec![],
-            camera: Camera::new(
-                // ProjectionType::Perspective { focal_length: 0.95 },
-                ProjectionType::Orthographic,
-                window_resolution,
-            ),
             window_resolution,
             model_sphere: Model::new(),
             transforms: vec![],
 
+            camera: Camera::new(
+                ProjectionType::Perspective { focal_length: 0.95 },
+                window_resolution,
+            ),
+            ui_camera: Camera::new(ProjectionType::Orthographic, window_resolution),
+
             frame: 0,
         };
 
-        state.camera.transform.local_position.z = 0.0;
+        state.camera.transform.local_position.z = 4.0;
+        state.ui_camera.transform.local_position.z = 0.0;
 
         return state;
     }

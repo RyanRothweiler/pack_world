@@ -369,6 +369,14 @@ pub fn render(
 
     render_list(light_pos, &mut es.render_commands, &es.camera, &render_api);
     render_list(
+        light_pos,
+        &mut es.ui_render_commands,
+        &es.ui_camera,
+        &render_api,
+    );
+
+    // Debug rendering
+    render_list(
         VecThreeFloat::new_zero(),
         gengar_engine::debug::get_render_list(),
         &es.camera,
