@@ -1,12 +1,19 @@
 use crate::{error::*, model::*, vectors::*};
-use std::{collections::HashMap, path::Path};
+use std::{
+    collections::{HashMap, VecDeque},
+    path::Path,
+};
 
 pub fn load(input: &str) -> Result<JsonNode, Error> {
     let mut tokenizer = Tokenizer::new(input);
 
-    let mut head = JsonNode::new();
-
     tokenizer.get_next_token()?.require(Token::OpenCurly)?;
+
+    return load_block(&mut tokenizer);
+}
+
+fn load_block(tokenizer: &mut Tokenizer) -> Result<JsonNode, Error> {
+    let mut head = JsonNode::new();
 
     loop {
         let token = tokenizer.get_next_token()?;
@@ -17,30 +24,40 @@ pub fn load(input: &str) -> Result<JsonNode, Error> {
 
                 let data_token = tokenizer.get_next_token()?;
                 match data_token {
+                    // String
                     Token::String(data) => {
                         head.entries.insert(entry_id, JsonData::String(data));
                     }
+
+                    // Float
                     Token::Float(data) => {
                         head.entries.insert(entry_id, JsonData::Float(data));
                     }
+
+                    // Nested data
+                    Token::OpenCurly => {
+                        let data = load_block(tokenizer)?;
+                        head.entries.insert(entry_id, JsonData::Class(data));
+                    }
+
                     _ => return Err(Error::JsonInvalidToken),
                 };
             }
 
-            Token::End => return Ok(head),
+            Token::End | Token::ClosedCurly => return Ok(head),
             _ => continue,
         }
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum JsonData {
     String(String),
     Float(f64),
     Class(JsonNode),
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct JsonNode {
     pub entries: HashMap<String, JsonData>,
 }
@@ -49,6 +66,42 @@ impl JsonNode {
     pub fn new() -> Self {
         Self {
             entries: HashMap::new(),
+        }
+    }
+
+    pub fn get(&self, path: Vec<String>) -> Option<JsonData> {
+        return JsonNode::get_queue(self, VecDeque::from(path));
+    }
+
+    fn get_queue(node: &JsonNode, path: VecDeque<String>) -> Option<JsonData> {
+        println!("{:?}", path);
+
+        match path.len() {
+            // empty path string. Path is invalid.
+            0 => return None,
+
+            // We're at the end of the path
+            1 => {
+                match node.entries.get(&path[0]) {
+                    Some(v) => return Some(v.clone()),
+                    None => return None,
+                };
+            }
+
+            // multiple paths. use the top one
+            _ => {
+                match node.entries.get(&path[0]) {
+                    Some(data) => match data {
+                        JsonData::Class(node) => {
+                            let mut p = path.clone();
+                            p.pop_front();
+                            return JsonNode::get_queue(node, p);
+                        }
+                        _ => return None,
+                    },
+                    None => return None,
+                };
+            }
         }
     }
 }
@@ -298,7 +351,30 @@ mod test {
 
         assert_eq!(data.entries.keys().len(), 2);
 
-        assert_eq!(data.entries["first_idea"], JsonData::Float(10.0));
-        assert_eq!(data.entries["second_idea"], JsonData::Float(10.5));
+        assert_eq!(
+            data.get(vec!["first_idea".into()]),
+            Some(JsonData::Float(10.0))
+        );
+        assert_eq!(
+            data.get(vec!["second_idea".into()]),
+            Some(JsonData::Float(10.5))
+        );
+    }
+
+    #[test]
+    fn nested() {
+        let input = "{ \"first_idea\" : { \"second_idea\": 10.5 }, \"hey man\": \"whats up\" }";
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 2);
+
+        assert_eq!(
+            data.get(vec!["first_idea".into(), "second_idea".into()]),
+            Some(JsonData::Float(10.5))
+        );
+        assert_eq!(
+            data.get(vec!["hey man".into()]),
+            Some(JsonData::String("whats up".into()))
+        );
     }
 }
