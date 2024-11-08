@@ -4,6 +4,11 @@ use std::{
     path::Path,
 };
 
+pub fn load_file(file_path: &Path) -> Result<JsonNode, Error> {
+    let file_data = std::fs::read_to_string(file_path)?;
+    load(&file_data)
+}
+
 pub fn load(input: &str) -> Result<JsonNode, Error> {
     let mut tokenizer = Tokenizer::new(input);
 
