@@ -7,6 +7,8 @@ use gengar_engine::{
     ascii::*,
     color::*,
     debug::*,
+    font::*,
+    font::*,
     matricies::matrix_four_four::*,
     model::*,
     obj,
@@ -17,7 +19,6 @@ use gengar_engine::{
     },
     state::Input,
     state::State as EngineState,
-    transform::*,
     transform::*,
     vectors::*,
 };

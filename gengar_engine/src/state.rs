@@ -1,4 +1,5 @@
 use crate::{
+    font::*,
     model::*,
     render::{camera::*, render_command::*, shader::*, vao::*},
     transform::*,
@@ -30,6 +31,8 @@ pub struct State {
     // Pseudo ecs stuff.
     // This doesn't handle 'deallocation'
     pub transforms: Vec<Transform>,
+
+    pub roboto_font: Typeface,
 }
 
 impl State {
@@ -53,6 +56,8 @@ impl State {
                 window_resolution,
             ),
             ui_camera: Camera::new(ProjectionType::Orthographic, window_resolution),
+
+            roboto_font: Typeface::new(),
 
             frame: 0,
         };

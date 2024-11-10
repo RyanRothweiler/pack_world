@@ -3,5 +3,5 @@ msdf-atlas-gen.exe ^
 -type sdf ^
 -format png ^
 -dimensions 512 512 ^
--imageout roboto_mono\robot_mono_bold.png ^
--json roboto_mono\robot_mono_bold_data.json
+-imageout roboto_mono\roboto_mono_bold.png ^
+-json roboto_mono\roboto_mono_bold_data.json

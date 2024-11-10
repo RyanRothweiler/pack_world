@@ -29,6 +29,9 @@ pub enum Error {
     // json
     JsonInvalidToken,
 
+    // font
+    FontErrorLoading,
+
     MissingGameDLL,
 }
 

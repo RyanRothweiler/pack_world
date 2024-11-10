@@ -99,9 +99,27 @@ impl JsonNode {
         return JsonNode::get_queue(self, VecDeque::from(path));
     }
 
-    fn get_queue(node: &JsonNode, path: VecDeque<String>) -> Option<JsonData> {
-        println!("{:?}", path);
+    pub fn get_float(&self, path: Vec<String>) -> Option<f64> {
+        match JsonNode::get_queue(self, VecDeque::from(path)) {
+            Some(d) => match d {
+                JsonData::Float(v) => return Some(v),
+                _ => return None,
+            },
+            None => return None,
+        }
+    }
 
+    pub fn get_class(&self, path: Vec<String>) -> Option<JsonNode> {
+        match JsonNode::get_queue(self, VecDeque::from(path)) {
+            Some(d) => match d {
+                JsonData::Class(v) => return Some(v),
+                _ => return None,
+            },
+            None => return None,
+        }
+    }
+
+    fn get_queue(node: &JsonNode, path: VecDeque<String>) -> Option<JsonData> {
         match path.len() {
             // empty path string. Path is invalid.
             0 => return None,

@@ -1,4 +1,5 @@
 use gengar_engine::{
+    font::*,
     model::*,
     render::{image::Image, material::*, vao::*},
     transform::*,

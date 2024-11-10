@@ -21,6 +21,7 @@ pub mod obj;
 
 use ascii::*;
 use color::*;
+use font::*;
 use matricies::matrix_four_four::*;
 use model::*;
 use render::{render_command::*, shader::*, vao::*};
@@ -59,6 +60,11 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
 
     es.model_sphere =
         Model::load_upload(include_str!("../engine_resources/sphere.obj"), render_api).unwrap();
+
+    es.roboto_font = font::load(include_str!(
+        "../engine_resources/fonts/roboto_mono/roboto_mono_bold_data.json"
+    ))
+    .unwrap();
 
     debug::init_context(es.shader_color, es.model_sphere.clone());
 }
