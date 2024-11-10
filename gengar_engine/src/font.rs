@@ -1,7 +1,15 @@
-use crate::{error::*, json::*};
+use crate::{
+    error::*,
+    json::*,
+    render::{image::*, RenderApi},
+};
 use std::collections::HashMap;
 
-pub fn load(metrics_data: &str) -> Result<Typeface, Error> {
+pub fn load(
+    image_read: impl std::io::Read,
+    metrics_data: &str,
+    render_api: &impl RenderApi,
+) -> Result<Typeface, Error> {
     // load image
     // load font metrics
 
@@ -62,17 +70,24 @@ pub fn load(metrics_data: &str) -> Result<Typeface, Error> {
         _ => return Err(Error::FontErrorLoading),
     }
 
+    typeface.atlas = crate::render::load_image(image_read).unwrap();
+    typeface.atlas_id = render_api.upload_texture(&typeface.atlas, false).unwrap();
+
     return Ok(typeface);
 }
 
 pub struct Typeface {
     pub glyphs: HashMap<char, Glyph>,
+    pub atlas: Image,
+    pub atlas_id: u32,
 }
 
 impl Typeface {
     pub fn new() -> Self {
         Typeface {
             glyphs: HashMap::new(),
+            atlas: Image::new(),
+            atlas_id: 0,
         }
     }
 }

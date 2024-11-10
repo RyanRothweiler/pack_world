@@ -87,7 +87,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         gs.ui_mat.uniforms.insert(
             "tex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.albedo.gl_id.unwrap(),
+                image_id: es.roboto_font.atlas_id,
                 texture_slot: 0,
             }),
         );
