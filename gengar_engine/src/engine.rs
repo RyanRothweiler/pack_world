@@ -69,6 +69,7 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
         es.roboto_font = font::load(
             image_bytes_cursor,
             include_str!("../engine_resources/fonts/roboto_mono/roboto_mono_bold_data.json"),
+            es.font_sdf,
             render_api,
         )
         .unwrap();

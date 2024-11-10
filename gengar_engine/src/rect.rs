@@ -56,6 +56,42 @@ impl Rect {
         self.top_left = center - VecTwo::new(half_width, half_height);
         self.bottom_right = center + VecTwo::new(half_width, half_height);
     }
+
+    pub fn get_mesh(&self, z: f64) -> Vec<VecThreeFloat> {
+        let mut mesh: Vec<VecThreeFloat> = vec![];
+
+        // left tri
+        mesh.push(VecThreeFloat::new(self.top_left.x, self.top_left.y, z));
+        mesh.push(VecThreeFloat::new(
+            self.top_right().x,
+            self.top_right().y,
+            z,
+        ));
+        mesh.push(VecThreeFloat::new(
+            self.bottom_left().x,
+            self.bottom_left().y,
+            z,
+        ));
+
+        // right tri
+        mesh.push(VecThreeFloat::new(
+            self.bottom_left().x,
+            self.bottom_left().y,
+            z,
+        ));
+        mesh.push(VecThreeFloat::new(
+            self.top_right().x,
+            self.top_right().y,
+            z,
+        ));
+        mesh.push(VecThreeFloat::new(
+            self.bottom_right.x,
+            self.bottom_right.y,
+            z,
+        ));
+
+        return mesh;
+    }
 }
 
 mod test {

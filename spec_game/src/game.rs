@@ -76,23 +76,6 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         gs.ao.gl_id = Some(render_api.upload_texture(&gs.ao, true).unwrap());
     }
 
-    // ui test material
-    {
-        gs.ui_mat.shader = Some(es.color_texture_shader);
-        gs.ui_mat.uniforms.insert(
-            "color".to_string(),
-            UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 1.0).into()),
-        );
-
-        gs.ui_mat.uniforms.insert(
-            "tex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: es.roboto_font.atlas_id,
-                texture_slot: 0,
-            }),
-        );
-    }
-
     // monkey material
     gs.monkey_material.shader = Some(es.pbr_shader);
     gs.monkey_material.uniforms.insert(
@@ -177,11 +160,8 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         &gs.monkey_material,
     ));
 
-    let mut r = Rect::new_square(100.0);
-
-    r.set_center(input.mouse_pos);
-    es.ui_render_commands
-        .push(RenderCommand::new_rect(&r, -1.0, &gs.ui_mat));
+    es.roboto_font
+        .render(input.mouse_pos, &mut es.ui_render_commands);
 
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
 }

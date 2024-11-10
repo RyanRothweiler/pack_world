@@ -16,7 +16,6 @@ pub struct State {
     pub ao: Image,
 
     pub monkey_material: Material,
-    pub ui_mat: Material,
 
     pub monkey_trans: Option<usize>,
     pub center_trans: Option<usize>,
@@ -38,7 +37,6 @@ impl State {
             ao: Image::new(),
 
             monkey_material: Material::new(),
-            ui_mat: Material::new(),
 
             monkey_vel: VecTwo::new(0.0, 0.0),
 

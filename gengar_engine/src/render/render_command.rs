@@ -51,38 +51,6 @@ impl RenderCommand {
     }
 
     pub fn new_rect(rect: &Rect, z: f64, material: &Material) -> Self {
-        let mut mesh: Vec<VecThreeFloat> = vec![];
-
-        // left tri
-        mesh.push(VecThreeFloat::new(rect.top_left.x, rect.top_left.y, z));
-        mesh.push(VecThreeFloat::new(
-            rect.top_right().x,
-            rect.top_right().y,
-            z,
-        ));
-        mesh.push(VecThreeFloat::new(
-            rect.bottom_left().x,
-            rect.bottom_left().y,
-            z,
-        ));
-
-        // right tri
-        mesh.push(VecThreeFloat::new(
-            rect.bottom_left().x,
-            rect.bottom_left().y,
-            z,
-        ));
-        mesh.push(VecThreeFloat::new(
-            rect.top_right().x,
-            rect.top_right().y,
-            z,
-        ));
-        mesh.push(VecThreeFloat::new(
-            rect.bottom_right.x,
-            rect.bottom_right.y,
-            z,
-        ));
-
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
         let uvs: Vec<VecTwo> = vec![
             VecTwo::new(0.0, 0.0),
@@ -99,7 +67,7 @@ impl RenderCommand {
 
         RenderCommand {
             kind: VertexDataKind::DynamicMesh {
-                mesh: mesh,
+                mesh: rect.get_mesh(z),
                 uvs: uvs,
             },
 
