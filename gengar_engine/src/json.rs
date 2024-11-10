@@ -27,26 +27,8 @@ fn load_block(tokenizer: &mut Tokenizer) -> Result<JsonNode, Error> {
             Token::String(entry_id) => {
                 tokenizer.get_next_token()?.require(Token::Colon)?;
 
-                let data_token = tokenizer.get_next_token()?;
-                match data_token {
-                    // String
-                    Token::String(data) => {
-                        head.entries.insert(entry_id, JsonData::String(data));
-                    }
-
-                    // Float
-                    Token::Float(data) => {
-                        head.entries.insert(entry_id, JsonData::Float(data));
-                    }
-
-                    // Nested data
-                    Token::OpenCurly => {
-                        let data = load_block(tokenizer)?;
-                        head.entries.insert(entry_id, JsonData::Class(data));
-                    }
-
-                    _ => return Err(Error::JsonInvalidToken),
-                };
+                let data = get_data(tokenizer)?;
+                head.entries.insert(entry_id, data);
             }
 
             Token::End | Token::ClosedCurly => return Ok(head),
@@ -55,10 +37,49 @@ fn load_block(tokenizer: &mut Tokenizer) -> Result<JsonNode, Error> {
     }
 }
 
+fn get_data(tokenizer: &mut Tokenizer) -> Result<JsonData, Error> {
+    let data_token = tokenizer.get_next_token()?;
+    match data_token {
+        // String
+        Token::String(data) => {
+            return Ok(JsonData::String(data));
+        }
+
+        // Float
+        Token::Float(data) => {
+            return Ok(JsonData::Float(data));
+        }
+
+        // Array
+        Token::OpenBracket => {
+            let mut data: Vec<JsonData> = vec![];
+            loop {
+                let pk = tokenizer.peek_token()?;
+                match pk {
+                    // Array ends when we hit a closed bracket
+                    Token::ClosedBracket => break,
+                    _ => data.push(get_data(tokenizer)?),
+                }
+            }
+
+            return Ok(JsonData::Array(data));
+        }
+
+        // Nested data
+        Token::OpenCurly => {
+            let data = load_block(tokenizer)?;
+            return Ok(JsonData::Class(data));
+        }
+
+        _ => return Err(Error::JsonInvalidToken),
+    };
+}
+
 #[derive(PartialEq, Debug, Clone)]
 pub enum JsonData {
     String(String),
     Float(f64),
+    Array(Vec<JsonData>),
     Class(JsonNode),
 }
 
@@ -115,6 +136,8 @@ impl JsonNode {
 enum Token {
     OpenCurly,
     ClosedCurly,
+    OpenBracket,
+    ClosedBracket,
     String(String),
     Float(f64),
     Colon,
@@ -227,6 +250,20 @@ impl Tokenizer {
 
                 self.advance();
                 return Ok(Token::ClosedCurly);
+
+                //
+            } else if c == ']' {
+                // open bracked
+
+                self.advance();
+                return Ok(Token::ClosedBracket);
+
+                //
+            } else if c == '[' {
+                // open bracked
+
+                self.advance();
+                return Ok(Token::OpenBracket);
 
                 //
             } else if c == ':' {
@@ -380,6 +417,30 @@ mod test {
         assert_eq!(
             data.get(vec!["hey man".into()]),
             Some(JsonData::String("whats up".into()))
+        );
+    }
+
+    #[test]
+    fn array_strings() {
+        let input =
+            "{ \"first_idea\" : [ \"string one\", \"string two\" ], \"hey man\": \"whats up\" }";
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 2);
+
+        assert_eq!(
+            data.get(vec!["hey man".into()]),
+            Some(JsonData::String("whats up".into()))
+        );
+
+        let ray: Vec<JsonData> = vec![
+            JsonData::String("string one".into()),
+            JsonData::String("string two".into()),
+        ];
+
+        assert_eq!(
+            data.get(vec!["first_idea".into()]),
+            Some(JsonData::Array(ray))
         );
     }
 }
