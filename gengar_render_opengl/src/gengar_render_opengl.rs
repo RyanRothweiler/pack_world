@@ -114,6 +114,10 @@ const UNSIGNED_SHORT_5_5_5_1: i32 = 0x8034;
 const UNSIGNED_SHORT_5_6_5: i32 = 0x8363;
 const UNSIGNED_SHORT_5_6_5_REV: i32 = 0x8364;
 
+const GL_ONE_MINUS_SRC_ALPHA: u32 = 0x0303;
+const GL_SRC_ALPHA: u32 = 0x0302;
+
+const GL_BLEND: u32 = 0x0BE2;
 const GL_DEPTH_TEST: u32 = 0x0B71;
 const GL_LEQUAL: u32 = 0x0203;
 const GL_GEQUAL: u32 = 0x0206;
@@ -161,6 +165,7 @@ pub trait OGLPlatformImpl {
     );
     fn enable(&self, feature: u32);
     fn depth_func(&self, func: u32);
+    fn blend_func(&self, func: u32, setting: u32);
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32);
     fn clear(&self);
     fn use_program(&self, prog_id: u32);
@@ -361,6 +366,10 @@ pub fn render(
         .viewport(0, 0, resolution.x as i32, resolution.y as i32);
 
     render_api.platform_api.enable(GL_DEPTH_TEST);
+    render_api.platform_api.enable(GL_BLEND);
+    render_api
+        .platform_api
+        .blend_func(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     render_api.platform_api.depth_func(GL_LEQUAL);
 

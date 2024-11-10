@@ -239,6 +239,12 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         }
     }
 
+    fn blend_func(&self, func: u32, setting: u32) {
+        unsafe {
+            glBlendFunc(func, setting);
+        }
+    }
+
     fn depth_func(&self, func: u32) {
         unsafe {
             glDepthFunc(func);

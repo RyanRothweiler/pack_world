@@ -120,7 +120,7 @@ impl Typeface {
     }
 
     pub fn render(&self, pos: VecTwo, render_commands: &mut Vec<RenderCommand>) {
-        let mut r = Rect::new_square(100.0);
+        let mut r = Rect::new_square(50.0);
 
         r.set_center(pos);
 
