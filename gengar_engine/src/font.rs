@@ -65,25 +65,56 @@ pub fn load(
 
                         match glyph_class_json.get_class(vec!["atlasBounds".into()]) {
                             Some(bounds_json) => {
-                                glyph.atlas_left = bounds_json
+                                glyph.atlas.top_left.x = bounds_json
                                     .get_float(vec!["left".into()])
                                     .ok_or(Error::FontErrorLoading)?;
-                                glyph.atlas_right = bounds_json
+                                glyph.atlas.bottom_right.x = bounds_json
                                     .get_float(vec!["right".into()])
                                     .ok_or(Error::FontErrorLoading)?;
-                                glyph.atlas_top = bounds_json
+                                glyph.atlas.top_left.y = bounds_json
                                     .get_float(vec!["top".into()])
                                     .ok_or(Error::FontErrorLoading)?;
-                                glyph.atlas_bottom = bounds_json
+                                glyph.atlas.bottom_right.y = bounds_json
                                     .get_float(vec!["bottom".into()])
                                     .ok_or(Error::FontErrorLoading)?;
 
-                                glyph.atlas_left = glyph.atlas_left / typeface.atlas.width as f64;
-                                glyph.atlas_right = glyph.atlas_right / typeface.atlas.width as f64;
-                                glyph.atlas_top =
-                                    1.0 - (glyph.atlas_top / typeface.atlas.height as f64);
-                                glyph.atlas_bottom =
-                                    1.0 - (glyph.atlas_bottom / typeface.atlas.height as f64);
+                                glyph.atlas.top_left.x =
+                                    glyph.atlas.top_left.x / typeface.atlas.width as f64;
+                                glyph.atlas.bottom_right.x =
+                                    glyph.atlas.bottom_right.x / typeface.atlas.width as f64;
+                                glyph.atlas.top_left.y =
+                                    1.0 - (glyph.atlas.top_left.y / typeface.atlas.height as f64);
+                                glyph.atlas.bottom_right.y = 1.0
+                                    - (glyph.atlas.bottom_right.y / typeface.atlas.height as f64);
+                            }
+                            None => (),
+                        };
+
+                        match glyph_class_json.get_class(vec!["planeBounds".into()]) {
+                            Some(bounds_json) => {
+                                glyph.plane.top_left.x = bounds_json
+                                    .get_float(vec!["left".into()])
+                                    .ok_or(Error::FontErrorLoading)?;
+                                glyph.plane.bottom_right.x = bounds_json
+                                    .get_float(vec!["right".into()])
+                                    .ok_or(Error::FontErrorLoading)?;
+                                glyph.plane.top_left.y = bounds_json
+                                    .get_float(vec!["top".into()])
+                                    .ok_or(Error::FontErrorLoading)?;
+                                glyph.plane.bottom_right.y = bounds_json
+                                    .get_float(vec!["bottom".into()])
+                                    .ok_or(Error::FontErrorLoading)?;
+
+                                /*
+                                glyph.atlas.top_left.x =
+                                    glyph.atlas.top_left.x / typeface.atlas.width as f64;
+                                glyph.atlas.bottom_right.x =
+                                    glyph.atlas.bottom_right.x / typeface.atlas.width as f64;
+                                glyph.atlas.top_left.y =
+                                    1.0 - (glyph.atlas.top_left.y / typeface.atlas.height as f64);
+                                glyph.atlas.bottom_right.y = 1.0
+                                    - (glyph.atlas.bottom_right.y / typeface.atlas.height as f64);
+                                */
                             }
                             None => (),
                         };
@@ -120,21 +151,22 @@ impl Typeface {
     }
 
     pub fn render(&self, pos: VecTwo, render_commands: &mut Vec<RenderCommand>) {
-        let mut r = Rect::new_square(50.0);
+        // let mut r = Rect::new_square(50.0);
 
+        let glyph: &Glyph = self.glyphs.get(&'s').unwrap();
+
+        let mut r = glyph.plane.clone() * 100.0;
         r.set_center(pos);
-
-        let glyph: &Glyph = self.glyphs.get(&'A').unwrap();
 
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
         let uvs: Vec<VecTwo> = vec![
-            VecTwo::new(glyph.atlas_left, glyph.atlas_top),
-            VecTwo::new(glyph.atlas_right, glyph.atlas_top),
-            VecTwo::new(glyph.atlas_left, glyph.atlas_bottom),
+            VecTwo::new(glyph.atlas.left(), glyph.atlas.top()),
+            VecTwo::new(glyph.atlas.right(), glyph.atlas.top()),
+            VecTwo::new(glyph.atlas.left(), glyph.atlas.bottom()),
             //
-            VecTwo::new(glyph.atlas_left, glyph.atlas_bottom),
-            VecTwo::new(glyph.atlas_right, glyph.atlas_top),
-            VecTwo::new(glyph.atlas_right, glyph.atlas_bottom),
+            VecTwo::new(glyph.atlas.left(), glyph.atlas.bottom()),
+            VecTwo::new(glyph.atlas.right(), glyph.atlas.top()),
+            VecTwo::new(glyph.atlas.right(), glyph.atlas.bottom()),
         ];
 
         let rc = RenderCommand {
@@ -154,8 +186,6 @@ impl Typeface {
 #[derive(Default, Debug)]
 pub struct Glyph {
     pub advance: f64,
-    pub atlas_left: f64,
-    pub atlas_right: f64,
-    pub atlas_top: f64,
-    pub atlas_bottom: f64,
+    pub atlas: Rect,
+    pub plane: Rect,
 }

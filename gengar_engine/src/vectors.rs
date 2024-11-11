@@ -98,7 +98,7 @@ impl From<&VecThreeFloat> for VecThreeFloatC {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub struct VecTwo {
     pub x: f64,
     pub y: f64,

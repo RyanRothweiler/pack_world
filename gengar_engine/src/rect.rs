@@ -1,5 +1,7 @@
 use crate::vectors::*;
+use std::ops::Mul;
 
+#[derive(Default, Debug, Clone)]
 pub struct Rect {
     pub top_left: VecTwo,
     pub bottom_right: VecTwo,
@@ -49,6 +51,22 @@ impl Rect {
         (self.top_left.y - self.bottom_right.y).abs()
     }
 
+    pub fn left(&self) -> f64 {
+        self.top_left.x
+    }
+
+    pub fn right(&self) -> f64 {
+        self.bottom_right.x
+    }
+
+    pub fn top(&self) -> f64 {
+        self.top_left.y
+    }
+
+    pub fn bottom(&self) -> f64 {
+        self.bottom_right.y
+    }
+
     pub fn set_center(&mut self, center: VecTwo) {
         let half_width = self.width();
         let half_height = self.height();
@@ -91,6 +109,17 @@ impl Rect {
         ));
 
         return mesh;
+    }
+}
+
+impl Mul<f64> for Rect {
+    type Output = Self;
+
+    fn mul(self, input: f64) -> Self {
+        Self {
+            top_left: self.top_left * input,
+            bottom_right: self.bottom_right * input,
+        }
     }
 }
 
