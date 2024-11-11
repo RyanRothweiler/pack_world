@@ -168,8 +168,11 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         &gs.monkey_material,
     ));
 
-    es.roboto_font
-        .render(input.mouse_pos, &mut es.ui_render_commands);
+    es.roboto_font.render(
+        "MONKEY".into(),
+        VecTwo::new(1500.0, 500.0),
+        &mut es.ui_render_commands,
+    );
 
     es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();

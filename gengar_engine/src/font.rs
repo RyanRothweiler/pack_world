@@ -10,6 +10,9 @@ use crate::{
 };
 use std::collections::HashMap;
 
+const EM_SCALE: f64 = 100.0;
+const KERNING_ADJ: f64 = 0.98;
+
 pub fn load(
     image_read: impl std::io::Read,
     metrics_data: &str,
@@ -140,8 +143,14 @@ impl Typeface {
         }
     }
 
-    pub fn render(&self, pos: VecTwo, render_commands: &mut Vec<RenderCommand>) {
-        self.render_letter('s', pos, render_commands);
+    pub fn render(&self, word: String, pos: VecTwo, render_commands: &mut Vec<RenderCommand>) {
+        let mut cursor = pos;
+        for c in word.chars() {
+            self.render_letter(c, cursor, render_commands);
+
+            let glyph: &Glyph = self.glyphs.get(&c).unwrap();
+            cursor.x += glyph.advance * EM_SCALE * KERNING_ADJ;
+        }
     }
 
     pub fn render_letter(
@@ -152,16 +161,19 @@ impl Typeface {
     ) {
         let glyph: &Glyph = self.glyphs.get(&letter).unwrap();
 
-        let size = 100.0;
+        let mut r = glyph.plane.clone() * EM_SCALE;
 
-        let mut r = glyph.plane.clone() * 100.0;
-        let w = glyph.plane.width() * size;
-        let h = glyph.plane.height() * size;
+        // Filp vertically because top left is 0
+        // Fonts assume bottom left is 0
+        r.top_left.y *= -1.0;
+        r.bottom_right.y *= -1.0;
 
-        r.top_left = VecTwo::new(bottom_left.x, bottom_left.y - h);
-        r.bottom_right = VecTwo::new(bottom_left.x + w, bottom_left.y);
+        r.top_left.x += bottom_left.x;
+        r.top_left.y += bottom_left.y;
+        r.bottom_right.x += bottom_left.x;
+        r.bottom_right.y += bottom_left.y;
 
-        crate::debug::draw_rect(&r, Color::new(1.0, 1.0, 1.0, 0.5));
+        // crate::debug::draw_rect(&r, Color::new(1.0, 1.0, 1.0, 0.5));
 
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
         let uvs: Vec<VecTwo> = vec![
