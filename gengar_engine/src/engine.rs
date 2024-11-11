@@ -13,6 +13,7 @@ pub mod rect;
 pub mod render;
 pub mod state;
 pub mod transform;
+pub mod ui;
 pub mod vectors;
 
 // loaders

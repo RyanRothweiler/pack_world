@@ -110,6 +110,18 @@ impl Rect {
 
         return mesh;
     }
+
+    pub fn contains(&self, pos: VecTwo) -> bool {
+        if self.top_left.x <= pos.x
+            && self.top_left.y <= pos.y
+            && self.bottom_right.x >= pos.x
+            && self.bottom_right.y >= pos.y
+        {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 impl Mul<f64> for Rect {

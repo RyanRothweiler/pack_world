@@ -20,6 +20,7 @@ use gengar_engine::{
     state::Input,
     state::State as EngineState,
     transform::*,
+    ui::*,
     vectors::*,
 };
 use gengar_render_opengl::*;
@@ -141,6 +142,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         es.model_sphere.clone(),
     );
     gengar_engine::debug::frame_start();
+    gengar_engine::ui::frame_start(&input);
 
     // rotating monkey
     {
@@ -168,8 +170,8 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         &gs.monkey_material,
     ));
 
-    /*
     {
+        /*
         let mut mat = Material::new();
         mat.shader = Some(es.shader_color_ui);
 
@@ -178,20 +180,25 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
             UniformData::VecFour(Color::red().into()),
         );
 
-        es.ui_render_commands.push(RenderCommand::new_rect_outline(
-            &Rect::new(VecTwo::new(100.0, 100.0), input.mouse_pos),
-            -1.0,
-            10.0,
-            &mat,
-        ));
+
+        es.ui_render_commands
+            .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
+        */
+
+        let r = Rect::new(VecTwo::new(100.0, 100.0), VecTwo::new(500.0, 500.0));
+        if draw_button(&r, es.shader_color_ui) {
+            println!("clicking");
+        }
     }
-    */
 
     es.roboto_font.render(
         "MONKEY".into(),
         VecTwo::new(1500.0, 500.0),
         &mut es.ui_render_commands,
     );
+
+    es.ui_render_commands
+        .append(&mut gengar_engine::ui::get_render_commands());
 
     es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
