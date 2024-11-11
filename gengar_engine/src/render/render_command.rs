@@ -76,4 +76,48 @@ impl RenderCommand {
             uniforms: uniforms,
         }
     }
+
+    pub fn new_rect_outline(rect: &Rect, z: f64, width: f64, material: &Material) -> Self {
+        let left_edge = Rect::new(
+            rect.top_left,
+            VecTwo::new(rect.top_left.x + width, rect.bottom_right.y),
+        );
+        let right_edge = Rect::new(
+            VecTwo::new(rect.bottom_right.x - width, rect.top_left.y),
+            rect.bottom_right,
+        );
+        let bottom_edge = Rect::new(
+            VecTwo::new(rect.top_left.x, rect.bottom_right.y - width),
+            rect.bottom_right,
+        );
+        let top_edge = Rect::new(
+            rect.top_left,
+            VecTwo::new(rect.bottom_right.x, rect.top_left.y - width),
+        );
+
+        let mut mesh: Vec<VecThreeFloat> = vec![];
+        mesh.append(&mut left_edge.get_mesh(z));
+        mesh.append(&mut right_edge.get_mesh(z));
+        mesh.append(&mut bottom_edge.get_mesh(z));
+        mesh.append(&mut top_edge.get_mesh(z));
+
+        let mut indices: Vec<u32> = vec![];
+        for i in 0..mesh.len() {
+            indices.push(i as u32);
+        }
+
+        let mut uniforms: HashMap<String, UniformData> = material.uniforms.clone();
+        uniforms.insert("model".to_string(), UniformData::M44(M44::new_identity()));
+
+        RenderCommand {
+            kind: VertexDataKind::DynamicMesh {
+                mesh: mesh,
+                uvs: vec![],
+            },
+
+            prog_id: material.shader.unwrap().prog_id,
+            indices: indices,
+            uniforms: uniforms,
+        }
+    }
 }

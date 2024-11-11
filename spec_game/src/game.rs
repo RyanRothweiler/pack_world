@@ -168,6 +168,25 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         &gs.monkey_material,
     ));
 
+    /*
+    {
+        let mut mat = Material::new();
+        mat.shader = Some(es.shader_color_ui);
+
+        mat.uniforms.insert(
+            "color".to_string(),
+            UniformData::VecFour(Color::red().into()),
+        );
+
+        es.ui_render_commands.push(RenderCommand::new_rect_outline(
+            &Rect::new(VecTwo::new(100.0, 100.0), input.mouse_pos),
+            -1.0,
+            10.0,
+            &mat,
+        ));
+    }
+    */
+
     es.roboto_font.render(
         "MONKEY".into(),
         VecTwo::new(1500.0, 500.0),
