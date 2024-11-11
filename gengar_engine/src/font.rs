@@ -1,5 +1,6 @@
 use crate::{
     color::*,
+    debug::*,
     error::*,
     json::*,
     matricies::matrix_four_four::*,
@@ -104,17 +105,6 @@ pub fn load(
                                 glyph.plane.bottom_right.y = bounds_json
                                     .get_float(vec!["bottom".into()])
                                     .ok_or(Error::FontErrorLoading)?;
-
-                                /*
-                                glyph.atlas.top_left.x =
-                                    glyph.atlas.top_left.x / typeface.atlas.width as f64;
-                                glyph.atlas.bottom_right.x =
-                                    glyph.atlas.bottom_right.x / typeface.atlas.width as f64;
-                                glyph.atlas.top_left.y =
-                                    1.0 - (glyph.atlas.top_left.y / typeface.atlas.height as f64);
-                                glyph.atlas.bottom_right.y = 1.0
-                                    - (glyph.atlas.bottom_right.y / typeface.atlas.height as f64);
-                                */
                             }
                             None => (),
                         };
@@ -151,12 +141,27 @@ impl Typeface {
     }
 
     pub fn render(&self, pos: VecTwo, render_commands: &mut Vec<RenderCommand>) {
-        // let mut r = Rect::new_square(50.0);
+        self.render_letter('s', pos, render_commands);
+    }
 
-        let glyph: &Glyph = self.glyphs.get(&'s').unwrap();
+    pub fn render_letter(
+        &self,
+        letter: char,
+        bottom_left: VecTwo,
+        render_commands: &mut Vec<RenderCommand>,
+    ) {
+        let glyph: &Glyph = self.glyphs.get(&letter).unwrap();
+
+        let size = 100.0;
 
         let mut r = glyph.plane.clone() * 100.0;
-        r.set_center(pos);
+        let w = glyph.plane.width() * size;
+        let h = glyph.plane.height() * size;
+
+        r.top_left = VecTwo::new(bottom_left.x, bottom_left.y - h);
+        r.bottom_right = VecTwo::new(bottom_left.x + w, bottom_left.y);
+
+        crate::debug::draw_rect(&r, Color::new(1.0, 1.0, 1.0, 0.5));
 
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
         let uvs: Vec<VecTwo> = vec![

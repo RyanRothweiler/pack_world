@@ -11,6 +11,7 @@ pub struct State {
 
     pub pbr_shader: Shader,
     pub shader_color: Shader,
+    pub shader_color_ui: Shader,
     pub color_texture_shader: Shader,
     pub font_sdf: Shader,
 
@@ -19,8 +20,9 @@ pub struct State {
     pub frame: i64,
 
     // the game runs its its own dll. so the debug render commands is in the dll memory space
-    // after the game frame ends, the game passes its debug render cammers here
+    // after the game frame ends, the game passes its debug render commands here
     pub game_debug_render_commands: Vec<RenderCommand>,
+    pub game_ui_debug_render_commands: Vec<RenderCommand>,
 
     pub render_commands: Vec<RenderCommand>,
     pub camera: Camera,
@@ -41,12 +43,15 @@ impl State {
             pbr_shader: Shader::new_empty(),
             color_texture_shader: Shader::new_empty(),
             shader_color: Shader::new_empty(),
+            shader_color_ui: Shader::new_empty(),
             font_sdf: Shader::new_empty(),
 
             render_commands: vec![],
             ui_render_commands: vec![],
 
             game_debug_render_commands: vec![],
+            game_ui_debug_render_commands: vec![],
+
             window_resolution,
             model_sphere: Model::new(),
             transforms: vec![],

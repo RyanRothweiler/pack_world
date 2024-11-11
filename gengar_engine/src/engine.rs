@@ -58,6 +58,13 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     )
     .unwrap();
 
+    es.shader_color_ui = Shader::compile(
+        include_str!("../engine_resources/shaders/color_ui.vs"),
+        include_str!("../engine_resources/shaders/color_ui.fs"),
+        render_api,
+    )
+    .unwrap();
+
     es.model_sphere =
         Model::load_upload(include_str!("../engine_resources/sphere.obj"), render_api).unwrap();
 
@@ -75,7 +82,7 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
         .unwrap();
     }
 
-    debug::init_context(es.shader_color, es.model_sphere.clone());
+    debug::init_context(es.shader_color, es.shader_color_ui, es.model_sphere.clone());
 }
 
 pub fn engine_frame_start(state: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {

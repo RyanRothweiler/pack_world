@@ -32,7 +32,11 @@ pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRende
 }
 
 pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
-    gengar_engine::debug::init_context(es.shader_color.clone(), es.model_sphere.clone());
+    gengar_engine::debug::init_context(
+        es.shader_color.clone(),
+        es.shader_color_ui,
+        es.model_sphere.clone(),
+    );
 
     gs.model_monkey =
         Model::load_upload(include_str!("../resources/monkey.obj"), render_api).unwrap();
@@ -131,7 +135,11 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
 #[no_mangle]
 pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
-    gengar_engine::debug::init_context(es.shader_color.clone(), es.model_sphere.clone());
+    gengar_engine::debug::init_context(
+        es.shader_color.clone(),
+        es.shader_color_ui.clone(),
+        es.model_sphere.clone(),
+    );
     gengar_engine::debug::frame_start();
 
     // rotating monkey
@@ -151,7 +159,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     // draw sphere for light
     {
         let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
-        draw_sphere(ct.global_matrix.get_position(), 0.1, Color::white());
+        gengar_engine::debug::draw_sphere(ct.global_matrix.get_position(), 0.1, Color::white());
     }
 
     es.render_commands.push(RenderCommand::new_model(
@@ -163,5 +171,6 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     es.roboto_font
         .render(input.mouse_pos, &mut es.ui_render_commands);
 
+    es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
 }

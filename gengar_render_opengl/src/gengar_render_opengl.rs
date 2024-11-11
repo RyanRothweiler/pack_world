@@ -385,18 +385,32 @@ pub fn render(
     );
 
     // Debug rendering
-    render_list(
-        VecThreeFloat::new_zero(),
-        gengar_engine::debug::get_render_list(),
-        &es.camera,
-        &render_api,
-    );
-    render_list(
-        VecThreeFloat::new_zero(),
-        &mut es.game_debug_render_commands,
-        &es.camera,
-        &render_api,
-    );
+    {
+        render_list(
+            VecThreeFloat::new_zero(),
+            gengar_engine::debug::get_render_list(),
+            &es.camera,
+            &render_api,
+        );
+        render_list(
+            VecThreeFloat::new_zero(),
+            gengar_engine::debug::get_ui_render_list(),
+            &es.camera,
+            &render_api,
+        );
+        render_list(
+            VecThreeFloat::new_zero(),
+            &mut es.game_debug_render_commands,
+            &es.camera,
+            &render_api,
+        );
+        render_list(
+            VecThreeFloat::new_zero(),
+            &mut es.game_ui_debug_render_commands,
+            &es.ui_camera,
+            &render_api,
+        );
+    }
 }
 
 fn render_list(
