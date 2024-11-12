@@ -126,6 +126,7 @@ pub fn load(
     return Ok(typeface);
 }
 
+#[derive(Clone)]
 pub struct Typeface {
     pub glyphs: HashMap<char, Glyph>,
     pub atlas: Image,
@@ -200,7 +201,7 @@ impl Typeface {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Glyph {
     pub advance: f64,
     pub atlas: Rect,
