@@ -142,7 +142,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         es.model_sphere.clone(),
     );
     gengar_engine::debug::frame_start();
-    gengar_engine::ui::frame_start(&input, es.shader_color_ui, es.roboto_font.clone());
+    gengar_engine::ui::frame_start(&input, es.shader_color_ui);
 
     // rotating monkey
     {
@@ -171,22 +171,29 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     ));
 
     {
+        let style = FontStyle {
+            size: 4.0,
+            typeface: es.roboto_font.clone(),
+        };
+
         let r = Rect::new(VecTwo::new(100.0, 100.0), VecTwo::new(200.0, 200.0));
-        if draw_button("first", std::line!(), &r) {
+        if draw_button("first", std::line!(), &r, &style) {
             println!("clicking");
         }
 
         let r = Rect::new(VecTwo::new(300.0, 300.0), VecTwo::new(500.0, 500.0));
-        if draw_button("second", std::line!(), &r) {
+        if draw_button("second", std::line!(), &r, &style) {
             println!("clicking second");
         }
     }
 
+    /*
     es.roboto_font.render(
         "MONKEY".into(),
         VecTwo::new(1500.0, 500.0),
         &mut es.ui_render_commands,
     );
+    */
 
     es.ui_render_commands
         .append(&mut gengar_engine::ui::get_render_commands());

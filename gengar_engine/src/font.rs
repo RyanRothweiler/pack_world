@@ -10,7 +10,7 @@ use crate::{
 };
 use std::collections::HashMap;
 
-const EM_SCALE: f64 = 100.0;
+const EM_SCALE: f64 = 10.0;
 const KERNING_ADJ: f64 = 0.98;
 
 pub fn load(
@@ -19,7 +19,7 @@ pub fn load(
     shader: Shader,
     render_api: &impl RenderApi,
 ) -> Result<Typeface, Error> {
-    let mut typeface = Typeface::new();
+    let mut typeface: Typeface = Default::default();
 
     // load image
     typeface.atlas = crate::render::load_image(image_read).unwrap();
@@ -126,7 +126,13 @@ pub fn load(
     return Ok(typeface);
 }
 
-#[derive(Clone)]
+#[derive(Default)]
+pub struct FontStyle {
+    pub size: f64,
+    pub typeface: Typeface,
+}
+
+#[derive(Clone, Default)]
 pub struct Typeface {
     pub glyphs: HashMap<char, Glyph>,
     pub atlas: Image,
@@ -134,76 +140,70 @@ pub struct Typeface {
     pub material: Material,
 }
 
-impl Typeface {
-    pub fn new() -> Self {
-        Typeface {
-            glyphs: HashMap::new(),
-            atlas: Image::new(),
-            atlas_id: 0,
-            material: Material::new(),
-        }
-    }
-
-    pub fn render(&self, word: String, pos: VecTwo, render_commands: &mut Vec<RenderCommand>) {
-        let mut cursor = pos;
-        for c in word.chars() {
-            self.render_letter(c, cursor, render_commands);
-
-            let glyph: &Glyph = self.glyphs.get(&c).unwrap();
-            cursor.x += glyph.advance * EM_SCALE * KERNING_ADJ;
-        }
-    }
-
-    pub fn render_letter(
-        &self,
-        letter: char,
-        bottom_left: VecTwo,
-        render_commands: &mut Vec<RenderCommand>,
-    ) {
-        let glyph: &Glyph = self.glyphs.get(&letter).unwrap();
-
-        let mut r = glyph.plane.clone() * EM_SCALE;
-
-        // Filp vertically because top left is 0
-        // Fonts assume bottom left is 0
-        r.top_left.y *= -1.0;
-        r.bottom_right.y *= -1.0;
-
-        r.top_left.x += bottom_left.x;
-        r.top_left.y += bottom_left.y;
-        r.bottom_right.x += bottom_left.x;
-        r.bottom_right.y += bottom_left.y;
-
-        // crate::debug::draw_rect(&r, Color::new(1.0, 1.0, 1.0, 0.5));
-
-        let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
-        let uvs: Vec<VecTwo> = vec![
-            VecTwo::new(glyph.atlas.left(), glyph.atlas.top()),
-            VecTwo::new(glyph.atlas.right(), glyph.atlas.top()),
-            VecTwo::new(glyph.atlas.left(), glyph.atlas.bottom()),
-            //
-            VecTwo::new(glyph.atlas.left(), glyph.atlas.bottom()),
-            VecTwo::new(glyph.atlas.right(), glyph.atlas.top()),
-            VecTwo::new(glyph.atlas.right(), glyph.atlas.bottom()),
-        ];
-
-        let rc = RenderCommand {
-            kind: VertexDataKind::DynamicMesh {
-                mesh: r.get_mesh(-1.0),
-                uvs: uvs,
-            },
-
-            prog_id: self.material.shader.unwrap().prog_id,
-            indices: indices,
-            uniforms: self.material.uniforms.clone(),
-        };
-        render_commands.push(rc);
-    }
-}
-
 #[derive(Default, Debug, Clone)]
 pub struct Glyph {
     pub advance: f64,
     pub atlas: Rect,
     pub plane: Rect,
+}
+
+pub fn render_word(
+    word: String,
+    style: &FontStyle,
+    pos: VecTwo,
+    render_commands: &mut Vec<RenderCommand>,
+) {
+    let mut cursor = pos;
+    for c in word.chars() {
+        render_letter(c, style, cursor, render_commands);
+
+        let glyph: &Glyph = style.typeface.glyphs.get(&c).unwrap();
+        cursor.x += glyph.advance * EM_SCALE * KERNING_ADJ * style.size;
+    }
+}
+
+pub fn render_letter(
+    letter: char,
+    style: &FontStyle,
+    bottom_left: VecTwo,
+    render_commands: &mut Vec<RenderCommand>,
+) {
+    let glyph: &Glyph = style.typeface.glyphs.get(&letter).unwrap();
+
+    let mut r = glyph.plane.clone() * EM_SCALE * style.size;
+
+    // Filp vertically because top left is 0
+    // Fonts assume bottom left is 0
+    r.top_left.y *= -1.0;
+    r.bottom_right.y *= -1.0;
+
+    r.top_left.x += bottom_left.x;
+    r.top_left.y += bottom_left.y;
+    r.bottom_right.x += bottom_left.x;
+    r.bottom_right.y += bottom_left.y;
+
+    // crate::debug::draw_rect(&r, Color::new(1.0, 1.0, 1.0, 0.5));
+
+    let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
+    let uvs: Vec<VecTwo> = vec![
+        VecTwo::new(glyph.atlas.left(), glyph.atlas.top()),
+        VecTwo::new(glyph.atlas.right(), glyph.atlas.top()),
+        VecTwo::new(glyph.atlas.left(), glyph.atlas.bottom()),
+        //
+        VecTwo::new(glyph.atlas.left(), glyph.atlas.bottom()),
+        VecTwo::new(glyph.atlas.right(), glyph.atlas.top()),
+        VecTwo::new(glyph.atlas.right(), glyph.atlas.bottom()),
+    ];
+
+    let rc = RenderCommand {
+        kind: VertexDataKind::DynamicMesh {
+            mesh: r.get_mesh(-1.0),
+            uvs: uvs,
+        },
+
+        prog_id: style.typeface.material.shader.unwrap().prog_id,
+        indices: indices,
+        uniforms: style.typeface.material.uniforms.clone(),
+    };
+    render_commands.push(rc);
 }

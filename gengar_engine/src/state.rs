@@ -62,7 +62,7 @@ impl State {
             ),
             ui_camera: Camera::new(ProjectionType::Orthographic, window_resolution),
 
-            roboto_font: Typeface::new(),
+            roboto_font: Default::default(),
 
             frame: 0,
         };

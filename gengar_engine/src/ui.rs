@@ -13,7 +13,6 @@ struct UIContext {
     pub mouse_down: bool,
 
     pub button_shader: Shader,
-    pub typeface: Typeface,
 
     pub render_commands: Vec<RenderCommand>,
     pub button_state: HashMap<String, ButtonState>,
@@ -21,7 +20,7 @@ struct UIContext {
 
 static mut UI_CONTEXT: Option<UIContext> = None;
 
-pub fn frame_start(input: &Input, button_shader: Shader, typeface: Typeface) {
+pub fn frame_start(input: &Input, button_shader: Shader) {
     unsafe {
         match UI_CONTEXT.as_mut() {
             Some(c) => {
@@ -36,7 +35,6 @@ pub fn frame_start(input: &Input, button_shader: Shader, typeface: Typeface) {
                     mouse_down: input.mouse_left.pressing,
 
                     button_shader,
-                    typeface,
 
                     render_commands: vec![],
                     button_state: HashMap::new(),
@@ -51,7 +49,7 @@ pub fn get_render_commands() -> Vec<RenderCommand> {
     return context.render_commands.clone();
 }
 
-pub fn draw_button(display: &str, line: u32, rect: &Rect) -> bool {
+pub fn draw_button(display: &str, line: u32, rect: &Rect, style: &FontStyle) -> bool {
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
     let contains = rect.contains(context.mouse_pos);
@@ -73,10 +71,10 @@ pub fn draw_button(display: &str, line: u32, rect: &Rect) -> bool {
             .push(RenderCommand::new_rect_outline(&rect, -1.0, 1.0, &mat));
     }
 
-    // render type
-    context.typeface.render(
+    render_word(
         display.into(),
-        rect.bottom_left(),
+        style,
+        rect.bottom_left() + VecTwo::new(7.0, -7.0),
         &mut context.render_commands,
     );
 
