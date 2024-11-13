@@ -1,3 +1,4 @@
+use crate::{item::*, ui_panels::*};
 use gengar_engine::{
     font::*,
     model::*,
@@ -25,12 +26,19 @@ pub struct State {
     pub monkey_vel: VecTwo,
 
     pub font_style_button: FontStyle,
+
+    pub active_ui_panels: Vec<UIPanel>,
+
+    pub items: Vec<Item>,
 }
 
 impl State {
     pub fn new() -> Self {
         State {
             model_monkey: Model::new(),
+
+            active_ui_panels: vec![],
+            items: vec![],
 
             albedo: Image::new(),
             metallic: Image::new(),

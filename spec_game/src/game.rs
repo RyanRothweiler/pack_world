@@ -1,7 +1,5 @@
 #![allow(unused_imports, unused_variables)]
 
-pub mod state;
-
 use crate::state::*;
 use gengar_engine::{
     ascii::*,
@@ -25,6 +23,17 @@ use gengar_engine::{
 };
 use gengar_render_opengl::*;
 use std::{fs::File, io::Cursor, path::Path};
+
+pub mod item;
+pub mod state;
+pub mod ui_panels;
+
+use item::*;
+use ui_panels::{ui_skill_buttons_panel::*, *};
+
+pub enum UpdateSignal {
+    CreateItem,
+}
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
@@ -140,6 +149,24 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             typeface: es.roboto_font.clone(),
         };
     }
+
+    // setup first ui
+    {
+        gs.active_ui_panels.push(UIPanel::SkillButtons(
+            UIPanelCommon {
+                button_font_style: gs.font_style_button.clone(),
+            },
+            SkillButtonsPanel {},
+        ))
+
+        /*
+        gs.active_ui_panels.push(Box::new(
+            ui_panels::ui_skill_buttons_panel::UISkillButtonsPanel {
+                button_font_style: gs.font_style_button.clone(),
+            },
+        ));
+        */
+    }
 }
 
 #[no_mangle]
@@ -151,6 +178,30 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     );
     gengar_engine::debug::frame_start();
     gengar_engine::ui::frame_start(&input, es.shader_color_ui);
+
+    // update UI
+    {
+        let mut update_signals: Vec<UpdateSignal> = vec![];
+
+        for panel in &mut gs.active_ui_panels {
+            match panel {
+                UIPanel::SkillButtons(common, panel_state) => {
+                    update_signals.append(&mut panel_state.update(common, &gs.items));
+                }
+            }
+        }
+
+        for us in update_signals {
+            match us {
+                UpdateSignal::CreateItem => {
+                    gs.items.push(Item {
+                        name: "hey".into(),
+                        count: 10,
+                    });
+                }
+            }
+        }
+    }
 
     // rotating monkey
     {

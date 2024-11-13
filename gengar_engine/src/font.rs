@@ -126,7 +126,7 @@ pub fn load(
     return Ok(typeface);
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct FontStyle {
     pub size: f64,
     pub typeface: Typeface,

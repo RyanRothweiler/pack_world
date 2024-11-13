@@ -3,6 +3,7 @@ use crate::{
     model::*,
     render::{camera::*, render_command::*, shader::*, vao::*},
     transform::*,
+    ui::*,
     vectors::*,
 };
 
