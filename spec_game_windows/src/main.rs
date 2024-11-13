@@ -81,7 +81,7 @@ fn main() {
             return;
         }
 
-        let resolution = VecTwo::new(3200.0, 1100.0);
+        let resolution = VecTwo::new(1920.0, 1080.0);
 
         // create main window
         let main_window_handle = CreateWindowExA(

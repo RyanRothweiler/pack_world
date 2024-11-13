@@ -23,6 +23,8 @@ pub struct State {
     pub light_trans: Option<usize>,
 
     pub monkey_vel: VecTwo,
+
+    pub font_style_button: FontStyle,
 }
 
 impl State {
@@ -43,6 +45,8 @@ impl State {
             monkey_trans: None,
             center_trans: None,
             light_trans: None,
+
+            font_style_button: Default::default(),
         }
     }
 }

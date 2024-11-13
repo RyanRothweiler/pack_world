@@ -132,6 +132,14 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     lt.local_position.x = 3.5;
     lt.local_position.y = 3.5;
     lt.parent = gs.center_trans;
+
+    // setup font styles
+    {
+        gs.font_style_button = FontStyle {
+            size: 4.0,
+            typeface: es.roboto_font.clone(),
+        };
+    }
 }
 
 #[no_mangle]
@@ -164,6 +172,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         gengar_engine::debug::draw_sphere(ct.global_matrix.get_position(), 0.1, Color::white());
     }
 
+    /*
     es.render_commands.push(RenderCommand::new_model(
         &es.transforms[gs.monkey_trans.unwrap()],
         &gs.model_monkey,
@@ -171,29 +180,20 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     ));
 
     {
-        let style = FontStyle {
-            size: 4.0,
-            typeface: es.roboto_font.clone(),
-        };
-
         let r = Rect::new(VecTwo::new(100.0, 100.0), VecTwo::new(200.0, 200.0));
-        if draw_button("first", std::line!(), &r, &style) {
+        if draw_button("first", std::line!(), &r, &gs.font_style_button) {
             println!("clicking");
         }
 
         let r = Rect::new(VecTwo::new(300.0, 300.0), VecTwo::new(500.0, 500.0));
-        if draw_button("second", std::line!(), &r, &style) {
+        if draw_button("second", std::line!(), &r, &gs.font_style_button) {
             println!("clicking second");
         }
     }
-
-    /*
-    es.roboto_font.render(
-        "MONKEY".into(),
-        VecTwo::new(1500.0, 500.0),
-        &mut es.ui_render_commands,
-    );
     */
+
+    // skill buttons
+    // {}
 
     es.ui_render_commands
         .append(&mut gengar_engine::ui::get_render_commands());
