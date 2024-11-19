@@ -27,9 +27,12 @@ pub struct State {
 
     pub font_style_button: FontStyle,
 
-    pub active_ui_panels: Vec<UIPanel>,
+    pub active_ui_panels: Vec<UIPanelState>,
+    pub active_page: Option<UIPanelState>,
 
     pub items: Vec<Item>,
+
+    pub ui_panel_common: Option<UIPanelCommon>,
 }
 
 impl State {
@@ -55,6 +58,8 @@ impl State {
             light_trans: None,
 
             font_style_button: Default::default(),
+            ui_panel_common: None,
+            active_page: None,
         }
     }
 }

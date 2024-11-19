@@ -33,6 +33,7 @@ use ui_panels::{ui_skill_buttons_panel::*, *};
 
 pub enum UpdateSignal {
     CreateItem,
+    SetActivePage(ui_panels::PanelID),
 }
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
@@ -145,27 +146,21 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     // setup font styles
     {
         gs.font_style_button = FontStyle {
-            size: 4.0,
+            size: 2.0,
             typeface: es.roboto_font.clone(),
         };
+
+        gs.ui_panel_common = Some(UIPanelCommon {
+            button_font_style: gs.font_style_button.clone(),
+        });
     }
 
     // setup first ui
     {
-        gs.active_ui_panels.push(UIPanel::SkillButtons(
-            UIPanelCommon {
-                button_font_style: gs.font_style_button.clone(),
-            },
+        gs.active_ui_panels.push(UIPanelState::SkillButtons(
+            gs.ui_panel_common.as_mut().unwrap().clone(),
             SkillButtonsPanel {},
         ))
-
-        /*
-        gs.active_ui_panels.push(Box::new(
-            ui_panels::ui_skill_buttons_panel::UISkillButtonsPanel {
-                button_font_style: gs.font_style_button.clone(),
-            },
-        ));
-        */
     }
 }
 
@@ -183,14 +178,18 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     {
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
+        // Render and update active UI
         for panel in &mut gs.active_ui_panels {
-            match panel {
-                UIPanel::SkillButtons(common, panel_state) => {
-                    update_signals.append(&mut panel_state.update(common, &gs.items));
-                }
-            }
+            update_signals.append(&mut ui_panels::update_panel(panel));
         }
 
+        // update active page
+        match &mut gs.active_page {
+            Some(page) => update_signals.append(&mut ui_panels::update_panel(page)),
+            None => {}
+        }
+
+        // Handle signals
         for us in update_signals {
             match us {
                 UpdateSignal::CreateItem => {
@@ -199,6 +198,14 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
                         count: 10,
                     });
                 }
+                UpdateSignal::SetActivePage(panel_id) => match panel_id {
+                    ui_panels::PanelID::Mining => {
+                        gs.active_page = Some(UIPanelState::Mining(
+                            gs.ui_panel_common.as_mut().unwrap().clone(),
+                            ui_panels::ui_mining_panel::MiningPanel {},
+                        ))
+                    }
+                },
             }
         }
     }

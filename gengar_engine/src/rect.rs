@@ -15,6 +15,13 @@ impl Rect {
         }
     }
 
+    pub fn new_top_size(top_left: VecTwo, width: f64, height: f64) -> Self {
+        Self {
+            top_left,
+            bottom_right: top_left + VecTwo::new(width, height),
+        }
+    }
+
     pub fn new_square(size: f64) -> Self {
         Rect::new_size(size, size)
     }

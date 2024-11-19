@@ -1,3 +1,5 @@
+#![allow(unreachable_code)]
+
 use crate::webgl::webgl_render_api::*;
 
 use gengar_engine::{
@@ -21,6 +23,7 @@ pub fn render(
 ) {
     context.viewport(0, 0, resolution.x as i32, resolution.y as i32);
 
+    todo!("enable alpha rendering");
     context.enable(WebGl2RenderingContext::DEPTH_TEST);
     context.depth_func(WebGl2RenderingContext::LEQUAL);
 
