@@ -23,9 +23,14 @@ pub fn render(
 ) {
     context.viewport(0, 0, resolution.x as i32, resolution.y as i32);
 
-    todo!("enable alpha rendering");
     context.enable(WebGl2RenderingContext::DEPTH_TEST);
     context.depth_func(WebGl2RenderingContext::LEQUAL);
+
+    context.enable(WebGl2RenderingContext::BLEND);
+    context.blend_func(
+        WebGl2RenderingContext::SRC_ALPHA,
+        WebGl2RenderingContext::ONE_MINUS_SRC_ALPHA,
+    );
 
     context.clear_color(0.0, 0.0, 0.0, 1.0);
     context
@@ -35,6 +40,13 @@ pub fn render(
         light_pos,
         &mut es.render_commands,
         &es.camera,
+        render_api,
+        context,
+    );
+    render_list(
+        light_pos,
+        &mut es.ui_render_commands,
+        &es.ui_camera,
         render_api,
         context,
     );
@@ -137,12 +149,23 @@ fn render_list(
             }
         }
 
-        let vao_id = match &command.kind {
-            VertexDataKind::Vao { id } => id,
-            VertexDataKind::DynamicMesh { mesh, uvs } => todo!(),
+        let vao_id: u32 = match &command.kind {
+            VertexDataKind::Vao { id } => *id,
+            VertexDataKind::DynamicMesh { mesh, uvs } => {
+                let vao = Vao::new(render_api);
+
+                // location is assumed 0. All shaders vertex positions are at location 0... for now.
+                vao.upload_v3(render_api, mesh, &command.indices, 0)
+                    .unwrap();
+
+                // uvs
+                vao.upload_v2(render_api, uvs, 1).unwrap();
+
+                vao.id
+            }
         };
 
-        (render_api.gl_bind_vertex_array_engine)(*vao_id).unwrap();
+        (render_api.gl_bind_vertex_array_engine)(vao_id).unwrap();
         (render_api.gl_draw_arrays)(WebGl2RenderingContext::TRIANGLES as i32, &command.indices);
     }
 }
