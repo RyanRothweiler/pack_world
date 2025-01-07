@@ -1,7 +1,14 @@
-#![allow(unused_variables, unused_imports, dead_code, unused_assignments)]
+#![allow(
+    unused_variables,
+    unused_imports,
+    dead_code,
+    unused_assignments,
+    static_mut_refs,
+    clippy::all
+)]
 
+use game::{game_init, game_loop, state::*};
 use gengar_engine::{state::Input, state::State as EngineState, vectors::*};
-use spec_game::{game_init, game_loop, state::*};
 
 use wasm_bindgen::prelude::*;
 use web_sys::{
@@ -15,7 +22,7 @@ mod webgl;
 use webgl::{webgl_render::*, webgl_render_api::*};
 
 static mut ENGINE_STATE: Option<EngineState> = None;
-static mut GAME_STATE: Option<spec_game::state::State> = None;
+static mut GAME_STATE: Option<game::state::State> = None;
 static mut RENDER_API: Option<WebGLRenderApi> = None;
 static mut INPUT: Option<Input> = None;
 
@@ -69,7 +76,7 @@ pub fn start() {
 
         RENDER_API = Some(get_render_api());
         INPUT = Some(Input::new());
-        GAME_STATE = Some(spec_game::state::State::new());
+        GAME_STATE = Some(game::state::State::new());
         ENGINE_STATE = Some(gengar_engine::state::State::new(resolution));
 
         gengar_engine::load_resources(

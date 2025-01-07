@@ -1,4 +1,4 @@
-#![allow(unused_imports, dead_code)]
+#![allow(unused_imports, dead_code, clippy::all, static_mut_refs)]
 
 use std::{include_str, io::Cursor};
 

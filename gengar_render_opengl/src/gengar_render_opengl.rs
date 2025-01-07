@@ -1,4 +1,4 @@
-#![allow(unused_variables, unused_imports, dead_code)]
+#![allow(unused_variables, unused_imports, dead_code, clippy::all)]
 
 use gengar_engine::{
     error::Error as EngineError,

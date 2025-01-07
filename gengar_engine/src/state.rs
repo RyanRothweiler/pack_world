@@ -7,6 +7,7 @@ use crate::{
     vectors::*,
 };
 
+// TODO rename engine state
 pub struct State {
     pub window_resolution: VecTwo,
 
