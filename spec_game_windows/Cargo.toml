@@ -7,7 +7,8 @@ edition = "2021"
 gengar_engine = { path = "../gengar_engine" }
 gengar_renderapi_opengl_windows = { path = "../gengar_renderapi_opengl_windows" }
 gengar_render_opengl = { path = "../gengar_render_opengl" }
-spec_game = { path = "../spec_game" }
+
+game = { path = "../spec_game", package="spec_game" }
 
 [dependencies.windows]
 version = "0.52"

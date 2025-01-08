@@ -1,4 +1,12 @@
-#![allow(unused_variables, dead_code, unused_assignments, unused_imports)]
+#![allow(
+    unused_variables,
+    dead_code,
+    unused_assignments,
+    // unused_imports,
+    // unreachable_code,
+    static_mut_refs,
+    clippy::all
+)]
 
 // windows hello triangle in rust
 // https://rust-tutorials.github.io/triangle-from-scratch/loading_opengl/win32.html
@@ -6,9 +14,9 @@
 // example of entire setup
 // https://github.com/glowcoil/raw-gl-context/blob/master/src/win.rs
 
-use gengar_engine::{error::Error as EngineError, state::Input, vectors::*};
+use game;
+use gengar_engine::{error::Error as EngineError, vectors::*};
 use gengar_render_opengl::*;
-use spec_game;
 
 use windows::Win32::Graphics::Gdi::*;
 use windows::Win32::Graphics::OpenGL::*;
@@ -20,18 +28,18 @@ use windows::{
     },
 };
 
-use std::thread;
-use std::time::{Duration, SystemTime};
+use std::{
+    thread,
+    time::{Duration, SystemTime},
+};
 
 mod gl;
 
 const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
 
-const GAME_DLL_PATH: PCSTR =
-    s!("C:/Digital Archive/Game Development/Active/spec/target/debug/spec_game.dll");
-const GAME_DLL_CURRENT_PATH: PCSTR =
-    s!("C:/Digital Archive/Game Development/Active/spec/target/debug/spec_game_current.dll");
+static mut GAME_DLL_PATH: PCWSTR = w!("");
+static mut GAME_DLL_CURRENT_PATH: PCWSTR = w!("");
 
 type FuncWglChoosePixelFormatARB =
     extern "stdcall" fn(HDC, *const i32, *const f32, u32, *mut i32, *mut i32) -> i32;
@@ -45,15 +53,12 @@ static mut MOUSE_RIGHT_DOWN: bool = false;
 static mut KEYBOARD: [bool; 128] = [false; 128];
 
 type FuncGameInit = fn(
-    &mut spec_game::state::State,
+    &mut game::state::State,
     &mut gengar_engine::state::State,
     &gengar_render_opengl::OglRenderApi,
 );
-type FuncGameLoop = fn(
-    &mut spec_game::state::State,
-    &mut gengar_engine::state::State,
-    &gengar_engine::state::Input,
-);
+type FuncGameLoop =
+    fn(&mut game::state::State, &mut gengar_engine::state::State, &gengar_engine::state::Input);
 
 struct GameDll {
     dll_handle: HMODULE,
@@ -63,6 +68,18 @@ struct GameDll {
 }
 
 fn main() {
+    let dll_path = format!("../target/debug/{}.dll", game::PACKAGE_NAME);
+    let dll_current_path = format!("../target/debug/{}_current.dll", game::PACKAGE_NAME);
+
+    // These need to be here. Pointers are taken from them, so they cannot be dropped.
+    let h_dll_path = HSTRING::from(dll_path);
+    let h_dll_current_path = HSTRING::from(dll_current_path);
+
+    unsafe {
+        GAME_DLL_PATH = PCWSTR(h_dll_path.as_ptr());
+        GAME_DLL_CURRENT_PATH = PCWSTR(h_dll_current_path.as_ptr());
+    }
+
     unsafe {
         let instance = GetModuleHandleA(None).unwrap();
 
@@ -87,7 +104,7 @@ fn main() {
         let main_window_handle = CreateWindowExA(
             WINDOW_EX_STYLE::default(),
             wc.lpszClassName,
-            s!("Spec"),
+            s!("game"),
             WS_OVERLAPPEDWINDOW | WS_VISIBLE,
             CW_USEDEFAULT,
             CW_USEDEFAULT,
@@ -241,7 +258,7 @@ fn main() {
         let render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
 
         let mut engine_state = gengar_engine::state::State::new(resolution);
-        let mut game_state = spec_game::state::State::new();
+        let mut game_state = game::state::State::new();
 
         let mut input = gengar_engine::state::Input::new();
 
@@ -379,7 +396,7 @@ extern "system" fn dummy_windows_callback(
     unsafe { DefWindowProcA(window, message, wparam, lparam) }
 }
 
-fn get_file_write_time(file_path: PCSTR) -> std::result::Result<FILETIME, EngineError> {
+fn get_file_write_time(file_path: PCWSTR) -> std::result::Result<FILETIME, EngineError> {
     let mut file_info = WIN32_FILE_ATTRIBUTE_DATA {
         dwFileAttributes: 0,
         ftCreationTime: FILETIME {
@@ -401,7 +418,7 @@ fn get_file_write_time(file_path: PCSTR) -> std::result::Result<FILETIME, Engine
     unsafe {
         let ptr = &mut file_info as *mut _ as *mut std::ffi::c_void;
 
-        match GetFileAttributesExA(
+        match GetFileAttributesExW(
             file_path,
             windows::Win32::Storage::FileSystem::GetFileExInfoStandard,
             ptr,
@@ -415,12 +432,12 @@ fn get_file_write_time(file_path: PCSTR) -> std::result::Result<FILETIME, Engine
 unsafe fn load_game_dll() -> std::result::Result<GameDll, EngineError> {
     // Check if game dll exists, otherwise try to use the copied  _current one.
     // It could exist from previous runs
-    match PathFileExistsA(GAME_DLL_PATH) {
+    match PathFileExistsW(GAME_DLL_PATH) {
         // original game dll does not exist
-        Err(_) => match PathFileExistsA(GAME_DLL_CURRENT_PATH) {
+        Err(_) => match PathFileExistsW(GAME_DLL_CURRENT_PATH) {
             // Copied dll does exist, so use that.
             Ok(_) => {
-                let game_dll: HMODULE = match LoadLibraryA(GAME_DLL_CURRENT_PATH) {
+                let game_dll: HMODULE = match LoadLibraryW(GAME_DLL_CURRENT_PATH) {
                     Ok(v) => v,
                     Err(e) => {
                         return Err(EngineError::WindowsLoadLibrary);
@@ -428,8 +445,11 @@ unsafe fn load_game_dll() -> std::result::Result<GameDll, EngineError> {
                 };
                 return get_game_procs_from_dll(game_dll);
             }
+
             // NO VALID dll exists! So problem!!
-            Err(_) => return Err(EngineError::MissingGameDLL),
+            Err(_) => {
+                return Err(EngineError::MissingGameDLL);
+            }
         },
 
         // Original dll does exist, so continue on and use that.
@@ -437,19 +457,19 @@ unsafe fn load_game_dll() -> std::result::Result<GameDll, EngineError> {
     }
 
     // Create new temp dll. To allow building new original ones.
-    match CopyFileA(GAME_DLL_PATH, GAME_DLL_CURRENT_PATH, false) {
+    match CopyFileW(GAME_DLL_PATH, GAME_DLL_CURRENT_PATH, false) {
         Err(v) => return Err(EngineError::WindowCopyFile),
         _ => {}
     }
 
     // Delete original, so that if a new original arrives then we know its new.
-    match DeleteFileA(GAME_DLL_PATH) {
+    match DeleteFileW(GAME_DLL_PATH) {
         Err(v) => return Err(EngineError::WindowsDeleteFile),
         _ => {}
     }
 
     // Load methods from library
-    let game_dll: HMODULE = match LoadLibraryA(GAME_DLL_CURRENT_PATH) {
+    let game_dll: HMODULE = match LoadLibraryW(GAME_DLL_CURRENT_PATH) {
         Ok(v) => v,
         Err(e) => return Err(EngineError::WindowsLoadLibrary),
     };

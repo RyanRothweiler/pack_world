@@ -31,6 +31,9 @@ pub mod ui_panels;
 use item::*;
 use ui_panels::{ui_skill_buttons_panel::*, *};
 
+// Used for windows platform loading dlls
+pub const PACKAGE_NAME: &str = "spec_game";
+
 pub enum UpdateSignal {
     CreateItem,
     SetActivePage(ui_panels::PanelID),
