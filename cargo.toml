@@ -10,5 +10,5 @@ members = [
     "gengar_platform_windows",
     "gengar_platform_web",
 
-    "spec_game",
+    "pack_world_game",
 ]

@@ -32,7 +32,7 @@ use item::*;
 use ui_panels::{ui_skill_buttons_panel::*, *};
 
 // Used for windows platform loading dlls
-pub const PACKAGE_NAME: &str = "spec_game";
+pub const PACKAGE_NAME: &str = "pack_world_game";
 
 pub enum UpdateSignal {
     CreateItem,
@@ -177,6 +177,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     gengar_engine::debug::frame_start();
     gengar_engine::ui::frame_start(&input, es.shader_color_ui);
 
+    /*
     // update UI
     {
         let mut update_signals: Vec<UpdateSignal> = vec![];
@@ -212,6 +213,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
             }
         }
     }
+    */
 
     // rotating monkey
     {
@@ -233,12 +235,13 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         gengar_engine::debug::draw_sphere(ct.global_matrix.get_position(), 0.1, Color::white());
     }
 
-    /*
     es.render_commands.push(RenderCommand::new_model(
         &es.transforms[gs.monkey_trans.unwrap()],
         &gs.model_monkey,
         &gs.monkey_material,
     ));
+
+    /*
 
     {
         let r = Rect::new(VecTwo::new(100.0, 100.0), VecTwo::new(200.0, 200.0));

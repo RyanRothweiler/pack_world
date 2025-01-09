@@ -16,7 +16,7 @@ js-sys = "0.3.70"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 gengar_engine = { path = "../gengar_engine" }
 
-game = { path = "../spec_game", package = "spec_game" }
+game = { path = "../pack_world_game", package = "pack_world_game" }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
