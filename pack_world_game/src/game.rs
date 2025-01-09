@@ -50,6 +50,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         es.shader_color.clone(),
         es.shader_color_ui,
         es.model_sphere.clone(),
+        es.model_plane.clone(),
     );
 
     gs.model_monkey =
@@ -173,6 +174,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
         es.model_sphere.clone(),
+        es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
     gengar_engine::ui::frame_start(&input, es.shader_color_ui);
@@ -215,6 +217,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     }
     */
 
+    /*
     // rotating monkey
     {
         if input.mouse_left.pressing {
@@ -228,18 +231,29 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         monkey_transform.local_rotation.y = monkey_transform.local_rotation.y + gs.monkey_vel.y;
         monkey_transform.local_rotation.x = monkey_transform.local_rotation.x + gs.monkey_vel.x;
     }
+    */
 
-    // draw sphere for light
     {
         let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
-        gengar_engine::debug::draw_sphere(ct.global_matrix.get_position(), 0.1, Color::white());
+        /*
+        gengar_engine::debug::draw_sphere(VecThreeFloat::new(0.0, 0.0, 0.0), 0.1, Color::white());
+        gengar_engine::debug::draw_sphere(VecThreeFloat::new(1.0, 0.0, 0.0), 0.1, Color::red());
+        gengar_engine::debug::draw_sphere(VecThreeFloat::new(0.0, 1.0, 0.0), 0.1, Color::green());
+        */
+
+        gengar_engine::debug::draw_plane(VecThreeFloat::new(1.0, 1.0, 0.0), 0.1, Color::green());
     }
 
+    es.camera.move_fly(0.1, input);
+    // move_fly_(&mut self, mov_speed: f64, input: &Input);
+
+    /*
     es.render_commands.push(RenderCommand::new_model(
         &es.transforms[gs.monkey_trans.unwrap()],
         &gs.model_monkey,
         &gs.monkey_material,
     ));
+    */
 
     /*
 

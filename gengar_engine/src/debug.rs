@@ -17,12 +17,19 @@ pub struct DebugContext {
 
     pub shader_color: Shader,
     pub shader_color_ui: Shader,
+
     pub model_sphere: Model,
+    pub model_plane: Model,
 }
 
 static mut DEBUG_CONTEXT: Option<DebugContext> = None;
 
-pub fn init_context(shader_color: Shader, shader_color_ui: Shader, model_sphere: Model) {
+pub fn init_context(
+    shader_color: Shader,
+    shader_color_ui: Shader,
+    model_sphere: Model,
+    model_plane: Model,
+) {
     unsafe {
         DEBUG_CONTEXT = Some(DebugContext {
             render_commands: vec![],
@@ -30,6 +37,7 @@ pub fn init_context(shader_color: Shader, shader_color_ui: Shader, model_sphere:
             shader_color,
             shader_color_ui,
             model_sphere,
+            model_plane,
         });
     }
 }
@@ -68,11 +76,33 @@ pub fn draw_sphere(center: VecThreeFloat, size: f64, color: Color) {
         UniformData::VecFour(VecFour::from(color)),
     );
 
-    let model_sphere = context.model_sphere.clone();
+    let model = context.model_sphere.clone();
 
     context
         .render_commands
-        .push(RenderCommand::new_model(&trans, &model_sphere, &material));
+        .push(RenderCommand::new_model(&trans, &model, &material));
+}
+
+pub fn draw_plane(center: VecThreeFloat, size: f64, color: Color) {
+    let context: &mut DebugContext = unsafe { DEBUG_CONTEXT.as_mut().unwrap() };
+
+    let mut trans = Transform::new();
+    trans.local_position = center;
+    trans.local_scale = VecThreeFloat::new(size, size, size);
+    trans.update_global_matrix(&M44::new_identity());
+
+    let mut material = Material::new();
+    material.shader = Some(context.shader_color);
+    material.uniforms.insert(
+        "color".to_string(),
+        UniformData::VecFour(VecFour::from(color)),
+    );
+
+    let model = context.model_plane.clone();
+
+    context
+        .render_commands
+        .push(RenderCommand::new_model(&trans, &model, &material));
 }
 
 pub fn draw_rect(rect: &Rect, color: Color) {

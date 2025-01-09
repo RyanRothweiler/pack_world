@@ -18,6 +18,7 @@ pub struct State {
     pub font_sdf: Shader,
 
     pub model_sphere: Model,
+    pub model_plane: Model,
 
     pub frame: i64,
 
@@ -55,8 +56,10 @@ impl State {
             game_ui_debug_render_commands: vec![],
 
             window_resolution,
-            model_sphere: Model::new(),
             transforms: vec![],
+
+            model_sphere: Model::new(),
+            model_plane: Model::new(),
 
             camera: Camera::new(
                 ProjectionType::Perspective { focal_length: 0.95 },

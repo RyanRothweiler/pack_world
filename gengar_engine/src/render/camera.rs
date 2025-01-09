@@ -139,7 +139,7 @@ impl Camera {
 
     // Control the camera as a fly-cam
     // Mouse for rotation and wasd for camera relative movement
-    pub fn move_fly_(&mut self, mov_speed: f64, input: &Input) {
+    pub fn move_fly(&mut self, mov_speed: f64, input: &Input) {
         if input.mouse_right.pressing {
             let sens = 0.08;
             self.yaw = self.yaw - (input.mouse_pos_delta.x * sens);
