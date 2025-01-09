@@ -87,6 +87,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "gengar_platform_web"
+version = "0.1.0"
+dependencies = [
+ "console_error_panic_hook",
+ "gengar_engine",
+ "js-sys",
+ "spec_game",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
+ "web-sys",
+]
+
+[[package]]
+name = "gengar_platform_windows"
+version = "0.1.0"
+dependencies = [
+ "gengar_engine",
+ "gengar_render_opengl",
+ "gengar_renderapi_opengl_windows",
+ "spec_game",
+ "windows",
+]
+
+[[package]]
 name = "gengar_render_opengl"
 version = "0.1.0"
 dependencies = [
@@ -224,30 +248,6 @@ version = "0.1.0"
 dependencies = [
  "gengar_engine",
  "gengar_render_opengl",
-]
-
-[[package]]
-name = "spec_game_web"
-version = "0.1.0"
-dependencies = [
- "console_error_panic_hook",
- "gengar_engine",
- "js-sys",
- "spec_game",
- "wasm-bindgen",
- "wasm-bindgen-test",
- "web-sys",
-]
-
-[[package]]
-name = "spec_game_windows"
-version = "0.1.0"
-dependencies = [
- "gengar_engine",
- "gengar_render_opengl",
- "gengar_renderapi_opengl_windows",
- "spec_game",
- "windows",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 [package]
-name = "spec_game_web"
+name = "gengar_platform_web"
 version = "0.1.0"
 authors = ["RyanRothweiler <ryanrothweiler@gmail.com>"]
 edition = "2021"
