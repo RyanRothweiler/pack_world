@@ -244,7 +244,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         gengar_engine::debug::draw_plane(VecThreeFloat::new(1.0, 1.0, 0.0), 0.1, Color::green());
     }
 
-    es.camera.move_fly(0.1, input);
+    // es.camera.move_fly(0.1, input);
     // move_fly_(&mut self, mov_speed: f64, input: &Input);
 
     /*
@@ -272,6 +272,22 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
 
     // skill buttons
     // {}
+
+    {
+        let mut r = Rect::new_square(10.0);
+        r.set_center(input.mouse_pos);
+
+        let mut mat = Material::new();
+        mat.shader = Some(es.shader_color_ui);
+
+        mat.uniforms.insert(
+            "color".to_string(),
+            UniformData::VecFour(Color::blue().into()),
+        );
+
+        es.ui_render_commands
+            .push(RenderCommand::new_rect(&r, -1.0, &mat));
+    }
 
     es.ui_render_commands
         .append(&mut gengar_engine::ui::get_render_commands());
