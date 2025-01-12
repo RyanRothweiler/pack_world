@@ -12,6 +12,7 @@ pub mod camera;
 pub mod image;
 pub mod material;
 pub mod render_command;
+pub mod render_pack;
 pub mod shader;
 pub mod vao;
 

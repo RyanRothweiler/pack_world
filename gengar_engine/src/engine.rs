@@ -1,4 +1,10 @@
-#![allow(unused_imports, dead_code, clippy::all, static_mut_refs)]
+#![allow(
+    unused_imports,
+    dead_code,
+    clippy::all,
+    static_mut_refs,
+    unused_variables
+)]
 
 use std::{include_str, io::Cursor};
 
@@ -93,19 +99,21 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     );
 }
 
-pub fn engine_frame_start(state: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
+pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
     // reset render lists
-    state.render_commands = vec![];
-    state.ui_render_commands = vec![];
+    for (key, pack) in &mut es.render_packs {
+        pack.commands.clear();
+    }
 
-    state.frame = state.frame + 1;
+    es.frame = es.frame + 1;
 
     debug::frame_start();
 }
 
 pub fn engine_frame_end(es: &mut State) {
-    es.camera.update_matricies();
-    es.ui_camera.update_matricies();
+    for (key, pack) in &mut es.render_packs {
+        pack.camera.update_matricies();
+    }
 
     Transform::update_all(&mut es.transforms);
 }

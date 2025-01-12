@@ -1,7 +1,9 @@
+use std::{cell::RefCell, collections::HashMap};
+
 use crate::{
     font::*,
     model::*,
-    render::{camera::*, render_command::*, shader::*, vao::*},
+    render::{camera::*, render_command::*, render_pack::*, shader::*, vao::*},
     transform::*,
     ui::*,
     vectors::*,
@@ -27,11 +29,7 @@ pub struct State {
     pub game_debug_render_commands: Vec<RenderCommand>,
     pub game_ui_debug_render_commands: Vec<RenderCommand>,
 
-    pub render_commands: Vec<RenderCommand>,
-    pub camera: Camera,
-
-    pub ui_render_commands: Vec<RenderCommand>,
-    pub ui_camera: Camera,
+    pub render_packs: HashMap<RenderPackID, RenderPack>,
 
     // Pseudo ecs stuff.
     // This doesn't handle 'deallocation'
@@ -49,11 +47,10 @@ impl State {
             shader_color_ui: Shader::new_empty(),
             font_sdf: Shader::new_empty(),
 
-            render_commands: vec![],
-            ui_render_commands: vec![],
-
             game_debug_render_commands: vec![],
             game_ui_debug_render_commands: vec![],
+
+            render_packs: HashMap::new(),
 
             window_resolution,
             transforms: vec![],
@@ -61,19 +58,32 @@ impl State {
             model_sphere: Model::new(),
             model_plane: Model::new(),
 
-            camera: Camera::new(
-                ProjectionType::Perspective { focal_length: 0.95 },
-                window_resolution,
-            ),
-            ui_camera: Camera::new(ProjectionType::Orthographic, window_resolution),
-
             roboto_font: Default::default(),
 
             frame: 0,
         };
 
-        state.camera.transform.local_position.z = 4.0;
-        state.ui_camera.transform.local_position.z = 0.0;
+        state.render_packs.insert(
+            RenderPackID::UI,
+            RenderPack::new(ProjectionType::Orthographic, window_resolution),
+        );
+
+        state.render_packs.insert(
+            RenderPackID::World,
+            RenderPack::new(
+                ProjectionType::Perspective { focal_length: 0.95 },
+                window_resolution,
+            ),
+        );
+
+        state
+            .render_packs
+            .get_mut(&RenderPackID::World)
+            .unwrap()
+            .camera
+            .transform
+            .local_position
+            .z = 4.0;
 
         return state;
     }

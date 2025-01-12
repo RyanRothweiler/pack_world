@@ -4,7 +4,7 @@ use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
     render::{
-        camera::*, image::Image, render_command::*, shader::*, vao::Vao,
+        camera::*, image::Image, render_command::*, render_pack::*, shader::*, vao::Vao,
         RenderApi as EngineRenderApiTrait, ShaderType,
     },
     state::State as EngineState,
@@ -376,41 +376,41 @@ pub fn render(
     render_api.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
     render_api.platform_api.clear();
 
-    render_list(light_pos, &mut es.render_commands, &es.camera, &render_api);
-    render_list(
-        light_pos,
-        &mut es.ui_render_commands,
-        &es.ui_camera,
-        &render_api,
-    );
+    for (key, pack) in &mut es.render_packs {
+        render_render_pack(light_pos, pack, &render_api);
+    }
 
     // Debug rendering
     {
         render_list(
             VecThreeFloat::new_zero(),
             gengar_engine::debug::get_render_list(),
-            &es.camera,
+            &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
         render_list(
             VecThreeFloat::new_zero(),
             gengar_engine::debug::get_ui_render_list(),
-            &es.camera,
+            &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
         render_list(
             VecThreeFloat::new_zero(),
             &mut es.game_debug_render_commands,
-            &es.camera,
+            &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
         render_list(
             VecThreeFloat::new_zero(),
             &mut es.game_ui_debug_render_commands,
-            &es.ui_camera,
+            &es.render_packs.get(&RenderPackID::UI).unwrap().camera,
             &render_api,
         );
     }
+}
+
+fn render_render_pack(light_pos: VecThreeFloat, pack: &mut RenderPack, render_api: &OglRenderApi) {
+    render_list(light_pos, &mut pack.commands, &pack.camera, render_api);
 }
 
 fn render_list(

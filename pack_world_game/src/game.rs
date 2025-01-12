@@ -12,8 +12,8 @@ use gengar_engine::{
     obj,
     rect::*,
     render::{
-        image::Image, load_image, material::*, render_command::RenderCommand, shader::*, vao::*,
-        RenderApi,
+        image::Image, load_image, material::*, render_command::RenderCommand, render_pack::*,
+        shader::*, vao::*, RenderApi,
     },
     state::Input,
     state::State as EngineState,
@@ -179,7 +179,6 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
     gengar_engine::debug::frame_start();
     gengar_engine::ui::frame_start(&input, es.shader_color_ui);
 
-    /*
     // update UI
     {
         let mut update_signals: Vec<UpdateSignal> = vec![];
@@ -215,7 +214,6 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
             }
         }
     }
-    */
 
     /*
     // rotating monkey
@@ -244,7 +242,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         gengar_engine::debug::draw_plane(VecThreeFloat::new(1.0, 1.0, 0.0), 0.1, Color::green());
     }
 
-    // es.camera.move_fly(0.1, input);
+    // es.world_render_pack.camera.move_fly(0.1, input);
     // move_fly_(&mut self, mov_speed: f64, input: &Input);
 
     /*
@@ -285,11 +283,17 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
             UniformData::VecFour(Color::blue().into()),
         );
 
-        es.ui_render_commands
+        es.render_packs
+            .get_mut(&RenderPackID::UI)
+            .unwrap()
+            .commands
             .push(RenderCommand::new_rect(&r, -1.0, &mat));
     }
 
-    es.ui_render_commands
+    es.render_packs
+        .get_mut(&RenderPackID::UI)
+        .unwrap()
+        .commands
         .append(&mut gengar_engine::ui::get_render_commands());
 
     es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
