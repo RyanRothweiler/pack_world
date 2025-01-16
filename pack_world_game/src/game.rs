@@ -12,8 +12,8 @@ use gengar_engine::{
     obj,
     rect::*,
     render::{
-        image::Image, load_image, material::*, render_command::RenderCommand, render_pack::*,
-        shader::*, vao::*, RenderApi,
+        image::Image, load_image, load_image_cursor, material::*, render_command::RenderCommand,
+        render_pack::*, shader::*, vao::*, RenderApi,
     },
     state::Input,
     state::State as EngineState,
@@ -64,97 +64,13 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         es.model_plane.clone(),
     );
 
-    gs.model_monkey =
-        Model::load_upload(include_str!("../resources/monkey.obj"), render_api).unwrap();
+    gs.image_dirt = load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
+    gs.image_grass =
+        load_image_cursor(include_bytes!("../resources/grass.png"), render_api).unwrap();
 
-    // dirt
-    {
-        let image_bytes_cursor = Cursor::new(include_bytes!("../resources/dirt.png"));
-        gs.dirt = load_image(image_bytes_cursor).unwrap();
-        gs.dirt.gl_id = Some(render_api.upload_texture(&gs.dirt, true).unwrap());
-    }
-
-    // albedo
-    {
-        let image_bytes_cursor =
-            Cursor::new(include_bytes!("../resources/monkey_testing/BaseColor.png"));
-        gs.albedo = load_image(image_bytes_cursor).unwrap();
-        gs.albedo.gl_id = Some(render_api.upload_texture(&gs.albedo, true).unwrap());
-    }
-
-    // metallic
-    {
-        let image_bytes_cursor =
-            Cursor::new(include_bytes!("../resources/monkey_testing/Metallic.png"));
-        gs.metallic = load_image(image_bytes_cursor).unwrap();
-        gs.metallic.gl_id = Some(render_api.upload_texture(&gs.metallic, false).unwrap());
-    }
-
-    // normal
-    {
-        let image_bytes_cursor =
-            Cursor::new(include_bytes!("../resources/monkey_testing/Normal.png"));
-        gs.normal = load_image(image_bytes_cursor).unwrap();
-        gs.normal.gl_id = Some(render_api.upload_texture(&gs.normal, false).unwrap());
-    }
-
-    // roughness
-    {
-        let image_bytes_cursor =
-            Cursor::new(include_bytes!("../resources/monkey_testing/Roughness.png"));
-        gs.roughness = load_image(image_bytes_cursor).unwrap();
-        gs.roughness.gl_id = Some(render_api.upload_texture(&gs.roughness, false).unwrap());
-    }
-
-    // ao
-    {
-        let image_bytes_cursor = Cursor::new(include_bytes!("../resources/monkey_testing/AO.png"));
-        gs.ao = load_image(image_bytes_cursor).unwrap();
-        gs.ao.gl_id = Some(render_api.upload_texture(&gs.ao, true).unwrap());
-    }
-
-    // monkey material
-    gs.monkey_material.shader = Some(es.pbr_shader);
-    gs.monkey_material.uniforms.insert(
-        "tex".to_string(),
-        UniformData::Texture(TextureInfo {
-            image_id: gs.albedo.gl_id.unwrap(),
-            texture_slot: 0,
-        }),
-    );
-    gs.monkey_material.uniforms.insert(
-        "normalTex".to_string(),
-        UniformData::Texture(TextureInfo {
-            image_id: gs.normal.gl_id.unwrap(),
-            texture_slot: 1,
-        }),
-    );
-    gs.monkey_material.uniforms.insert(
-        "metallicTex".to_string(),
-        UniformData::Texture(TextureInfo {
-            image_id: gs.metallic.gl_id.unwrap(),
-            texture_slot: 2,
-        }),
-    );
-    gs.monkey_material.uniforms.insert(
-        "roughnessTex".to_string(),
-        UniformData::Texture(TextureInfo {
-            image_id: gs.roughness.gl_id.unwrap(),
-            texture_slot: 3,
-        }),
-    );
-    gs.monkey_material.uniforms.insert(
-        "aoTex".to_string(),
-        UniformData::Texture(TextureInfo {
-            image_id: gs.ao.gl_id.unwrap(),
-            texture_slot: 4,
-        }),
-    );
-
-    gs.center_trans = Some(es.new_transform());
-    gs.monkey_trans = Some(es.new_transform());
     gs.light_trans = Some(es.new_transform());
 
+    /*
     let mt: &mut Transform = &mut es.transforms[gs.monkey_trans.unwrap()];
 
     let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
@@ -164,6 +80,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     lt.local_position.x = 3.5;
     lt.local_position.y = 3.5;
     lt.parent = gs.center_trans;
+    */
 
     // setup font styles
     {
@@ -244,7 +161,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         mat.uniforms.insert(
             "tex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.dirt.gl_id.unwrap(),
+                image_id: gs.image_dirt.gl_id.unwrap(),
                 texture_slot: 0,
             }),
         );
@@ -268,7 +185,9 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
             x: mp.x as i32,
             y: mp.y as i32,
         };
-        gs.tiles.entry(mpi).or_insert(Tile { image_id: 0 });
+        gs.tiles.entry(mpi).or_insert(Tile {
+            image_id: gs.image_dirt.gl_id.unwrap(),
+        });
     }
 
     // render tiles
@@ -287,7 +206,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
             mat.uniforms.insert(
                 "tex".to_string(),
                 UniformData::Texture(TextureInfo {
-                    image_id: gs.dirt.gl_id.unwrap(),
+                    image_id: tile.image_id,
                     texture_slot: 0,
                 }),
             );

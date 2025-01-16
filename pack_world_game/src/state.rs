@@ -10,24 +10,10 @@ use gengar_engine::{
 };
 
 pub struct State {
-    pub model_monkey: Model,
-
-    pub dirt: Image,
-
-    pub albedo: Image,
-    pub metallic: Image,
-    pub normal: Image,
-    pub roughness: Image,
-    pub ao: Image,
-
-    pub monkey_material: Material,
-
-    pub monkey_trans: Option<usize>,
-    pub center_trans: Option<usize>,
+    pub image_dirt: Image,
+    pub image_grass: Image,
 
     pub light_trans: Option<usize>,
-
-    pub monkey_vel: VecTwo,
 
     pub font_style_button: FontStyle,
 
@@ -44,25 +30,12 @@ pub struct State {
 impl State {
     pub fn new() -> Self {
         State {
-            model_monkey: Model::new(),
-
             active_ui_panels: vec![],
             items: vec![],
 
-            dirt: Image::new(),
+            image_dirt: Image::new(),
+            image_grass: Image::new(),
 
-            albedo: Image::new(),
-            metallic: Image::new(),
-            normal: Image::new(),
-            roughness: Image::new(),
-            ao: Image::new(),
-
-            monkey_material: Material::new(),
-
-            monkey_vel: VecTwo::new(0.0, 0.0),
-
-            monkey_trans: None,
-            center_trans: None,
             light_trans: None,
 
             font_style_button: Default::default(),

@@ -1,5 +1,5 @@
 use png;
-use std::{fs::File, path::Path};
+use std::{fs::File, io::Cursor, path::Path};
 
 use crate::{
     error::*, model::*, rect::*, render::material::Material, state::*, transform::*, vectors::*,
@@ -39,6 +39,14 @@ pub trait RenderApi {
 pub enum ShaderType {
     Vertex,
     Fragment,
+}
+
+pub fn load_image_cursor(bytes: &[u8], render_api: &impl RenderApi) -> Result<Image, Error> {
+    let cursor = Cursor::new(bytes);
+    let mut img = load_image(cursor).unwrap();
+    img.gl_id = Some(render_api.upload_texture(&img, false).unwrap());
+
+    return Ok(img);
 }
 
 pub fn load_image_path(path: &Path) -> Result<Image, Error> {
