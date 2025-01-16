@@ -81,6 +81,8 @@ pub fn draw_sphere(center: VecThreeFloat, size: f64, color: Color) {
     context
         .render_commands
         .push(RenderCommand::new_model(&trans, &model, &material));
+
+    panic!("this won't render correctly because I've changed the world render pack to be orthographic.");
 }
 
 pub fn draw_plane(center: VecThreeFloat, size: f64, color: Color) {
@@ -103,6 +105,8 @@ pub fn draw_plane(center: VecThreeFloat, size: f64, color: Color) {
     context
         .render_commands
         .push(RenderCommand::new_model(&trans, &model, &material));
+
+    panic!("this won't render correctly because I've changed the world render pack to be orthographic.");
 }
 
 pub fn draw_rect(rect: &Rect, color: Color) {
@@ -114,19 +118,6 @@ pub fn draw_rect(rect: &Rect, color: Color) {
         "color".to_string(),
         UniformData::VecFour(VecFour::from(color)),
     );
-
-    /*
-    let rc = RenderCommand {
-        kind: VertexDataKind::DynamicMesh {
-            mesh: rect.get_mesh(-1.0),
-            uvs: vec![],
-        },
-
-        prog_id: material.shader.unwrap().prog_id,
-        indices: vec![0, 1, 2, 3, 4, 5],
-        uniforms: material.uniforms.clone(),
-    };
-    */
 
     context
         .ui_render_commands

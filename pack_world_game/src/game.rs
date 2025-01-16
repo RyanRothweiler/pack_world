@@ -1,4 +1,4 @@
-#![allow(unused_imports, unused_variables, clippy::all)]
+#![allow(unused_imports, unused_variables, clippy::all, unused_mut)]
 
 use crate::state::*;
 use gengar_engine::{
@@ -26,13 +26,24 @@ use std::{fs::File, io::Cursor, path::Path};
 
 pub mod item;
 pub mod state;
+pub mod tiles;
 pub mod ui_panels;
 
 use item::*;
+use tiles::*;
 use ui_panels::{ui_skill_buttons_panel::*, *};
 
 // Used for windows platform loading dlls
 pub const PACKAGE_NAME: &str = "pack_world_game";
+
+pub const GRID_SIZE: f64 = 50.0;
+
+pub fn grid_snap(pos: VecTwo) -> VecTwo {
+    VecTwo::new(
+        (pos.x / GRID_SIZE).round() * GRID_SIZE,
+        (pos.y / GRID_SIZE).round() * GRID_SIZE,
+    )
+}
 
 pub enum UpdateSignal {
     CreateItem,
@@ -42,7 +53,7 @@ pub enum UpdateSignal {
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
 pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRenderApi) {
-    game_init(gs, es, render_api);
+    game_init(gs, es, render_api)
 }
 
 pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
@@ -55,6 +66,13 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     gs.model_monkey =
         Model::load_upload(include_str!("../resources/monkey.obj"), render_api).unwrap();
+
+    // dirt
+    {
+        let image_bytes_cursor = Cursor::new(include_bytes!("../resources/dirt.png"));
+        gs.dirt = load_image(image_bytes_cursor).unwrap();
+        gs.dirt.gl_id = Some(render_api.upload_texture(&gs.dirt, true).unwrap());
+    }
 
     // albedo
     {
@@ -215,72 +233,25 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
         }
     }
 
-    /*
-    // rotating monkey
+    // test square render
     {
-        if input.mouse_left.pressing {
-            let sens = 0.001;
-            gs.monkey_vel.y = gs.monkey_vel.y + (input.mouse_pos_delta.x * sens);
-            gs.monkey_vel.x = gs.monkey_vel.x + (input.mouse_pos_delta.y * sens);
-        }
-
-        gs.monkey_vel = gs.monkey_vel * 0.9;
-        let monkey_transform: &mut Transform = &mut es.transforms[gs.monkey_trans.unwrap()];
-        monkey_transform.local_rotation.y = monkey_transform.local_rotation.y + gs.monkey_vel.y;
-        monkey_transform.local_rotation.x = monkey_transform.local_rotation.x + gs.monkey_vel.x;
-    }
-    */
-
-    {
-        let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
-        /*
-        gengar_engine::debug::draw_sphere(VecThreeFloat::new(0.0, 0.0, 0.0), 0.1, Color::white());
-        gengar_engine::debug::draw_sphere(VecThreeFloat::new(1.0, 0.0, 0.0), 0.1, Color::red());
-        gengar_engine::debug::draw_sphere(VecThreeFloat::new(0.0, 1.0, 0.0), 0.1, Color::green());
-        */
-
-        gengar_engine::debug::draw_plane(VecThreeFloat::new(1.0, 1.0, 0.0), 0.1, Color::green());
-    }
-
-    // es.world_render_pack.camera.move_fly(0.1, input);
-    // move_fly_(&mut self, mov_speed: f64, input: &Input);
-
-    /*
-    es.render_commands.push(RenderCommand::new_model(
-        &es.transforms[gs.monkey_trans.unwrap()],
-        &gs.model_monkey,
-        &gs.monkey_material,
-    ));
-    */
-
-    /*
-
-    {
-        let r = Rect::new(VecTwo::new(100.0, 100.0), VecTwo::new(200.0, 200.0));
-        if draw_button("first", std::line!(), &r, &gs.font_style_button) {
-            println!("clicking");
-        }
-
-        let r = Rect::new(VecTwo::new(300.0, 300.0), VecTwo::new(500.0, 500.0));
-        if draw_button("second", std::line!(), &r, &gs.font_style_button) {
-            println!("clicking second");
-        }
-    }
-    */
-
-    // skill buttons
-    // {}
-
-    {
-        let mut r = Rect::new_square(10.0);
-        r.set_center(input.mouse_pos);
+        let mut r = Rect::new_square(GRID_SIZE * 0.5);
+        r.set_center(grid_snap(input.mouse_pos));
 
         let mut mat = Material::new();
-        mat.shader = Some(es.shader_color_ui);
+        mat.shader = Some(es.color_texture_shader);
+
+        mat.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.dirt.gl_id.unwrap(),
+                texture_slot: 0,
+            }),
+        );
 
         mat.uniforms.insert(
             "color".to_string(),
-            UniformData::VecFour(Color::blue().into()),
+            UniformData::VecFour(Color::white().into()),
         );
 
         es.render_packs
@@ -288,6 +259,50 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
             .unwrap()
             .commands
             .push(RenderCommand::new_rect(&r, -1.0, &mat));
+    }
+
+    // place tile
+    if input.mouse_left.on_press {
+        let mp = grid_snap(input.mouse_pos);
+        let mpi: VecTwoInt = VecTwoInt {
+            x: mp.x as i32,
+            y: mp.y as i32,
+        };
+        gs.tiles.entry(mpi).or_insert(Tile { image_id: 0 });
+    }
+
+    // render tiles
+    {
+        for (pos, tile) in &gs.tiles {
+            let mut r = Rect::new_square(GRID_SIZE * 0.5);
+
+            r.set_center(VecTwo {
+                x: pos.x as f64,
+                y: pos.y as f64,
+            });
+
+            let mut mat = Material::new();
+            mat.shader = Some(es.color_texture_shader);
+
+            mat.uniforms.insert(
+                "tex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: gs.dirt.gl_id.unwrap(),
+                    texture_slot: 0,
+                }),
+            );
+
+            mat.uniforms.insert(
+                "color".to_string(),
+                UniformData::VecFour(Color::white().into()),
+            );
+
+            es.render_packs
+                .get_mut(&RenderPackID::UI)
+                .unwrap()
+                .commands
+                .push(RenderCommand::new_rect(&r, -1.0, &mat));
+        }
     }
 
     es.render_packs

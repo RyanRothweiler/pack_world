@@ -38,6 +38,7 @@ pub fn render(
 
     todo!("render the render packs");
 
+    /*
     render_list(
         light_pos,
         &mut es.render_commands,
@@ -68,6 +69,7 @@ pub fn render(
         render_api,
         context,
     );
+    */
 }
 
 fn render_list(

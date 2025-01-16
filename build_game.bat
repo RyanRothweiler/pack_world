@@ -1,0 +1,2 @@
+cd pack_world_game
+cargo build

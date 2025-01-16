@@ -1,4 +1,6 @@
-use crate::{item::*, ui_panels::*};
+use std::collections::HashMap;
+
+use crate::{item::*, tiles::*, ui_panels::*};
 use gengar_engine::{
     font::*,
     model::*,
@@ -9,6 +11,8 @@ use gengar_engine::{
 
 pub struct State {
     pub model_monkey: Model,
+
+    pub dirt: Image,
 
     pub albedo: Image,
     pub metallic: Image,
@@ -33,6 +37,8 @@ pub struct State {
     pub items: Vec<Item>,
 
     pub ui_panel_common: Option<UIPanelCommon>,
+
+    pub tiles: HashMap<VecTwoInt, Tile>,
 }
 
 impl State {
@@ -42,6 +48,8 @@ impl State {
 
             active_ui_panels: vec![],
             items: vec![],
+
+            dirt: Image::new(),
 
             albedo: Image::new(),
             metallic: Image::new(),
@@ -60,6 +68,8 @@ impl State {
             font_style_button: Default::default(),
             ui_panel_common: None,
             active_page: None,
+
+            tiles: HashMap::new(),
         }
     }
 }

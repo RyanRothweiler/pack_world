@@ -132,6 +132,21 @@ impl Add for VecTwo {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Default, Hash)]
+pub struct VecTwoInt {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl From<&VecTwo> for VecTwoInt {
+    fn from(input: &VecTwo) -> Self {
+        Self {
+            x: input.x as i32,
+            y: input.y as i32,
+        }
+    }
+}
+
 // Used for any FFI C stuff. Like ogl graphics rendering
 #[repr(C)]
 pub struct VecTwoC {
