@@ -58,7 +58,7 @@ type FuncGameInit = fn(
     &gengar_render_opengl::OglRenderApi,
 );
 type FuncGameLoop =
-    fn(&mut game::state::State, &mut gengar_engine::state::State, &gengar_engine::state::Input);
+    fn(&mut game::state::State, &mut gengar_engine::state::State, &mut gengar_engine::state::Input);
 
 struct GameDll {
     dll_handle: HMODULE,
@@ -317,7 +317,7 @@ fn main() {
 
             // Run game / engine loops
             gengar_engine::engine_frame_start(&mut engine_state, &input, &render_api);
-            (game_dll.proc_loop)(&mut game_state, &mut engine_state, &input);
+            (game_dll.proc_loop)(&mut game_state, &mut engine_state, &mut input);
             gengar_engine::engine_frame_end(&mut engine_state);
 
             let light_trans = engine_state.transforms[game_state.light_trans.unwrap()]

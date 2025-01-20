@@ -15,6 +15,7 @@ impl Rect {
         }
     }
 
+    // top left doesn't move. width and height push out the bottom right
     pub fn new_top_size(top_left: VecTwo, width: f64, height: f64) -> Self {
         Self {
             top_left,
@@ -80,6 +81,11 @@ impl Rect {
 
         self.top_left = center - VecTwo::new(half_width, half_height);
         self.bottom_right = center + VecTwo::new(half_width, half_height);
+    }
+
+    // resize by moving the right point. Top left remains unchanged
+    pub fn resize_right(&mut self, width: f64) {
+        self.bottom_right.x = self.top_left.x + width;
     }
 
     pub fn get_mesh(&self, z: f64) -> Vec<VecThreeFloat> {
@@ -159,7 +165,16 @@ mod test {
         let mut r = Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(20.0, 30.0));
         r.set_center(VecTwo::new(5.0, 5.0));
 
-        assert_eq!(r.top_left, VecTwo::new(0.0, 10.0));
-        assert_eq!(r.bottom_right, VecTwo::new(10.0, 10.0));
+        assert_eq!(r.top_left, VecTwo::new(-5.0, -15.0));
+        assert_eq!(r.bottom_right, VecTwo::new(15.0, 25.0));
+    }
+
+    #[test]
+    fn resize_right() {
+        let mut r = Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(20.0, 30.0));
+        r.resize_right(2.0);
+
+        assert_eq!(r.top_left, VecTwo::new(10.0, 10.0));
+        assert_eq!(r.bottom_right, VecTwo::new(12.0, 30.0));
     }
 }

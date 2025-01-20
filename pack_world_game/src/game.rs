@@ -1,4 +1,10 @@
-#![allow(unused_imports, unused_variables, clippy::all, unused_mut)]
+#![allow(
+    unused_imports,
+    unused_variables,
+    clippy::all,
+    unused_mut,
+    unreachable_code
+)]
 
 use crate::state::*;
 use gengar_engine::{
@@ -31,7 +37,7 @@ pub mod ui_panels;
 
 use item::*;
 use tiles::*;
-use ui_panels::{ui_skill_buttons_panel::*, *};
+use ui_panels::{tile_library_panel::*, *};
 
 // Used for windows platform loading dlls
 pub const PACKAGE_NAME: &str = "pack_world_game";
@@ -43,11 +49,6 @@ pub fn grid_snap(pos: VecTwo) -> VecTwo {
         (pos.x / GRID_SIZE).round() * GRID_SIZE,
         (pos.y / GRID_SIZE).round() * GRID_SIZE,
     )
-}
-
-pub enum UpdateSignal {
-    CreateItem,
-    SetActivePage(ui_panels::PanelID),
 }
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
@@ -96,15 +97,15 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     // setup first ui
     {
-        gs.active_ui_panels.push(UIPanelState::SkillButtons(
+        gs.active_ui_panels.push(UIPanelState::TileLibrary(
             gs.ui_panel_common.as_mut().unwrap().clone(),
-            SkillButtonsPanel {},
+            TileLibraryPanel {},
         ))
     }
 }
 
 #[no_mangle]
-pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
+pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
@@ -116,38 +117,42 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
 
     // update UI
     {
+        let mut ui_frame_state = UIFrameState::new(&input);
+
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
         // Render and update active UI
         for panel in &mut gs.active_ui_panels {
-            update_signals.append(&mut ui_panels::update_panel(panel));
+            update_signals.append(&mut ui_panels::update_panel(panel, &mut ui_frame_state));
         }
 
         // update active page
         match &mut gs.active_page {
-            Some(page) => update_signals.append(&mut ui_panels::update_panel(page)),
+            Some(page) => {
+                update_signals.append(&mut ui_panels::update_panel(page, &mut ui_frame_state))
+            }
             None => {}
         }
 
         // Handle signals
         for us in update_signals {
             match us {
-                UpdateSignal::CreateItem => {
-                    gs.items.push(Item {
-                        name: "hey".into(),
-                        count: 10,
-                    });
-                }
                 UpdateSignal::SetActivePage(panel_id) => match panel_id {
-                    ui_panels::PanelID::Mining => {
-                        gs.active_page = Some(UIPanelState::Mining(
+                    ui_panels::PanelID::TileLibrary => {
+                        gs.active_page = Some(UIPanelState::TileLibrary(
                             gs.ui_panel_common.as_mut().unwrap().clone(),
-                            ui_panels::ui_mining_panel::MiningPanel {},
+                            ui_panels::tile_library_panel::TileLibraryPanel {},
                         ))
                     }
                 },
+                UpdateSignal::ConsumeInput => {
+                    input.mouse_left.on_press = false;
+                }
             }
         }
+
+        // Update input
+        input.mouse_left.on_press = ui_frame_state.mouse_left;
     }
 
     // test square render
@@ -168,7 +173,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
 
         mat.uniforms.insert(
             "color".to_string(),
-            UniformData::VecFour(Color::white().into()),
+            UniformData::VecFour(COLOR_WHITE.into()),
         );
 
         es.render_packs
@@ -213,7 +218,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &Input) {
 
             mat.uniforms.insert(
                 "color".to_string(),
-                UniformData::VecFour(Color::white().into()),
+                UniformData::VecFour(COLOR_WHITE.into()),
             );
 
             es.render_packs

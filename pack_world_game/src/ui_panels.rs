@@ -1,19 +1,21 @@
-use crate::UpdateSignal;
-use gengar_engine::font::*;
+use gengar_engine::{color::*, font::*, ui::*};
 
-pub mod ui_mining_panel;
-pub mod ui_skill_buttons_panel;
+pub mod tile_library_panel;
 
-use ui_mining_panel::*;
-use ui_skill_buttons_panel::*;
+use tile_library_panel::*;
 
+pub const BG_COLOR: Color = COLOR_BLUE;
+
+pub enum UpdateSignal {
+    SetActivePage(PanelID),
+    ConsumeInput,
+}
 pub enum PanelID {
-    Mining,
+    TileLibrary,
 }
 
 pub enum UIPanelState {
-    SkillButtons(UIPanelCommon, SkillButtonsPanel),
-    Mining(UIPanelCommon, MiningPanel),
+    TileLibrary(UIPanelCommon, TileLibraryPanel),
 }
 
 #[derive(Clone)]
@@ -21,15 +23,12 @@ pub struct UIPanelCommon {
     pub button_font_style: FontStyle,
 }
 
-pub fn update_panel(panel: &mut UIPanelState) -> Vec<UpdateSignal> {
+pub fn update_panel(panel: &mut UIPanelState, ui_state: &mut UIFrameState) -> Vec<UpdateSignal> {
     let mut update_signals: Vec<UpdateSignal> = vec![];
 
     match panel {
-        UIPanelState::SkillButtons(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common));
-        }
-        UIPanelState::Mining(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common));
+        UIPanelState::TileLibrary(common, panel_state) => {
+            update_signals.append(&mut panel_state.update(common, ui_state));
         }
     }
 
