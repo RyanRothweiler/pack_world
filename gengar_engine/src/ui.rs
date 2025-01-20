@@ -22,16 +22,18 @@ struct UIContext {
 static mut UI_CONTEXT: Option<UIContext> = None;
 
 pub struct UIFrameState {
-    pub mouse_left: bool,
+    pub resolution: VecTwo,
 
+    pub mouse_left: bool,
     pub current_panel: Option<Rect>,
 }
 
 impl UIFrameState {
-    pub fn new(input: &Input) -> Self {
+    pub fn new(input: &Input, resolution: VecTwo) -> Self {
         Self {
             mouse_left: input.mouse_left.on_press,
             current_panel: None,
+            resolution,
         }
     }
 }
@@ -75,7 +77,7 @@ pub fn draw_button(
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
     let contains = rect.contains(context.mouse_pos);
-    let mut color = COLOR_GREEN;
+    let mut color = COLOR_BLUE;
     if contains {
         color = COLOR_GREEN;
     }

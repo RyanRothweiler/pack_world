@@ -1,10 +1,15 @@
-use gengar_engine::{color::*, font::*, ui::*};
+use gengar_engine::{color::*, font::*, ui::*, vectors::*};
 
 pub mod tile_library_panel;
 
 use tile_library_panel::*;
 
-pub const BG_COLOR: Color = COLOR_BLUE;
+pub const BG_COLOR: Color = Color {
+    r: 0.32,
+    g: 0.32,
+    b: 0.32,
+    a: 1.0,
+};
 
 pub enum UpdateSignal {
     SetActivePage(PanelID),

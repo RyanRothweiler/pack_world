@@ -117,7 +117,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // update UI
     {
-        let mut ui_frame_state = UIFrameState::new(&input);
+        let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
 

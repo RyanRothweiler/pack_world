@@ -13,16 +13,24 @@ impl TileLibraryPanel {
 
         // begin panel
         begin_panel(
-            Rect::new_top_size(VecTwo::new(10.0, 10.0), 100.0, 100.0),
+            Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, state.resolution.y),
             BG_COLOR,
             &mut state,
         );
 
-        // button
+        let y_offset: f64 = 80.0;
+
         if draw_button(
-            "tile library ",
+            "grass",
             std::line!(),
-            &Rect::new_top_size(VecTwo::new(600.0, 100.0), 200.0, 200.0),
+            &Rect::new_top_size(VecTwo::new(10.0, 50.0), 50.0, 50.0),
+            &common.button_font_style,
+            state,
+        ) {}
+        if draw_button(
+            "dirt",
+            std::line!(),
+            &Rect::new_top_size(VecTwo::new(10.0, 50.0 + y_offset), 50.0, 50.0),
             &common.button_font_style,
             state,
         ) {}
