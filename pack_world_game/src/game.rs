@@ -145,8 +145,8 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                         ))
                     }
                 },
-                UpdateSignal::ConsumeInput => {
-                    input.mouse_left.on_press = false;
+                UpdateSignal::SetPlacingTile(tile) => {
+                    gs.tile_placing = tile;
                 }
             }
         }
@@ -155,44 +155,45 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         input.mouse_left.on_press = ui_frame_state.mouse_left;
     }
 
-    // test square render
-    {
-        let mut r = Rect::new_square(GRID_SIZE * 0.5);
-        r.set_center(grid_snap(input.mouse_pos));
+    // placing tiles
+    if let Some(tile) = gs.tile_placing {
+        // render tile placing
+        {
+            let mut r = Rect::new_square(GRID_SIZE * 0.5);
+            r.set_center(grid_snap(input.mouse_pos));
 
-        let mut mat = Material::new();
-        mat.shader = Some(es.color_texture_shader);
+            let mut mat = Material::new();
+            mat.shader = Some(es.color_texture_shader);
 
-        mat.uniforms.insert(
-            "tex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: gs.image_dirt.gl_id.unwrap(),
-                texture_slot: 0,
-            }),
-        );
+            mat.uniforms.insert(
+                "tex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: gs.get_tile_icon(tile),
+                    texture_slot: 0,
+                }),
+            );
 
-        mat.uniforms.insert(
-            "color".to_string(),
-            UniformData::VecFour(COLOR_WHITE.into()),
-        );
+            mat.uniforms.insert(
+                "color".to_string(),
+                UniformData::VecFour(COLOR_WHITE.into()),
+            );
 
-        es.render_packs
-            .get_mut(&RenderPackID::UI)
-            .unwrap()
-            .commands
-            .push(RenderCommand::new_rect(&r, -1.0, &mat));
-    }
+            es.render_packs
+                .get_mut(&RenderPackID::UI)
+                .unwrap()
+                .commands
+                .push(RenderCommand::new_rect(&r, -1.0, &mat));
+        }
 
-    // place tile
-    if input.mouse_left.on_press {
-        let mp = grid_snap(input.mouse_pos);
-        let mpi: VecTwoInt = VecTwoInt {
-            x: mp.x as i32,
-            y: mp.y as i32,
-        };
-        gs.tiles.entry(mpi).or_insert(Tile {
-            image_id: gs.image_dirt.gl_id.unwrap(),
-        });
+        // place tile
+        if input.mouse_left.on_press {
+            let mp = grid_snap(input.mouse_pos);
+            let mpi: VecTwoInt = VecTwoInt {
+                x: mp.x as i32,
+                y: mp.y as i32,
+            };
+            gs.tiles.entry(mpi).or_insert(tile);
+        }
     }
 
     // render tiles
@@ -211,7 +212,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             mat.uniforms.insert(
                 "tex".to_string(),
                 UniformData::Texture(TextureInfo {
-                    image_id: tile.image_id,
+                    image_id: gs.get_tile_icon(*tile),
                     texture_slot: 0,
                 }),
             );

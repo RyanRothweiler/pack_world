@@ -25,6 +25,7 @@ pub struct State {
     pub ui_panel_common: Option<UIPanelCommon>,
 
     pub tiles: HashMap<VecTwoInt, Tile>,
+    pub tile_placing: Option<Tile>,
 }
 
 impl State {
@@ -43,6 +44,14 @@ impl State {
             active_page: None,
 
             tiles: HashMap::new(),
+            tile_placing: None,
         }
+    }
+
+    pub fn get_tile_icon(&self, tile: Tile) -> u32 {
+        let image_id = match tile {
+            Tile::Dirt => return self.image_dirt.gl_id.unwrap(),
+            Tile::Grass => return self.image_grass.gl_id.unwrap(),
+        };
     }
 }

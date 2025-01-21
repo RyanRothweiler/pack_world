@@ -26,14 +26,29 @@ impl TileLibraryPanel {
             &Rect::new_top_size(VecTwo::new(10.0, 50.0), 50.0, 50.0),
             &common.button_font_style,
             state,
-        ) {}
+        ) {
+            ret.push(UpdateSignal::SetPlacingTile(Some(Tile::Grass)));
+        }
+
         if draw_button(
             "dirt",
             std::line!(),
             &Rect::new_top_size(VecTwo::new(10.0, 50.0 + y_offset), 50.0, 50.0),
             &common.button_font_style,
             state,
-        ) {}
+        ) {
+            ret.push(UpdateSignal::SetPlacingTile(Some(Tile::Dirt)));
+        }
+
+        if draw_button(
+            "none",
+            std::line!(),
+            &Rect::new_top_size(VecTwo::new(10.0, 50.0 + (y_offset * 2.0)), 50.0, 50.0),
+            &common.button_font_style,
+            state,
+        ) {
+            ret.push(UpdateSignal::SetPlacingTile(None));
+        }
 
         end_panel(&mut state);
 

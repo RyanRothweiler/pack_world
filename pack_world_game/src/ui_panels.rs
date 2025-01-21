@@ -1,3 +1,4 @@
+use crate::tiles::*;
 use gengar_engine::{color::*, font::*, ui::*, vectors::*};
 
 pub mod tile_library_panel;
@@ -13,8 +14,9 @@ pub const BG_COLOR: Color = Color {
 
 pub enum UpdateSignal {
     SetActivePage(PanelID),
-    ConsumeInput,
+    SetPlacingTile(Option<Tile>),
 }
+
 pub enum PanelID {
     TileLibrary,
 }

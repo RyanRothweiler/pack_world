@@ -1,5 +1,7 @@
 use gengar_engine::vectors::*;
 
-pub struct Tile {
-    pub image_id: u32,
+#[derive(Copy, Clone)]
+pub enum Tile {
+    Dirt,
+    Grass,
 }
