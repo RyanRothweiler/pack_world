@@ -102,6 +102,14 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             TileLibraryPanel {},
         ))
     }
+
+    // setup first map
+    {
+        let init_dirt: Vec<VecTwoInt> = vec![VecTwoInt::new(0, 0)];
+        for p in init_dirt {
+            gs.tiles.insert(p, Tile::Dirt);
+        }
+    }
 }
 
 #[no_mangle]
@@ -155,47 +163,6 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         input.mouse_left.on_press = ui_frame_state.mouse_left;
     }
 
-    // placing tiles
-    if let Some(tile) = gs.tile_placing {
-        // render tile placing
-        {
-            let mut r = Rect::new_square(GRID_SIZE * 0.5);
-            r.set_center(grid_snap(input.mouse_pos));
-
-            let mut mat = Material::new();
-            mat.shader = Some(es.color_texture_shader);
-
-            mat.uniforms.insert(
-                "tex".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: gs.get_tile_icon(tile),
-                    texture_slot: 0,
-                }),
-            );
-
-            mat.uniforms.insert(
-                "color".to_string(),
-                UniformData::VecFour(COLOR_WHITE.into()),
-            );
-
-            es.render_packs
-                .get_mut(&RenderPackID::UI)
-                .unwrap()
-                .commands
-                .push(RenderCommand::new_rect(&r, -1.0, &mat));
-        }
-
-        // place tile
-        if input.mouse_left.on_press {
-            let mp = grid_snap(input.mouse_pos);
-            let mpi: VecTwoInt = VecTwoInt {
-                x: mp.x as i32,
-                y: mp.y as i32,
-            };
-            gs.tiles.entry(mpi).or_insert(tile);
-        }
-    }
-
     // render tiles
     {
         for (pos, tile) in &gs.tiles {
@@ -227,6 +194,52 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 .unwrap()
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, &mat));
+        }
+    }
+
+    // placing tiles
+    if let Some(tile) = gs.tile_placing {
+        let mouse_grid = grid_snap(input.mouse_pos);
+        let mouse_grid: VecTwoInt = VecTwoInt {
+            x: mouse_grid.x as i32,
+            y: mouse_grid.y as i32,
+        };
+        let can_place = tile.can_place_here(mouse_grid, &gs.tiles);
+
+        // render tile placing
+        {
+            let mut r = Rect::new_square(GRID_SIZE * 0.5);
+            r.set_center(grid_snap(input.mouse_pos));
+
+            let mut mat = Material::new();
+            mat.shader = Some(es.color_texture_shader);
+
+            mat.uniforms.insert(
+                "tex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: gs.get_tile_icon(tile),
+                    texture_slot: 0,
+                }),
+            );
+
+            let mut color = COLOR_WHITE;
+            if !can_place {
+                color = COLOR_RED;
+            }
+
+            mat.uniforms
+                .insert("color".to_string(), UniformData::VecFour(color.into()));
+
+            es.render_packs
+                .get_mut(&RenderPackID::UI)
+                .unwrap()
+                .commands
+                .push(RenderCommand::new_rect(&r, -1.0, &mat));
+        }
+
+        // place tile
+        if input.mouse_left.on_press && can_place {
+            gs.tiles.insert(mouse_grid, tile);
         }
     }
 

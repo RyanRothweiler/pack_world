@@ -138,6 +138,12 @@ pub struct VecTwoInt {
     pub y: i32,
 }
 
+impl VecTwoInt {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+}
+
 impl From<&VecTwo> for VecTwoInt {
     fn from(input: &VecTwo) -> Self {
         Self {
