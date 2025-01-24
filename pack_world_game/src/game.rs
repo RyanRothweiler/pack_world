@@ -30,27 +30,19 @@ use gengar_engine::{
 use gengar_render_opengl::*;
 use std::{fs::File, io::Cursor, path::Path};
 
+pub mod grid;
 pub mod item;
 pub mod state;
 pub mod tiles;
 pub mod ui_panels;
 
+use grid::*;
 use item::*;
 use tiles::*;
 use ui_panels::{tile_library_panel::*, *};
 
 // Used for windows platform loading dlls
 pub const PACKAGE_NAME: &str = "pack_world_game";
-
-pub const GRID_SIZE: f64 = 50.0;
-
-pub fn grid_snap(pos: VecTwo) -> VecTwo {
-    VecTwo::new(
-        (pos.x / GRID_SIZE).round() * GRID_SIZE,
-        (pos.y / GRID_SIZE).round() * GRID_SIZE,
-    )
-}
-
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
 pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRenderApi) {
@@ -70,18 +62,6 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/grass.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
-
-    /*
-    let mt: &mut Transform = &mut es.transforms[gs.monkey_trans.unwrap()];
-
-    let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-    ct.local_rotation.y = 90.0;
-
-    let lt: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
-    lt.local_position.x = 3.5;
-    lt.local_position.y = 3.5;
-    lt.parent = gs.center_trans;
-    */
 
     // setup font styles
     {
@@ -105,7 +85,12 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     // setup first map
     {
-        let init_dirt: Vec<VecTwoInt> = vec![VecTwoInt::new(0, 0)];
+        let init_dirt: Vec<VecTwoInt> = vec![
+            VecTwoInt::new(20, 10),
+            VecTwoInt::new(21, 10),
+            VecTwoInt::new(20, 11),
+            VecTwoInt::new(21, 11),
+        ];
         for p in init_dirt {
             gs.tiles.insert(p, Tile::Dirt);
         }
@@ -166,12 +151,9 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     // render tiles
     {
         for (pos, tile) in &gs.tiles {
-            let mut r = Rect::new_square(GRID_SIZE * 0.5);
+            let mut r = Rect::new_square(grid::GRID_SIZE * 0.5);
 
-            r.set_center(VecTwo {
-                x: pos.x as f64,
-                y: pos.y as f64,
-            });
+            r.set_center(grid_to_world(pos));
 
             let mut mat = Material::new();
             mat.shader = Some(es.color_texture_shader);
@@ -199,17 +181,13 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // placing tiles
     if let Some(tile) = gs.tile_placing {
-        let mouse_grid = grid_snap(input.mouse_pos);
-        let mouse_grid: VecTwoInt = VecTwoInt {
-            x: mouse_grid.x as i32,
-            y: mouse_grid.y as i32,
-        };
+        let mouse_grid = world_to_grid(&input.mouse_pos);
         let can_place = tile.can_place_here(mouse_grid, &gs.tiles);
 
         // render tile placing
         {
             let mut r = Rect::new_square(GRID_SIZE * 0.5);
-            r.set_center(grid_snap(input.mouse_pos));
+            r.set_center(grid_to_world(&mouse_grid));
 
             let mut mat = Material::new();
             mat.shader = Some(es.color_texture_shader);
