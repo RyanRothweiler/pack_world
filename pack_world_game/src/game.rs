@@ -35,11 +35,13 @@ pub mod item;
 pub mod state;
 pub mod tiles;
 pub mod ui_panels;
+pub mod world;
 
 use grid::*;
 use item::*;
 use tiles::*;
 use ui_panels::{tile_library_panel::*, *};
+use world::*;
 
 // Used for windows platform loading dlls
 pub const PACKAGE_NAME: &str = "pack_world_game";
@@ -92,7 +94,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             VecTwoInt::new(21, 11),
         ];
         for p in init_dirt {
-            gs.tiles.insert(p, Tile::Dirt);
+            gs.world.force_insert_tile(p, Tile::Dirt);
         }
     }
 }
@@ -150,7 +152,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // render tiles
     {
-        for (pos, tile) in &gs.tiles {
+        for (pos, tile) in &gs.world.tiles {
             let mut r = Rect::new_square(grid::GRID_SIZE * 0.5);
 
             r.set_center(grid_to_world(pos));
@@ -182,7 +184,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     // placing tiles
     if let Some(tile) = gs.tile_placing {
         let mouse_grid = world_to_grid(&input.mouse_pos);
-        let can_place = tile.can_place_here(mouse_grid, &gs.tiles);
+        let can_place = tile.can_place_here(mouse_grid, &gs.world);
 
         // render tile placing
         {
@@ -217,7 +219,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
         // place tile
         if input.mouse_left.on_press && can_place {
-            gs.tiles.insert(mouse_grid, tile);
+            gs.world.try_place_tile(mouse_grid, tile);
         }
     }
 

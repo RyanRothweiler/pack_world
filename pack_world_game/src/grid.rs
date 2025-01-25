@@ -2,6 +2,8 @@ use gengar_engine::vectors::*;
 
 pub const GRID_SIZE: f64 = 50.0;
 
+// TODO we could use the type system to guarantee these conversions
+
 pub fn grid_snap(pos: &VecTwo) -> VecTwo {
     VecTwo::new(
         (pos.x / GRID_SIZE).round() * GRID_SIZE,
