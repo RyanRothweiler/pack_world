@@ -1,9 +1,10 @@
-const HARVEST_SECONDS: f64 = 20.0;
+const HARVEST_SECONDS: f64 = 50.0;
 
 use gengar_engine::{
     color::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    ui::*,
 };
 
 use crate::{state::*, tiles::*};
@@ -43,20 +44,11 @@ impl TileMethods for TileGrass {
 
     fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
         let base: VecTwo = VecTwo::new(450.0, 120.0);
-
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
-        let mut mat = Material::new();
-        mat.shader = Some(shader_color);
+        let prog = self.time / HARVEST_SECONDS;
 
-        mat.uniforms.insert(
-            "color".to_string(),
-            UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
-        );
-
-        render_pack
-            .commands
-            .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
+        draw_progress_bar(prog, &r, shader_color, render_pack);
     }
 }
 

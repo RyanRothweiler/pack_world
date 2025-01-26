@@ -2,7 +2,7 @@ use crate::{
     color::*,
     font::*,
     rect::*,
-    render::{material::*, render_command::*, shader::*},
+    render::{material::*, render_command::*, render_pack::*, shader::*},
     state::{ButtonState, Input},
     vectors::*,
 };
@@ -148,4 +148,43 @@ pub fn end_panel(frame_state: &mut UIFrameState) {
     }
 
     frame_state.current_panel = None;
+}
+
+pub fn draw_progress_bar(
+    progress: f64,
+    rect: &Rect,
+    shader_color: Shader,
+    render_pack: &mut RenderPack,
+) {
+    // draw fill
+    {
+        let mut fill_rect = rect.clone();
+        let width = fill_rect.width();
+        fill_rect.resize_right(width * progress.clamp(0.0, 1.0));
+
+        let mut mat = Material::new();
+        mat.shader = Some(shader_color);
+        mat.uniforms.insert(
+            "color".to_string(),
+            UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
+        );
+
+        render_pack
+            .commands
+            .push(RenderCommand::new_rect(&fill_rect, -1.0, &mat));
+    }
+
+    // draw outline
+    {
+        let mut mat = Material::new();
+        mat.shader = Some(shader_color);
+        mat.uniforms.insert(
+            "color".to_string(),
+            UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
+        );
+
+        render_pack
+            .commands
+            .push(RenderCommand::new_rect_outline(rect, -1.0, 1.0, &mat));
+    }
 }
