@@ -24,7 +24,7 @@ pub struct State {
 
     pub ui_panel_common: Option<UIPanelCommon>,
 
-    pub tile_placing: Option<Tile>,
+    pub tile_placing: Option<TileType>,
 
     pub world: World,
 }
@@ -52,10 +52,10 @@ impl State {
         }
     }
 
-    pub fn get_tile_icon(&self, tile: &Tile) -> u32 {
+    pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
         let image_id = match tile {
-            Tile::Dirt => return self.image_dirt.gl_id.unwrap(),
-            Tile::Grass => return self.image_grass.gl_id.unwrap(),
+            TileType::Dirt => return self.image_dirt.gl_id.unwrap(),
+            TileType::Grass => return self.image_grass.gl_id.unwrap(),
         };
     }
 }

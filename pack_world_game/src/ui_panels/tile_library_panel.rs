@@ -27,7 +27,7 @@ impl TileLibraryPanel {
             &common.button_font_style,
             state,
         ) {
-            ret.push(UpdateSignal::SetPlacingTile(Some(Tile::Grass)));
+            ret.push(UpdateSignal::SetPlacingTile(Some(TileType::Grass)));
         }
 
         if draw_button(
@@ -37,7 +37,7 @@ impl TileLibraryPanel {
             &common.button_font_style,
             state,
         ) {
-            ret.push(UpdateSignal::SetPlacingTile(Some(Tile::Dirt)));
+            ret.push(UpdateSignal::SetPlacingTile(Some(TileType::Dirt)));
         }
 
         if draw_button(

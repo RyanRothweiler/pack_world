@@ -94,7 +94,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             VecTwoInt::new(21, 11),
         ];
         for p in init_dirt {
-            gs.world.force_insert_tile(p, Tile::Dirt);
+            gs.world.force_insert_tile(p, TileType::Dirt);
         }
     }
 }
@@ -154,7 +154,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     {
         let frame_delta: f64 = 1.0;
         for (key, value) in &mut gs.world.tiles {
-            // value.update(frame_delta);
+            value.methods.update(frame_delta);
         }
     }
 
@@ -171,7 +171,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             mat.uniforms.insert(
                 "tex".to_string(),
                 UniformData::Texture(TextureInfo {
-                    image_id: gs.get_tile_icon(tile),
+                    image_id: gs.get_tile_icon(&tile.tile_type),
                     texture_slot: 0,
                 }),
             );

@@ -14,7 +14,7 @@ pub const BG_COLOR: Color = Color {
 
 pub enum UpdateSignal {
     SetActivePage(PanelID),
-    SetPlacingTile(Option<Tile>),
+    SetPlacingTile(Option<TileType>),
 }
 
 pub enum PanelID {

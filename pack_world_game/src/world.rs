@@ -4,7 +4,7 @@ use crate::tiles::*;
 use gengar_engine::vectors::*;
 
 pub struct World {
-    pub tiles: HashMap<VecTwoInt, Tile>,
+    pub tiles: HashMap<VecTwoInt, TileInstance>,
 
     // valid positions, and all adjacent valid positions
     pub valids: HashMap<VecTwoInt, bool>,
@@ -12,7 +12,7 @@ pub struct World {
 
 impl World {
     // Won't place tile if not valid.
-    pub fn try_place_tile(&mut self, grid_pos: VecTwoInt, tile: Tile) {
+    pub fn try_place_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) {
         if !tile.can_place_here(grid_pos, self) {
             return;
         }
@@ -20,7 +20,7 @@ impl World {
         self.force_insert_tile(grid_pos, tile);
     }
 
-    pub fn force_insert_tile(&mut self, grid_pos: VecTwoInt, tile: Tile) {
+    pub fn force_insert_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) {
         // update adjacents
         self.valids.insert(grid_pos, true);
         self.valids
@@ -32,6 +32,6 @@ impl World {
         self.valids
             .insert(VecTwoInt::new(grid_pos.x, grid_pos.y - 1), true);
 
-        self.tiles.insert(grid_pos, tile);
+        self.tiles.insert(grid_pos, tile.create_instance());
     }
 }
