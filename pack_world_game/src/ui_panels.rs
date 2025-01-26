@@ -1,5 +1,6 @@
-use crate::tiles::*;
 use gengar_engine::{color::*, font::*, ui::*, vectors::*};
+
+use crate::{state::*, tiles::*, UpdateSignal};
 
 pub mod tile_library_panel;
 
@@ -11,11 +12,6 @@ pub const BG_COLOR: Color = Color {
     b: 0.32,
     a: 1.0,
 };
-
-pub enum UpdateSignal {
-    SetActivePage(PanelID),
-    SetPlacingTile(Option<TileType>),
-}
 
 pub enum PanelID {
     TileLibrary,
@@ -30,12 +26,16 @@ pub struct UIPanelCommon {
     pub button_font_style: FontStyle,
 }
 
-pub fn update_panel(panel: &mut UIPanelState, ui_state: &mut UIFrameState) -> Vec<UpdateSignal> {
+pub fn update_panel(
+    panel: &mut UIPanelState,
+    ui_state: &mut UIFrameState,
+    inventory: &Inventory,
+) -> Vec<UpdateSignal> {
     let mut update_signals: Vec<UpdateSignal> = vec![];
 
     match panel {
         UIPanelState::TileLibrary(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common, ui_state));
+            update_signals.append(&mut panel_state.update(common, ui_state, inventory));
         }
     }
 

@@ -9,6 +9,15 @@ use gengar_engine::{
     vectors::*,
 };
 
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub enum ItemType {
+    DirtClod,
+}
+
+pub struct Inventory {
+    pub items: HashMap<ItemType, i32>,
+}
+
 pub struct State {
     pub image_dirt: Image,
     pub image_grass: Image,
@@ -20,20 +29,19 @@ pub struct State {
     pub active_ui_panels: Vec<UIPanelState>,
     pub active_page: Option<UIPanelState>,
 
-    pub items: Vec<Item>,
-
     pub ui_panel_common: Option<UIPanelCommon>,
 
     pub tile_placing: Option<TileType>,
 
     pub world: World,
+
+    pub inventory: Inventory,
 }
 
 impl State {
     pub fn new() -> Self {
         State {
             active_ui_panels: vec![],
-            items: vec![],
 
             image_dirt: Image::new(),
             image_grass: Image::new(),
@@ -49,6 +57,9 @@ impl State {
                 valids: HashMap::new(),
             },
             tile_placing: None,
+            inventory: Inventory {
+                items: HashMap::new(),
+            },
         }
     }
 

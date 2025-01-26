@@ -35,12 +35,14 @@ pub mod item;
 pub mod state;
 pub mod tiles;
 pub mod ui_panels;
+pub mod update_signal;
 pub mod world;
 
 use grid::*;
 use item::*;
 use tiles::*;
 use ui_panels::{tile_library_panel::*, *};
+use update_signal::*;
 use world::*;
 
 // Used for windows platform loading dlls
@@ -118,33 +120,25 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
         // Render and update active UI
         for panel in &mut gs.active_ui_panels {
-            update_signals.append(&mut ui_panels::update_panel(panel, &mut ui_frame_state));
+            update_signals.append(&mut ui_panels::update_panel(
+                panel,
+                &mut ui_frame_state,
+                &gs.inventory,
+            ));
         }
 
         // update active page
         match &mut gs.active_page {
-            Some(page) => {
-                update_signals.append(&mut ui_panels::update_panel(page, &mut ui_frame_state))
-            }
+            Some(page) => update_signals.append(&mut ui_panels::update_panel(
+                page,
+                &mut ui_frame_state,
+                &gs.inventory,
+            )),
             None => {}
         }
 
         // Handle signals
-        for us in update_signals {
-            match us {
-                UpdateSignal::SetActivePage(panel_id) => match panel_id {
-                    ui_panels::PanelID::TileLibrary => {
-                        gs.active_page = Some(UIPanelState::TileLibrary(
-                            gs.ui_panel_common.as_mut().unwrap().clone(),
-                            ui_panels::tile_library_panel::TileLibraryPanel {},
-                        ))
-                    }
-                },
-                UpdateSignal::SetPlacingTile(tile) => {
-                    gs.tile_placing = tile;
-                }
-            }
-        }
+        handle_signals(update_signals, gs);
 
         // Update input
         input.mouse_left.on_press = ui_frame_state.mouse_left;
@@ -152,10 +146,12 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // update tiles
     {
-        let frame_delta: f64 = 1.0;
+        let frame_delta: f64 = 0.1;
+        let mut update_signals: Vec<UpdateSignal> = vec![];
         for (key, value) in &mut gs.world.tiles {
-            value.methods.update(frame_delta);
+            update_signals.append(&mut value.methods.update(frame_delta));
         }
+        handle_signals(update_signals, gs);
     }
 
     // render tiles

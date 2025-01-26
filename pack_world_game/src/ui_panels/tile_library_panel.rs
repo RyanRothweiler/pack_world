@@ -8,6 +8,7 @@ impl TileLibraryPanel {
         &mut self,
         common: &UIPanelCommon,
         mut state: &mut UIFrameState,
+        inventory: &Inventory,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
@@ -48,6 +49,18 @@ impl TileLibraryPanel {
             state,
         ) {
             ret.push(UpdateSignal::SetPlacingTile(None));
+        }
+
+        // inventory
+
+        {
+            let c: i32 = *inventory.items.get(&ItemType::DirtClod).unwrap_or(&0);
+
+            draw_text(
+                &format!("Clods {:?}", c),
+                &common.button_font_style,
+                VecTwo::new(10.0, 500.0),
+            );
         }
 
         end_panel(&mut state);

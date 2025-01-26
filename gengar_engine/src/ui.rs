@@ -114,6 +114,11 @@ pub fn draw_button(
     return contains && button_state.on_press;
 }
 
+pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo) {
+    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
+    render_word(display.into(), style, pos, &mut context.render_commands);
+}
+
 pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 

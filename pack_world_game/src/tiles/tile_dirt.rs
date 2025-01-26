@@ -3,7 +3,9 @@ use crate::tiles::*;
 pub struct TileDirt {}
 
 impl TileMethods for TileDirt {
-    fn update(&mut self, time_step: f64) {}
+    fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+        vec![]
+    }
 }
 
 impl TileDirt {

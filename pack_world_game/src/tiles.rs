@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use gengar_engine::vectors::*;
 
-use crate::{state::*, world::*};
+use crate::{state::*, update_signal::*, world::*};
 
 pub mod tile_dirt;
 pub mod tile_grass;
@@ -11,7 +11,7 @@ use tile_dirt::*;
 use tile_grass::*;
 
 pub trait TileMethods {
-    fn update(&mut self, time_step: f64);
+    fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
 }
 
 #[derive(Copy, Clone, Eq, PartialEq)]
