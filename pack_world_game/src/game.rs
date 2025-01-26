@@ -150,6 +150,14 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         input.mouse_left.on_press = ui_frame_state.mouse_left;
     }
 
+    // update tiles
+    {
+        let frame_delta: f64 = 1.0;
+        for (key, value) in &mut gs.world.tiles {
+            // value.update(frame_delta);
+        }
+    }
+
     // render tiles
     {
         for (pos, tile) in &gs.world.tiles {
@@ -163,7 +171,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             mat.uniforms.insert(
                 "tex".to_string(),
                 UniformData::Texture(TextureInfo {
-                    image_id: gs.get_tile_icon(*tile),
+                    image_id: gs.get_tile_icon(tile),
                     texture_slot: 0,
                 }),
             );
@@ -197,7 +205,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             mat.uniforms.insert(
                 "tex".to_string(),
                 UniformData::Texture(TextureInfo {
-                    image_id: gs.get_tile_icon(tile),
+                    image_id: gs.get_tile_icon(&tile),
                     texture_slot: 0,
                 }),
             );
