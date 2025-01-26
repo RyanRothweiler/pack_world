@@ -132,6 +132,15 @@ impl Add for VecTwo {
     }
 }
 
+impl From<VecTwoInt> for VecTwo {
+    fn from(input: VecTwoInt) -> Self {
+        Self {
+            x: input.x as f64,
+            y: input.y as f64,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Default, Hash)]
 pub struct VecTwoInt {
     pub x: i32,
@@ -146,6 +155,15 @@ impl VecTwoInt {
 
 impl From<&VecTwo> for VecTwoInt {
     fn from(input: &VecTwo) -> Self {
+        Self {
+            x: input.x as i32,
+            y: input.y as i32,
+        }
+    }
+}
+
+impl From<VecTwo> for VecTwoInt {
+    fn from(input: VecTwo) -> Self {
         Self {
             x: input.x as i32,
             y: input.y as i32,

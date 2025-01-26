@@ -185,9 +185,10 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         }
     }
 
+    let mouse_grid: VecTwoInt = world_to_grid(&input.mouse_pos);
+
     // placing tiles
     if let Some(tile) = gs.tile_placing {
-        let mouse_grid = world_to_grid(&input.mouse_pos);
         let can_place = tile.can_place_here(mouse_grid, &gs.world);
 
         // render tile placing
@@ -224,6 +225,51 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         // place tile
         if input.mouse_left.on_press && can_place {
             gs.world.try_place_tile(mouse_grid, tile);
+        }
+    }
+
+    // tile hovering
+    if gs.tile_placing.is_none() {
+        let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
+
+        if gs.world.tiles.contains_key(&mouse_grid) {
+            let tile: &TileInstance = gs.world.tiles.get(&mouse_grid).unwrap();
+
+            // render hover rect
+            {
+                let r = Rect::new(
+                    mouse_snapped - VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
+                    mouse_snapped + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
+                );
+
+                let mut mat = Material::new();
+                mat.shader = Some(es.shader_color);
+
+                mat.uniforms.insert(
+                    "color".to_string(),
+                    UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
+                );
+
+                es.render_packs
+                    .get_mut(&RenderPackID::UI)
+                    .unwrap()
+                    .commands
+                    .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
+            }
+
+            // render info
+            {
+                draw_text(
+                    &format!("{:?}", tile.tile_type),
+                    &gs.font_style_button,
+                    VecTwo::new(450.0, 100.0),
+                );
+
+                tile.methods.render_hover_info(
+                    es.shader_color.clone(),
+                    es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                );
+            }
         }
     }
 

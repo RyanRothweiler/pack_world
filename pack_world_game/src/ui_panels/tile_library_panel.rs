@@ -52,7 +52,6 @@ impl TileLibraryPanel {
         }
 
         // inventory
-
         {
             let c: i32 = *inventory.items.get(&ItemType::DirtClod).unwrap_or(&0);
 

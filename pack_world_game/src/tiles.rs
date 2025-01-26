@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use gengar_engine::vectors::*;
+use gengar_engine::{
+    render::{render_pack::*, shader::*},
+    vectors::*,
+};
 
 use crate::{state::*, update_signal::*, world::*};
 
@@ -12,9 +15,12 @@ use tile_grass::*;
 
 pub trait TileMethods {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
+    fn can_harvest(&self) -> bool;
+    fn harvest(&mut self) -> Vec<UpdateSignal>;
+    fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack);
 }
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum TileType {
     Dirt,
     Grass,
