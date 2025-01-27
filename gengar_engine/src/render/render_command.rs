@@ -50,7 +50,7 @@ impl RenderCommand {
         }
     }
 
-    pub fn new_rect(rect: &Rect, z: f64, material: &Material) -> Self {
+    pub fn new_rect(rect: &Rect, z: f64, rot_deg: f64, material: &Material) -> Self {
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
         let uvs: Vec<VecTwo> = vec![
             VecTwo::new(0.0, 0.0),
@@ -63,11 +63,17 @@ impl RenderCommand {
         ];
 
         let mut uniforms: HashMap<String, UniformData> = material.uniforms.clone();
-        uniforms.insert("model".to_string(), UniformData::M44(M44::new_identity()));
+
+        let rect_center = rect.get_center();
+
+        let mut model_mat = M44::new_identity();
+        model_mat.translate(VecThreeFloat::new(rect_center.x, rect_center.y, 0.0));
+        model_mat.rotate_z(rot_deg.to_radians());
+        uniforms.insert("model".to_string(), UniformData::M44(model_mat));
 
         RenderCommand {
             kind: VertexDataKind::DynamicMesh {
-                mesh: rect.get_mesh(z),
+                mesh: rect.get_mesh_centered(z),
                 uvs: uvs,
             },
 

@@ -181,7 +181,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 .get_mut(&RenderPackID::UI)
                 .unwrap()
                 .commands
-                .push(RenderCommand::new_rect(&r, -1.0, &mat));
+                .push(RenderCommand::new_rect(&r, -1.0, 45.0, &mat));
         }
     }
 
@@ -219,7 +219,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 .get_mut(&RenderPackID::UI)
                 .unwrap()
                 .commands
-                .push(RenderCommand::new_rect(&r, -1.0, &mat));
+                .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
         }
 
         // place tile

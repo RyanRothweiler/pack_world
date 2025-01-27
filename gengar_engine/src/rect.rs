@@ -76,11 +76,18 @@ impl Rect {
     }
 
     pub fn set_center(&mut self, center: VecTwo) {
-        let half_width = self.width();
-        let half_height = self.height();
+        let half_width = self.width() * 0.5;
+        let half_height = self.height() * 0.5;
 
         self.top_left = center - VecTwo::new(half_width, half_height);
         self.bottom_right = center + VecTwo::new(half_width, half_height);
+    }
+
+    pub fn get_center(&self) -> VecTwo {
+        let half_width = self.width() * 0.5;
+        let half_height = self.height() * 0.5;
+
+        return self.top_left + VecTwo::new(half_width, half_height);
     }
 
     // resize by moving the right point. Top left remains unchanged
@@ -124,6 +131,30 @@ impl Rect {
         return mesh;
     }
 
+    // returns a mesh with the center of the rect centered at 0,0,0
+    pub fn get_mesh_centered(&self, z: f64) -> Vec<VecThreeFloat> {
+        let half_width = self.width() * 0.5;
+        let half_height = self.height() * 0.5;
+
+        let top_left = VecTwo::new(-half_width, -half_height);
+        let bottom_left = VecTwo::new(-half_width, half_height);
+        let top_right = VecTwo::new(half_width, -half_height);
+        let bottom_right = VecTwo::new(half_width, half_height);
+
+        let mut mesh: Vec<VecThreeFloat> = vec![];
+
+        // left tri
+        mesh.push(VecThreeFloat::new(top_left.x, top_left.y, z));
+        mesh.push(VecThreeFloat::new(top_right.x, top_right.y, z));
+        mesh.push(VecThreeFloat::new(bottom_left.x, bottom_left.y, z));
+
+        // right tri
+        mesh.push(VecThreeFloat::new(bottom_left.x, bottom_left.y, z));
+        mesh.push(VecThreeFloat::new(top_right.x, top_right.y, z));
+        mesh.push(VecThreeFloat::new(bottom_right.x, bottom_right.y, z));
+
+        return mesh;
+    }
     pub fn contains(&self, pos: VecTwo) -> bool {
         if self.top_left.x <= pos.x
             && self.top_left.y <= pos.y
@@ -165,8 +196,8 @@ mod test {
         let mut r = Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(20.0, 30.0));
         r.set_center(VecTwo::new(5.0, 5.0));
 
-        assert_eq!(r.top_left, VecTwo::new(-5.0, -15.0));
-        assert_eq!(r.bottom_right, VecTwo::new(15.0, 25.0));
+        assert_eq!(r.top_left, VecTwo::new(0.0, -5.0));
+        assert_eq!(r.bottom_right, VecTwo::new(10.0, 15.0));
     }
 
     #[test]

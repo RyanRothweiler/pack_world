@@ -121,5 +121,5 @@ pub fn draw_rect(rect: &Rect, color: Color) {
 
     context
         .ui_render_commands
-        .push(RenderCommand::new_rect(rect, -1.0, &material));
+        .push(RenderCommand::new_rect(rect, -1.0, 0.0, &material));
 }

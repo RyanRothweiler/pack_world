@@ -130,7 +130,7 @@ pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
 
     context
         .render_commands
-        .push(RenderCommand::new_rect(&rect, -1.0, &mat));
+        .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
 
     frame_state.current_panel = Some(rect);
 }
@@ -171,7 +171,7 @@ pub fn draw_progress_bar(
 
         render_pack
             .commands
-            .push(RenderCommand::new_rect(&fill_rect, -1.0, &mat));
+            .push(RenderCommand::new_rect(&fill_rect, -1.0, 0.0, &mat));
     }
 
     // draw outline
