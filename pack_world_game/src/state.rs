@@ -36,6 +36,9 @@ pub struct State {
     pub world: World,
 
     pub inventory: Inventory,
+
+    // time for rotation animation
+    pub rotate_time: f64,
 }
 
 impl State {
@@ -60,6 +63,8 @@ impl State {
             inventory: Inventory {
                 items: HashMap::new(),
             },
+
+            rotate_time: 0.0,
         }
     }
 

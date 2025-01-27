@@ -32,7 +32,7 @@ impl TileMethods for TileGrass {
     }
 
     fn can_harvest(&self) -> bool {
-        false
+        self.time >= HARVEST_SECONDS
     }
 
     fn harvest(&mut self) -> Vec<UpdateSignal> {
