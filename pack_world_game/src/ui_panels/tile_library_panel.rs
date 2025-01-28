@@ -22,40 +22,36 @@ impl TileLibraryPanel {
         let y_offset: f64 = 80.0;
         let mut i: i32 = 0;
         for (item_type, count) in &inventory.items {
+            if *count == 0 {
+                continue;
+            }
+
             let disp = format!("{} x {count}", item_type.user_dislay());
+            let y: f64 = 50.0 + (y_offset * i as f64);
 
             match item_type {
                 ItemType::Tile(tile_type) => {
                     if draw_button(
                         &disp,
                         std::line!(),
-                        &Rect::new_top_size(
-                            VecTwo::new(10.0, 50.0 + (y_offset * i as f64)),
-                            50.0,
-                            50.0,
-                        ),
+                        &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
                         &common.button_font_style,
                         state,
                     ) {
                         ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                     }
                 }
-                _ => panic!("invalid item type"),
+                ItemType::DirtClod => {
+                    draw_text(
+                        &disp,
+                        &common.button_font_style,
+                        VecTwo::new(10.0, y),
+                        state,
+                    );
+                }
             };
 
             i += 1;
-        }
-
-        // inventory
-        {
-            let c: i32 = *inventory.items.get(&ItemType::DirtClod).unwrap_or(&0);
-
-            draw_text(
-                &format!("Clods {:?}", c),
-                &common.button_font_style,
-                VecTwo::new(10.0, 500.0),
-                state,
-            );
         }
 
         end_panel(&mut state);
