@@ -155,6 +155,7 @@ impl Rect {
 
         return mesh;
     }
+
     pub fn contains(&self, pos: VecTwo) -> bool {
         if self.top_left.x <= pos.x
             && self.top_left.y <= pos.y

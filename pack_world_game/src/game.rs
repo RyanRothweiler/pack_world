@@ -157,7 +157,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     // render tiles
     {
         for (pos, tile) in &gs.world.tiles {
-            let mut r = Rect::new_square(grid::GRID_SIZE * 0.5);
+            let mut r = Rect::new_square(grid::GRID_SIZE);
 
             r.set_center(grid_to_world(pos));
 
