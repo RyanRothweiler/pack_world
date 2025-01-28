@@ -1,7 +1,6 @@
-use std::collections::HashMap;
-
-use crate::tiles::*;
+use crate::{error::*, tiles::*};
 use gengar_engine::vectors::*;
+use std::collections::HashMap;
 
 pub struct World {
     pub tiles: HashMap<VecTwoInt, TileInstance>,
@@ -12,12 +11,14 @@ pub struct World {
 
 impl World {
     // Won't place tile if not valid.
-    pub fn try_place_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) {
+    pub fn try_place_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) -> Result<(), Error> {
         if !tile.can_place_here(grid_pos, self) {
-            return;
+            return Err(Error::InvalidTilePosition);
         }
 
         self.force_insert_tile(grid_pos, tile);
+
+        return Ok(());
     }
 
     pub fn force_insert_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) {

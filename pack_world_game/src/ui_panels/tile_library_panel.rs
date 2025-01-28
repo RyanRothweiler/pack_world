@@ -20,35 +20,30 @@ impl TileLibraryPanel {
         );
 
         let y_offset: f64 = 80.0;
+        let mut i: i32 = 0;
+        for (item_type, count) in &inventory.items {
+            let disp = format!("{} x {count}", item_type.user_dislay());
 
-        if draw_button(
-            "grass",
-            std::line!(),
-            &Rect::new_top_size(VecTwo::new(10.0, 50.0), 50.0, 50.0),
-            &common.button_font_style,
-            state,
-        ) {
-            ret.push(UpdateSignal::SetPlacingTile(Some(TileType::Grass)));
-        }
+            match item_type {
+                ItemType::Tile(tile_type) => {
+                    if draw_button(
+                        &disp,
+                        std::line!(),
+                        &Rect::new_top_size(
+                            VecTwo::new(10.0, 50.0 + (y_offset * i as f64)),
+                            50.0,
+                            50.0,
+                        ),
+                        &common.button_font_style,
+                        state,
+                    ) {
+                        ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                    }
+                }
+                _ => panic!("invalid item type"),
+            };
 
-        if draw_button(
-            "dirt",
-            std::line!(),
-            &Rect::new_top_size(VecTwo::new(10.0, 50.0 + y_offset), 50.0, 50.0),
-            &common.button_font_style,
-            state,
-        ) {
-            ret.push(UpdateSignal::SetPlacingTile(Some(TileType::Dirt)));
-        }
-
-        if draw_button(
-            "none",
-            std::line!(),
-            &Rect::new_top_size(VecTwo::new(10.0, 50.0 + (y_offset * 2.0)), 50.0, 50.0),
-            &common.button_font_style,
-            state,
-        ) {
-            ret.push(UpdateSignal::SetPlacingTile(None));
+            i += 1;
         }
 
         // inventory

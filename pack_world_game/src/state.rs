@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::{item::*, tiles::*, ui_panels::*, world::*};
 use gengar_engine::{
     font::*,
@@ -8,19 +6,13 @@ use gengar_engine::{
     transform::*,
     vectors::*,
 };
+use std::collections::HashMap;
 
 pub mod assets;
+pub mod inventory;
 
 use assets::*;
-
-#[derive(Debug, Eq, PartialEq, Hash)]
-pub enum ItemType {
-    DirtClod,
-}
-
-pub struct Inventory {
-    pub items: HashMap<ItemType, i32>,
-}
+use inventory::*;
 
 pub struct State {
     pub assets: Assets,

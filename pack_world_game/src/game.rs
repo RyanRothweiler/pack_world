@@ -30,6 +30,7 @@ use gengar_engine::{
 use gengar_render_opengl::*;
 use std::{fs::File, io::Cursor, path::Path};
 
+pub mod error;
 pub mod grid;
 pub mod item;
 pub mod state;
@@ -40,6 +41,7 @@ pub mod world;
 
 use grid::*;
 use item::*;
+use state::inventory::*;
 use tiles::*;
 use ui_panels::{nav_tabs_panel::*, tile_library_panel::*, *};
 use update_signal::*;
@@ -99,6 +101,16 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         for p in init_dirt {
             gs.world.force_insert_tile(p, TileType::Dirt);
         }
+    }
+
+    // setup initial inventory
+    {
+        gs.inventory
+            .add_item(ItemType::Tile(TileType::Dirt), 10)
+            .unwrap();
+        gs.inventory
+            .add_item(ItemType::Tile(TileType::Grass), 10)
+            .unwrap();
     }
 }
 
@@ -209,7 +221,12 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
         // place tile
         if input.mouse_left.on_press && can_place {
-            gs.world.try_place_tile(mouse_grid, tile);
+            if gs.world.try_place_tile(mouse_grid, tile).is_ok() {
+                let count = gs.inventory.add_item(ItemType::Tile(tile), -1).unwrap();
+                if count == 0 {
+                    gs.tile_placing = None;
+                }
+            }
         }
     }
 

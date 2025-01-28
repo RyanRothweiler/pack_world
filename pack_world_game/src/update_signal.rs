@@ -1,4 +1,8 @@
-use crate::{state::*, tiles::*, ui_panels::*};
+use crate::{
+    state::{inventory::*, *},
+    tiles::*,
+    ui_panels::*,
+};
 
 // state update signals
 pub enum UpdateSignal {

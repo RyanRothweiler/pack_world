@@ -1,6 +1,9 @@
+use crate::{
+    state::{inventory::*, *},
+    tiles::*,
+    UpdateSignal,
+};
 use gengar_engine::{color::*, font::*, ui::*, vectors::*};
-
-use crate::{state::*, tiles::*, UpdateSignal};
 
 pub mod nav_tabs_panel;
 pub mod shop_panel;
