@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
 use gengar_engine::{
-    render::{render_pack::*, shader::*},
+    color::*,
+    rect::*,
+    render::{material::*, render_command::*, render_pack::*, shader::*},
     vectors::*,
 };
 
-use crate::{state::*, update_signal::*, world::*};
+use crate::{grid::*, state::*, update_signal::*, world::*};
 
 pub mod tile_dirt;
 pub mod tile_grass;
@@ -18,6 +20,14 @@ pub trait TileMethods {
     fn can_harvest(&self) -> bool;
     fn harvest(&mut self) -> Vec<UpdateSignal>;
     fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack);
+    fn render(
+        &self,
+        rot_time: f64,
+        pos: &VecTwoInt,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+        assets: &Assets,
+    );
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
@@ -59,4 +69,37 @@ impl TileType {
             TileType::Grass => TileGrass::new(),
         }
     }
+}
+
+pub fn draw_tile(
+    tile_type: TileType,
+    rotation: f64,
+    pos: &VecTwoInt,
+    shader_color: Shader,
+    render_pack: &mut RenderPack,
+    assets: &Assets,
+) {
+    let mut r = Rect::new_square(GRID_SIZE);
+
+    r.set_center(grid_to_world(pos));
+
+    let mut mat = Material::new();
+    mat.shader = Some(shader_color);
+
+    mat.uniforms.insert(
+        "tex".to_string(),
+        UniformData::Texture(TextureInfo {
+            image_id: assets.get_tile_icon(&tile_type),
+            texture_slot: 0,
+        }),
+    );
+
+    mat.uniforms.insert(
+        "color".to_string(),
+        UniformData::VecFour(COLOR_WHITE.into()),
+    );
+
+    render_pack
+        .commands
+        .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
 }

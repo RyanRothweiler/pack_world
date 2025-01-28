@@ -1,4 +1,10 @@
-use crate::tiles::*;
+use gengar_engine::{
+    color::*,
+    rect::*,
+    render::{material::*, render_command::*},
+};
+
+use crate::{grid::*, tiles::*};
 
 pub struct TileDirt {}
 
@@ -16,6 +22,16 @@ impl TileMethods for TileDirt {
     }
 
     fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}
+    fn render(
+        &self,
+        rot_time: f64,
+        pos: &VecTwoInt,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+        assets: &Assets,
+    ) {
+        draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
+    }
 }
 
 impl TileDirt {

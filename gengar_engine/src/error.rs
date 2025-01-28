@@ -32,6 +32,10 @@ pub enum Error {
     // font
     FontErrorLoading,
 
+    // Image
+    InvalidImageFormat,
+    InvalidImageBitDepth,
+
     MissingGameDLL,
 }
 

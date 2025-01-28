@@ -61,8 +61,9 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         es.model_plane.clone(),
     );
 
-    gs.image_dirt = load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
-    gs.image_grass =
+    gs.assets.image_dirt =
+        load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
+    gs.assets.image_grass =
         load_image_cursor(include_bytes!("../resources/grass.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
@@ -156,32 +157,16 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // render tiles
     {
+        gs.rotate_time += 0.08;
+
         for (pos, tile) in &gs.world.tiles {
-            let mut r = Rect::new_square(grid::GRID_SIZE);
-
-            r.set_center(grid_to_world(pos));
-
-            let mut mat = Material::new();
-            mat.shader = Some(es.color_texture_shader);
-
-            mat.uniforms.insert(
-                "tex".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: gs.get_tile_icon(&tile.tile_type),
-                    texture_slot: 0,
-                }),
+            tile.methods.render(
+                gs.rotate_time,
+                pos,
+                es.color_texture_shader,
+                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                &gs.assets,
             );
-
-            mat.uniforms.insert(
-                "color".to_string(),
-                UniformData::VecFour(COLOR_WHITE.into()),
-            );
-
-            es.render_packs
-                .get_mut(&RenderPackID::UI)
-                .unwrap()
-                .commands
-                .push(RenderCommand::new_rect(&r, -1.0, 45.0, &mat));
         }
     }
 
@@ -202,7 +187,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             mat.uniforms.insert(
                 "tex".to_string(),
                 UniformData::Texture(TextureInfo {
-                    image_id: gs.get_tile_icon(&tile),
+                    image_id: gs.assets.get_tile_icon(&tile),
                     texture_slot: 0,
                 }),
             );

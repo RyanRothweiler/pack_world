@@ -338,15 +338,17 @@ impl EngineRenderApiTrait for OglRenderApi {
             GL_LINEAR as i32,
         );
 
+        /*
         let mut color_space = RGB;
         if gamma_correct {
             color_space = GL_SRGB as i32;
         }
+        */
 
         self.platform_api.tex_image_2d(
             GL_TEXTURE_2D as u32,
-            color_space,
-            RGB as u32,
+            RGBA,
+            RGBA as u32,
             UNSIGNED_BYTE as u32,
             &image,
         );

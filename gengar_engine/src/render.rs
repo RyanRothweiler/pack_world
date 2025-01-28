@@ -1,4 +1,4 @@
-use png;
+use png::*;
 use std::{fs::File, io::Cursor, path::Path};
 
 use crate::{
@@ -63,6 +63,14 @@ pub fn load_image(read: impl std::io::Read) -> Result<Image, Error> {
     let info = reader.next_frame(&mut image.data).unwrap();
     image.width = info.width;
     image.height = info.height;
+
+    // Check for image type that we support
+    if info.color_type != ColorType::Rgba {
+        return Err(Error::InvalidImageFormat);
+    }
+    if info.bit_depth != BitDepth::Eight {
+        return Err(Error::InvalidImageBitDepth);
+    }
 
     Ok(image)
 }

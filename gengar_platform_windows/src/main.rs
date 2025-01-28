@@ -68,8 +68,8 @@ struct GameDll {
 }
 
 fn main() {
-    let dll_path = format!("../target/debug/{}.dll", game::PACKAGE_NAME);
-    let dll_current_path = format!("../target/debug/{}_current.dll", game::PACKAGE_NAME);
+    let dll_path = format!("{}.dll", game::PACKAGE_NAME);
+    let dll_current_path = format!("{}_current.dll", game::PACKAGE_NAME);
 
     // These need to be here. Pointers are taken from them, so they cannot be dropped.
     let h_dll_path = HSTRING::from(dll_path);

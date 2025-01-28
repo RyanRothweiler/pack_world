@@ -18,9 +18,22 @@ pub struct Inventory {
     pub items: HashMap<ItemType, i32>,
 }
 
-pub struct State {
+pub struct Assets {
     pub image_dirt: Image,
     pub image_grass: Image,
+}
+
+impl Assets {
+    pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
+        let image_id = match tile {
+            TileType::Dirt => return self.image_dirt.gl_id.unwrap(),
+            TileType::Grass => return self.image_grass.gl_id.unwrap(),
+        };
+    }
+}
+
+pub struct State {
+    pub assets: Assets,
 
     pub light_trans: Option<usize>,
 
@@ -46,8 +59,10 @@ impl State {
         State {
             active_ui_panels: vec![],
 
-            image_dirt: Image::new(),
-            image_grass: Image::new(),
+            assets: Assets {
+                image_dirt: Image::new(),
+                image_grass: Image::new(),
+            },
 
             light_trans: None,
 
@@ -66,12 +81,5 @@ impl State {
 
             rotate_time: 0.0,
         }
-    }
-
-    pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
-        let image_id = match tile {
-            TileType::Dirt => return self.image_dirt.gl_id.unwrap(),
-            TileType::Grass => return self.image_grass.gl_id.unwrap(),
-        };
     }
 }

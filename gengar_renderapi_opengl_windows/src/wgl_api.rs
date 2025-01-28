@@ -212,7 +212,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         target: u32,
         gl_storage_format: i32,
         image_format: u32,
-        image_pixel_format: u32,
+        image_pixel_type: u32,
         image: &Image,
     ) {
         let mip_level: i32 = 0;
@@ -228,7 +228,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
                 image.height as i32,
                 border,
                 image_format,
-                image_pixel_format,
+                image_pixel_type,
                 data_ptr,
             );
         }

@@ -1,5 +1,3 @@
-const HARVEST_SECONDS: f64 = 50.0;
-
 use gengar_engine::{
     color::*,
     rect::*,
@@ -7,7 +5,9 @@ use gengar_engine::{
     ui::*,
 };
 
-use crate::{state::*, tiles::*};
+use crate::{grid::*, state::*, tiles::*};
+
+const HARVEST_SECONDS: f64 = 50.0;
 
 pub struct TileGrass {
     pub time: f64,
@@ -17,16 +17,6 @@ impl TileMethods for TileGrass {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.time += time_step;
         self.time = self.time.clamp(0.0, HARVEST_SECONDS);
-
-        /*
-        if self.time > HARVEST_SECONDS {
-            self.time = 0.0;
-            return vec![UpdateSignal::GiveItem {
-                item_type: ItemType::DirtClod,
-                count: 5,
-            }];
-        }
-        */
 
         vec![]
     }
@@ -49,6 +39,29 @@ impl TileMethods for TileGrass {
         let prog = self.time / HARVEST_SECONDS;
 
         draw_progress_bar(prog, &r, shader_color, render_pack);
+    }
+
+    fn render(
+        &self,
+        rot_time: f64,
+        pos: &VecTwoInt,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+        assets: &Assets,
+    ) {
+        let mut rotation: f64 = 0.0;
+        if self.can_harvest() {
+            rotation = f64::sin(rot_time) * 7.0;
+        }
+
+        draw_tile(
+            TileType::Grass,
+            rotation,
+            pos,
+            shader_color,
+            render_pack,
+            assets,
+        );
     }
 }
 
