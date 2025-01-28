@@ -1,7 +1,7 @@
 use crate::vectors::*;
 use std::ops::Mul;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Copy)]
 pub struct Rect {
     pub top_left: VecTwo,
     pub bottom_right: VecTwo,
@@ -73,6 +73,12 @@ impl Rect {
 
     pub fn bottom(&self) -> f64 {
         self.bottom_right.y
+    }
+
+    // move entire rect
+    pub fn translate(&mut self, trans: VecTwo) {
+        self.top_left = self.top_left + trans;
+        self.bottom_right = self.bottom_right + trans;
     }
 
     pub fn set_center(&mut self, center: VecTwo) {

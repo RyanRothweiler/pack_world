@@ -68,31 +68,10 @@ impl State {
             RenderPack::new(ProjectionType::Orthographic, window_resolution),
         );
 
-        /*
-        state.render_packs.insert(
-            RenderPackID::World,
-            RenderPack::new(
-                ProjectionType::Perspective { focal_length: 0.95 },
-                window_resolution,
-            ),
-        );
-        */
-
         state.render_packs.insert(
             RenderPackID::World,
             RenderPack::new(ProjectionType::Orthographic, window_resolution),
         );
-
-        /*
-        state
-            .render_packs
-            .get_mut(&RenderPackID::World)
-            .unwrap()
-            .camera
-            .transform
-            .local_position
-            .z = 4.0;
-        */
 
         return state;
     }

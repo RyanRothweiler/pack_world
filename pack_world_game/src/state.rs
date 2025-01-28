@@ -9,6 +9,10 @@ use gengar_engine::{
     vectors::*,
 };
 
+pub mod assets;
+
+use assets::*;
+
 #[derive(Debug, Eq, PartialEq, Hash)]
 pub enum ItemType {
     DirtClod,
@@ -16,20 +20,6 @@ pub enum ItemType {
 
 pub struct Inventory {
     pub items: HashMap<ItemType, i32>,
-}
-
-pub struct Assets {
-    pub image_dirt: Image,
-    pub image_grass: Image,
-}
-
-impl Assets {
-    pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
-        let image_id = match tile {
-            TileType::Dirt => return self.image_dirt.gl_id.unwrap(),
-            TileType::Grass => return self.image_grass.gl_id.unwrap(),
-        };
-    }
 }
 
 pub struct State {

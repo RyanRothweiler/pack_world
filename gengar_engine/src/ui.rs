@@ -36,6 +36,13 @@ impl UIFrameState {
             resolution,
         }
     }
+
+    pub fn get_origin(&self) -> VecTwo {
+        match self.current_panel {
+            Some(p) => p.top_left,
+            None => VecTwo::new(0.0, 0.0),
+        }
+    }
 }
 
 pub fn frame_start(input: &Input, color_shader: Shader) {
@@ -76,6 +83,11 @@ pub fn draw_button(
 ) -> bool {
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
+    let origin = ui_state.get_origin();
+
+    let mut rect = *rect;
+    rect.translate(origin);
+
     let contains = rect.contains(context.mouse_pos);
     let mut color = COLOR_BLUE;
     if contains {
@@ -114,9 +126,17 @@ pub fn draw_button(
     return contains && button_state.on_press;
 }
 
-pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo) {
+pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo, ui_state: &mut UIFrameState) {
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
-    render_word(display.into(), style, pos, &mut context.render_commands);
+
+    let origin = ui_state.get_origin();
+
+    render_word(
+        display.into(),
+        style,
+        pos + origin,
+        &mut context.render_commands,
+    );
 }
 
 pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {

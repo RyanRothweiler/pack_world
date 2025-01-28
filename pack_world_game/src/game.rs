@@ -41,7 +41,7 @@ pub mod world;
 use grid::*;
 use item::*;
 use tiles::*;
-use ui_panels::{tile_library_panel::*, *};
+use ui_panels::{nav_tabs_panel::*, tile_library_panel::*, *};
 use update_signal::*;
 use world::*;
 
@@ -82,10 +82,10 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     // setup first ui
     {
-        gs.active_ui_panels.push(UIPanelState::TileLibrary(
+        gs.active_ui_panels.push(UIPanelState::NavTabs(
             gs.ui_panel_common.as_mut().unwrap().clone(),
-            TileLibraryPanel {},
-        ))
+            NavTabsPanel {},
+        ));
     }
 
     // setup first map
@@ -252,10 +252,13 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
                 // render info
                 {
+                    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
+
                     draw_text(
                         &format!("{:?}", tile.tile_type),
                         &gs.font_style_button,
                         VecTwo::new(450.0, 100.0),
+                        &mut ui_frame_state,
                     );
 
                     tile.methods.render_hover_info(

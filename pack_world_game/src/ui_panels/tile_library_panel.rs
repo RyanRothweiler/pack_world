@@ -14,7 +14,7 @@ impl TileLibraryPanel {
 
         // begin panel
         begin_panel(
-            Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, state.resolution.y),
+            Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, state.resolution.y),
             BG_COLOR,
             &mut state,
         );
@@ -59,6 +59,7 @@ impl TileLibraryPanel {
                 &format!("Clods {:?}", c),
                 &common.button_font_style,
                 VecTwo::new(10.0, 500.0),
+                state,
             );
         }
 

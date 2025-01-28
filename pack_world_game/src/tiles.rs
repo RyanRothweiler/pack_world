@@ -7,7 +7,12 @@ use gengar_engine::{
     vectors::*,
 };
 
-use crate::{grid::*, state::*, update_signal::*, world::*};
+use crate::{
+    grid::*,
+    state::{assets::*, *},
+    update_signal::*,
+    world::*,
+};
 
 pub mod tile_dirt;
 pub mod tile_grass;
