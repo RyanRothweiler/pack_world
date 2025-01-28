@@ -214,48 +214,59 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     }
 
     // tile hovering
-    if gs.tile_placing.is_none() {
-        let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
+    {
+        let mut update_signals: Vec<UpdateSignal> = vec![];
 
-        if gs.world.tiles.contains_key(&mouse_grid) {
-            let tile: &TileInstance = gs.world.tiles.get(&mouse_grid).unwrap();
+        if gs.tile_placing.is_none() {
+            let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
 
-            // render hover rect
-            {
-                let r = Rect::new(
-                    mouse_snapped - VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
-                    mouse_snapped + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
-                );
+            if gs.world.tiles.contains_key(&mouse_grid) {
+                let tile: &mut TileInstance = gs.world.tiles.get_mut(&mouse_grid).unwrap();
 
-                let mut mat = Material::new();
-                mat.shader = Some(es.shader_color);
+                // Harvesting
+                if input.mouse_left.pressing && tile.methods.can_harvest() {
+                    update_signals.append(&mut tile.methods.harvest());
+                }
 
-                mat.uniforms.insert(
-                    "color".to_string(),
-                    UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
-                );
+                // render hover rect
+                {
+                    let r = Rect::new(
+                        mouse_snapped - VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
+                        mouse_snapped + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
+                    );
 
-                es.render_packs
-                    .get_mut(&RenderPackID::UI)
-                    .unwrap()
-                    .commands
-                    .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
-            }
+                    let mut mat = Material::new();
+                    mat.shader = Some(es.shader_color);
 
-            // render info
-            {
-                draw_text(
-                    &format!("{:?}", tile.tile_type),
-                    &gs.font_style_button,
-                    VecTwo::new(450.0, 100.0),
-                );
+                    mat.uniforms.insert(
+                        "color".to_string(),
+                        UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
+                    );
 
-                tile.methods.render_hover_info(
-                    es.shader_color.clone(),
-                    es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
-                );
+                    es.render_packs
+                        .get_mut(&RenderPackID::UI)
+                        .unwrap()
+                        .commands
+                        .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
+                }
+
+                // render info
+                {
+                    draw_text(
+                        &format!("{:?}", tile.tile_type),
+                        &gs.font_style_button,
+                        VecTwo::new(450.0, 100.0),
+                    );
+
+                    tile.methods.render_hover_info(
+                        es.shader_color.clone(),
+                        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                    );
+                }
             }
         }
+
+        handle_signals(update_signals, gs);
     }
 
     es.render_packs

@@ -26,6 +26,8 @@ impl TileMethods for TileGrass {
     }
 
     fn harvest(&mut self) -> Vec<UpdateSignal> {
+        self.time = 0.0;
+
         return vec![UpdateSignal::GiveItem {
             item_type: ItemType::DirtClod,
             count: 1,
@@ -49,6 +51,8 @@ impl TileMethods for TileGrass {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
+        draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
+
         let mut rotation: f64 = 0.0;
         if self.can_harvest() {
             rotation = f64::sin(rot_time) * 7.0;
