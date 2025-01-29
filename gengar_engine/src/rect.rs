@@ -101,6 +101,15 @@ impl Rect {
         self.bottom_right.x = self.top_left.x + width;
     }
 
+    pub fn shrink(&mut self, size: f64) {
+        let w = (self.width() * 0.5) - size;
+        let h = (self.height() * 0.5) - size;
+        let center = self.get_center();
+
+        self.top_left = center - VecTwo::new(w, h);
+        self.bottom_right = center + VecTwo::new(w, h);
+    }
+
     pub fn get_mesh(&self, z: f64) -> Vec<VecThreeFloat> {
         let mut mesh: Vec<VecThreeFloat> = vec![];
 

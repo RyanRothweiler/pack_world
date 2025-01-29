@@ -1,5 +1,5 @@
 use crate::{
-    state::{inventory::*, *},
+    state::{assets::*, inventory::*, *},
     tiles::*,
     UpdateSignal,
 };
@@ -59,12 +59,13 @@ pub fn update_panel(
     panel: &mut UIPanelState,
     ui_state: &mut UIFrameState,
     inventory: &Inventory,
+    assets: &Assets,
 ) -> Vec<UpdateSignal> {
     let mut update_signals: Vec<UpdateSignal> = vec![];
 
     match panel {
         UIPanelState::TileLibrary(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common, ui_state, inventory));
+            update_signals.append(&mut panel_state.update(common, ui_state, inventory, assets));
         }
         UIPanelState::NavTabs(common, panel_state) => {
             update_signals.append(&mut panel_state.update(common, ui_state, inventory));

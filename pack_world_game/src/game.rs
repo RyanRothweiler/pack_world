@@ -111,6 +111,9 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             .add_item(ItemType::Tile(TileType::Grass), 10)
             .unwrap();
     }
+
+    // setup packs
+    pack::init_static_packs();
 }
 
 #[no_mangle]
@@ -122,7 +125,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
-    gengar_engine::ui::frame_start(&input, es.shader_color_ui);
+    gengar_engine::ui::frame_start(&input, es.shader_color_ui, es.color_texture_shader);
 
     // update UI
     {
@@ -136,6 +139,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 panel,
                 &mut ui_frame_state,
                 &gs.inventory,
+                &gs.assets,
             ));
         }
 
@@ -145,6 +149,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 page,
                 &mut ui_frame_state,
                 &gs.inventory,
+                &gs.assets,
             )),
             None => {}
         }

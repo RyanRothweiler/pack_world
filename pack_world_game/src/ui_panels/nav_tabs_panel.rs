@@ -22,20 +22,22 @@ impl NavTabsPanel {
 
         if draw_button(
             "Inventory",
-            std::line!(),
+            None,
             &Rect::new_top_size(VecTwo::new(10.0, 50.0), 50.0, 50.0),
             &common.button_font_style,
             state,
+            std::line!(),
         ) {
             ret.push(UpdateSignal::SetActivePage(PanelID::TileLibrary));
         }
 
         if draw_button(
             "Shop",
-            std::line!(),
+            None,
             &Rect::new_top_size(VecTwo::new(150.0, 50.0), 50.0, 50.0),
             &common.button_font_style,
             state,
+            std::line!(),
         ) {
             ret.push(UpdateSignal::SetActivePage(PanelID::Shop));
         }

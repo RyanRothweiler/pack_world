@@ -1,4 +1,8 @@
-use crate::{state::*, ui_panels::*, UpdateSignal};
+use crate::{
+    state::{assets::*, *},
+    ui_panels::*,
+    UpdateSignal,
+};
 use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct TileLibraryPanel {}
@@ -9,6 +13,7 @@ impl TileLibraryPanel {
         common: &UIPanelCommon,
         mut state: &mut UIFrameState,
         inventory: &Inventory,
+        assets: &Assets,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
@@ -31,12 +36,15 @@ impl TileLibraryPanel {
 
             match item_type {
                 ItemType::Tile(tile_type) => {
+                    let tile_icon = assets.get_tile_icon(tile_type);
+
                     if draw_button(
                         &disp,
-                        std::line!(),
+                        Some(tile_icon),
                         &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
                         &common.button_font_style,
                         state,
+                        std::line!(),
                     ) {
                         ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                     }

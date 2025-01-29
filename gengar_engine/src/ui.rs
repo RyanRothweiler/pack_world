@@ -13,6 +13,7 @@ struct UIContext {
     pub mouse_down: bool,
 
     pub color_shader: Shader,
+    pub color_shader_texture: Shader,
 
     pub render_commands: Vec<RenderCommand>,
     pub button_state: HashMap<String, ButtonState>,
@@ -45,7 +46,7 @@ impl UIFrameState {
     }
 }
 
-pub fn frame_start(input: &Input, color_shader: Shader) {
+pub fn frame_start(input: &Input, color_shader: Shader, color_shader_texture: Shader) {
     unsafe {
         match UI_CONTEXT.as_mut() {
             Some(c) => {
@@ -60,6 +61,7 @@ pub fn frame_start(input: &Input, color_shader: Shader) {
                     mouse_down: input.mouse_left.pressing,
 
                     color_shader,
+                    color_shader_texture,
 
                     render_commands: vec![],
                     button_state: HashMap::new(),
@@ -76,10 +78,11 @@ pub fn get_render_commands() -> Vec<RenderCommand> {
 
 pub fn draw_button(
     display: &str,
-    line: u32,
+    maybe_icon: Option<u32>,
     rect: &Rect,
     style: &FontStyle,
     ui_state: &mut UIFrameState,
+    line: u32,
 ) -> bool {
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
@@ -94,17 +97,40 @@ pub fn draw_button(
         color = COLOR_GREEN;
     }
 
-    // draw button
+    // draw button outline
     {
         let mut mat = Material::new();
         mat.shader = Some(context.color_shader);
-
         mat.uniforms
             .insert("color".to_string(), UniformData::VecFour(color.into()));
-
         context
             .render_commands
             .push(RenderCommand::new_rect_outline(&rect, -1.0, 1.0, &mat));
+    }
+
+    // draw icon
+    if let Some(icon) = maybe_icon {
+        let mut mat = Material::new();
+        mat.shader = Some(context.color_shader_texture);
+
+        mat.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: icon,
+                texture_slot: 0,
+            }),
+        );
+
+        mat.uniforms.insert(
+            "color".to_string(),
+            UniformData::VecFour(COLOR_WHITE.into()),
+        );
+
+        let mut icon_rect: Rect = rect.clone();
+        icon_rect.shrink(2.0);
+        context
+            .render_commands
+            .push(RenderCommand::new_rect(&icon_rect, -1.0, 0.0, &mat));
     }
 
     render_word(
