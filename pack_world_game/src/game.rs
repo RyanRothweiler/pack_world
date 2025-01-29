@@ -32,7 +32,7 @@ use std::{fs::File, io::Cursor, path::Path};
 
 pub mod error;
 pub mod grid;
-pub mod item;
+pub mod pack;
 pub mod state;
 pub mod tiles;
 pub mod ui_panels;
@@ -40,7 +40,6 @@ pub mod update_signal;
 pub mod world;
 
 use grid::*;
-use item::*;
 use state::inventory::*;
 use tiles::*;
 use ui_panels::{nav_tabs_panel::*, tile_library_panel::*, *};

@@ -1,4 +1,4 @@
-use crate::{item::*, state::*, ui_panels::*, UpdateSignal};
+use crate::{state::*, ui_panels::*, UpdateSignal};
 use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct NavTabsPanel {}
