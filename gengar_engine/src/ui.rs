@@ -101,8 +101,7 @@ pub fn draw_button(
     {
         let mut mat = Material::new();
         mat.shader = Some(context.color_shader);
-        mat.uniforms
-            .insert("color".to_string(), UniformData::VecFour(color.into()));
+        mat.set_color(color);
         context
             .render_commands
             .push(RenderCommand::new_rect_outline(&rect, -1.0, 1.0, &mat));
@@ -110,24 +109,14 @@ pub fn draw_button(
 
     // draw icon
     if let Some(icon) = maybe_icon {
-        let mut mat = Material::new();
-        mat.shader = Some(context.color_shader_texture);
-
-        mat.uniforms.insert(
-            "tex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: icon,
-                texture_slot: 0,
-            }),
-        );
-
-        mat.uniforms.insert(
-            "color".to_string(),
-            UniformData::VecFour(COLOR_WHITE.into()),
-        );
-
         let mut icon_rect: Rect = rect.clone();
         icon_rect.shrink(2.0);
+
+        let mut mat = Material::new();
+        mat.shader = Some(context.color_shader_texture);
+        mat.set_image(icon);
+        mat.set_color(COLOR_WHITE);
+
         context
             .render_commands
             .push(RenderCommand::new_rect(&icon_rect, -1.0, 0.0, &mat));
@@ -150,6 +139,22 @@ pub fn draw_button(
     }
 
     return contains && button_state.on_press;
+}
+
+pub fn draw_image(mut rect: Rect, image: u32, color: Color, ui_state: &mut UIFrameState) {
+    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
+
+    let mut mat = Material::new();
+    mat.shader = Some(context.color_shader_texture);
+    mat.set_image(image);
+    mat.set_color(color);
+
+    let origin = ui_state.get_origin();
+    rect.translate(origin);
+
+    context
+        .render_commands
+        .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
 }
 
 pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo, ui_state: &mut UIFrameState) {

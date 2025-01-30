@@ -34,13 +34,13 @@ impl TileLibraryPanel {
             let disp = format!("{} x {count}", item_type.user_dislay());
             let y: f64 = 50.0 + (y_offset * i as f64);
 
+            let icon = assets.get_item_icon(item_type);
+
             match item_type {
                 ItemType::Tile(tile_type) => {
-                    let tile_icon = assets.get_tile_icon(tile_type);
-
                     if draw_button(
                         &disp,
-                        Some(tile_icon),
+                        Some(icon),
                         &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
                         &common.button_font_style,
                         state,
@@ -50,6 +50,13 @@ impl TileLibraryPanel {
                     }
                 }
                 ItemType::DirtClod => {
+                    draw_image(
+                        Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
+                        icon,
+                        COLOR_WHITE,
+                        state,
+                    );
+
                     draw_text(
                         &disp,
                         &common.button_font_style,

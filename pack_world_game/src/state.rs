@@ -3,6 +3,7 @@ use gengar_engine::{
     font::*,
     model::*,
     render::{image::Image, material::*, vao::*},
+    state::State as EngineState,
     transform::*,
     vectors::*,
 };
@@ -44,6 +45,7 @@ impl State {
             assets: Assets {
                 image_dirt: Image::new(),
                 image_grass: Image::new(),
+                image_dirt_clod: Image::new(),
             },
 
             light_trans: None,

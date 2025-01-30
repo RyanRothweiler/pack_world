@@ -66,6 +66,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
     gs.assets.image_grass =
         load_image_cursor(include_bytes!("../resources/grass.png"), render_api).unwrap();
+    gs.assets.image_dirt_clod =
+        load_image_cursor(include_bytes!("../resources/dirt_clod.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
@@ -190,6 +192,11 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // placing tiles
     if let Some(tile) = gs.tile_placing {
+        // escape key reseting
+        if input.keyboard[0x1B].on_press {
+            gs.tile_placing = None;
+        }
+
         let can_place = tile.can_place_here(mouse_grid, &gs.world);
 
         // render tile placing

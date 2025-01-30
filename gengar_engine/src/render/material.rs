@@ -1,4 +1,4 @@
-use crate::render::shader::*;
+use crate::{color::*, render::shader::*};
 use std::collections::HashMap;
 
 #[derive(Clone, Default)]
@@ -13,5 +13,20 @@ impl Material {
             uniforms: HashMap::new(),
             shader: None,
         }
+    }
+
+    pub fn set_image(&mut self, image: u32) {
+        self.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: image,
+                texture_slot: 0,
+            }),
+        );
+    }
+
+    pub fn set_color(&mut self, color: Color) {
+        self.uniforms
+            .insert("color".to_string(), UniformData::VecFour(color.into()));
     }
 }

@@ -76,8 +76,8 @@ pub fn start() {
 
         RENDER_API = Some(get_render_api());
         INPUT = Some(Input::new());
-        GAME_STATE = Some(game::state::State::new());
         ENGINE_STATE = Some(gengar_engine::state::State::new(resolution));
+        GAME_STATE = Some(game::state::State::new());
 
         gengar_engine::load_resources(
             &mut ENGINE_STATE.as_mut().unwrap(),
