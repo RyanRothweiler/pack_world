@@ -1,4 +1,5 @@
 use crate::{
+    drop_table::*,
     grid::*,
     state::{inventory::*, *},
     tiles::*,
@@ -31,8 +32,8 @@ impl TileMethods for TileGrass {
     fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
         self.time = 0.0;
 
-        return vec![UpdateSignal::HarvestItem {
-            item_type: ItemType::DirtClod,
+        return vec![UpdateSignal::HarvestItemPullTable {
+            table: DropTableID::Grass,
             origin: tile_pos,
         }];
     }

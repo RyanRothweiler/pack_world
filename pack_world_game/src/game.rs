@@ -30,6 +30,7 @@ use gengar_engine::{
 use gengar_render_opengl::*;
 use std::{fs::File, io::Cursor, path::Path};
 
+pub mod drop_table;
 pub mod error;
 pub mod grid;
 pub mod harvest_drop;
@@ -70,6 +71,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/grass.png"), render_api).unwrap();
     gs.assets.image_dirt_clod =
         load_image_cursor(include_bytes!("../resources/dirt_clod.png"), render_api).unwrap();
+    gs.assets.image_stick =
+        load_image_cursor(include_bytes!("../resources/stick.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
@@ -116,8 +119,9 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             .unwrap();
     }
 
-    // setup packs
+    // setup static data
     pack::init_static_packs();
+    // drop_table::init_static_tables();
 }
 
 #[no_mangle]

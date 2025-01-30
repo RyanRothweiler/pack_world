@@ -15,7 +15,7 @@ pub static GROUND_LEN: f64 = 0.01;
 pub static INVENTORY_LEN: f64 = 0.02;
 
 pub static DROP_RADIUS: f64 = 50.0;
-pub static ICON_SIZE: f64 = 18.0;
+pub static ICON_SIZE: f64 = 30.0;
 pub static SIN_HEIGHT: f64 = 50.0;
 
 pub struct HarvestDrop {
