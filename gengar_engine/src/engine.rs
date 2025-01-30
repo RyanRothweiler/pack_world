@@ -13,6 +13,7 @@ pub mod color;
 pub mod debug;
 pub mod error;
 pub mod font;
+pub mod math;
 pub mod matricies;
 pub mod model;
 pub mod rect;

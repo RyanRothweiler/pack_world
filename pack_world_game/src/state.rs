@@ -1,4 +1,4 @@
-use crate::{tiles::*, ui_panels::*, world::*};
+use crate::{harvest_drop::*, tiles::*, ui_panels::*, world::*};
 use gengar_engine::{
     font::*,
     model::*,
@@ -33,6 +33,8 @@ pub struct State {
 
     pub inventory: Inventory,
 
+    pub harvest_drops: Vec<HarvestDrop>,
+
     // time for rotation animation
     pub rotate_time: f64,
 }
@@ -47,6 +49,8 @@ impl State {
                 image_grass: Image::new(),
                 image_dirt_clod: Image::new(),
             },
+
+            harvest_drops: vec![],
 
             light_trans: None,
 

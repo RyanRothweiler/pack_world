@@ -32,6 +32,7 @@ use std::{fs::File, io::Cursor, path::Path};
 
 pub mod error;
 pub mod grid;
+pub mod harvest_drop;
 pub mod pack;
 pub mod state;
 pub mod tiles;
@@ -40,6 +41,7 @@ pub mod update_signal;
 pub mod world;
 
 use grid::*;
+use harvest_drop::*;
 use state::inventory::*;
 use tiles::*;
 use ui_panels::{nav_tabs_panel::*, tile_library_panel::*, *};
@@ -188,6 +190,26 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         }
     }
 
+    // testing
+    {
+        if input.keyboard[0x1B].on_press {
+            gs.harvest_drops
+                .push(HarvestDrop::new(ItemType::DirtClod, input.mouse_pos));
+        }
+    }
+
+    // update harvest drops
+    {
+        for h in &mut gs.harvest_drops {
+            h.update_and_draw(
+                0.001,
+                es.color_texture_shader,
+                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                &gs.assets,
+            );
+        }
+    }
+
     let mouse_grid: VecTwoInt = world_to_grid(&input.mouse_pos);
 
     // placing tiles
@@ -204,24 +226,15 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             let mut r = Rect::new_square(GRID_SIZE * 0.5);
             r.set_center(grid_to_world(&mouse_grid));
 
-            let mut mat = Material::new();
-            mat.shader = Some(es.color_texture_shader);
-
-            mat.uniforms.insert(
-                "tex".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: gs.assets.get_tile_icon(&tile),
-                    texture_slot: 0,
-                }),
-            );
-
             let mut color = COLOR_WHITE;
             if !can_place {
                 color = COLOR_RED;
             }
 
-            mat.uniforms
-                .insert("color".to_string(), UniformData::VecFour(color.into()));
+            let mut mat = Material::new();
+            mat.shader = Some(es.color_texture_shader);
+            mat.set_image(gs.assets.get_tile_icon(&tile));
+            mat.set_color(color);
 
             es.render_packs
                 .get_mut(&RenderPackID::UI)

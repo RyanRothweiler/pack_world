@@ -108,6 +108,10 @@ impl VecTwo {
     pub fn new(x: f64, y: f64) -> Self {
         VecTwo { x, y }
     }
+
+    pub fn lerp(a: Self, b: Self, t: f64) -> Self {
+        a + (b - a) * t.clamp(0.0, 1.0)
+    }
 }
 
 impl Mul<f64> for VecTwo {
