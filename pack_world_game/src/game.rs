@@ -190,14 +190,6 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         }
     }
 
-    // testing
-    {
-        if input.keyboard[0x1B].on_press {
-            gs.harvest_drops
-                .push(HarvestDrop::new(ItemType::DirtClod, input.mouse_pos));
-        }
-    }
-
     // update harvest drops
     {
         for h in &mut gs.harvest_drops {

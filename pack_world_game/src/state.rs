@@ -47,6 +47,7 @@ impl State {
             assets: Assets {
                 image_dirt: Image::new(),
                 image_grass: Image::new(),
+                image_stick: Image::new(),
                 image_dirt_clod: Image::new(),
             },
 
