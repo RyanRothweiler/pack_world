@@ -1,18 +1,16 @@
-use std::collections::HashMap;
-
-use gengar_engine::{
-    color::*,
-    rect::*,
-    render::{material::*, render_command::*, render_pack::*, shader::*},
-    vectors::*,
-};
-
 use crate::{
     grid::*,
     state::{assets::*, *},
     update_signal::*,
     world::*,
 };
+use gengar_engine::{
+    color::*,
+    rect::*,
+    render::{material::*, render_command::*, render_pack::*, shader::*},
+    vectors::*,
+};
+use std::collections::HashMap;
 
 pub mod tile_dirt;
 pub mod tile_grass;
@@ -23,7 +21,7 @@ use tile_grass::*;
 pub trait TileMethods {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
     fn can_harvest(&self) -> bool;
-    fn harvest(&mut self) -> Vec<UpdateSignal>;
+    fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal>;
     fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack);
     fn render(
         &self,

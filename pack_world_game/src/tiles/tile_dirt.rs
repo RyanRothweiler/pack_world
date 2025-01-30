@@ -1,10 +1,10 @@
+use crate::{grid::*, tiles::*};
 use gengar_engine::{
     color::*,
     rect::*,
     render::{material::*, render_command::*},
+    vectors::*,
 };
-
-use crate::{grid::*, tiles::*};
 
 pub struct TileDirt {}
 
@@ -17,7 +17,7 @@ impl TileMethods for TileDirt {
         false
     }
 
-    fn harvest(&mut self) -> Vec<UpdateSignal> {
+    fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
         vec![]
     }
 

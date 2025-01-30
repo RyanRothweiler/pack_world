@@ -10,10 +10,13 @@ use gengar_engine::{
 };
 use rand::prelude::*;
 
+pub static CIRCLE_LEN: f64 = 0.01;
+pub static GROUND_LEN: f64 = 0.01;
+pub static INVENTORY_LEN: f64 = 0.02;
+
 pub static DROP_RADIUS: f64 = 50.0;
-pub static CIRCLE_TIME: f64 = 0.01;
 pub static ICON_SIZE: f64 = 18.0;
-pub static SIN_HEIGHT: f64 = 20.0;
+pub static SIN_HEIGHT: f64 = 50.0;
 
 pub struct HarvestDrop {
     pub item_type: ItemType,
@@ -21,6 +24,9 @@ pub struct HarvestDrop {
     pub origin: VecTwo,
 
     pub circle_target: VecTwo,
+
+    pub pos: VecTwo,
+    pub ground_pos: VecTwo,
 }
 
 impl HarvestDrop {
@@ -34,8 +40,15 @@ impl HarvestDrop {
             origin,
             time: 0.0,
 
+            pos: VecTwo::new(0.0, 0.0),
+            ground_pos: VecTwo::new(0.0, 0.0),
+
             circle_target: origin + VecTwo::new(x, y),
         }
+    }
+
+    pub fn is_finished(&self) -> bool {
+        self.time >= CIRCLE_LEN + GROUND_LEN + INVENTORY_LEN
     }
 
     pub fn update_and_draw(
@@ -47,18 +60,33 @@ impl HarvestDrop {
     ) {
         self.time += step;
 
-        let mut circle_t: f64 = (self.time / CIRCLE_TIME).clamp(0.0, 1.0);
-        circle_t = eas_out_quint(circle_t);
+        if self.time < CIRCLE_LEN {
+            // move to inventory
 
-        let mut pos = VecTwo::lerp(self.origin, self.circle_target, circle_t);
+            let mut circle_t: f64 = (self.time / CIRCLE_LEN).clamp(0.0, 1.0);
+            circle_t = eas_out_quint(circle_t);
 
-        let h_rad = circle_t * std::f64::consts::PI;
-        pos.y -= f64::sin(h_rad) * SIN_HEIGHT;
+            self.pos = VecTwo::lerp(self.origin, self.circle_target, circle_t);
+
+            let h_rad = circle_t * std::f64::consts::PI;
+            self.pos.y -= f64::sin(h_rad) * SIN_HEIGHT;
+
+            self.ground_pos = self.pos;
+        } else if self.time < GROUND_LEN {
+            // leave on ground for a bit
+        } else {
+            // move to inventory
+
+            let t_step = self.time - CIRCLE_LEN - GROUND_LEN;
+            let mut t: f64 = (t_step / INVENTORY_LEN).clamp(0.0, 1.0);
+
+            self.pos = VecTwo::lerp(self.ground_pos, VecTwo::new(0.0, 0.0), t);
+        }
 
         // draw
         {
             let mut rect = Rect::new_size(ICON_SIZE, ICON_SIZE);
-            rect.set_center(pos);
+            rect.set_center(self.pos);
 
             let mut mat = Material::new();
             mat.shader = Some(shader);

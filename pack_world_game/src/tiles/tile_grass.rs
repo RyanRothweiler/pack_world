@@ -28,12 +28,12 @@ impl TileMethods for TileGrass {
         self.time >= HARVEST_SECONDS
     }
 
-    fn harvest(&mut self) -> Vec<UpdateSignal> {
+    fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
         self.time = 0.0;
 
-        return vec![UpdateSignal::GiveItem {
+        return vec![UpdateSignal::HarvestItem {
             item_type: ItemType::DirtClod,
-            count: 1,
+            origin: tile_pos,
         }];
     }
 

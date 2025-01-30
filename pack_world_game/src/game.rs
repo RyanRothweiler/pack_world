@@ -207,7 +207,14 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
                 &gs.assets,
             );
+
+            if h.is_finished() {
+                gs.inventory.add_item(h.item_type, 1).unwrap();
+            }
         }
+
+        // remove fnished
+        gs.harvest_drops.retain(|h| !h.is_finished());
     }
 
     let mouse_grid: VecTwoInt = world_to_grid(&input.mouse_pos);
@@ -266,7 +273,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {
-                    update_signals.append(&mut tile.methods.harvest());
+                    update_signals.append(&mut tile.methods.harvest(mouse_snapped));
                 }
 
                 // render hover rect
@@ -278,11 +285,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
                     let mut mat = Material::new();
                     mat.shader = Some(es.shader_color);
-
-                    mat.uniforms.insert(
-                        "color".to_string(),
-                        UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
-                    );
+                    mat.set_color(Color::new(1.0, 1.0, 1.0, 0.5));
 
                     es.render_packs
                         .get_mut(&RenderPackID::UI)
