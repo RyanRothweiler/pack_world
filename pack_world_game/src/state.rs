@@ -22,8 +22,8 @@ pub struct State {
 
     pub font_style_button: FontStyle,
 
-    pub active_ui_panels: Vec<UIPanelState>,
-    pub active_page: Option<UIPanelState>,
+    pub active_ui_panels: Vec<UIPanel>,
+    pub active_page: Option<UIPanel>,
 
     pub ui_panel_common: Option<UIPanelCommon>,
 

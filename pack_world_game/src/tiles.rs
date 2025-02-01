@@ -39,6 +39,7 @@ pub enum TileType {
     Grass,
 }
 
+// TODO make these private?
 pub struct TileInstance {
     pub tile_type: TileType,
     pub methods: Box<dyn TileMethods>,

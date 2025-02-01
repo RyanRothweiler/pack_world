@@ -20,60 +20,48 @@ pub const BG_COLOR: Color = Color {
     a: 1.0,
 };
 
+pub trait UIPanelLifecycle {
+    fn update(
+        &mut self,
+        common: &UIPanelCommon,
+        ui_state: &mut UIFrameState,
+        inventory: &Inventory,
+        assets: &Assets,
+    ) -> Vec<UpdateSignal>;
+}
+
+pub struct UIPanel {
+    pub panel_id: PanelID,
+    pub lifecycle: Box<dyn UIPanelLifecycle>,
+}
+
+#[derive(Clone, Copy)]
 pub enum PanelID {
+    NavTabs,
     TileLibrary,
     Shop,
 }
 
 impl PanelID {
-    pub fn create_page(&self, gs: &mut State) -> UIPanelState {
+    pub fn create_panel(&self) -> UIPanel {
         match self {
-            PanelID::TileLibrary => {
-                return UIPanelState::TileLibrary(
-                    gs.ui_panel_common.as_mut().unwrap().clone(),
-                    tile_library_panel::TileLibraryPanel {},
-                )
-            }
-            PanelID::Shop => {
-                return UIPanelState::Shop(
-                    gs.ui_panel_common.as_mut().unwrap().clone(),
-                    shop_panel::ShopPanel {},
-                )
-            }
-        };
+            PanelID::NavTabs => UIPanel {
+                panel_id: *self,
+                lifecycle: Box::new(NavTabsPanel {}),
+            },
+            PanelID::TileLibrary => UIPanel {
+                panel_id: *self,
+                lifecycle: Box::new(TileLibraryPanel {}),
+            },
+            PanelID::Shop => UIPanel {
+                panel_id: *self,
+                lifecycle: Box::new(ShopPanel {}),
+            },
+        }
     }
-}
-
-pub enum UIPanelState {
-    TileLibrary(UIPanelCommon, TileLibraryPanel),
-    NavTabs(UIPanelCommon, NavTabsPanel),
-    Shop(UIPanelCommon, ShopPanel),
 }
 
 #[derive(Clone)]
 pub struct UIPanelCommon {
     pub button_font_style: FontStyle,
-}
-
-pub fn update_panel(
-    panel: &mut UIPanelState,
-    ui_state: &mut UIFrameState,
-    inventory: &Inventory,
-    assets: &Assets,
-) -> Vec<UpdateSignal> {
-    let mut update_signals: Vec<UpdateSignal> = vec![];
-
-    match panel {
-        UIPanelState::TileLibrary(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common, ui_state, inventory, assets));
-        }
-        UIPanelState::NavTabs(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common, ui_state, inventory));
-        }
-        UIPanelState::Shop(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common, ui_state, inventory, assets));
-        }
-    }
-
-    update_signals
 }

@@ -90,12 +90,11 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         });
     }
 
-    // setup first ui
     {
-        gs.active_ui_panels.push(UIPanelState::NavTabs(
-            gs.ui_panel_common.as_mut().unwrap().clone(),
-            NavTabsPanel {},
-        ));
+        gs.active_ui_panels.push(UIPanel {
+            panel_id: PanelID::NavTabs,
+            lifecycle: Box::new(NavTabsPanel {}),
+        });
     }
 
     // setup first map
@@ -141,8 +140,8 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
         // Render and update active UI
         for panel in &mut gs.active_ui_panels {
-            update_signals.append(&mut ui_panels::update_panel(
-                panel,
+            update_signals.append(&mut panel.lifecycle.update(
+                gs.ui_panel_common.as_ref().unwrap(),
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
@@ -151,8 +150,8 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
         // update active page
         match &mut gs.active_page {
-            Some(page) => update_signals.append(&mut ui_panels::update_panel(
-                page,
+            Some(page) => update_signals.append(&mut page.lifecycle.update(
+                gs.ui_panel_common.as_ref().unwrap(),
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,

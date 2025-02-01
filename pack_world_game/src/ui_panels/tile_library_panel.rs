@@ -7,11 +7,11 @@ use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct TileLibraryPanel {}
 
-impl TileLibraryPanel {
-    pub fn update(
+impl UIPanelLifecycle for TileLibraryPanel {
+    fn update(
         &mut self,
         common: &UIPanelCommon,
-        mut state: &mut UIFrameState,
+        mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
     ) -> Vec<UpdateSignal> {
@@ -19,9 +19,9 @@ impl TileLibraryPanel {
 
         // begin panel
         begin_panel(
-            Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, state.resolution.y),
+            Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y),
             BG_COLOR,
-            &mut state,
+            &mut ui_state,
         );
 
         let y_offset: f64 = 80.0;
@@ -43,7 +43,7 @@ impl TileLibraryPanel {
                         Some(icon),
                         &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
                         &common.button_font_style,
-                        state,
+                        ui_state,
                         std::line!(),
                     ) {
                         ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
@@ -54,14 +54,14 @@ impl TileLibraryPanel {
                         Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
                         icon,
                         COLOR_WHITE,
-                        state,
+                        ui_state,
                     );
 
                     draw_text(
                         &disp,
                         &common.button_font_style,
                         VecTwo::new(10.0, y),
-                        state,
+                        ui_state,
                     );
                 }
             };
@@ -69,7 +69,7 @@ impl TileLibraryPanel {
             i += 1;
         }
 
-        end_panel(&mut state);
+        end_panel(&mut ui_state);
 
         return ret;
     }

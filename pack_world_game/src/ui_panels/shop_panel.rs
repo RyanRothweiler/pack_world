@@ -8,19 +8,19 @@ use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct ShopPanel {}
 
-impl ShopPanel {
-    pub fn update(
+impl UIPanelLifecycle for ShopPanel {
+    fn update(
         &mut self,
         common: &UIPanelCommon,
-        mut state: &mut UIFrameState,
+        mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
     ) -> Vec<UpdateSignal> {
         // begin panel
         begin_panel(
-            Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, state.resolution.y),
+            Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y),
             BG_COLOR,
-            &mut state,
+            &mut ui_state,
         );
 
         {
@@ -41,7 +41,7 @@ impl ShopPanel {
                 assets.image_pack_starter.gl_id,
                 &button_rect,
                 &common.button_font_style,
-                state,
+                ui_state,
                 std::line!(),
             ) {
                 return vec![UpdateSignal::OpenPack(PackID::Starter)];
@@ -52,12 +52,12 @@ impl ShopPanel {
                     &format!("   {:?}x{}", c.0, c.1),
                     &common.button_font_style,
                     button_rect.top_right() + VecTwo::new(0.0, 10.0),
-                    state,
+                    ui_state,
                 );
             }
         }
 
-        end_panel(&mut state);
+        end_panel(&mut ui_state);
 
         vec![]
     }

@@ -33,8 +33,8 @@ pub fn handle_signals(signals: Vec<UpdateSignal>, gs: &mut State) {
     for us in signals {
         match us {
             UpdateSignal::SetActivePage(panel_id) => {
-                let page = panel_id.create_page(gs);
-                gs.active_page = Some(page);
+                let panel = panel_id.create_panel();
+                gs.active_page = Some(panel);
             }
             UpdateSignal::SetPlacingTile(tile) => {
                 gs.tile_placing = tile;
