@@ -90,11 +90,9 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         });
     }
 
+    // setup initial UI
     {
-        gs.active_ui_panels.push(UIPanel {
-            panel_id: PanelID::NavTabs,
-            lifecycle: Box::new(NavTabsPanel {}),
-        });
+        gs.active_ui_panels.push(PanelID::Home.create_panel());
     }
 
     // setup first map

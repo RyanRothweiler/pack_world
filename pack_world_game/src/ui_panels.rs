@@ -5,10 +5,12 @@ use crate::{
 };
 use gengar_engine::{color::*, font::*, ui::*, vectors::*};
 
+pub mod home_panel;
 pub mod nav_tabs_panel;
 pub mod shop_panel;
 pub mod tile_library_panel;
 
+use home_panel::*;
 use nav_tabs_panel::*;
 use shop_panel::*;
 use tile_library_panel::*;
@@ -40,6 +42,7 @@ pub enum PanelID {
     NavTabs,
     TileLibrary,
     Shop,
+    Home,
 }
 
 impl PanelID {
@@ -56,6 +59,16 @@ impl PanelID {
             PanelID::Shop => UIPanel {
                 panel_id: *self,
                 lifecycle: Box::new(ShopPanel {}),
+            },
+            PanelID::Home => UIPanel {
+                panel_id: *self,
+                lifecycle: Box::new(HomePanel {
+                    tab: home_panel::Tab::Inventory,
+
+                    ui_nav_tabs: PanelID::NavTabs.create_panel(),
+                    ui_shop: PanelID::Shop.create_panel(),
+                    ui_inventory: PanelID::TileLibrary.create_panel(),
+                }),
             },
         }
     }

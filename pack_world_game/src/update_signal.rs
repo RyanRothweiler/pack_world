@@ -4,7 +4,7 @@ use crate::{
     pack::*,
     state::{inventory::*, *},
     tiles::*,
-    ui_panels::*,
+    ui_panels::{home_panel::*, *},
 };
 use gengar_engine::vectors::*;
 
@@ -27,6 +27,10 @@ pub enum UpdateSignal {
 
     // Open a pack
     OpenPack(PackID),
+
+    // For the home panel. Not good that this is here.
+    // This is suggesting a different architecture.
+    HomePanelTabChange(home_panel::Tab),
 }
 
 pub fn handle_signals(signals: Vec<UpdateSignal>, gs: &mut State) {
@@ -63,6 +67,9 @@ pub fn handle_signals(signals: Vec<UpdateSignal>, gs: &mut State) {
 
                     gs.inventory.add_item(pull_item, 1).unwrap();
                 }
+            }
+            UpdateSignal::HomePanelTabChange(_) => {
+                panic!("Home panel needs to consume this");
             }
         }
     }

@@ -16,7 +16,6 @@ impl UIPanelLifecycle for ShopPanel {
         inventory: &Inventory,
         assets: &Assets,
     ) -> Vec<UpdateSignal> {
-        // begin panel
         begin_panel(
             Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y),
             BG_COLOR,

@@ -26,20 +26,20 @@ pub struct UIFrameState {
     pub resolution: VecTwo,
 
     pub mouse_left: bool,
-    pub current_panel: Option<Rect>,
+    pub panel_stack: Vec<Rect>,
 }
 
 impl UIFrameState {
     pub fn new(input: &Input, resolution: VecTwo) -> Self {
         Self {
             mouse_left: input.mouse_left.on_press,
-            current_panel: None,
+            panel_stack: vec![],
             resolution,
         }
     }
 
     pub fn get_origin(&self) -> VecTwo {
-        match self.current_panel {
+        match self.panel_stack.last() {
             Some(p) => p.top_left,
             None => VecTwo::new(0.0, 0.0),
         }
@@ -183,22 +183,20 @@ pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
         .render_commands
         .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
 
-    frame_state.current_panel = Some(rect);
+    frame_state.panel_stack.push(rect);
 }
 
 pub fn end_panel(frame_state: &mut UIFrameState) {
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
     if frame_state
-        .current_panel
-        .clone()
-        .unwrap()
+        .panel_stack
+        .pop()
+        .expect("End panel called without an associated beginning panel.")
         .contains(context.mouse_pos)
     {
         frame_state.mouse_left = false;
     }
-
-    frame_state.current_panel = None;
 }
 
 pub fn draw_progress_bar(

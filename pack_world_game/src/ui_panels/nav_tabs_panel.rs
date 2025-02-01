@@ -1,4 +1,8 @@
-use crate::{state::*, ui_panels::*, UpdateSignal};
+use crate::{
+    state::*,
+    ui_panels::{home_panel::*, *},
+    UpdateSignal,
+};
 use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct NavTabsPanel {}
@@ -13,12 +17,6 @@ impl UIPanelLifecycle for NavTabsPanel {
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
-        begin_panel(
-            Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, 100.0),
-            BG_COLOR,
-            &mut ui_state,
-        );
-
         let y_offset: f64 = 80.0;
 
         if draw_button(
@@ -29,7 +27,7 @@ impl UIPanelLifecycle for NavTabsPanel {
             ui_state,
             std::line!(),
         ) {
-            ret.push(UpdateSignal::SetActivePage(PanelID::TileLibrary));
+            ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Inventory));
         }
 
         if draw_button(
@@ -40,10 +38,8 @@ impl UIPanelLifecycle for NavTabsPanel {
             ui_state,
             std::line!(),
         ) {
-            ret.push(UpdateSignal::SetActivePage(PanelID::Shop));
+            ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Shop));
         }
-
-        end_panel(&mut ui_state);
 
         return ret;
     }
