@@ -1,6 +1,9 @@
-use crate::{drop_table::*, state::inventory::*, tiles::*};
+1use crate::{drop_table::*, state::inventory::*, tiles::*};
 use rand::prelude::*;
-use std::{collections::HashMap, sync::OnceLock};
+use std::{
+    collections::HashMap,
+    sync::{LazyLock, OnceLock},
+};
 
 #[derive(Debug, Hash, Eq, PartialEq)]
 pub enum PackID {
@@ -42,28 +45,19 @@ impl Pack {
     }
 }
 
-// TODO use lazylock here instead of this init method
-pub static PACK_LIB: OnceLock<HashMap<PackID, Pack>> = OnceLock::new();
-
-pub fn init_static_packs() {
-    let mut pack_lib: HashMap<PackID, Pack> = HashMap::new();
-
-    // Starter
-    pack_lib.insert(
-        PackID::Starter,
-        Pack::new(
-            "Starter".into(),
-            vec![(ItemType::DirtClod, 5)],
-            DropTable::new(vec![
-                (ItemType::Tile(TileType::Dirt), 10.0),
-                (ItemType::Tile(TileType::Grass), 10.0),
-            ]),
-        ),
-    );
-
-    PACK_LIB.set(pack_lib).unwrap();
-}
+static STARTER: LazyLock<Pack> = LazyLock::new(|| {
+    Pack::new(
+        "Starter".into(),
+        vec![(ItemType::DirtClod, 5)],
+        DropTable::new(vec![
+            (ItemType::Tile(TileType::Dirt), 10.0),
+            (ItemType::Tile(TileType::Grass), 10.0),
+        ]),
+    )
+});
 
 pub fn get_pack_info(pack_id: PackID) -> &'static Pack {
-    &PACK_LIB.get().unwrap().get(&pack_id).unwrap()
+    match pack_id {
+        PackID::Starter => &STARTER,
+    }
 }

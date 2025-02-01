@@ -7,9 +7,21 @@ pub struct Assets {
     pub image_grass: Image,
     pub image_dirt_clod: Image,
     pub image_stick: Image,
+
+    pub image_pack_starter: Image,
 }
 
 impl Assets {
+    pub fn new() -> Self {
+        Self {
+            image_dirt: Image::new(),
+            image_grass: Image::new(),
+            image_stick: Image::new(),
+            image_dirt_clod: Image::new(),
+            image_pack_starter: Image::new(),
+        }
+    }
+
     pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
         match tile {
             TileType::Dirt => return self.image_dirt.gl_id.unwrap(),

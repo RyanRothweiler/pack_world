@@ -73,6 +73,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/dirt_clod.png"), render_api).unwrap();
     gs.assets.image_stick =
         load_image_cursor(include_bytes!("../resources/stick.png"), render_api).unwrap();
+    gs.assets.image_pack_starter =
+        load_image_cursor(include_bytes!("../resources/pack_starter.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
@@ -118,10 +120,6 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             .add_item(ItemType::Tile(TileType::Grass), 10)
             .unwrap();
     }
-
-    // setup static data
-    pack::init_static_packs();
-    // drop_table::init_static_tables();
 }
 
 #[no_mangle]

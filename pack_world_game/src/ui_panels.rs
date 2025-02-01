@@ -71,7 +71,7 @@ pub fn update_panel(
             update_signals.append(&mut panel_state.update(common, ui_state, inventory));
         }
         UIPanelState::Shop(common, panel_state) => {
-            update_signals.append(&mut panel_state.update(common, ui_state, inventory));
+            update_signals.append(&mut panel_state.update(common, ui_state, inventory, assets));
         }
     }
 

@@ -44,12 +44,7 @@ impl State {
         State {
             active_ui_panels: vec![],
 
-            assets: Assets {
-                image_dirt: Image::new(),
-                image_grass: Image::new(),
-                image_stick: Image::new(),
-                image_dirt_clod: Image::new(),
-            },
+            assets: Assets::new(),
 
             harvest_drops: vec![],
 
