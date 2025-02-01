@@ -7,11 +7,13 @@ use gengar_engine::{color::*, font::*, ui::*, vectors::*};
 
 pub mod home_panel;
 pub mod nav_tabs_panel;
+pub mod open_pack_panel;
 pub mod shop_panel;
 pub mod tile_library_panel;
 
 use home_panel::*;
 use nav_tabs_panel::*;
+use open_pack_panel::*;
 use shop_panel::*;
 use tile_library_panel::*;
 
@@ -43,6 +45,7 @@ pub enum PanelID {
     TileLibrary,
     Shop,
     Home,
+    OpenPackPanel,
 }
 
 impl PanelID {
@@ -51,6 +54,10 @@ impl PanelID {
             PanelID::NavTabs => UIPanel {
                 panel_id: *self,
                 lifecycle: Box::new(NavTabsPanel {}),
+            },
+            PanelID::OpenPackPanel => UIPanel {
+                panel_id: *self,
+                lifecycle: Box::new(OpenPackPanel {}),
             },
             PanelID::TileLibrary => UIPanel {
                 panel_id: *self,

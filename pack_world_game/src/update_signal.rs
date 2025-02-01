@@ -33,44 +33,67 @@ pub enum UpdateSignal {
     HomePanelTabChange(home_panel::Tab),
 }
 
-pub fn handle_signals(signals: Vec<UpdateSignal>, gs: &mut State) {
-    for us in signals {
-        match us {
-            UpdateSignal::SetActivePage(panel_id) => {
-                let panel = panel_id.create_panel();
-                gs.active_page = Some(panel);
-            }
-            UpdateSignal::SetPlacingTile(tile) => {
-                gs.tile_placing = tile;
-            }
-            UpdateSignal::GiveItem { item_type, count } => {
-                *gs.inventory.items.entry(item_type).or_insert(0) += count;
-            }
-            UpdateSignal::HarvestItem { item_type, origin } => {
-                gs.harvest_drops.push(HarvestDrop::new(item_type, origin));
-            }
-            UpdateSignal::HarvestItemPullTable { table, origin } => {
-                let item_type = get_drop(table);
-                gs.harvest_drops.push(HarvestDrop::new(item_type, origin));
-            }
-            UpdateSignal::OpenPack(pack_id) => {
-                let pack_info: &Pack = get_pack_info(PackID::Starter);
+pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
+    let mut curr_signals: Vec<UpdateSignal> = vec![];
+    curr_signals.append(&mut signals);
 
-                if !pack_info.can_afford(&gs.inventory) {
-                    println!("Cannot afford that pack.");
-                    continue;
+    while curr_signals.len() > 0 {
+        let mut new_signals: Vec<UpdateSignal> = vec![];
+
+        // handle current signals
+        for us in &curr_signals {
+            let mut sigs: Vec<UpdateSignal> = match us {
+                UpdateSignal::SetActivePage(panel_id) => {
+                    let panel = panel_id.create_panel();
+                    gs.active_page = Some(panel);
+                    vec![]
                 }
-
-                for i in 0..4 {
-                    let pull_item = pack_info.pull(&gs.inventory).unwrap();
-                    println!("Gave item {:?}", pull_item);
-
-                    gs.inventory.add_item(pull_item, 1).unwrap();
+                UpdateSignal::SetPlacingTile(tile) => {
+                    gs.tile_placing = *tile;
+                    vec![]
                 }
-            }
-            UpdateSignal::HomePanelTabChange(_) => {
-                panic!("Home panel needs to consume this");
-            }
+                UpdateSignal::GiveItem { item_type, count } => {
+                    *gs.inventory.items.entry(*item_type).or_insert(0) += count;
+                    vec![]
+                }
+                UpdateSignal::HarvestItem { item_type, origin } => {
+                    gs.harvest_drops.push(HarvestDrop::new(*item_type, *origin));
+                    vec![]
+                }
+                UpdateSignal::HarvestItemPullTable { table, origin } => {
+                    let item_type = get_drop(*table);
+                    gs.harvest_drops.push(HarvestDrop::new(item_type, *origin));
+                    vec![]
+                }
+                UpdateSignal::OpenPack(pack_id) => {
+                    let pack_info: &Pack = get_pack_info(PackID::Starter);
+
+                    if !pack_info.can_afford(&gs.inventory) {
+                        println!("Cannot afford that pack.");
+                        // continue;
+                    }
+
+                    /*
+                    for i in 0..4 {
+                        let pull_item = pack_info.pull(&gs.inventory).unwrap();
+                        println!("Gave item {:?}", pull_item);
+
+                        gs.inventory.add_item(pull_item, 1).unwrap();
+                    }
+                    */
+                    vec![UpdateSignal::SetActivePage(PanelID::OpenPackPanel)]
+                }
+                UpdateSignal::HomePanelTabChange(_) => {
+                    panic!("Home panel needs to consume this");
+                    vec![]
+                }
+            };
+
+            new_signals.append(&mut sigs);
         }
+
+        // update curr_signals with any new signals
+        curr_signals.clear();
+        curr_signals.append(&mut new_signals);
     }
 }

@@ -2,7 +2,7 @@ use crate::{state::inventory::*, tiles::*};
 use rand::prelude::*;
 use std::{collections::HashMap, sync::LazyLock};
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 pub enum DropTableID {
     Grass,
 }

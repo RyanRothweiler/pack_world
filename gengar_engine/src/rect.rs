@@ -23,6 +23,12 @@ impl Rect {
         }
     }
 
+    pub fn new_center(center: VecTwo, size: VecTwo) -> Self {
+        let mut r = Self::new_size(size.x, size.y);
+        r.set_center(center);
+        r
+    }
+
     pub fn new_square(size: f64) -> Self {
         Rect::new_size(size, size)
     }
