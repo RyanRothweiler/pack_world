@@ -11,7 +11,7 @@ use gengar_engine::vectors::*;
 // state update signals
 pub enum UpdateSignal {
     // set the active_page var
-    SetActivePage(PanelID),
+    SetActivePage(CreatePanelData),
 
     // Start the harvest anim to give item at end of anim
     HarvestItem { item_type: ItemType, origin: VecTwo },
@@ -43,8 +43,8 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
         // handle current signals
         for us in &curr_signals {
             let mut sigs: Vec<UpdateSignal> = match us {
-                UpdateSignal::SetActivePage(panel_id) => {
-                    let panel = panel_id.create_panel();
+                UpdateSignal::SetActivePage(new_panel_data) => {
+                    let panel = new_panel_data.create_panel();
                     gs.active_page = Some(panel);
                     vec![]
                 }
@@ -73,15 +73,8 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                         // continue;
                     }
 
-                    /*
-                    for i in 0..4 {
-                        let pull_item = pack_info.pull(&gs.inventory).unwrap();
-                        println!("Gave item {:?}", pull_item);
-
-                        gs.inventory.add_item(pull_item, 1).unwrap();
-                    }
-                    */
-                    vec![UpdateSignal::SetActivePage(PanelID::OpenPackPanel)]
+                    let new_panel_data = CreatePanelData::OpenPack { pack_id: *pack_id };
+                    vec![UpdateSignal::SetActivePage(new_panel_data)]
                 }
                 UpdateSignal::HomePanelTabChange(_) => {
                     panic!("Home panel needs to consume this");

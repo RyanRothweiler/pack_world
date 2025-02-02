@@ -93,7 +93,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     // setup initial UI
     {
         // gs.active_ui_panels.push(PanelID::Home.create_panel());
-        gs.active_page = Some(PanelID::Home.create_panel());
+        gs.active_page = Some(CreatePanelData::Home.create_panel());
     }
 
     // setup first map

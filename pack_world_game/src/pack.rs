@@ -5,7 +5,7 @@ use std::{
     sync::{LazyLock, OnceLock},
 };
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 pub enum PackID {
     Starter,
 }

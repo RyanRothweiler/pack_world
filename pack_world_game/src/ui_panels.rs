@@ -1,4 +1,5 @@
 use crate::{
+    pack::*,
     state::{assets::*, inventory::*, *},
     tiles::*,
     UpdateSignal,
@@ -45,36 +46,45 @@ pub enum PanelID {
     TileLibrary,
     Shop,
     Home,
-    OpenPackPanel,
+    OpenPack,
 }
 
-impl PanelID {
+#[derive(Clone, Copy)]
+pub enum CreatePanelData {
+    NavTabs,
+    TileLibrary,
+    Shop,
+    Home,
+    OpenPack { pack_id: PackID },
+}
+
+impl CreatePanelData {
     pub fn create_panel(&self) -> UIPanel {
         match self {
-            PanelID::NavTabs => UIPanel {
-                panel_id: *self,
+            CreatePanelData::NavTabs => UIPanel {
+                panel_id: PanelID::NavTabs,
                 lifecycle: Box::new(NavTabsPanel {}),
             },
-            PanelID::OpenPackPanel => UIPanel {
-                panel_id: *self,
-                lifecycle: Box::new(OpenPackPanel {}),
+            CreatePanelData::OpenPack { pack_id } => UIPanel {
+                panel_id: PanelID::OpenPack,
+                lifecycle: Box::new(OpenPackPanel::new(*pack_id)),
             },
-            PanelID::TileLibrary => UIPanel {
-                panel_id: *self,
+            CreatePanelData::TileLibrary => UIPanel {
+                panel_id: PanelID::TileLibrary,
                 lifecycle: Box::new(TileLibraryPanel {}),
             },
-            PanelID::Shop => UIPanel {
-                panel_id: *self,
+            CreatePanelData::Shop => UIPanel {
+                panel_id: PanelID::Shop,
                 lifecycle: Box::new(ShopPanel {}),
             },
-            PanelID::Home => UIPanel {
-                panel_id: *self,
+            CreatePanelData::Home => UIPanel {
+                panel_id: PanelID::Home,
                 lifecycle: Box::new(HomePanel {
                     tab: home_panel::Tab::Inventory,
 
-                    ui_nav_tabs: PanelID::NavTabs.create_panel(),
-                    ui_shop: PanelID::Shop.create_panel(),
-                    ui_inventory: PanelID::TileLibrary.create_panel(),
+                    ui_nav_tabs: CreatePanelData::NavTabs.create_panel(),
+                    ui_shop: CreatePanelData::Shop.create_panel(),
+                    ui_inventory: CreatePanelData::TileLibrary.create_panel(),
                 }),
             },
         }
