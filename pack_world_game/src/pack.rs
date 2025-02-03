@@ -1,4 +1,4 @@
-use crate::{drop_table::*, state::inventory::*, tiles::*};
+use crate::{drop_table::*, item::*, state::inventory::*, tiles::*};
 use rand::prelude::*;
 use std::{
     collections::HashMap,
@@ -15,14 +15,22 @@ pub struct Pack {
     pub display_name: String,
     pub cost: Vec<(ItemType, i32)>,
     pub table: DropTable,
+
+    pub content_count: i32,
 }
 
 impl Pack {
-    pub fn new(display_name: String, cost: Vec<(ItemType, i32)>, table: DropTable) -> Pack {
+    pub fn new(
+        display_name: String,
+        cost: Vec<(ItemType, i32)>,
+        content_count: i32,
+        table: DropTable,
+    ) -> Pack {
         Pack {
             display_name,
             cost,
             table,
+            content_count,
         }
     }
 
@@ -36,11 +44,8 @@ impl Pack {
         true
     }
 
-    pub fn pull(&self, inventory: &Inventory) -> Option<ItemType> {
-        if !self.can_afford(inventory) {
-            return None;
-        }
-
+    // Assumes you can afford the pack
+    pub fn pull(&self) -> Option<ItemType> {
         Some(self.table.pull())
     }
 }
@@ -49,6 +54,7 @@ static STARTER: LazyLock<Pack> = LazyLock::new(|| {
     Pack::new(
         "Starter".into(),
         vec![(ItemType::DirtClod, 5)],
+        4,
         DropTable::new(vec![
             (ItemType::Tile(TileType::Dirt), 10.0),
             (ItemType::Tile(TileType::Grass), 10.0),

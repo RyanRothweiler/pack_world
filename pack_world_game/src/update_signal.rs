@@ -1,6 +1,7 @@
 use crate::{
     drop_table::*,
     harvest_drop::*,
+    item::*,
     pack::*,
     state::{inventory::*, *},
     tiles::*,

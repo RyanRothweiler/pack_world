@@ -1,4 +1,4 @@
-use crate::{state::inventory::*, tiles::*};
+use crate::{item::*, state::inventory::*, tiles::*};
 use rand::prelude::*;
 use std::{collections::HashMap, sync::LazyLock};
 

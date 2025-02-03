@@ -34,6 +34,7 @@ pub mod drop_table;
 pub mod error;
 pub mod grid;
 pub mod harvest_drop;
+pub mod item;
 pub mod pack;
 pub mod state;
 pub mod tiles;
@@ -43,6 +44,7 @@ pub mod world;
 
 use grid::*;
 use harvest_drop::*;
+use item::*;
 use state::inventory::*;
 use tiles::*;
 use ui_panels::{nav_tabs_panel::*, tile_library_panel::*, *};
