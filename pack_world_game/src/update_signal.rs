@@ -4,7 +4,7 @@ use crate::{
     item::*,
     pack::*,
     state::{inventory::*, *},
-    tiles::*,
+    tile::*,
     ui_panels::{home_panel::*, *},
 };
 use gengar_engine::vectors::*;

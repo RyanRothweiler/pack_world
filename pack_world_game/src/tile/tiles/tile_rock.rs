@@ -2,7 +2,7 @@ use crate::{
     drop_table::*,
     grid::*,
     state::{inventory::*, *},
-    tiles::*,
+    tile::{harvest_timer::*, *},
 };
 use gengar_engine::{
     color::*,
@@ -11,40 +11,36 @@ use gengar_engine::{
     ui::*,
 };
 
-const HARVEST_SECONDS: f64 = 1000.0;
+const HARVEST_SECONDS: f64 = 800.0;
 
 pub struct TileRock {
-    pub time: f64,
+    harvest_timer: HarvestTimer,
 }
 
 impl TileMethods for TileRock {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        self.time += time_step;
-        self.time = self.time.clamp(0.0, HARVEST_SECONDS);
-
+        self.harvest_timer.inc(time_step);
         vec![]
     }
 
     fn can_harvest(&self) -> bool {
-        self.time >= HARVEST_SECONDS
+        self.harvest_timer.can_harvest()
     }
 
     fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
-        self.time = 0.0;
-
-        return vec![UpdateSignal::HarvestItemPullTable {
-            table: DropTableID::Grass,
-            origin: tile_pos,
-        }];
+        self.harvest_timer.harvest(tile_pos)
     }
 
     fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
         let base: VecTwo = VecTwo::new(450.0, 120.0);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
-        let prog = self.time / HARVEST_SECONDS;
-
-        draw_progress_bar(prog, &r, shader_color, render_pack);
+        draw_progress_bar(
+            self.harvest_timer.percent_done(),
+            &r,
+            shader_color,
+            render_pack,
+        );
     }
 
     fn render(
@@ -77,7 +73,9 @@ impl TileRock {
     pub fn new() -> TileInstance {
         TileInstance {
             tile_type: TileType::Rock,
-            methods: Box::new(TileRock { time: 0.0 }),
+            methods: Box::new(TileRock {
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Grass),
+            }),
         }
     }
 }

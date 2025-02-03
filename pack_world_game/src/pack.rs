@@ -1,4 +1,4 @@
-use crate::{drop_table::*, item::*, state::inventory::*, tiles::*};
+use crate::{drop_table::*, item::*, state::inventory::*, tile::*};
 use rand::prelude::*;
 use std::{
     collections::HashMap,

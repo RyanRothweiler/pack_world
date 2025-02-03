@@ -1,4 +1,4 @@
-use crate::{grid::*, tiles::*};
+use crate::{grid::*, tile::*};
 use gengar_engine::{
     color::*,
     rect::*,

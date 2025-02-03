@@ -1,7 +1,7 @@
 use crate::{
     pack::*,
     state::{assets::*, inventory::*, *},
-    tiles::*,
+    tile::*,
     UpdateSignal,
 };
 use gengar_engine::{color::*, font::*, ui::*, vectors::*};

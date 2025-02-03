@@ -1,4 +1,4 @@
-use crate::{item::*, state::inventory::*, tiles::*};
+use crate::{item::*, state::inventory::*, tile::*};
 use rand::prelude::*;
 use std::{collections::HashMap, sync::LazyLock};
 
@@ -61,7 +61,7 @@ pub fn get_drop(table: DropTableID) -> ItemType {
 
 mod test {
     use super::*;
-    use crate::{state::inventory::*, tiles::*};
+    use crate::{state::inventory::*, tile::*};
 
     #[test]
     fn build() {

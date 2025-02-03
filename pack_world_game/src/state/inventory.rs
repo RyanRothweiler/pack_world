@@ -1,4 +1,4 @@
-use crate::{error::*, item::*, tiles::*};
+use crate::{error::*, item::*, tile::*};
 use std::collections::HashMap;
 
 pub struct Inventory {
@@ -38,7 +38,7 @@ impl Inventory {
 
 mod test {
     use super::*;
-    use crate::{state::inventory::*, tiles::*};
+    use crate::{state::inventory::*, tile::*};
 
     #[test]
     pub fn add_item() {

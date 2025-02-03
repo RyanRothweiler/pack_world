@@ -1,4 +1,4 @@
-use crate::{error::*, tiles::*};
+use crate::{error::*, tile::*};
 use gengar_engine::vectors::*;
 use std::collections::HashMap;
 

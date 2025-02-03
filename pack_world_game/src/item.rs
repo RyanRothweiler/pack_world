@@ -1,4 +1,4 @@
-use crate::tiles::*;
+use crate::tile::*;
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum ItemType {

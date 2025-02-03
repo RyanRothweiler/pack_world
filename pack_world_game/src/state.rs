@@ -1,4 +1,4 @@
-use crate::{harvest_drop::*, tiles::*, ui_panels::*, world::*};
+use crate::{harvest_drop::*, tile::*, ui_panels::*, world::*};
 use gengar_engine::{
     font::*,
     model::*,

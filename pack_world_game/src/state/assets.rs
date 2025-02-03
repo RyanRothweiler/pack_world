@@ -1,4 +1,4 @@
-use crate::{item::*, state::inventory::*, tiles::*};
+use crate::{item::*, state::inventory::*, tile::*};
 use gengar_engine::render::image::*;
 
 pub struct Assets {

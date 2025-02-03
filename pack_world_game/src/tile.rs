@@ -12,13 +12,12 @@ use gengar_engine::{
 };
 use std::collections::HashMap;
 
-pub mod tile_dirt;
-pub mod tile_grass;
-pub mod tile_rock;
+pub mod harvest_timer;
+pub mod tiles;
 
-use tile_dirt::*;
-use tile_grass::*;
-use tile_rock::*;
+use tiles::tile_dirt::*;
+use tiles::tile_grass::*;
+use tiles::tile_rock::*;
 
 pub trait TileMethods {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
