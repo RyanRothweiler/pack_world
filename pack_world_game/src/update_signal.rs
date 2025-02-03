@@ -71,7 +71,7 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
 
                     if !pack_info.can_afford(&gs.inventory) {
                         println!("Cannot afford that pack.");
-                        // continue;
+                        continue;
                     }
 
                     let new_panel_data = CreatePanelData::OpenPack { pack_id: *pack_id };

@@ -77,6 +77,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/stick.png"), render_api).unwrap();
     gs.assets.image_pack_starter =
         load_image_cursor(include_bytes!("../resources/pack_starter.png"), render_api).unwrap();
+    gs.assets.image_rock =
+        load_image_cursor(include_bytes!("../resources/rock.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

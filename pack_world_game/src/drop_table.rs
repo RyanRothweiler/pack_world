@@ -51,7 +51,7 @@ impl DropTable {
 }
 
 static GRASS_TABLE: LazyLock<DropTable> =
-    LazyLock::new(|| DropTable::new(vec![(ItemType::DirtClod, 10.0), (ItemType::Stick, 10.0)]));
+    LazyLock::new(|| DropTable::new(vec![(ItemType::DirtClod, 10.0), (ItemType::Stick, 4.0)]));
 
 pub fn get_drop(table: DropTableID) -> ItemType {
     match table {

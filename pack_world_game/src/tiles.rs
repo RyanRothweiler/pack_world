@@ -14,9 +14,11 @@ use std::collections::HashMap;
 
 pub mod tile_dirt;
 pub mod tile_grass;
+pub mod tile_rock;
 
 use tile_dirt::*;
 use tile_grass::*;
+use tile_rock::*;
 
 pub trait TileMethods {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
@@ -37,6 +39,7 @@ pub trait TileMethods {
 pub enum TileType {
     Dirt,
     Grass,
+    Rock,
 }
 
 // TODO make these private?
@@ -57,7 +60,7 @@ impl TileType {
         // check types
         return match self {
             TileType::Dirt => true,
-            TileType::Grass => {
+            TileType::Grass | TileType::Rock => {
                 if !world.tiles.contains_key(&pos) {
                     return false;
                 }
@@ -71,6 +74,7 @@ impl TileType {
         match self {
             TileType::Dirt => TileDirt::new(),
             TileType::Grass => TileGrass::new(),
+            TileType::Rock => TileRock::new(),
         }
     }
 }
