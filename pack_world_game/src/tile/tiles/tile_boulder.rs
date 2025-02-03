@@ -13,11 +13,11 @@ use gengar_engine::{
 
 const HARVEST_SECONDS: f64 = 800.0;
 
-pub struct TileRock {
+pub struct TileBoulder {
     harvest_timer: HarvestTimer,
 }
 
-impl TileMethods for TileRock {
+impl TileMethods for TileBoulder {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
         vec![]
@@ -59,7 +59,7 @@ impl TileMethods for TileRock {
         }
 
         draw_tile(
-            TileType::Rock,
+            TileType::Boulder,
             rotation,
             pos,
             shader_color,
@@ -69,12 +69,12 @@ impl TileMethods for TileRock {
     }
 }
 
-impl TileRock {
+impl TileBoulder {
     pub fn new() -> TileInstance {
         TileInstance {
-            tile_type: TileType::Rock,
-            methods: Box::new(TileRock {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Grass),
+            tile_type: TileType::Boulder,
+            methods: Box::new(TileBoulder {
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),
             }),
         }
     }

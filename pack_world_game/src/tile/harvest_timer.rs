@@ -33,6 +33,8 @@ impl HarvestTimer {
     pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
         self.time = 0.0;
 
+        println!("harvestging {:?}", self.table_id);
+
         vec![UpdateSignal::HarvestItemPullTable {
             table: self.table_id,
             origin: tile_pos,

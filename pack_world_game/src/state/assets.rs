@@ -6,6 +6,7 @@ pub struct Assets {
     pub image_grass: Image,
     pub image_dirt_clod: Image,
     pub image_stick: Image,
+    pub image_boulder: Image,
     pub image_rock: Image,
 
     pub image_pack_starter: Image,
@@ -19,6 +20,7 @@ impl Assets {
             image_stick: Image::new(),
             image_dirt_clod: Image::new(),
             image_pack_starter: Image::new(),
+            image_boulder: Image::new(),
             image_rock: Image::new(),
         }
     }
@@ -27,7 +29,7 @@ impl Assets {
         match tile {
             TileType::Dirt => return self.image_dirt.gl_id.unwrap(),
             TileType::Grass => return self.image_grass.gl_id.unwrap(),
-            TileType::Rock => return self.image_rock.gl_id.unwrap(),
+            TileType::Boulder => return self.image_boulder.gl_id.unwrap(),
         };
     }
 
@@ -35,6 +37,7 @@ impl Assets {
         match item {
             ItemType::DirtClod => return self.image_dirt_clod.gl_id.unwrap(),
             ItemType::Stick => return self.image_stick.gl_id.unwrap(),
+            ItemType::Rock => return self.image_rock.gl_id.unwrap(),
             ItemType::Tile(tile_type) => return self.get_tile_icon(tile_type),
         };
     }

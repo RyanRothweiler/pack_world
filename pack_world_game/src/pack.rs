@@ -56,9 +56,9 @@ static STARTER: LazyLock<Pack> = LazyLock::new(|| {
         vec![(ItemType::DirtClod, 5)],
         4,
         DropTable::new(vec![
-            (ItemType::Tile(TileType::Dirt), 20.0),
+            (ItemType::Tile(TileType::Dirt), 25.0),
             (ItemType::Tile(TileType::Grass), 12.0),
-            (ItemType::Tile(TileType::Rock), 8.0),
+            (ItemType::Tile(TileType::Boulder), 8.0),
         ]),
     )
 });

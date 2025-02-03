@@ -77,6 +77,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/stick.png"), render_api).unwrap();
     gs.assets.image_pack_starter =
         load_image_cursor(include_bytes!("../resources/pack_starter.png"), render_api).unwrap();
+    gs.assets.image_boulder =
+        load_image_cursor(include_bytes!("../resources/boulder.png"), render_api).unwrap();
     gs.assets.image_rock =
         load_image_cursor(include_bytes!("../resources/rock.png"), render_api).unwrap();
 
@@ -171,7 +173,13 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // update tiles
     {
-        let frame_delta: f64 = 0.1;
+        let mut frame_delta: f64 = 0.1;
+
+        // DEBUG!
+        if input.keyboard[0x31].on_press {
+            frame_delta = 100.0;
+        }
+
         let mut update_signals: Vec<UpdateSignal> = vec![];
         for (key, value) in &mut gs.world.tiles {
             update_signals.append(&mut value.methods.update(frame_delta));
