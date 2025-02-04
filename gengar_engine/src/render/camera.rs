@@ -66,6 +66,9 @@ impl Camera {
             }
 
             ProjectionType::Orthographic => {
+                // let width_half: f64 = self.resolution.x * 0.5;
+                // let height_half: f64 = self.resolution.y * 0.5;
+
                 let width: f64 = self.resolution.x;
                 let height: f64 = self.resolution.y;
 
@@ -174,5 +177,41 @@ impl Camera {
         }
 
         self.update_matricies();
+    }
+
+    pub fn screen_to_world(&self, input: VecTwo) -> VecTwo {
+        match self.projection_type {
+            ProjectionType::Perspective { focal_length } => {
+                println!("Perspective projection not implemented here.");
+                return VecTwo::new(0.0, 0.0);
+            }
+            ProjectionType::Orthographic => {
+                // NOTE this is basically just wrong. but works becuse our world space is screen space.
+                // If the projection matrix width/height doen't match the screen then this won't work.
+                return input
+                    + VecTwo::new(
+                        self.transform.local_position.x,
+                        self.transform.local_position.y,
+                    );
+            }
+        }
+    }
+
+    pub fn world_to_screen(&self, input: VecTwo) -> VecTwo {
+        match self.projection_type {
+            ProjectionType::Perspective { focal_length } => {
+                println!("Perspective projection not implemented here.");
+                return VecTwo::new(0.0, 0.0);
+            }
+            ProjectionType::Orthographic => {
+                // NOTE this is basically just wrong. but works becuse our world space is screen space.
+                // If the projection matrix width/height doen't match the screen then this won't work.
+                return input
+                    - VecTwo::new(
+                        self.transform.local_position.x,
+                        self.transform.local_position.y,
+                    );
+            }
+        }
     }
 }

@@ -59,8 +59,12 @@ type FuncGameInit = fn(
     &mut gengar_engine::state::State,
     &gengar_render_opengl::OglRenderApi,
 );
-type FuncGameLoop =
-    fn(&mut game::state::State, &mut gengar_engine::state::State, &mut gengar_engine::input::Input);
+type FuncGameLoop = fn(
+    f64,
+    &mut game::state::State,
+    &mut gengar_engine::state::State,
+    &mut gengar_engine::input::Input,
+);
 
 struct GameDll {
     dll_handle: HMODULE,
@@ -268,7 +272,14 @@ fn main() {
         gengar_engine::load_resources(&mut engine_state, &render_api);
         (game_dll.proc_init)(&mut game_state, &mut engine_state, &render_api);
 
+        let mut prev_time_start: SystemTime = SystemTime::now();
+
         while RUNNING {
+            let time_start: SystemTime = SystemTime::now();
+            let prev_frame_dur: Duration = time_start.duration_since(prev_time_start).unwrap();
+            prev_time_start = time_start;
+            // println!("{}", prev_frame_dur.as_secs_f64());
+
             let mut message = MSG::default();
 
             if PeekMessageA(&mut message, None, 0, 0, PM_REMOVE).into() {
@@ -321,11 +332,14 @@ fn main() {
                 }
             }
 
-            let time_start: SystemTime = SystemTime::now();
-
             // Run game / engine loops
             gengar_engine::engine_frame_start(&mut engine_state, &input, &render_api);
-            (game_dll.proc_loop)(&mut game_state, &mut engine_state, &mut input);
+            (game_dll.proc_loop)(
+                prev_frame_dur.as_secs_f64(),
+                &mut game_state,
+                &mut engine_state,
+                &mut input,
+            );
             gengar_engine::engine_frame_end(&mut engine_state);
 
             let light_trans = engine_state.transforms[game_state.light_trans.unwrap()]

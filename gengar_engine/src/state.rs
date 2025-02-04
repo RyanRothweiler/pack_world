@@ -64,12 +64,12 @@ impl State {
         };
 
         state.render_packs.insert(
-            RenderPackID::UI,
+            RenderPackID::World,
             RenderPack::new(ProjectionType::Orthographic, window_resolution),
         );
 
         state.render_packs.insert(
-            RenderPackID::World,
+            RenderPackID::UI,
             RenderPack::new(ProjectionType::Orthographic, window_resolution),
         );
 

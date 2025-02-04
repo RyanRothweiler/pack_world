@@ -11,7 +11,7 @@ use gengar_engine::{
     ui::*,
 };
 
-const HARVEST_SECONDS: f64 = 800.0;
+const HARVEST_SECONDS: f64 = 120.0;
 
 pub struct TileBoulder {
     harvest_timer: HarvestTimer,

@@ -13,7 +13,7 @@ use gengar_engine::{
     ui::*,
 };
 
-const HARVEST_SECONDS: f64 = 100.0;
+const HARVEST_SECONDS: f64 = 20.0;
 
 pub struct TileGrass {
     harvest_timer: HarvestTimer,

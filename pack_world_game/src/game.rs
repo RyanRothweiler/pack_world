@@ -126,8 +126,9 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     }
 }
 
+// Prev delta time is in seconds. So for 60 fps 0.016666.
 #[no_mangle]
-pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
+pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, input: &mut Input) {
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
@@ -173,14 +174,12 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
     // update tiles
     {
-        let mut frame_delta: f64 = 0.1;
+        let mut frame_delta: f64 = prev_delta_time;
 
-        /*
         #[cfg(feature = "dev")]
-        if input.keyboard[KeyCode.One].on_press {
+        if input.get_key(KeyCode::One).on_press {
             frame_delta = 100.0;
         }
-        */
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
         for (key, value) in &mut gs.world.tiles {
@@ -189,11 +188,22 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         handle_signals(update_signals, gs);
     }
 
-    // keyboard testing
+    // camera controls
     {
-        match input.key_pressed() {
-            Some(key) => println!("pressed {:?}", key),
-            None => {}
+        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
+
+        let cam_speed = 1000.0;
+        if input.get_key(KeyCode::W).pressing {
+            cam_pack.camera.transform.local_position.y -= cam_speed * prev_delta_time;
+        }
+        if input.get_key(KeyCode::S).pressing {
+            cam_pack.camera.transform.local_position.y += cam_speed * prev_delta_time;
+        }
+        if input.get_key(KeyCode::A).pressing {
+            cam_pack.camera.transform.local_position.x -= cam_speed * prev_delta_time;
+        }
+        if input.get_key(KeyCode::D).pressing {
+            cam_pack.camera.transform.local_position.x += cam_speed * prev_delta_time;
         }
     }
 
@@ -206,7 +216,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 gs.rotate_time,
                 pos,
                 es.color_texture_shader,
-                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                 &gs.assets,
             );
         }
@@ -218,7 +228,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             h.update_and_draw(
                 0.001,
                 es.color_texture_shader,
-                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                 &gs.assets,
             );
 
@@ -231,7 +241,13 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
         gs.harvest_drops.retain(|h| !h.is_finished());
     }
 
-    let mouse_grid: VecTwoInt = world_to_grid(&input.mouse_pos);
+    let mouse_grid: VecTwoInt = {
+        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
+        let mouse_world = cam_pack.camera.screen_to_world(input.mouse_pos);
+        let mouse_grid: VecTwoInt = world_to_grid(&mouse_world);
+
+        mouse_grid
+    };
 
     // placing tiles
     if let Some(tile) = gs.tile_placing {
@@ -258,7 +274,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
             mat.set_color(color);
 
             es.render_packs
-                .get_mut(&RenderPackID::UI)
+                .get_mut(&RenderPackID::World)
                 .unwrap()
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
@@ -281,6 +297,12 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
 
         if gs.tile_placing.is_none() {
             let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
+            let mouse_snapped_screen = es
+                .render_packs
+                .get_mut(&RenderPackID::World)
+                .unwrap()
+                .camera
+                .world_to_screen(mouse_snapped);
 
             if gs.world.tiles.contains_key(&mouse_grid) {
                 let tile: &mut TileInstance = gs.world.tiles.get_mut(&mouse_grid).unwrap();
@@ -293,8 +315,8 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
                 // render hover rect
                 {
                     let r = Rect::new(
-                        mouse_snapped - VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
-                        mouse_snapped + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
+                        mouse_snapped_screen - VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
+                        mouse_snapped_screen + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
                     );
 
                     let mut mat = Material::new();
