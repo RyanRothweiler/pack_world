@@ -81,6 +81,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/boulder.png"), render_api).unwrap();
     gs.assets.image_rock =
         load_image_cursor(include_bytes!("../resources/rock.png"), render_api).unwrap();
+    gs.assets.image_oak_tree =
+        load_image_cursor(include_bytes!("../resources/oak_tree.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
@@ -259,9 +261,13 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         let can_place = tile.can_place_here(mouse_grid, &gs.world);
 
         // render tile placing
-        {
+        let footprint = tile.get_tile_footprint();
+
+        for p in footprint {
+            let pos = mouse_grid + p;
+
             let mut r = Rect::new_square(GRID_SIZE * 0.5);
-            r.set_center(grid_to_world(&mouse_grid));
+            r.set_center(grid_to_world(&pos));
 
             let mut color = COLOR_WHITE;
             if !can_place {

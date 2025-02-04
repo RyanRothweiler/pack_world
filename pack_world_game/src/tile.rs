@@ -15,9 +15,7 @@ use std::collections::HashMap;
 pub mod harvest_timer;
 pub mod tiles;
 
-use tiles::tile_boulder::*;
-use tiles::tile_dirt::*;
-use tiles::tile_grass::*;
+use tiles::{tile_boulder::*, tile_dirt::*, tile_grass::*, tile_oak_tree::*};
 
 pub trait TileMethods {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
@@ -39,6 +37,7 @@ pub enum TileType {
     Dirt,
     Grass,
     Boulder,
+    OakTree,
 }
 
 // TODO make these private?
@@ -48,25 +47,35 @@ pub struct TileInstance {
 }
 
 impl TileType {
-    pub fn can_place_here(&self, pos: VecTwoInt, world: &World) -> bool {
-        // check adjacency
-        if !world.tiles.contains_key(&pos) {
-            if !world.valids.contains_key(&pos) {
-                return false;
-            }
-        }
+    pub fn can_place_here(&self, origin: VecTwoInt, world: &World) -> bool {
+        let footprint = self.get_tile_footprint();
 
-        // check types
-        return match self {
-            TileType::Dirt => true,
-            TileType::Grass | TileType::Boulder => {
-                if !world.tiles.contains_key(&pos) {
+        for p in footprint {
+            let pos = origin + p;
+
+            // check adjacency
+            if !world.tiles.contains_key(&pos) {
+                if !world.valids.contains_key(&pos) {
                     return false;
                 }
-
-                return world.tiles.get(&pos).unwrap().tile_type == TileType::Dirt;
             }
-        };
+
+            // check types
+            match self {
+                TileType::Dirt => {}
+                TileType::Grass | TileType::Boulder | TileType::OakTree => {
+                    if !world.tiles.contains_key(&pos) {
+                        return false;
+                    }
+
+                    if world.tiles.get(&pos).unwrap().tile_type != TileType::Dirt {
+                        return false;
+                    }
+                }
+            };
+        }
+
+        return true;
     }
 
     pub fn create_instance(&self) -> TileInstance {
@@ -74,6 +83,19 @@ impl TileType {
             TileType::Dirt => TileDirt::new(),
             TileType::Grass => TileGrass::new(),
             TileType::Boulder => TileBoulder::new(),
+            TileType::OakTree => TileOakTree::new(),
+        }
+    }
+
+    pub fn get_tile_footprint(&self) -> Vec<VecTwoInt> {
+        match self {
+            TileType::Dirt | TileType::Grass | TileType::Boulder => vec![VecTwoInt::new(0, 0)],
+            TileType::OakTree => vec![
+                VecTwoInt::new(0, 0),
+                VecTwoInt::new(1, 1),
+                VecTwoInt::new(0, 1),
+                VecTwoInt::new(1, 0),
+            ],
         }
     }
 }
