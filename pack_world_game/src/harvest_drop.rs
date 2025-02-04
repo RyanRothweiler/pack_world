@@ -37,8 +37,6 @@ impl HarvestDrop {
         let x: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
         let y: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
 
-        println!("new harvest {:?}", item_type);
-
         Self {
             item_type,
             origin,

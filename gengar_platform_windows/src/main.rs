@@ -15,22 +15,23 @@
 // https://github.com/glowcoil/raw-gl-context/blob/master/src/win.rs
 
 use game;
-use gengar_engine::{error::Error as EngineError, vectors::*};
+use gengar_engine::{error::Error as EngineError, input::*, vectors::*};
 use gengar_render_opengl::*;
-
-use windows::Win32::Graphics::Gdi::*;
-use windows::Win32::Graphics::OpenGL::*;
+use std::{
+    collections::HashMap,
+    sync::{LazyLock, Mutex},
+    thread,
+    time::{Duration, SystemTime},
+};
 use windows::{
     core::*,
     Win32::{
-        Foundation::*, Storage::FileSystem::*, System::LibraryLoader::*, UI::Shell::*,
-        UI::WindowsAndMessaging::*,
+        Foundation::*,
+        Graphics::{Gdi::*, OpenGL::*},
+        Storage::FileSystem::*,
+        System::LibraryLoader::*,
+        UI::{Shell::*, WindowsAndMessaging::*},
     },
-};
-
-use std::{
-    thread,
-    time::{Duration, SystemTime},
 };
 
 mod gl;
@@ -50,7 +51,8 @@ static mut RUNNING: bool = true;
 
 static mut MOUSE_LEFT_DOWN: bool = false;
 static mut MOUSE_RIGHT_DOWN: bool = false;
-static mut KEYBOARD: [bool; 128] = [false; 128];
+static mut KEYBOARD_NEW: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 type FuncGameInit = fn(
     &mut game::state::State,
@@ -58,7 +60,7 @@ type FuncGameInit = fn(
     &gengar_render_opengl::OglRenderApi,
 );
 type FuncGameLoop =
-    fn(&mut game::state::State, &mut gengar_engine::state::State, &mut gengar_engine::state::Input);
+    fn(&mut game::state::State, &mut gengar_engine::state::State, &mut gengar_engine::input::Input);
 
 struct GameDll {
     dll_handle: HMODULE,
@@ -260,7 +262,8 @@ fn main() {
         let mut engine_state = gengar_engine::state::State::new(resolution);
         let mut game_state = game::state::State::new();
 
-        let mut input = gengar_engine::state::Input::new();
+        // setup input
+        let mut input = gengar_engine::input::Input::new();
 
         gengar_engine::load_resources(&mut engine_state, &render_api);
         (game_dll.proc_init)(&mut game_state, &mut engine_state, &render_api);
@@ -308,8 +311,13 @@ fn main() {
                 );
 
                 // Keyboard
-                for i in 0..KEYBOARD.len() {
-                    input.keyboard[i].update(KEYBOARD[i]);
+                let key_states: &HashMap<KeyCode, bool> = &KEYBOARD_NEW.lock().unwrap();
+                for (key, value) in key_states {
+                    input
+                        .keyboard
+                        .entry(*key)
+                        .or_insert(ButtonState::new())
+                        .update(*value);
                 }
             }
 
@@ -371,15 +379,23 @@ extern "system" fn windows_callback(
                 LRESULT(0)
             }
             WM_KEYUP => {
-                if wparam.0 < KEYBOARD.len() {
-                    KEYBOARD[wparam.0] = false;
+                match vk_to_keycode(wparam.0) {
+                    Some(keycode) => {
+                        KEYBOARD_NEW.lock().unwrap().insert(keycode, false);
+                    }
+                    None => {}
                 }
+
                 LRESULT(0)
             }
             WM_KEYDOWN => {
-                if wparam.0 < KEYBOARD.len() {
-                    KEYBOARD[wparam.0] = true;
+                match vk_to_keycode(wparam.0) {
+                    Some(keycode) => {
+                        KEYBOARD_NEW.lock().unwrap().insert(keycode, true);
+                    }
+                    None => {}
                 }
+
                 LRESULT(0)
             }
             _ => DefWindowProcA(window, message, wparam, lparam),
@@ -489,4 +505,55 @@ unsafe fn get_game_procs_from_dll(dll: HMODULE) -> std::result::Result<GameDll, 
     };
 
     Ok(dll)
+}
+
+pub fn vk_to_keycode(vk: usize) -> Option<KeyCode> {
+    match vk {
+        0x41 => Some(KeyCode::A),
+        0x42 => Some(KeyCode::B),
+        0x43 => Some(KeyCode::C),
+        0x44 => Some(KeyCode::D),
+        0x45 => Some(KeyCode::E),
+        0x46 => Some(KeyCode::F),
+        0x47 => Some(KeyCode::G),
+        0x48 => Some(KeyCode::H),
+        0x49 => Some(KeyCode::I),
+        0x4A => Some(KeyCode::J),
+        0x4B => Some(KeyCode::K),
+        0x4C => Some(KeyCode::L),
+        0x4D => Some(KeyCode::M),
+        0x4E => Some(KeyCode::N),
+        0x4F => Some(KeyCode::O),
+        0x50 => Some(KeyCode::P),
+        0x51 => Some(KeyCode::Q),
+        0x52 => Some(KeyCode::R),
+        0x53 => Some(KeyCode::S),
+        0x54 => Some(KeyCode::T),
+        0x55 => Some(KeyCode::U),
+        0x56 => Some(KeyCode::V),
+        0x57 => Some(KeyCode::W),
+        0x58 => Some(KeyCode::X),
+        0x59 => Some(KeyCode::Y),
+        0x5A => Some(KeyCode::Z),
+
+        0x30 => Some(KeyCode::Zero),
+        0x31 => Some(KeyCode::One),
+        0x32 => Some(KeyCode::Two),
+        0x33 => Some(KeyCode::Three),
+        0x34 => Some(KeyCode::Four),
+        0x35 => Some(KeyCode::Five),
+        0x36 => Some(KeyCode::Six),
+        0x37 => Some(KeyCode::Seven),
+        0x38 => Some(KeyCode::Eight),
+        0x39 => Some(KeyCode::Nine),
+
+        0x09 => Some(KeyCode::Tab),
+        0x1B => Some(KeyCode::Escape),
+        0x20 => Some(KeyCode::Spacebar),
+
+        _ => {
+            println!("Unknown keycode {:?}", vk);
+            return None;
+        }
+    }
 }

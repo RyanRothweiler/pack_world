@@ -1,13 +1,13 @@
-use std::{cell::RefCell, collections::HashMap};
-
 use crate::{
     font::*,
+    input::*,
     model::*,
     render::{camera::*, render_command::*, render_pack::*, shader::*, vao::*},
     transform::*,
     ui::*,
     vectors::*,
 };
+use std::{cell::RefCell, collections::HashMap};
 
 // TODO rename engine state
 pub struct State {
@@ -79,122 +79,5 @@ impl State {
     pub fn new_transform(&mut self) -> usize {
         self.transforms.push(Transform::new());
         return self.transforms.len() - 1;
-    }
-}
-
-#[derive(Copy, Clone)]
-pub struct ButtonState {
-    pub pressing: bool,
-    pub on_press: bool,
-    pub on_release: bool,
-}
-
-impl ButtonState {
-    pub fn new() -> Self {
-        ButtonState {
-            pressing: false,
-            on_press: false,
-            on_release: false,
-        }
-    }
-
-    pub fn update(&mut self, new_state: bool) {
-        if new_state {
-            self.on_release = false;
-
-            if !self.pressing {
-                self.on_press = true;
-            } else {
-                self.on_press = false;
-            }
-        } else {
-            self.on_press = false;
-
-            if self.pressing {
-                self.on_release = true;
-            } else {
-                self.on_release = false;
-            }
-        }
-
-        self.pressing = new_state;
-    }
-}
-
-pub struct Input {
-    pub mouse_pos: VecTwo,
-    pub mouse_pos_delta: VecTwo,
-    pub mouse_left: ButtonState,
-    pub mouse_right: ButtonState,
-
-    pub keyboard: [ButtonState; 128],
-}
-
-impl Input {
-    pub fn new() -> Self {
-        Input {
-            mouse_left: ButtonState::new(),
-            mouse_right: ButtonState::new(),
-            mouse_pos: VecTwo::new(0.0, 0.0),
-            mouse_pos_delta: VecTwo::new(0.0, 0.0),
-            keyboard: [ButtonState::new(); 128],
-        }
-    }
-}
-
-mod test {
-    use super::*;
-
-    #[test]
-    fn press_update() {
-        let mut button = ButtonState::new();
-
-        button.update(false);
-
-        assert_eq!(button.pressing, false);
-        assert_eq!(button.on_press, false);
-        assert_eq!(button.on_release, false);
-
-        button.update(true);
-
-        assert_eq!(button.pressing, true);
-        assert_eq!(button.on_press, true);
-        assert_eq!(button.on_release, false);
-
-        button.update(true);
-
-        assert_eq!(button.pressing, true);
-        assert_eq!(button.on_press, false);
-        assert_eq!(button.on_release, false);
-
-        button.update(false);
-
-        assert_eq!(button.pressing, false);
-        assert_eq!(button.on_press, false);
-        assert_eq!(button.on_release, true);
-
-        button.update(false);
-
-        assert_eq!(button.pressing, false);
-        assert_eq!(button.on_press, false);
-        assert_eq!(button.on_release, false);
-
-        button.update(true);
-
-        assert_eq!(button.pressing, true);
-        assert_eq!(button.on_press, true);
-        assert_eq!(button.on_release, false);
-
-        button.update(false);
-
-        assert_eq!(button.pressing, false);
-        assert_eq!(button.on_press, false);
-        assert_eq!(button.on_release, true);
-
-        button.update(false);
-
-        assert_eq!(button.pressing, false);
-        assert_eq!(button.on_press, false);
-        assert_eq!(button.on_release, false);
     }
 }

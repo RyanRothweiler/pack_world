@@ -12,7 +12,7 @@ use gengar_engine::{
     color::*,
     debug::*,
     font::*,
-    font::*,
+    input::*,
     matricies::matrix_four_four::*,
     model::*,
     obj,
@@ -21,7 +21,6 @@ use gengar_engine::{
         image::Image, load_image, load_image_cursor, material::*, render_command::RenderCommand,
         render_pack::*, shader::*, vao::*, RenderApi,
     },
-    state::Input,
     state::State as EngineState,
     transform::*,
     ui::*,
@@ -53,6 +52,7 @@ use world::*;
 
 // Used for windows platform loading dlls
 pub const PACKAGE_NAME: &str = "pack_world_game";
+
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
 pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRenderApi) {
@@ -175,16 +175,26 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     {
         let mut frame_delta: f64 = 0.1;
 
-        // DEBUG!
-        if input.keyboard[0x31].on_press {
+        /*
+        #[cfg(feature = "dev")]
+        if input.keyboard[KeyCode.One].on_press {
             frame_delta = 100.0;
         }
+        */
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
         for (key, value) in &mut gs.world.tiles {
             update_signals.append(&mut value.methods.update(frame_delta));
         }
         handle_signals(update_signals, gs);
+    }
+
+    // keyboard testing
+    {
+        match input.key_pressed() {
+            Some(key) => println!("pressed {:?}", key),
+            None => {}
+        }
     }
 
     // render tiles
@@ -226,7 +236,7 @@ pub fn game_loop(gs: &mut State, es: &mut EngineState, input: &mut Input) {
     // placing tiles
     if let Some(tile) = gs.tile_placing {
         // escape key reseting
-        if input.keyboard[0x1B].on_press {
+        if input.get_key(KeyCode::Escape).on_press {
             gs.tile_placing = None;
         }
 

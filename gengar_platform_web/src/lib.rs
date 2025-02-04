@@ -4,11 +4,12 @@
     dead_code,
     unused_assignments,
     static_mut_refs,
-    clippy::all
+    clippy::all,
+    unreachable_code
 )]
 
 use game::{game_init, game_loop, state::*};
-use gengar_engine::{state::Input, state::State as EngineState, vectors::*};
+use gengar_engine::{input::*, state::State as EngineState, vectors::*};
 
 use wasm_bindgen::prelude::*;
 use web_sys::{
@@ -76,6 +77,7 @@ pub fn start() {
 
         RENDER_API = Some(get_render_api());
         INPUT = Some(Input::new());
+
         ENGINE_STATE = Some(gengar_engine::state::State::new(resolution));
         GAME_STATE = Some(game::state::State::new());
 
@@ -95,7 +97,8 @@ pub fn start() {
 #[wasm_bindgen]
 pub fn key_down(vent: KeyboardEvent) {
     let input: &mut Input = unsafe { INPUT.as_mut().unwrap() };
-    input.keyboard[vent.key_code() as usize].update(true);
+    // input.keyboard[vent.key_code() as usize].update(true);
+    todo!("fix keyboard input")
 }
 
 #[wasm_bindgen]
@@ -123,7 +126,8 @@ pub fn mouse_up(vent: MouseEvent) {
 #[wasm_bindgen]
 pub fn key_up(vent: KeyboardEvent) {
     let input: &mut Input = unsafe { INPUT.as_mut().unwrap() };
-    input.keyboard[vent.key_code() as usize].update(false);
+    // input.keyboard[vent.key_code() as usize].update(false);
+    todo!("fix keyboard input")
 }
 
 #[wasm_bindgen]

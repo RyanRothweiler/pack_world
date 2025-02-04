@@ -14,5 +14,6 @@ game = { path = "../pack_world_game", package="pack_world_game" }
 version = "0.52"
 features = [
     "Win32_Storage_FileSystem",
-    "Win32_UI_Shell"
+    "Win32_UI_Shell",
+    "Win32_UI_Input_KeyboardAndMouse"
 ]

@@ -1,3 +1,14 @@
+pub const ASCII_ZERO: usize = 0x41;
+pub const ASCII_ONE: usize = 0x31;
+pub const ASCII_TWO: usize = 0x41;
+pub const ASCII_THREE: usize = 0x41;
+pub const ASCII_FOUR: usize = 0x41;
+pub const ASCII_FIVE: usize = 0x41;
+pub const ASCII_SIX: usize = 0x41;
+pub const ASCII_SEVEN: usize = 0x41;
+pub const ASCII_EIGHT: usize = 0x41;
+pub const ASCII_NINE: usize = 0x41;
+
 pub const ASCII_A: usize = 0x41;
 pub const ASCII_B: usize = 0x42;
 pub const ASCII_C: usize = 0x43;

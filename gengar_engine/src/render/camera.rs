@@ -1,5 +1,5 @@
 use crate::{
-    ascii::*, color::*, debug::*, matricies::matrix_four_four::*, state::Input, transform::*,
+    ascii::*, color::*, debug::*, input::*, matricies::matrix_four_four::*, transform::*,
     vectors::*,
 };
 
@@ -152,24 +152,24 @@ impl Camera {
         let mut up = VecThreeFloat::cross(self.forward, right);
         up.normalize();
 
-        if input.keyboard[ASCII_A].pressing {
+        if input.get_key(KeyCode::A).pressing {
             self.transform.local_position = self.transform.local_position + (right * mov_speed);
         }
-        if input.keyboard[ASCII_D].pressing {
+        if input.get_key(KeyCode::D).pressing {
             self.transform.local_position = self.transform.local_position - (right * mov_speed);
         }
-        if input.keyboard[ASCII_S].pressing {
+        if input.get_key(KeyCode::S).pressing {
             self.transform.local_position =
                 self.transform.local_position + (self.forward * mov_speed);
         }
-        if input.keyboard[ASCII_W].pressing {
+        if input.get_key(KeyCode::W).pressing {
             self.transform.local_position =
                 self.transform.local_position - (self.forward * mov_speed);
         }
-        if input.keyboard[ASCII_Q].pressing {
+        if input.get_key(KeyCode::Q).pressing {
             self.transform.local_position = self.transform.local_position + (up * mov_speed);
         }
-        if input.keyboard[ASCII_E].pressing {
+        if input.get_key(KeyCode::E).pressing {
             self.transform.local_position = self.transform.local_position - (up * mov_speed);
         }
 
