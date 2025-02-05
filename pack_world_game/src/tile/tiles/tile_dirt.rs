@@ -22,6 +22,7 @@ impl TileMethods for TileDirt {
     }
 
     fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}
+
     fn render(
         &self,
         rot_time: f64,

@@ -58,6 +58,34 @@ impl TileMethods for TileOakTree {
             rotation = f64::sin(rot_time) * 7.0;
         }
 
+        /*
+        {
+            let mut r = Rect::new_square(GRID_SIZE);
+
+            r.set_center(grid_to_world(pos));
+
+            let mut mat = Material::new();
+            mat.shader = Some(shader_color);
+
+            mat.uniforms.insert(
+                "tex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: assets.get_tile_icon(&TileType::OakTree),
+                    texture_slot: 0,
+                }),
+            );
+
+            mat.uniforms.insert(
+                "color".to_string(),
+                UniformData::VecFour(COLOR_WHITE.into()),
+            );
+
+            render_pack
+                .commands
+                .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
+        }
+        */
+
         draw_tile(
             TileType::OakTree,
             rotation,
