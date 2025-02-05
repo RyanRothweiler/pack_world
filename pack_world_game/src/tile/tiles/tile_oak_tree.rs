@@ -17,6 +17,18 @@ pub struct TileOakTree {
     harvest_timer: HarvestTimer,
 }
 
+impl TileOakTree {
+    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
+        TileInstance {
+            grid_pos,
+            tile_type: TileType::OakTree,
+            methods: Box::new(TileOakTree {
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),
+            }),
+        }
+    }
+}
+
 impl TileMethods for TileOakTree {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
@@ -83,18 +95,6 @@ impl TileMethods for TileOakTree {
             render_pack
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
-        }
-    }
-}
-
-impl TileOakTree {
-    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
-        TileInstance {
-            grid_pos,
-            tile_type: TileType::OakTree,
-            methods: Box::new(TileOakTree {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),
-            }),
         }
     }
 }

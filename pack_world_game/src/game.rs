@@ -85,6 +85,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/oak_tree.png"), render_api).unwrap();
     gs.assets.image_oak_wood =
         load_image_cursor(include_bytes!("../resources/oak_wood.png"), render_api).unwrap();
+    gs.assets.image_bird_nest =
+        load_image_cursor(include_bytes!("../resources/bird_nest.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

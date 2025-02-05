@@ -17,6 +17,18 @@ pub struct TileBoulder {
     harvest_timer: HarvestTimer,
 }
 
+impl TileBoulder {
+    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
+        TileInstance {
+            grid_pos,
+            tile_type: TileType::Boulder,
+            methods: Box::new(TileBoulder {
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),
+            }),
+        }
+    }
+}
+
 impl TileMethods for TileBoulder {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
@@ -66,17 +78,5 @@ impl TileMethods for TileBoulder {
             render_pack,
             assets,
         );
-    }
-}
-
-impl TileBoulder {
-    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
-        TileInstance {
-            grid_pos,
-            tile_type: TileType::Boulder,
-            methods: Box::new(TileBoulder {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),
-            }),
-        }
     }
 }

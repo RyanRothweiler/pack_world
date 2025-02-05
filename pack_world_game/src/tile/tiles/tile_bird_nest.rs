@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::{
     drop_table::*,
     grid::*,
@@ -13,25 +11,25 @@ use gengar_engine::{
     ui::*,
 };
 
-const HARVEST_SECONDS: f64 = 20.0;
+const HARVEST_SECONDS: f64 = 360.0;
 
-pub struct TileGrass {
+pub struct TileBirdNest {
     harvest_timer: HarvestTimer,
 }
 
-impl TileGrass {
+impl TileBirdNest {
     pub fn new(grid_pos: VecTwoInt) -> TileInstance {
         TileInstance {
             grid_pos,
-            tile_type: TileType::Grass,
-            methods: Box::new(TileGrass {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Grass),
+            tile_type: TileType::BirdNest,
+            methods: Box::new(TileBirdNest {
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),
             }),
         }
     }
 }
 
-impl TileMethods for TileGrass {
+impl TileMethods for TileBirdNest {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
         vec![]
@@ -72,13 +70,31 @@ impl TileMethods for TileGrass {
             rotation = f64::sin(rot_time) * 7.0;
         }
 
-        draw_tile(
-            TileType::Grass,
-            rotation,
-            pos,
-            shader_color,
-            render_pack,
-            assets,
-        );
+        // render tree
+        {
+            let mut r = Rect::new_square(GRID_SIZE * 2.0);
+            let pos_world = grid_to_world(pos) + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5);
+            r.set_center(pos_world);
+
+            let mut mat = Material::new();
+            mat.shader = Some(shader_color);
+
+            mat.uniforms.insert(
+                "tex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: assets.get_tile_icon(&TileType::BirdNest),
+                    texture_slot: 0,
+                }),
+            );
+
+            mat.uniforms.insert(
+                "color".to_string(),
+                UniformData::VecFour(COLOR_WHITE.into()),
+            );
+
+            render_pack
+                .commands
+                .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
+        }
     }
 }

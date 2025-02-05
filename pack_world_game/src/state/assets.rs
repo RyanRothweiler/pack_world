@@ -11,6 +11,7 @@ pub struct Assets {
     pub image_oak_tree: Image,
     pub image_oak_wood: Image,
     pub image_pack_starter: Image,
+    pub image_bird_nest: Image,
 }
 
 impl Assets {
@@ -25,6 +26,7 @@ impl Assets {
             image_rock: Image::new(),
             image_oak_tree: Image::new(),
             image_oak_wood: Image::new(),
+            image_bird_nest: Image::new(),
         }
     }
 
@@ -34,6 +36,7 @@ impl Assets {
             TileType::Grass => return self.image_grass.gl_id.unwrap(),
             TileType::Boulder => return self.image_boulder.gl_id.unwrap(),
             TileType::OakTree => return self.image_oak_tree.gl_id.unwrap(),
+            TileType::BirdNest => return self.image_bird_nest.gl_id.unwrap(),
         };
     }
 

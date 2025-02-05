@@ -38,6 +38,7 @@ pub enum TileType {
     Grass,
     Boulder,
     OakTree,
+    BirdNest,
 }
 
 // TODO make these private?
@@ -64,7 +65,7 @@ impl TileType {
             // check types
             match self {
                 TileType::Dirt => {}
-                TileType::Grass | TileType::Boulder | TileType::OakTree => {
+                TileType::Grass | TileType::Boulder | TileType::OakTree | TileType::BirdNest => {
                     if !world.entity_map.contains_key(&pos) {
                         return false;
                     }
@@ -87,12 +88,15 @@ impl TileType {
             TileType::Grass => TileGrass::new(grid_pos),
             TileType::Boulder => TileBoulder::new(grid_pos),
             TileType::OakTree => TileOakTree::new(grid_pos),
+            TileType::BirdNest => TileOakTree::new(grid_pos),
         }
     }
 
     pub fn get_tile_footprint(&self) -> Vec<VecTwoInt> {
         match self {
-            TileType::Dirt | TileType::Grass | TileType::Boulder => vec![VecTwoInt::new(0, 0)],
+            TileType::Dirt | TileType::Grass | TileType::Boulder | TileType::BirdNest => {
+                vec![VecTwoInt::new(0, 0)]
+            }
             TileType::OakTree => vec![
                 VecTwoInt::new(0, 0),
                 VecTwoInt::new(1, 1),

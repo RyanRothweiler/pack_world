@@ -25,6 +25,7 @@ impl UIPanelLifecycle for DebugPanel {
             ItemType::Tile(TileType::Dirt),
             ItemType::Tile(TileType::Grass),
             ItemType::Tile(TileType::Boulder),
+            ItemType::Tile(TileType::BirdNest),
             ItemType::Tile(TileType::OakTree),
             ItemType::OakLog,
         ];

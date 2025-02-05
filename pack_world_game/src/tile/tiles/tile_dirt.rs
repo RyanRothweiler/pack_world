@@ -8,6 +8,16 @@ use gengar_engine::{
 
 pub struct TileDirt {}
 
+impl TileDirt {
+    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
+        TileInstance {
+            grid_pos,
+            tile_type: TileType::Dirt,
+            methods: Box::new(TileDirt {}),
+        }
+    }
+}
+
 impl TileMethods for TileDirt {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         vec![]
@@ -32,15 +42,5 @@ impl TileMethods for TileDirt {
         assets: &Assets,
     ) {
         draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
-    }
-}
-
-impl TileDirt {
-    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
-        TileInstance {
-            grid_pos,
-            tile_type: TileType::Dirt,
-            methods: Box::new(TileDirt {}),
-        }
     }
 }
