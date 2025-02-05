@@ -171,7 +171,7 @@ pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo, ui_state: &mut U
 }
 
 pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
+    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().expect("Missing ui context") };
 
     let mut mat = Material::new();
     mat.shader = Some(context.color_shader);
@@ -187,7 +187,7 @@ pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
 }
 
 pub fn end_panel(frame_state: &mut UIFrameState) {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
+    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().expect("Missing ui context") };
 
     if frame_state
         .panel_stack

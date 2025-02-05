@@ -6,12 +6,14 @@ use crate::{
 };
 use gengar_engine::{color::*, font::*, ui::*, vectors::*};
 
+pub mod debug_panel;
 pub mod home_panel;
 pub mod nav_tabs_panel;
 pub mod open_pack_panel;
 pub mod shop_panel;
 pub mod tile_library_panel;
 
+use debug_panel::*;
 use home_panel::*;
 use nav_tabs_panel::*;
 use open_pack_panel::*;
@@ -47,6 +49,7 @@ pub enum PanelID {
     Shop,
     Home,
     OpenPack,
+    DebugPanel,
 }
 
 #[derive(Clone, Copy)]

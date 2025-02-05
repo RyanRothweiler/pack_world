@@ -126,6 +126,14 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             .add_item(ItemType::Tile(TileType::Grass), 10)
             .unwrap();
     }
+
+    // make debug panel. Needs to happen here so that the memory is in dll space.
+    {
+        gs.debug_state.debug_panel = Some(UIPanel {
+            panel_id: PanelID::DebugPanel,
+            lifecycle: Box::new(ui_panels::debug_panel::DebugPanel {}),
+        });
+    }
 }
 
 // Prev delta time is in seconds. So for 60 fps 0.016666.
@@ -140,10 +148,10 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
     gengar_engine::debug::frame_start();
     gengar_engine::ui::frame_start(&input, es.shader_color_ui, es.color_texture_shader);
 
+    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
+
     // update UI
     {
-        let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
-
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
         // Render and update active UI
@@ -172,6 +180,27 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         // Update input
         input.mouse_left.on_press = ui_frame_state.mouse_left;
+    }
+
+    // debug panel
+    #[cfg(feature = "dev")]
+    {
+        if input.get_key(KeyCode::Tab).on_press {
+            gs.debug_state.showing_debug_panel = !gs.debug_state.showing_debug_panel;
+        }
+
+        if gs.debug_state.showing_debug_panel {
+            if let Some(panel) = &mut gs.debug_state.debug_panel {
+                let sigs = panel.lifecycle.update(
+                    gs.ui_panel_common.as_ref().unwrap(),
+                    &mut ui_frame_state,
+                    &gs.inventory,
+                    &gs.assets,
+                );
+
+                handle_signals(sigs, gs);
+            }
+        }
     }
 
     // update tiles

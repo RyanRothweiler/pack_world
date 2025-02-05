@@ -1,4 +1,9 @@
-use crate::{harvest_drop::*, tile::*, ui_panels::*, world::*};
+use crate::{
+    harvest_drop::*,
+    tile::*,
+    ui_panels::{debug_panel::*, *},
+    world::*,
+};
 use gengar_engine::{
     font::*,
     model::*,
@@ -15,7 +20,16 @@ pub mod inventory;
 use assets::*;
 use inventory::*;
 
+#[cfg(feature = "dev")]
+pub struct DebugState {
+    pub showing_debug_panel: bool,
+    pub debug_panel: Option<UIPanel>,
+}
+
 pub struct State {
+    #[cfg(feature = "dev")]
+    pub debug_state: DebugState,
+
     pub assets: Assets,
 
     pub light_trans: Option<usize>,
@@ -42,6 +56,12 @@ pub struct State {
 impl State {
     pub fn new() -> Self {
         State {
+            #[cfg(feature = "dev")]
+            debug_state: DebugState {
+                showing_debug_panel: false,
+                debug_panel: None,
+            },
+
             active_ui_panels: vec![],
 
             assets: Assets::new(),
