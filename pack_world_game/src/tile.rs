@@ -15,7 +15,7 @@ use std::collections::HashMap;
 pub mod harvest_timer;
 pub mod tiles;
 
-use tiles::{tile_boulder::*, tile_dirt::*, tile_grass::*, tile_oak_tree::*};
+use tiles::{tile_bird_nest::*, tile_boulder::*, tile_dirt::*, tile_grass::*, tile_oak_tree::*};
 
 pub trait TileMethods {
     fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
@@ -70,7 +70,10 @@ impl TileType {
                         return false;
                     }
 
-                    if let Some(tile) = world.get_entity(pos) {
+                    let entities: Vec<usize> = world.get_entities(pos).unwrap_or(vec![]);
+                    for idx in entities {
+                        let tile = &world.entities[idx];
+
                         if tile.tile_type != TileType::Dirt {
                             return false;
                         }
@@ -88,7 +91,7 @@ impl TileType {
             TileType::Grass => TileGrass::new(grid_pos),
             TileType::Boulder => TileBoulder::new(grid_pos),
             TileType::OakTree => TileOakTree::new(grid_pos),
-            TileType::BirdNest => TileOakTree::new(grid_pos),
+            TileType::BirdNest => TileBirdNest::new(grid_pos),
         }
     }
 

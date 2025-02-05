@@ -3,7 +3,7 @@ use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
 pub struct World {
-    pub entity_map: HashMap<VecTwoInt, usize>,
+    pub entity_map: HashMap<VecTwoInt, Vec<usize>>,
 
     // valid positions, and all adjacent valid positions
     pub valids: HashMap<VecTwoInt, bool>,
@@ -38,25 +38,16 @@ impl World {
             self.valids.insert(VecTwoInt::new(pos.x, pos.y + 1), true);
             self.valids.insert(VecTwoInt::new(pos.x, pos.y - 1), true);
 
-            self.entity_map.insert(pos, inst_id);
+            self.entity_map.entry(pos).or_insert(vec![]).push(inst_id);
+            // self.entity_map.insert(pos, inst_id);
         }
     }
 
-    pub fn get_entity_mut(&mut self, grid_pos: VecTwoInt) -> Option<&mut TileInstance> {
+    pub fn get_entities(&self, grid_pos: VecTwoInt) -> Option<Vec<usize>> {
         if !self.entity_map.contains_key(&grid_pos) {
             return None;
         }
 
-        let entity_idx = self.entity_map.get(&grid_pos).unwrap();
-        self.entities.get_mut(*entity_idx)
-    }
-
-    pub fn get_entity(&self, grid_pos: VecTwoInt) -> Option<&TileInstance> {
-        if !self.entity_map.contains_key(&grid_pos) {
-            return None;
-        }
-
-        let entity_idx = self.entity_map.get(&grid_pos).unwrap();
-        self.entities.get(*entity_idx)
+        return Some(self.entity_map.get(&grid_pos).unwrap().to_owned());
     }
 }

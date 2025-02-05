@@ -328,6 +328,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         // place tile
         if input.mouse_left.on_press && can_place {
             if gs.world.try_place_tile(mouse_grid, tile).is_ok() {
+                println!("placing {:?}", tile);
                 let count = gs.inventory.add_item(ItemType::Tile(tile), -1).unwrap();
                 if count == 0 {
                     gs.tile_placing = None;
@@ -349,7 +350,12 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 .camera
                 .world_to_screen(mouse_snapped);
 
-            if let Some(tile) = gs.world.get_entity_mut(mouse_grid) {
+            let entities: Vec<usize> = gs.world.get_entities(mouse_grid).unwrap_or(vec![]);
+
+            // if let Some(tile) = gs.world.get_entity_mut(mouse_grid) {
+            for idx in entities {
+                let tile = &mut gs.world.entities[idx];
+
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {
                     update_signals.append(&mut tile.methods.harvest(mouse_snapped));
