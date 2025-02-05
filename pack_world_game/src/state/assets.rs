@@ -9,6 +9,7 @@ pub struct Assets {
     pub image_boulder: Image,
     pub image_rock: Image,
     pub image_oak_tree: Image,
+    pub image_oak_wood: Image,
     pub image_pack_starter: Image,
 }
 
@@ -23,6 +24,7 @@ impl Assets {
             image_boulder: Image::new(),
             image_rock: Image::new(),
             image_oak_tree: Image::new(),
+            image_oak_wood: Image::new(),
         }
     }
 
@@ -40,6 +42,7 @@ impl Assets {
             ItemType::DirtClod => return self.image_dirt_clod.gl_id.unwrap(),
             ItemType::Stick => return self.image_stick.gl_id.unwrap(),
             ItemType::Rock => return self.image_rock.gl_id.unwrap(),
+            ItemType::OakLog => return self.image_oak_wood.gl_id.unwrap(),
             ItemType::Tile(tile_type) => return self.get_tile_icon(tile_type),
         };
     }

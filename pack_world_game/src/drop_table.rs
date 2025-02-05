@@ -6,6 +6,7 @@ use std::{collections::HashMap, sync::LazyLock};
 pub enum DropTableID {
     Grass,
     Boulder,
+    OakTree,
 }
 
 #[derive(Debug)]
@@ -55,6 +56,7 @@ pub fn get_drop(table: DropTableID) -> ItemType {
     match table {
         DropTableID::Grass => GRASS.pull(),
         DropTableID::Boulder => BOULDER.pull(),
+        DropTableID::OakTree => OAK_TREE.pull(),
     }
 }
 
@@ -63,6 +65,9 @@ static GRASS: LazyLock<DropTable> =
 
 static BOULDER: LazyLock<DropTable> =
     LazyLock::new(|| DropTable::new(vec![(ItemType::Rock, 10.0)]));
+
+static OAK_TREE: LazyLock<DropTable> =
+    LazyLock::new(|| DropTable::new(vec![(ItemType::Stick, 6.0), (ItemType::OakLog, 3.0)]));
 
 mod test {
     use super::*;

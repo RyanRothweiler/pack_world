@@ -21,19 +21,20 @@ impl UIPanelLifecycle for DebugPanel {
         let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(1400.0, 800.0));
         begin_panel(panel_r, BG_COLOR, &mut ui_state);
 
-        let tile_types: Vec<TileType> = vec![
-            TileType::Dirt,
-            TileType::Grass,
-            TileType::Boulder,
-            TileType::OakTree,
+        let item_types: Vec<ItemType> = vec![
+            ItemType::Tile(TileType::Dirt),
+            ItemType::Tile(TileType::Grass),
+            ItemType::Tile(TileType::Boulder),
+            ItemType::Tile(TileType::OakTree),
+            ItemType::OakLog,
         ];
 
         let y_offset: f64 = 80.0;
         let mut i: i32 = 0;
-        for ty in tile_types {
+        for ty in item_types {
             let y: f64 = 50.0 + (y_offset * i as f64);
 
-            let icon = assets.get_tile_icon(&ty);
+            let icon = assets.get_item_icon(&ty);
 
             if draw_button(
                 &format!("{:?}", ty),
@@ -44,7 +45,7 @@ impl UIPanelLifecycle for DebugPanel {
                 std::line!(),
             ) {
                 ret.push(UpdateSignal::GiveItem {
-                    item_type: ItemType::Tile(ty),
+                    item_type: ty,
                     count: 1000,
                 });
             }

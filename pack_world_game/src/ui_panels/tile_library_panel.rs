@@ -50,7 +50,7 @@ impl UIPanelLifecycle for TileLibraryPanel {
                         ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                     }
                 }
-                ItemType::DirtClod | ItemType::Stick | ItemType::Rock => {
+                ItemType::DirtClod | ItemType::Stick | ItemType::Rock | ItemType::OakLog => {
                     draw_image(
                         Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
                         icon,

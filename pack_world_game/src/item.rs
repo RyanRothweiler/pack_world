@@ -5,6 +5,7 @@ pub enum ItemType {
     DirtClod,
     Stick,
     Rock,
+    OakLog,
     Tile(TileType),
 }
 
@@ -14,6 +15,7 @@ impl ItemType {
             ItemType::DirtClod => "Dirt Clod".into(),
             ItemType::Stick => "Stick".into(),
             ItemType::Rock => "Rock".into(),
+            ItemType::OakLog => "OakWood".into(),
             ItemType::Tile(tile_type) => format!("{:?}", tile_type).into(),
         }
     }

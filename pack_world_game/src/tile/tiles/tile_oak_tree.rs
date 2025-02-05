@@ -93,7 +93,7 @@ impl TileOakTree {
             grid_pos,
             tile_type: TileType::OakTree,
             methods: Box::new(TileOakTree {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),
             }),
         }
     }
