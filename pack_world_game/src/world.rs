@@ -3,10 +3,12 @@ use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
 pub struct World {
-    pub tiles: HashMap<VecTwoInt, TileInstance>,
+    pub entity_map: HashMap<VecTwoInt, usize>,
 
     // valid positions, and all adjacent valid positions
     pub valids: HashMap<VecTwoInt, bool>,
+
+    pub entities: Vec<TileInstance>,
 }
 
 impl World {
@@ -22,17 +24,39 @@ impl World {
     }
 
     pub fn force_insert_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) {
-        // update adjacents
-        self.valids.insert(grid_pos, true);
-        self.valids
-            .insert(VecTwoInt::new(grid_pos.x + 1, grid_pos.y), true);
-        self.valids
-            .insert(VecTwoInt::new(grid_pos.x - 1, grid_pos.y), true);
-        self.valids
-            .insert(VecTwoInt::new(grid_pos.x, grid_pos.y + 1), true);
-        self.valids
-            .insert(VecTwoInt::new(grid_pos.x, grid_pos.y - 1), true);
+        let inst_id = self.entities.len();
+        let inst = tile.create_instance(grid_pos);
+        self.entities.push(inst);
 
-        self.tiles.insert(grid_pos, tile.create_instance());
+        for p in tile.get_tile_footprint() {
+            let pos = grid_pos + p;
+
+            // update adjacents
+            self.valids.insert(pos, true);
+            self.valids.insert(VecTwoInt::new(pos.x + 1, pos.y), true);
+            self.valids.insert(VecTwoInt::new(pos.x - 1, pos.y), true);
+            self.valids.insert(VecTwoInt::new(pos.x, pos.y + 1), true);
+            self.valids.insert(VecTwoInt::new(pos.x, pos.y - 1), true);
+
+            self.entity_map.insert(pos, inst_id);
+        }
+    }
+
+    pub fn get_entity_mut(&mut self, grid_pos: VecTwoInt) -> Option<&mut TileInstance> {
+        if !self.entity_map.contains_key(&grid_pos) {
+            return None;
+        }
+
+        let entity_idx = self.entity_map.get(&grid_pos).unwrap();
+        self.entities.get_mut(*entity_idx)
+    }
+
+    pub fn get_entity(&self, grid_pos: VecTwoInt) -> Option<&TileInstance> {
+        if !self.entity_map.contains_key(&grid_pos) {
+            return None;
+        }
+
+        let entity_idx = self.entity_map.get(&grid_pos).unwrap();
+        self.entities.get(*entity_idx)
     }
 }

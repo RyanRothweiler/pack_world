@@ -75,8 +75,9 @@ impl State {
             active_page: None,
 
             world: World {
-                tiles: HashMap::new(),
+                entity_map: HashMap::new(),
                 valids: HashMap::new(),
+                entities: vec![],
             },
             tile_placing: None,
             inventory: Inventory {

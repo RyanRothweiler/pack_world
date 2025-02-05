@@ -36,8 +36,9 @@ impl TileMethods for TileDirt {
 }
 
 impl TileDirt {
-    pub fn new() -> TileInstance {
+    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
         TileInstance {
+            grid_pos,
             tile_type: TileType::Dirt,
             methods: Box::new(TileDirt {}),
         }

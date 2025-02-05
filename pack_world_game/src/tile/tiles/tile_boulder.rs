@@ -70,8 +70,9 @@ impl TileMethods for TileBoulder {
 }
 
 impl TileBoulder {
-    pub fn new() -> TileInstance {
+    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
         TileInstance {
+            grid_pos,
             tile_type: TileType::Boulder,
             methods: Box::new(TileBoulder {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),

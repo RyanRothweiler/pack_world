@@ -58,11 +58,11 @@ impl TileMethods for TileOakTree {
             rotation = f64::sin(rot_time) * 7.0;
         }
 
-        /*
+        // render tree
         {
-            let mut r = Rect::new_square(GRID_SIZE);
-
-            r.set_center(grid_to_world(pos));
+            let mut r = Rect::new_square(GRID_SIZE * 2.0);
+            let pos_world = grid_to_world(pos) + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5);
+            r.set_center(pos_world);
 
             let mut mat = Material::new();
             mat.shader = Some(shader_color);
@@ -84,22 +84,13 @@ impl TileMethods for TileOakTree {
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
         }
-        */
-
-        draw_tile(
-            TileType::OakTree,
-            rotation,
-            pos,
-            shader_color,
-            render_pack,
-            assets,
-        );
     }
 }
 
 impl TileOakTree {
-    pub fn new() -> TileInstance {
+    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
         TileInstance {
+            grid_pos,
             tile_type: TileType::OakTree,
             methods: Box::new(TileOakTree {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),

@@ -72,8 +72,9 @@ impl TileMethods for TileGrass {
 }
 
 impl TileGrass {
-    pub fn new() -> TileInstance {
+    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
         TileInstance {
+            grid_pos,
             tile_type: TileType::Grass,
             methods: Box::new(TileGrass {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Grass),

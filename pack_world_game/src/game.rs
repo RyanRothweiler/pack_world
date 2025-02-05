@@ -213,8 +213,13 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
-        for (key, value) in &mut gs.world.tiles {
+        /*
+        for (key, value) in &mut gs.world.entity_map {
             update_signals.append(&mut value.methods.update(frame_delta));
+        }
+        */
+        for entity in &mut gs.world.entities {
+            update_signals.append(&mut entity.methods.update(frame_delta));
         }
         handle_signals(update_signals, gs);
     }
@@ -240,12 +245,13 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
     // render tiles
     {
+        // TODO chagne this to use delta_time
         gs.rotate_time += 0.08;
 
-        for (pos, tile) in &gs.world.tiles {
-            tile.methods.render(
+        for entity in &gs.world.entities {
+            entity.methods.render(
                 gs.rotate_time,
-                pos,
+                &entity.grid_pos,
                 es.color_texture_shader,
                 es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                 &gs.assets,
@@ -339,9 +345,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 .camera
                 .world_to_screen(mouse_snapped);
 
-            if gs.world.tiles.contains_key(&mouse_grid) {
-                let tile: &mut TileInstance = gs.world.tiles.get_mut(&mouse_grid).unwrap();
-
+            if let Some(tile) = gs.world.get_entity_mut(mouse_grid) {
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {
                     update_signals.append(&mut tile.methods.harvest(mouse_snapped));

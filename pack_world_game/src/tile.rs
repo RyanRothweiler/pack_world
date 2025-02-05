@@ -44,6 +44,7 @@ pub enum TileType {
 pub struct TileInstance {
     pub tile_type: TileType,
     pub methods: Box<dyn TileMethods>,
+    pub grid_pos: VecTwoInt,
 }
 
 impl TileType {
@@ -54,7 +55,7 @@ impl TileType {
             let pos = origin + p;
 
             // check adjacency
-            if !world.tiles.contains_key(&pos) {
+            if !world.entity_map.contains_key(&pos) {
                 if !world.valids.contains_key(&pos) {
                     return false;
                 }
@@ -64,12 +65,14 @@ impl TileType {
             match self {
                 TileType::Dirt => {}
                 TileType::Grass | TileType::Boulder | TileType::OakTree => {
-                    if !world.tiles.contains_key(&pos) {
+                    if !world.entity_map.contains_key(&pos) {
                         return false;
                     }
 
-                    if world.tiles.get(&pos).unwrap().tile_type != TileType::Dirt {
-                        return false;
+                    if let Some(tile) = world.get_entity(pos) {
+                        if tile.tile_type != TileType::Dirt {
+                            return false;
+                        }
                     }
                 }
             };
@@ -78,12 +81,12 @@ impl TileType {
         return true;
     }
 
-    pub fn create_instance(&self) -> TileInstance {
+    pub fn create_instance(&self, grid_pos: VecTwoInt) -> TileInstance {
         match self {
-            TileType::Dirt => TileDirt::new(),
-            TileType::Grass => TileGrass::new(),
-            TileType::Boulder => TileBoulder::new(),
-            TileType::OakTree => TileOakTree::new(),
+            TileType::Dirt => TileDirt::new(grid_pos),
+            TileType::Grass => TileGrass::new(grid_pos),
+            TileType::Boulder => TileBoulder::new(grid_pos),
+            TileType::OakTree => TileOakTree::new(grid_pos),
         }
     }
 
