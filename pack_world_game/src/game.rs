@@ -1,6 +1,7 @@
 #![allow(
     unused_imports,
     unused_variables,
+    unused_mut,
     clippy::all,
     unused_mut,
     unreachable_code
@@ -46,7 +47,7 @@ use harvest_drop::*;
 use item::*;
 use state::inventory::*;
 use tile::*;
-use ui_panels::{nav_tabs_panel::*, tile_library_panel::*, *};
+use ui_panels::{home_panel::*, nav_tabs_panel::*, tile_library_panel::*, *};
 use update_signal::*;
 use world::*;
 
@@ -105,7 +106,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     // setup initial UI
     {
         // gs.active_ui_panels.push(PanelID::Home.create_panel());
-        gs.active_page = Some(CreatePanelData::Home.create_panel());
+        // gs.active_page = Some(CreatePanelData::Home.create_panel());
+        gs.active_page = Some(UIPanel::<HomePanel>::new());
     }
 
     // setup first map
@@ -154,6 +156,8 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
+    println!("hey man eeewtfa;kljasf;i{:?}", gs.active_page.is_none());
+
     // update UI
     {
         let mut update_signals: Vec<UpdateSignal> = vec![];
@@ -178,13 +182,20 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             )),
             None => {}
         }
+        /*
 
         // Handle signals
         handle_signals(update_signals, gs);
 
         // Update input
         input.mouse_left.on_press = ui_frame_state.mouse_left;
+        */
     }
+
+    println!("heyre");
+
+    /*
+
 
     // debug panel
     #[cfg(feature = "dev")]
@@ -409,4 +420,5 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
     es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
+    */
 }

@@ -37,9 +37,9 @@ pub trait UIPanelLifecycle {
     ) -> Vec<UpdateSignal>;
 }
 
-pub struct UIPanel {
+pub struct UIPanel<T: UIPanelLifecycle> {
     pub panel_id: PanelID,
-    pub lifecycle: Box<dyn UIPanelLifecycle>,
+    pub lifecycle: T,
 }
 
 #[derive(Clone, Copy)]
@@ -61,38 +61,61 @@ pub enum CreatePanelData {
     OpenPack { pack_id: PackID },
 }
 
+impl UIPanel<NavTabsPanel> {
+    pub fn new() -> UIPanel<NavTabsPanel> {
+        UIPanel {
+            panel_id: PanelID::NavTabs,
+            lifecycle: NavTabsPanel {},
+        }
+    }
+}
+
+impl UIPanel<HomePanel> {
+    pub fn new() -> UIPanel<HomePanel> {
+        UIPanel {
+            panel_id: PanelID::Home,
+            lifecycle: HomePanel {},
+        }
+    }
+}
+
+/*
 impl CreatePanelData {
-    pub fn create_panel(&self) -> UIPanel {
+    pub fn create_panel<T>(&self) -> UIPanel<T>
+    where
+        T: UIPanelLifecycle,
+    {
         match self {
-            CreatePanelData::NavTabs => UIPanel {
-                panel_id: PanelID::NavTabs,
-                lifecycle: Box::new(NavTabsPanel {}),
-            },
+            CreatePanelData::NavTabs => UIPanel::new(),
+            /*
             CreatePanelData::OpenPack { pack_id } => UIPanel {
                 panel_id: PanelID::OpenPack,
-                lifecycle: Box::new(OpenPackPanel::new(*pack_id)),
+                lifecycle: OpenPackPanel::new(*pack_id),
             },
             CreatePanelData::TileLibrary => UIPanel {
                 panel_id: PanelID::TileLibrary,
-                lifecycle: Box::new(TileLibraryPanel {}),
+                lifecycle: TileLibraryPanel {},
             },
             CreatePanelData::Shop => UIPanel {
                 panel_id: PanelID::Shop,
-                lifecycle: Box::new(ShopPanel {}),
+                lifecycle: ShopPanel {},
             },
             CreatePanelData::Home => UIPanel {
                 panel_id: PanelID::Home,
-                lifecycle: Box::new(HomePanel {
+                lifecycle: HomePanel {
                     tab: home_panel::Tab::Inventory,
 
                     ui_nav_tabs: CreatePanelData::NavTabs.create_panel(),
                     ui_shop: CreatePanelData::Shop.create_panel(),
                     ui_inventory: CreatePanelData::TileLibrary.create_panel(),
-                }),
+                },
             },
+            */
+            _ => todo!(),
         }
     }
 }
+*/
 
 #[derive(Clone)]
 pub struct UIPanelCommon {

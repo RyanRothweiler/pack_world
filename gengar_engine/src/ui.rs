@@ -1,3 +1,5 @@
+#![allow(unused_mut)]
+
 use crate::{
     color::*,
     font::*,
@@ -20,7 +22,7 @@ struct UIContext {
 }
 
 // TODO could use static mutex here to remove unsafe
-static mut UI_CONTEXT: Option<UIContext> = None;
+// static mut UI_CONTEXT: Option<UIContext> = None;
 
 pub struct UIFrameState {
     pub resolution: VecTwo,
@@ -47,6 +49,7 @@ impl UIFrameState {
 }
 
 pub fn frame_start(input: &Input, color_shader: Shader, color_shader_texture: Shader) {
+    /*
     unsafe {
         match UI_CONTEXT.as_mut() {
             Some(c) => {
@@ -69,12 +72,15 @@ pub fn frame_start(input: &Input, color_shader: Shader, color_shader_texture: Sh
             }
         }
     }
+    */
 }
 
+/*
 pub fn get_render_commands() -> Vec<RenderCommand> {
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
     return context.render_commands.clone();
 }
+    */
 
 pub fn draw_button(
     display: &str,
@@ -84,6 +90,9 @@ pub fn draw_button(
     ui_state: &mut UIFrameState,
     line: u32,
 ) -> bool {
+    false
+
+    /*
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
     let origin = ui_state.get_origin();
@@ -139,9 +148,11 @@ pub fn draw_button(
     }
 
     return contains && button_state.on_press;
+    */
 }
 
 pub fn draw_image(mut rect: Rect, image: u32, color: Color, ui_state: &mut UIFrameState) {
+    /*
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
     let mut mat = Material::new();
@@ -155,9 +166,11 @@ pub fn draw_image(mut rect: Rect, image: u32, color: Color, ui_state: &mut UIFra
     context
         .render_commands
         .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
+    */
 }
 
 pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo, ui_state: &mut UIFrameState) {
+    /*
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
 
     let origin = ui_state.get_origin();
@@ -168,9 +181,11 @@ pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo, ui_state: &mut U
         pos + origin,
         &mut context.render_commands,
     );
+    */
 }
 
 pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
+    /*
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().expect("Missing ui context") };
 
     let mut mat = Material::new();
@@ -184,9 +199,11 @@ pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
         .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
 
     frame_state.panel_stack.push(rect);
+    */
 }
 
 pub fn end_panel(frame_state: &mut UIFrameState) {
+    /*
     let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().expect("Missing ui context") };
 
     if frame_state
@@ -197,6 +214,7 @@ pub fn end_panel(frame_state: &mut UIFrameState) {
     {
         frame_state.mouse_left = false;
     }
+    */
 }
 
 pub fn draw_progress_bar(
