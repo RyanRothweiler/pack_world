@@ -10,10 +10,10 @@ pub struct NavTabsPanel {}
 impl UIPanelLifecycle for NavTabsPanel {
     fn update(
         &mut self,
-        common: &UIPanelCommon,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
@@ -23,9 +23,9 @@ impl UIPanelLifecycle for NavTabsPanel {
             "Inventory",
             None,
             &Rect::new_top_size(VecTwo::new(10.0, 50.0), 50.0, 50.0),
-            &common.button_font_style,
             ui_state,
             std::line!(),
+            ui_context,
         ) {
             ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Inventory));
         }
@@ -34,9 +34,9 @@ impl UIPanelLifecycle for NavTabsPanel {
             "Shop",
             None,
             &Rect::new_top_size(VecTwo::new(150.0, 50.0), 50.0, 50.0),
-            &common.button_font_style,
             ui_state,
             std::line!(),
+            ui_context,
         ) {
             ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Shop));
         }

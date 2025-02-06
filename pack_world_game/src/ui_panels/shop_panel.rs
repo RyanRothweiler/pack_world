@@ -11,15 +11,16 @@ pub struct ShopPanel {}
 impl UIPanelLifecycle for ShopPanel {
     fn update(
         &mut self,
-        common: &UIPanelCommon,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         begin_panel(
             Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y),
             BG_COLOR,
             &mut ui_state,
+            ui_context,
         );
 
         {
@@ -39,9 +40,9 @@ impl UIPanelLifecycle for ShopPanel {
                 &pack_info.display_name,
                 assets.image_pack_starter.gl_id,
                 &button_rect,
-                &common.button_font_style,
                 ui_state,
                 std::line!(),
+                ui_context,
             ) {
                 return vec![UpdateSignal::OpenPack(PackID::Starter)];
             }
@@ -49,14 +50,14 @@ impl UIPanelLifecycle for ShopPanel {
             for c in &pack_info.cost {
                 draw_text(
                     &format!("   {:?}x{}", c.0, c.1),
-                    &common.button_font_style,
                     button_rect.top_right() + VecTwo::new(0.0, 10.0),
                     ui_state,
+                    ui_context,
                 );
             }
         }
 
-        end_panel(&mut ui_state);
+        end_panel(&mut ui_state, ui_context);
 
         vec![]
     }

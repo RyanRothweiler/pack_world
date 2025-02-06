@@ -39,8 +39,6 @@ pub struct State {
     pub active_ui_panels: Vec<UIPanel>,
     pub active_page: Option<UIPanel>,
 
-    pub ui_panel_common: Option<UIPanelCommon>,
-
     pub tile_placing: Option<TileType>,
 
     pub world: World,
@@ -70,7 +68,6 @@ impl State {
 
             light_trans: None,
 
-            ui_panel_common: None,
             font_style_button: Default::default(),
             active_page: None,
 

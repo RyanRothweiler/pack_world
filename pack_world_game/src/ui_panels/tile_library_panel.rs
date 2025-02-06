@@ -11,10 +11,10 @@ pub struct TileLibraryPanel {}
 impl UIPanelLifecycle for TileLibraryPanel {
     fn update(
         &mut self,
-        common: &UIPanelCommon,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
@@ -23,6 +23,7 @@ impl UIPanelLifecycle for TileLibraryPanel {
             Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y),
             BG_COLOR,
             &mut ui_state,
+            ui_context,
         );
 
         let y_offset: f64 = 80.0;
@@ -43,9 +44,9 @@ impl UIPanelLifecycle for TileLibraryPanel {
                         &disp,
                         Some(icon),
                         &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
-                        &common.button_font_style,
                         ui_state,
                         std::line!(),
+                        ui_context,
                     ) {
                         ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                     }
@@ -56,21 +57,17 @@ impl UIPanelLifecycle for TileLibraryPanel {
                         icon,
                         COLOR_WHITE,
                         ui_state,
+                        ui_context,
                     );
 
-                    draw_text(
-                        &disp,
-                        &common.button_font_style,
-                        VecTwo::new(10.0, y),
-                        ui_state,
-                    );
+                    draw_text(&disp, VecTwo::new(10.0, y), ui_state, ui_context);
                 }
             };
 
             i += 1;
         }
 
-        end_panel(&mut ui_state);
+        end_panel(&mut ui_state, ui_context);
 
         return ret;
     }

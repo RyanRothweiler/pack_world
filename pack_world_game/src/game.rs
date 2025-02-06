@@ -27,7 +27,7 @@ use gengar_engine::{
     vectors::*,
 };
 use gengar_render_opengl::*;
-use std::{fs::File, io::Cursor, path::Path};
+use std::{collections::HashMap, fs::File, io::Cursor, path::Path};
 
 pub mod drop_table;
 pub mod error;
@@ -96,10 +96,6 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             size: 2.0,
             typeface: es.roboto_font.clone(),
         };
-
-        gs.ui_panel_common = Some(UIPanelCommon {
-            button_font_style: gs.font_style_button.clone(),
-        });
     }
 
     // setup initial UI
@@ -150,7 +146,20 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
-    gengar_engine::ui::frame_start(&input, es.shader_color_ui, es.color_texture_shader);
+
+    let mut ui_context = UIContext {
+        mouse_pos: input.mouse_pos,
+        mouse_down: input.mouse_left.pressing,
+
+        color_shader: es.shader_color_ui,
+        color_shader_texture: es.color_texture_shader,
+
+        button_font_style: gs.font_style_button.clone(),
+
+        render_commands: vec![],
+        button_state: HashMap::new(),
+    };
+    // gengar_engine::ui::frame_start(&input, es.shader_color_ui, es.color_texture_shader);
 
     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
@@ -161,20 +170,20 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         // Render and update active UI
         for panel in &mut gs.active_ui_panels {
             update_signals.append(&mut panel.lifecycle.update(
-                gs.ui_panel_common.as_ref().unwrap(),
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
+                &mut ui_context,
             ));
         }
 
         // update active page
         match &mut gs.active_page {
             Some(page) => update_signals.append(&mut page.lifecycle.update(
-                gs.ui_panel_common.as_ref().unwrap(),
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
+                &mut ui_context,
             )),
             None => {}
         }
@@ -196,10 +205,10 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         if gs.debug_state.showing_debug_panel {
             if let Some(panel) = &mut gs.debug_state.debug_panel {
                 let sigs = panel.lifecycle.update(
-                    gs.ui_panel_common.as_ref().unwrap(),
                     &mut ui_frame_state,
                     &gs.inventory,
                     &gs.assets,
+                    &mut ui_context,
                 );
 
                 handle_signals(sigs, gs);
@@ -217,11 +226,6 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
-        /*
-        for (key, value) in &mut gs.world.entity_map {
-            update_signals.append(&mut value.methods.update(frame_delta));
-        }
-        */
         for entity in &mut gs.world.entities {
             update_signals.append(&mut entity.methods.update(frame_delta));
         }
@@ -352,7 +356,6 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
             let entities: Vec<usize> = gs.world.get_entities(mouse_grid).unwrap_or(vec![]);
 
-            // if let Some(tile) = gs.world.get_entity_mut(mouse_grid) {
             for idx in entities {
                 let tile = &mut gs.world.entities[idx];
 
@@ -385,9 +388,9 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
                     draw_text(
                         &format!("{:?}", tile.tile_type),
-                        &gs.font_style_button,
                         VecTwo::new(450.0, 100.0),
                         &mut ui_frame_state,
+                        &mut ui_context,
                     );
 
                     tile.methods.render_hover_info(
@@ -405,7 +408,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         .get_mut(&RenderPackID::UI)
         .unwrap()
         .commands
-        .append(&mut gengar_engine::ui::get_render_commands());
+        .append(&mut ui_context.render_commands);
 
     es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();

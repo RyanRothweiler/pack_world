@@ -36,16 +36,16 @@ impl OpenPackPanel {
 impl UIPanelLifecycle for OpenPackPanel {
     fn update(
         &mut self,
-        common: &UIPanelCommon,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
         let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(1400.0, 800.0));
 
-        begin_panel(panel_r, BG_COLOR, &mut ui_state);
+        begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
 
         let pack_info: &Pack = get_pack_info(self.pack_id);
 
@@ -65,9 +65,9 @@ impl UIPanelLifecycle for OpenPackPanel {
                 &pack_info.display_name,
                 assets.image_pack_starter.gl_id,
                 &button_rect,
-                &common.button_font_style,
                 ui_state,
                 std::line!(),
+                ui_context,
             ) {
                 // pull item from pack and give
                 let pull_item = pack_info.pull().unwrap();
@@ -88,9 +88,9 @@ impl UIPanelLifecycle for OpenPackPanel {
                 "Close",
                 None,
                 &close_rect,
-                &common.button_font_style,
                 ui_state,
                 std::line!(),
+                ui_context,
             ) {
                 update_signals.push(UpdateSignal::SetActivePage(CreatePanelData::Home));
             }
@@ -112,13 +112,14 @@ impl UIPanelLifecycle for OpenPackPanel {
                     icon,
                     COLOR_WHITE,
                     ui_state,
+                    ui_context,
                 );
 
                 i += 1;
             }
         }
 
-        end_panel(&mut ui_state);
+        end_panel(&mut ui_state, ui_context);
 
         update_signals
     }

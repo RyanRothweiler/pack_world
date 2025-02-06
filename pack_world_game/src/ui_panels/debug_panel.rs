@@ -11,15 +11,15 @@ pub struct DebugPanel {}
 impl UIPanelLifecycle for DebugPanel {
     fn update(
         &mut self,
-        common: &UIPanelCommon,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
         let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(1400.0, 800.0));
-        begin_panel(panel_r, BG_COLOR, &mut ui_state);
+        begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
 
         let item_types: Vec<ItemType> = vec![
             ItemType::Tile(TileType::Dirt),
@@ -41,9 +41,9 @@ impl UIPanelLifecycle for DebugPanel {
                 &format!("{:?}", ty),
                 Some(icon),
                 &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
-                &common.button_font_style,
                 ui_state,
                 std::line!(),
+                ui_context,
             ) {
                 ret.push(UpdateSignal::GiveItem {
                     item_type: ty,
@@ -54,7 +54,7 @@ impl UIPanelLifecycle for DebugPanel {
             i += 1;
         }
 
-        end_panel(&mut ui_state);
+        end_panel(&mut ui_state, ui_context);
 
         return ret;
     }

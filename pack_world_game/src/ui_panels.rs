@@ -30,10 +30,10 @@ pub const BG_COLOR: Color = Color {
 pub trait UIPanelLifecycle {
     fn update(
         &mut self,
-        common: &UIPanelCommon,
         ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal>;
 }
 
@@ -92,9 +92,4 @@ impl CreatePanelData {
             },
         }
     }
-}
-
-#[derive(Clone)]
-pub struct UIPanelCommon {
-    pub button_font_style: FontStyle,
 }

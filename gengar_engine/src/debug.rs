@@ -8,7 +8,6 @@ use crate::{
     transform::*,
     vectors::*,
 };
-
 use std::cell::RefCell;
 
 pub struct DebugContext {

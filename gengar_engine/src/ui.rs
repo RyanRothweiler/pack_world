@@ -8,7 +8,7 @@ use crate::{
 };
 use std::{cell::RefCell, collections::HashMap, sync::Mutex};
 
-struct UIContext {
+pub struct UIContext {
     pub mouse_pos: VecTwo,
     pub mouse_down: bool,
 
@@ -17,10 +17,9 @@ struct UIContext {
 
     pub render_commands: Vec<RenderCommand>,
     pub button_state: HashMap<String, ButtonState>,
-}
 
-// TODO could use static mutex here to remove unsafe
-static mut UI_CONTEXT: Option<UIContext> = None;
+    pub button_font_style: FontStyle,
+}
 
 pub struct UIFrameState {
     pub resolution: VecTwo,
@@ -46,46 +45,14 @@ impl UIFrameState {
     }
 }
 
-pub fn frame_start(input: &Input, color_shader: Shader, color_shader_texture: Shader) {
-    unsafe {
-        match UI_CONTEXT.as_mut() {
-            Some(c) => {
-                c.mouse_pos = input.mouse_pos;
-                c.mouse_down = input.mouse_left.pressing;
-
-                c.render_commands.clear();
-            }
-            None => {
-                UI_CONTEXT = Some(UIContext {
-                    mouse_pos: input.mouse_pos,
-                    mouse_down: input.mouse_left.pressing,
-
-                    color_shader,
-                    color_shader_texture,
-
-                    render_commands: vec![],
-                    button_state: HashMap::new(),
-                });
-            }
-        }
-    }
-}
-
-pub fn get_render_commands() -> Vec<RenderCommand> {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
-    return context.render_commands.clone();
-}
-
 pub fn draw_button(
     display: &str,
     maybe_icon: Option<u32>,
     rect: &Rect,
-    style: &FontStyle,
     ui_state: &mut UIFrameState,
     line: u32,
+    context: &mut UIContext,
 ) -> bool {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
-
     let origin = ui_state.get_origin();
 
     let mut rect = *rect;
@@ -124,7 +91,7 @@ pub fn draw_button(
 
     render_word(
         display.into(),
-        style,
+        &context.button_font_style,
         rect.bottom_left() + VecTwo::new(7.0, -7.0),
         &mut context.render_commands,
     );
@@ -141,9 +108,13 @@ pub fn draw_button(
     return contains && button_state.on_press;
 }
 
-pub fn draw_image(mut rect: Rect, image: u32, color: Color, ui_state: &mut UIFrameState) {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
-
+pub fn draw_image(
+    mut rect: Rect,
+    image: u32,
+    color: Color,
+    ui_state: &mut UIFrameState,
+    context: &mut UIContext,
+) {
     let mut mat = Material::new();
     mat.shader = Some(context.color_shader_texture);
     mat.set_image(image);
@@ -157,22 +128,23 @@ pub fn draw_image(mut rect: Rect, image: u32, color: Color, ui_state: &mut UIFra
         .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
 }
 
-pub fn draw_text(display: &str, style: &FontStyle, pos: VecTwo, ui_state: &mut UIFrameState) {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().unwrap() };
-
+pub fn draw_text(display: &str, pos: VecTwo, ui_state: &mut UIFrameState, context: &mut UIContext) {
     let origin = ui_state.get_origin();
 
     render_word(
         display.into(),
-        style,
+        &context.button_font_style,
         pos + origin,
         &mut context.render_commands,
     );
 }
 
-pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().expect("Missing ui context") };
-
+pub fn begin_panel(
+    rect: Rect,
+    color: Color,
+    frame_state: &mut UIFrameState,
+    context: &mut UIContext,
+) {
     let mut mat = Material::new();
     mat.shader = Some(context.color_shader);
 
@@ -186,9 +158,7 @@ pub fn begin_panel(rect: Rect, color: Color, frame_state: &mut UIFrameState) {
     frame_state.panel_stack.push(rect);
 }
 
-pub fn end_panel(frame_state: &mut UIFrameState) {
-    let context: &mut UIContext = unsafe { UI_CONTEXT.as_mut().expect("Missing ui context") };
-
+pub fn end_panel(frame_state: &mut UIFrameState, context: &mut UIContext) {
     if frame_state
         .panel_stack
         .pop()

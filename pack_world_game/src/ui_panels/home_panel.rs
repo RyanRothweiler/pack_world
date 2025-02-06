@@ -23,15 +23,16 @@ pub struct HomePanel {
 impl UIPanelLifecycle for HomePanel {
     fn update(
         &mut self,
-        common: &UIPanelCommon,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         begin_panel(
             Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, 100.0),
             BG_COLOR,
             &mut ui_state,
+            ui_context,
         );
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
@@ -40,7 +41,7 @@ impl UIPanelLifecycle for HomePanel {
             &mut self
                 .ui_nav_tabs
                 .lifecycle
-                .update(common, ui_state, inventory, assets),
+                .update(ui_state, inventory, assets, ui_context),
         );
 
         match self.tab {
@@ -48,13 +49,13 @@ impl UIPanelLifecycle for HomePanel {
                 &mut self
                     .ui_shop
                     .lifecycle
-                    .update(common, ui_state, inventory, assets),
+                    .update(ui_state, inventory, assets, ui_context),
             ),
             Tab::Inventory => update_signals.append(
                 &mut self
                     .ui_inventory
                     .lifecycle
-                    .update(common, ui_state, inventory, assets),
+                    .update(ui_state, inventory, assets, ui_context),
             ),
         };
 
@@ -67,7 +68,7 @@ impl UIPanelLifecycle for HomePanel {
             _ => true,
         });
 
-        end_panel(&mut ui_state);
+        end_panel(&mut ui_state, ui_context);
 
         update_signals
     }
