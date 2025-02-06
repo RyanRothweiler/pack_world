@@ -149,7 +149,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
     let mut ui_context = UIContext {
         mouse_pos: input.mouse_pos,
-        mouse_down: input.mouse_left.pressing,
+        mouse_down: input.mouse_left.on_press,
 
         color_shader: es.shader_color_ui,
         color_shader_texture: es.color_texture_shader,
