@@ -72,8 +72,8 @@ impl TileMethods for TileBirdNest {
 
         // render tree
         {
-            let mut r = Rect::new_square(GRID_SIZE * 2.0);
-            let pos_world = grid_to_world(pos) + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5);
+            let mut r = Rect::new_square(GRID_SIZE);
+            let pos_world = grid_to_world(pos) + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.1);
             r.set_center(pos_world);
 
             let mut mat = Material::new();

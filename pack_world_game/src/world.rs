@@ -39,7 +39,6 @@ impl World {
             self.valids.insert(VecTwoInt::new(pos.x, pos.y - 1), true);
 
             self.entity_map.entry(pos).or_insert(vec![]).push(inst_id);
-            // self.entity_map.insert(pos, inst_id);
         }
     }
 
