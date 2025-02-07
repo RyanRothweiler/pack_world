@@ -9,7 +9,7 @@ use gengar_engine::{
 pub struct TileDirt {}
 
 impl TileDirt {
-    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
+    pub fn new(grid_pos: GridPos) -> TileInstance {
         TileInstance {
             grid_pos,
             tile_type: TileType::Dirt,
@@ -27,7 +27,7 @@ impl TileDirt {
         false
     }
 
-    pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
+    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
         vec![]
     }
 
@@ -36,7 +36,7 @@ impl TileDirt {
     pub fn render(
         &self,
         rot_time: f64,
-        pos: &VecTwoInt,
+        pos: &GridPos,
         shader_color: Shader,
         render_pack: &mut RenderPack,
         assets: &Assets,

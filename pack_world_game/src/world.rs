@@ -1,19 +1,19 @@
-use crate::{error::*, tile::*};
+use crate::{error::*, grid::*, tile::*};
 use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
 pub struct World {
-    pub entity_map: HashMap<VecTwoInt, Vec<usize>>,
+    pub entity_map: HashMap<GridPos, Vec<usize>>,
 
     // valid positions, and all adjacent valid positions
-    pub valids: HashMap<VecTwoInt, bool>,
+    pub valids: HashMap<GridPos, bool>,
 
     pub entities: Vec<TileInstance>,
 }
 
 impl World {
     // Won't place tile if not valid.
-    pub fn try_place_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) -> Result<(), Error> {
+    pub fn try_place_tile(&mut self, grid_pos: GridPos, tile: TileType) -> Result<(), Error> {
         if !tile.can_place_here(grid_pos, self) {
             return Err(Error::InvalidTilePosition);
         }
@@ -23,7 +23,7 @@ impl World {
         return Ok(());
     }
 
-    pub fn force_insert_tile(&mut self, grid_pos: VecTwoInt, tile: TileType) {
+    pub fn force_insert_tile(&mut self, grid_pos: GridPos, tile: TileType) {
         let inst_id = self.entities.len();
         let inst = tile.create_instance(grid_pos);
         self.entities.push(inst);
@@ -33,16 +33,16 @@ impl World {
 
             // update adjacents
             self.valids.insert(pos, true);
-            self.valids.insert(VecTwoInt::new(pos.x + 1, pos.y), true);
-            self.valids.insert(VecTwoInt::new(pos.x - 1, pos.y), true);
-            self.valids.insert(VecTwoInt::new(pos.x, pos.y + 1), true);
-            self.valids.insert(VecTwoInt::new(pos.x, pos.y - 1), true);
+            self.valids.insert(GridPos::new(pos.x + 1, pos.y), true);
+            self.valids.insert(GridPos::new(pos.x - 1, pos.y), true);
+            self.valids.insert(GridPos::new(pos.x, pos.y + 1), true);
+            self.valids.insert(GridPos::new(pos.x, pos.y - 1), true);
 
             self.entity_map.entry(pos).or_insert(vec![]).push(inst_id);
         }
     }
 
-    pub fn get_entities(&self, grid_pos: VecTwoInt) -> Option<Vec<usize>> {
+    pub fn get_entities(&self, grid_pos: GridPos) -> Option<Vec<usize>> {
         if !self.entity_map.contains_key(&grid_pos) {
             return None;
         }

@@ -18,7 +18,7 @@ pub struct TileBoulder {
 }
 
 impl TileBoulder {
-    pub fn new(grid_pos: VecTwoInt) -> TileInstance {
+    pub fn new(grid_pos: GridPos) -> TileInstance {
         TileInstance {
             grid_pos,
             tile_type: TileType::Boulder,
@@ -39,8 +39,8 @@ impl TileBoulder {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
-        self.harvest_timer.harvest(tile_pos)
+    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
+        self.harvest_timer.harvest(grid_pos)
     }
 
     pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
@@ -58,7 +58,7 @@ impl TileBoulder {
     pub fn render(
         &self,
         rot_time: f64,
-        pos: &VecTwoInt,
+        pos: &GridPos,
         shader_color: Shader,
         render_pack: &mut RenderPack,
         assets: &Assets,

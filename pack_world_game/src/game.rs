@@ -106,11 +106,11 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     // setup first map
     {
-        let init_dirt: Vec<VecTwoInt> = vec![
-            VecTwoInt::new(20, 10),
-            VecTwoInt::new(21, 10),
-            VecTwoInt::new(20, 11),
-            VecTwoInt::new(21, 11),
+        let init_dirt: Vec<GridPos> = vec![
+            GridPos::new(20, 10),
+            GridPos::new(21, 10),
+            GridPos::new(20, 11),
+            GridPos::new(21, 11),
         ];
         for p in init_dirt {
             gs.world.force_insert_tile(p, TileType::Dirt);
@@ -282,10 +282,10 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         gs.harvest_drops.retain(|h| !h.is_finished());
     }
 
-    let mouse_grid: VecTwoInt = {
+    let mouse_grid: GridPos = {
         let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
         let mouse_world = cam_pack.camera.screen_to_world(input.mouse_pos);
-        let mouse_grid: VecTwoInt = world_to_grid(&mouse_world);
+        let mouse_grid: GridPos = world_to_grid(&mouse_world);
 
         mouse_grid
     };
@@ -328,7 +328,6 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         // place tile
         if input.mouse_left.on_press && can_place {
             if gs.world.try_place_tile(mouse_grid, tile).is_ok() {
-                println!("placing {:?}", tile);
                 let count = gs.inventory.add_item(ItemType::Tile(tile), -1).unwrap();
                 if count == 0 {
                     gs.tile_placing = None;
@@ -357,7 +356,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {
-                    update_signals.append(&mut tile.methods.harvest(mouse_snapped));
+                    update_signals.append(&mut tile.methods.harvest(mouse_grid));
                 }
 
                 // render hover rect

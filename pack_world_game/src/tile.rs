@@ -48,7 +48,7 @@ impl TileMethods {
     pub fn render(
         &self,
         rot_time: f64,
-        pos: &VecTwoInt,
+        pos: &GridPos,
         shader_color: Shader,
         render_pack: &mut RenderPack,
         assets: &Assets,
@@ -82,13 +82,13 @@ impl TileMethods {
         }
     }
 
-    pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
+    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
         match self {
-            TileMethods::Dirt(state) => state.harvest(tile_pos),
-            TileMethods::Grass(state) => state.harvest(tile_pos),
-            TileMethods::Boulder(state) => state.harvest(tile_pos),
-            TileMethods::OakTree(state) => state.harvest(tile_pos),
-            TileMethods::BirdNest(state) => state.harvest(tile_pos),
+            TileMethods::Dirt(state) => state.harvest(grid_pos),
+            TileMethods::Grass(state) => state.harvest(grid_pos),
+            TileMethods::Boulder(state) => state.harvest(grid_pos),
+            TileMethods::OakTree(state) => state.harvest(grid_pos),
+            TileMethods::BirdNest(state) => state.harvest(grid_pos),
         }
     }
 
@@ -106,11 +106,12 @@ impl TileMethods {
 // TODO make these private?
 pub struct TileInstance {
     pub tile_type: TileType,
-    pub grid_pos: VecTwoInt,
+    pub grid_pos: GridPos,
     pub methods: TileMethods,
 }
+
 impl TileType {
-    pub fn can_place_here(&self, origin: VecTwoInt, world: &World) -> bool {
+    pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
         let footprint = self.get_tile_footprint();
 
         for p in footprint {
@@ -146,7 +147,7 @@ impl TileType {
         return true;
     }
 
-    pub fn create_instance(&self, grid_pos: VecTwoInt) -> TileInstance {
+    pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
         match self {
             TileType::Dirt => TileDirt::new(grid_pos),
             TileType::Grass => TileGrass::new(grid_pos),
@@ -156,16 +157,16 @@ impl TileType {
         }
     }
 
-    pub fn get_tile_footprint(&self) -> Vec<VecTwoInt> {
+    pub fn get_tile_footprint(&self) -> Vec<GridPos> {
         match self {
             TileType::Dirt | TileType::Grass | TileType::Boulder | TileType::BirdNest => {
-                vec![VecTwoInt::new(0, 0)]
+                vec![GridPos::new(0, 0)]
             }
             TileType::OakTree => vec![
-                VecTwoInt::new(0, 0),
-                VecTwoInt::new(1, 1),
-                VecTwoInt::new(0, 1),
-                VecTwoInt::new(1, 0),
+                GridPos::new(0, 0),
+                GridPos::new(1, 1),
+                GridPos::new(0, 1),
+                GridPos::new(1, 0),
             ],
         }
     }
@@ -174,7 +175,7 @@ impl TileType {
 pub fn draw_tile(
     tile_type: TileType,
     rotation: f64,
-    pos: &VecTwoInt,
+    pos: &GridPos,
     shader_color: Shader,
     render_pack: &mut RenderPack,
     assets: &Assets,

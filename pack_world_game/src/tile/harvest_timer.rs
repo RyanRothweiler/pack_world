@@ -1,4 +1,4 @@
-use crate::{drop_table::*, update_signal::*};
+use crate::{drop_table::*, grid::*, update_signal::*};
 use gengar_engine::vectors::*;
 
 pub struct HarvestTimer {
@@ -30,12 +30,16 @@ impl HarvestTimer {
         self.time >= self.length
     }
 
-    pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
+    pub fn reset(&mut self) {
         self.time = 0.0;
+    }
+
+    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
+        self.reset();
 
         vec![UpdateSignal::HarvestItemPullTable {
             table: self.table_id,
-            origin: tile_pos,
+            origin: grid_to_world(&grid_pos),
         }]
     }
 }
