@@ -22,28 +22,28 @@ impl TileBoulder {
         TileInstance {
             grid_pos,
             tile_type: TileType::Boulder,
-            methods: Box::new(TileBoulder {
+            methods: TileMethods::Boulder(TileBoulder {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),
             }),
         }
     }
 }
 
-impl TileMethods for TileBoulder {
-    fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+impl TileBoulder {
+    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
         vec![]
     }
 
-    fn can_harvest(&self) -> bool {
+    pub fn can_harvest(&self) -> bool {
         self.harvest_timer.can_harvest()
     }
 
-    fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
+    pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
         self.harvest_timer.harvest(tile_pos)
     }
 
-    fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
+    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
         let base: VecTwo = VecTwo::new(450.0, 120.0);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
@@ -55,7 +55,7 @@ impl TileMethods for TileBoulder {
         );
     }
 
-    fn render(
+    pub fn render(
         &self,
         rot_time: f64,
         pos: &VecTwoInt,

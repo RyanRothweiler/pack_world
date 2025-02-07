@@ -263,7 +263,6 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             );
         }
     }
-
     // update harvest drops
     {
         for h in &mut gs.harvest_drops {

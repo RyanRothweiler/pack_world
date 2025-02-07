@@ -17,21 +17,6 @@ pub mod tiles;
 
 use tiles::{tile_bird_nest::*, tile_boulder::*, tile_dirt::*, tile_grass::*, tile_oak_tree::*};
 
-pub trait TileMethods {
-    fn update(&mut self, time_step: f64) -> Vec<UpdateSignal>;
-    fn can_harvest(&self) -> bool;
-    fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal>;
-    fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack);
-    fn render(
-        &self,
-        rot_time: f64,
-        pos: &VecTwoInt,
-        shader_color: Shader,
-        render_pack: &mut RenderPack,
-        assets: &Assets,
-    );
-}
-
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum TileType {
     Dirt,
@@ -41,13 +26,89 @@ pub enum TileType {
     BirdNest,
 }
 
+pub enum TileMethods {
+    Dirt(TileDirt),
+    Grass(TileGrass),
+    Boulder(TileBoulder),
+    OakTree(TileOakTree),
+    BirdNest(TileBirdNest),
+}
+
+impl TileMethods {
+    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+        match self {
+            TileMethods::Dirt(state) => state.update(time_step),
+            TileMethods::Grass(state) => state.update(time_step),
+            TileMethods::Boulder(state) => state.update(time_step),
+            TileMethods::OakTree(state) => state.update(time_step),
+            TileMethods::BirdNest(state) => state.update(time_step),
+        }
+    }
+
+    pub fn render(
+        &self,
+        rot_time: f64,
+        pos: &VecTwoInt,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+        assets: &Assets,
+    ) {
+        match self {
+            TileMethods::Dirt(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Grass(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Boulder(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::OakTree(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::BirdNest(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+        }
+    }
+
+    pub fn can_harvest(&self) -> bool {
+        match self {
+            TileMethods::Dirt(state) => state.can_harvest(),
+            TileMethods::Grass(state) => state.can_harvest(),
+            TileMethods::Boulder(state) => state.can_harvest(),
+            TileMethods::OakTree(state) => state.can_harvest(),
+            TileMethods::BirdNest(state) => state.can_harvest(),
+        }
+    }
+
+    pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
+        match self {
+            TileMethods::Dirt(state) => state.harvest(tile_pos),
+            TileMethods::Grass(state) => state.harvest(tile_pos),
+            TileMethods::Boulder(state) => state.harvest(tile_pos),
+            TileMethods::OakTree(state) => state.harvest(tile_pos),
+            TileMethods::BirdNest(state) => state.harvest(tile_pos),
+        }
+    }
+
+    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
+        match self {
+            TileMethods::Dirt(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::Grass(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::Boulder(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::OakTree(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::BirdNest(state) => state.render_hover_info(shader_color, render_pack),
+        }
+    }
+}
+
 // TODO make these private?
 pub struct TileInstance {
     pub tile_type: TileType,
-    pub methods: Box<dyn TileMethods>,
     pub grid_pos: VecTwoInt,
+    pub methods: TileMethods,
 }
-
 impl TileType {
     pub fn can_place_here(&self, origin: VecTwoInt, world: &World) -> bool {
         let footprint = self.get_tile_footprint();

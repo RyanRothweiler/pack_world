@@ -13,27 +13,27 @@ impl TileDirt {
         TileInstance {
             grid_pos,
             tile_type: TileType::Dirt,
-            methods: Box::new(TileDirt {}),
+            methods: TileMethods::Dirt(TileDirt {}),
         }
     }
 }
 
-impl TileMethods for TileDirt {
-    fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+impl TileDirt {
+    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         vec![]
     }
 
-    fn can_harvest(&self) -> bool {
+    pub fn can_harvest(&self) -> bool {
         false
     }
 
-    fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
+    pub fn harvest(&mut self, tile_pos: VecTwo) -> Vec<UpdateSignal> {
         vec![]
     }
 
-    fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}
+    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}
 
-    fn render(
+    pub fn render(
         &self,
         rot_time: f64,
         pos: &VecTwoInt,
