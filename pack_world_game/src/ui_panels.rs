@@ -27,19 +27,32 @@ pub const BG_COLOR: Color = Color {
     a: 1.0,
 };
 
-pub trait UIPanelLifecycle {
-    fn update(
+pub enum UIPanel {
+    NavTabs(NavTabsPanel),
+    TileLibrary(TileLibraryPanel),
+    Shop(ShopPanel),
+    Home(HomePanel),
+    OpenPack(OpenPackPanel),
+    DebugPanel(DebugPanel),
+}
+
+impl UIPanel {
+    pub fn update(
         &mut self,
         ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
         ui_context: &mut UIContext,
-    ) -> Vec<UpdateSignal>;
-}
-
-pub struct UIPanel {
-    pub panel_id: PanelID,
-    pub lifecycle: Box<dyn UIPanelLifecycle>,
+    ) -> Vec<UpdateSignal> {
+        match self {
+            UIPanel::NavTabs(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::TileLibrary(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::Shop(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::Home(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::OpenPack(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::DebugPanel(state) => state.update(ui_state, inventory, assets, ui_context),
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -64,32 +77,19 @@ pub enum CreatePanelData {
 impl CreatePanelData {
     pub fn create_panel(&self) -> UIPanel {
         match self {
-            CreatePanelData::NavTabs => UIPanel {
-                panel_id: PanelID::NavTabs,
-                lifecycle: Box::new(NavTabsPanel {}),
-            },
-            CreatePanelData::OpenPack { pack_id } => UIPanel {
-                panel_id: PanelID::OpenPack,
-                lifecycle: Box::new(OpenPackPanel::new(*pack_id)),
-            },
-            CreatePanelData::TileLibrary => UIPanel {
-                panel_id: PanelID::TileLibrary,
-                lifecycle: Box::new(TileLibraryPanel {}),
-            },
-            CreatePanelData::Shop => UIPanel {
-                panel_id: PanelID::Shop,
-                lifecycle: Box::new(ShopPanel {}),
-            },
-            CreatePanelData::Home => UIPanel {
-                panel_id: PanelID::Home,
-                lifecycle: Box::new(HomePanel {
-                    tab: home_panel::Tab::Inventory,
+            CreatePanelData::NavTabs => UIPanel::NavTabs(NavTabsPanel {}),
+            CreatePanelData::TileLibrary => UIPanel::TileLibrary(TileLibraryPanel {}),
+            CreatePanelData::Shop => UIPanel::Shop(ShopPanel {}),
+            CreatePanelData::Home => UIPanel::Home(HomePanel {
+                tab: home_panel::Tab::Inventory,
 
-                    ui_nav_tabs: CreatePanelData::NavTabs.create_panel(),
-                    ui_shop: CreatePanelData::Shop.create_panel(),
-                    ui_inventory: CreatePanelData::TileLibrary.create_panel(),
-                }),
-            },
+                ui_nav_tabs: Box::new(CreatePanelData::NavTabs.create_panel()),
+                ui_shop: Box::new(CreatePanelData::Shop.create_panel()),
+                ui_inventory: Box::new(CreatePanelData::TileLibrary.create_panel()),
+            }),
+            CreatePanelData::OpenPack { pack_id } => {
+                UIPanel::OpenPack(OpenPackPanel::new(*pack_id))
+            }
         }
     }
 }

@@ -33,8 +33,8 @@ impl OpenPackPanel {
     }
 }
 
-impl UIPanelLifecycle for OpenPackPanel {
-    fn update(
+impl OpenPackPanel {
+    pub fn update(
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,

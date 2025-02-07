@@ -8,8 +8,8 @@ use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct TileLibraryPanel {}
 
-impl UIPanelLifecycle for TileLibraryPanel {
-    fn update(
+impl TileLibraryPanel {
+    pub fn update(
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,

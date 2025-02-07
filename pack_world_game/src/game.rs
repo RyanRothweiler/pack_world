@@ -46,7 +46,7 @@ use harvest_drop::*;
 use item::*;
 use state::inventory::*;
 use tile::*;
-use ui_panels::{nav_tabs_panel::*, tile_library_panel::*, *};
+use ui_panels::{debug_panel::*, nav_tabs_panel::*, tile_library_panel::*, *};
 use update_signal::*;
 use world::*;
 
@@ -129,10 +129,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     // make debug panel. Needs to happen here so that the memory is in dll space.
     {
-        gs.debug_state.debug_panel = Some(UIPanel {
-            panel_id: PanelID::DebugPanel,
-            lifecycle: Box::new(ui_panels::debug_panel::DebugPanel {}),
-        });
+        gs.debug_state.debug_panel = Some(UIPanel::DebugPanel(DebugPanel {}));
     }
 }
 
@@ -169,7 +166,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         // Render and update active UI
         for panel in &mut gs.active_ui_panels {
-            update_signals.append(&mut panel.lifecycle.update(
+            update_signals.append(&mut panel.update(
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
@@ -179,7 +176,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         // update active page
         match &mut gs.active_page {
-            Some(page) => update_signals.append(&mut page.lifecycle.update(
+            Some(page) => update_signals.append(&mut page.update(
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
@@ -204,7 +201,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         if gs.debug_state.showing_debug_panel {
             if let Some(panel) = &mut gs.debug_state.debug_panel {
-                let sigs = panel.lifecycle.update(
+                let sigs = panel.update(
                     &mut ui_frame_state,
                     &gs.inventory,
                     &gs.assets,

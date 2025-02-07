@@ -15,13 +15,13 @@ pub enum Tab {
 pub struct HomePanel {
     pub tab: Tab,
 
-    pub ui_nav_tabs: UIPanel,
-    pub ui_shop: UIPanel,
-    pub ui_inventory: UIPanel,
+    pub ui_nav_tabs: Box<UIPanel>,
+    pub ui_shop: Box<UIPanel>,
+    pub ui_inventory: Box<UIPanel>,
 }
 
-impl UIPanelLifecycle for HomePanel {
-    fn update(
+impl HomePanel {
+    pub fn update(
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
@@ -40,21 +40,15 @@ impl UIPanelLifecycle for HomePanel {
         update_signals.append(
             &mut self
                 .ui_nav_tabs
-                .lifecycle
                 .update(ui_state, inventory, assets, ui_context),
         );
 
         match self.tab {
-            Tab::Shop => update_signals.append(
-                &mut self
-                    .ui_shop
-                    .lifecycle
-                    .update(ui_state, inventory, assets, ui_context),
-            ),
+            Tab::Shop => update_signals
+                .append(&mut self.ui_shop.update(ui_state, inventory, assets, ui_context)),
             Tab::Inventory => update_signals.append(
                 &mut self
                     .ui_inventory
-                    .lifecycle
                     .update(ui_state, inventory, assets, ui_context),
             ),
         };

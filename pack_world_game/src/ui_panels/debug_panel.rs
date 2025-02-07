@@ -8,8 +8,8 @@ use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct DebugPanel {}
 
-impl UIPanelLifecycle for DebugPanel {
-    fn update(
+impl DebugPanel {
+    pub fn update(
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,

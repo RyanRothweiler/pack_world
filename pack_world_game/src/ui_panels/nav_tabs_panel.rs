@@ -7,8 +7,8 @@ use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct NavTabsPanel {}
 
-impl UIPanelLifecycle for NavTabsPanel {
-    fn update(
+impl NavTabsPanel {
+    pub fn update(
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,

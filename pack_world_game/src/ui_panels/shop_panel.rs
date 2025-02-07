@@ -8,8 +8,8 @@ use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct ShopPanel {}
 
-impl UIPanelLifecycle for ShopPanel {
-    fn update(
+impl ShopPanel {
+    pub fn update(
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
