@@ -23,26 +23,30 @@ impl World {
         return Ok(());
     }
 
-    pub fn force_insert_tile(&mut self, placement_type: TilePlacementType, tile: TileType) {
+    pub fn force_insert_tile(&mut self, grid_pos: GridPos, tile: TileType) {
         let inst_id = self.entities.len();
-        let inst = tile.create_instance(placement_type);
+        let inst = match tile {
+            TileType::Dirt | TileType::Dirt => {
+                tile.create_instance(TilePlacementType::World { grid_pos: grid_pos })
+            }
+            TileType::BirdNest => {
+
+                tile.create_instance(TilePlacementType::Attachment { owner: 1 }),
+            }
+        };
         self.entities.push(inst);
 
-        match placement_type {
-            TilePlacementType::World { grid_pos } => {
-                for p in tile.get_tile_footprint() {
-                    let pos = grid_pos + p;
+        for p in tile.get_tile_footprint() {
+            let pos = grid_pos + p;
 
-                    // update adjacents
-                    self.valids.insert(pos, true);
-                    self.valids.insert(GridPos::new(pos.x + 1, pos.y), true);
-                    self.valids.insert(GridPos::new(pos.x - 1, pos.y), true);
-                    self.valids.insert(GridPos::new(pos.x, pos.y + 1), true);
-                    self.valids.insert(GridPos::new(pos.x, pos.y - 1), true);
+            // update adjacents
+            self.valids.insert(pos, true);
+            self.valids.insert(GridPos::new(pos.x + 1, pos.y), true);
+            self.valids.insert(GridPos::new(pos.x - 1, pos.y), true);
+            self.valids.insert(GridPos::new(pos.x, pos.y + 1), true);
+            self.valids.insert(GridPos::new(pos.x, pos.y - 1), true);
 
-                    self.entity_map.entry(pos).or_insert(vec![]).push(inst_id);
-                }
-            }
+            self.entity_map.entry(pos).or_insert(vec![]).push(inst_id);
         }
 
         // this super stucks. we need to figure out something better
