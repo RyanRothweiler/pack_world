@@ -45,8 +45,45 @@ impl World {
         // update adjacent tile state
         match tile {
             TileType::BirdNest => {
-                for adj_pos in grid_pos.to_adjacents_iter() {
-                    println!("{:?}", adj_pos);
+                // find the base tree.
+                // this assumes the tree_origin is the top left.
+                // I'm sure this will result in a bug one day
+                let mut tree_origin: GridPos = GridPos::new(0, 0);
+                let mut found = false;
+                let pos_entities_index = self.get_entities(grid_pos).unwrap();
+                for p in pos_entities_index {
+                    let tile_instance = self.entities.get(p).unwrap();
+                    if tile_instance.tile_type == TileType::OakTree {
+                        tree_origin = tile_instance.grid_pos;
+                        found = true;
+                    }
+                }
+                if !found {
+                    panic!("There must always be a tree for this bird nest.");
+                }
+
+                // this assumes the tree footprint of four grid spaces
+                let adj_offsets: Vec<GridPos> = vec![
+                    GridPos::new(-1, -1),
+                    GridPos::new(0, -1),
+                    GridPos::new(1, -1),
+                    GridPos::new(2, -1),
+                    //
+                    GridPos::new(-1, 0),
+                    GridPos::new(2, 0),
+                    //
+                    GridPos::new(-1, 1),
+                    GridPos::new(2, 1),
+                    //
+                    GridPos::new(-1, 2),
+                    GridPos::new(0, 2),
+                    GridPos::new(1, 2),
+                    GridPos::new(2, 2),
+                ];
+
+                // go through the adjacents for that tree
+                for offset in adj_offsets {
+                    let adj_pos = tree_origin + offset;
 
                     let adj_entity_ids = self.get_entities(adj_pos).unwrap_or(vec![]);
 
