@@ -22,9 +22,9 @@ pub struct TileGrass {
 }
 
 impl TileGrass {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
+    pub fn new(placement_type: TilePlacementType) -> TileInstance {
         TileInstance {
-            grid_pos,
+            placement_type,
             tile_type: TileType::Grass,
             methods: TileMethods::Grass(TileGrass {
                 drop_table: DropTableID::Grass,

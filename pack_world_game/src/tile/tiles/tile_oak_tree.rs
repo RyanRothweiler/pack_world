@@ -18,9 +18,9 @@ pub struct TileOakTree {
 }
 
 impl TileOakTree {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
+    pub fn new(placement_type: TilePlacementType) -> TileInstance {
         TileInstance {
-            grid_pos,
+            placement_type,
             tile_type: TileType::OakTree,
             methods: TileMethods::OakTree(TileOakTree {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),

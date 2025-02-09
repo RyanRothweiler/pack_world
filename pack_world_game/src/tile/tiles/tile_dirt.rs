@@ -6,12 +6,13 @@ use gengar_engine::{
     vectors::*,
 };
 
+#[derive(Debug)]
 pub struct TileDirt {}
 
 impl TileDirt {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
+    pub fn new(placement_type: TilePlacementType) -> TileInstance {
         TileInstance {
-            grid_pos,
+            placement_type,
             tile_type: TileType::Dirt,
             methods: TileMethods::Dirt(TileDirt {}),
         }

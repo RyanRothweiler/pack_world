@@ -256,7 +256,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         for entity in &gs.world.entities {
             entity.methods.render(
                 gs.rotate_time,
-                &entity.grid_pos,
+                entity.placement_type,
                 es.color_texture_shader,
                 es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                 &gs.assets,

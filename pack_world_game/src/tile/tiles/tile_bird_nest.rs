@@ -18,10 +18,10 @@ pub struct TileBirdNest {
 }
 
 impl TileBirdNest {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
+    pub fn new(placement_type: TilePlacementType) -> TileInstance {
         TileInstance {
-            grid_pos,
             tile_type: TileType::BirdNest,
+            placement_type,
             methods: TileMethods::BirdNest(TileBirdNest {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),
             }),

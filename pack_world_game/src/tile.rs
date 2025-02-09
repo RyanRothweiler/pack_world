@@ -48,26 +48,29 @@ impl TileMethods {
     pub fn render(
         &self,
         rot_time: f64,
-        pos: &GridPos,
+        placement: TilePlacementType,
         shader_color: Shader,
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
-        match self {
-            TileMethods::Dirt(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
+        match (self, placement) {
+            (TileMethods::Dirt(state), TilePlacementType::World { grid_pos }) => {
+                state.render(rot_time, &grid_pos, shader_color, render_pack, assets)
             }
-            TileMethods::Grass(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
+            (TileMethods::Grass(state), TilePlacementType::World { grid_pos }) => {
+                state.render(rot_time, &grid_pos, shader_color, render_pack, assets)
             }
-            TileMethods::Boulder(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
+            (TileMethods::Boulder(state), TilePlacementType::World { grid_pos }) => {
+                state.render(rot_time, &grid_pos, shader_color, render_pack, assets)
             }
-            TileMethods::OakTree(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
+            (TileMethods::OakTree(state), TilePlacementType::World { grid_pos }) => {
+                state.render(rot_time, &grid_pos, shader_color, render_pack, assets)
             }
-            TileMethods::BirdNest(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
+            (TileMethods::BirdNest(state), TilePlacementType::World { grid_pos }) => {
+                state.render(rot_time, &grid_pos, shader_color, render_pack, assets)
+            }
+            _ => {
+                panic!("Invalid TileType, PlacementType combination.")
             }
         }
     }
@@ -103,11 +106,19 @@ impl TileMethods {
     }
 }
 
-// TODO make these private?
+#[derive(Copy, Clone, Debug)]
+pub enum TilePlacementType {
+    // Placed in the world
+    World { grid_pos: GridPos },
+
+    // Attaches to another tile
+    Attachment { owner: usize },
+}
+
 pub struct TileInstance {
     pub tile_type: TileType,
-    pub grid_pos: GridPos,
     pub methods: TileMethods,
+    pub placement_type: TilePlacementType,
 }
 
 impl TileType {
@@ -159,16 +170,17 @@ impl TileType {
         return true;
     }
 
-    pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
+    pub fn create_instance(&self, placement_type: TilePlacementType) -> TileInstance {
         match self {
-            TileType::Dirt => TileDirt::new(grid_pos),
-            TileType::Grass => TileGrass::new(grid_pos),
-            TileType::Boulder => TileBoulder::new(grid_pos),
-            TileType::OakTree => TileOakTree::new(grid_pos),
-            TileType::BirdNest => TileBirdNest::new(grid_pos),
+            TileType::Dirt => TileDirt::new(placement_type),
+            TileType::Grass => TileGrass::new(placement_type),
+            TileType::Boulder => TileBoulder::new(placement_type),
+            TileType::OakTree => TileOakTree::new(placement_type),
+            TileType::BirdNest => TileBirdNest::new(placement_type),
         }
     }
 
+    // this could b emoved to the TilePlacement enum maybe
     pub fn get_tile_footprint(&self) -> Vec<GridPos> {
         match self {
             TileType::Dirt | TileType::Grass | TileType::Boulder | TileType::BirdNest => {

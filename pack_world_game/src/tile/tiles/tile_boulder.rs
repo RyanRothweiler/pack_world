@@ -18,9 +18,9 @@ pub struct TileBoulder {
 }
 
 impl TileBoulder {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
+    pub fn new(placement_type: TilePlacementType) -> TileInstance {
         TileInstance {
-            grid_pos,
+            placement_type,
             tile_type: TileType::Boulder,
             methods: TileMethods::Boulder(TileBoulder {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),
