@@ -30,13 +30,20 @@ pub enum TileType {
 }
 
 impl TileType {
-    pub fn get_user_title(&self) -> &str {
+    pub fn user_title(&self) -> &str {
         match self {
             TileType::Dirt => tiles::tile_dirt::TITLE,
             TileType::Grass => tiles::tile_grass::TITLE,
             TileType::Boulder => tiles::tile_boulder::TITLE,
             TileType::OakTree => tiles::tile_oak_tree::TITLE,
             TileType::BirdNest => tiles::tile_bird_nest::TITLE,
+        }
+    }
+
+    pub fn user_description(&self) -> Option<&str> {
+        match self {
+            TileType::Dirt => Some(tiles::tile_dirt::DESC),
+            _ => None,
         }
     }
 }

@@ -119,6 +119,13 @@ impl TileLibraryPanel {
                     ui_state,
                     ui_context,
                 );
+
+                draw_text(
+                    &item_type.user_description(),
+                    VecTwo::new(10.0, 100.0),
+                    ui_state,
+                    ui_context,
+                );
             }
             end_panel(&mut ui_state, ui_context);
         }

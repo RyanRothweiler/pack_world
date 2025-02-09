@@ -7,6 +7,7 @@ use gengar_engine::{
 };
 
 pub const TITLE: &str = "Dirt";
+pub const DESC: &str = "Placed on empty space. Creates ground for other tiles.";
 
 pub struct TileDirt {}
 
