@@ -1,4 +1,4 @@
-use crate::{error::*, grid::*, tile::*};
+use crate::{drop_table::*, error::*, grid::*, tile::*};
 use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
@@ -39,6 +39,33 @@ impl World {
             self.valids.insert(GridPos::new(pos.x, pos.y - 1), true);
 
             self.entity_map.entry(pos).or_insert(vec![]).push(inst_id);
+        }
+
+        // this super stucks. we need to figure out something better
+        // update adjacent tile state
+        match tile {
+            TileType::BirdNest => {
+                for adj_pos in grid_pos.to_adjacents_iter() {
+                    println!("{:?}", adj_pos);
+
+                    let adj_entity_ids = self.get_entities(adj_pos).unwrap_or(vec![]);
+
+                    for adj_entity_id in adj_entity_ids {
+                        let adj_tile_inst = self
+                            .entities
+                            .get_mut(adj_entity_id)
+                            .expect("Invalid entity id");
+
+                        match &mut adj_tile_inst.methods {
+                            TileMethods::Grass(tile_state) => {
+                                tile_state.drop_table = DropTableID::Boulder;
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            }
+            _ => {}
         }
     }
 

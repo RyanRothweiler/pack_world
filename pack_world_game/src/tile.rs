@@ -127,7 +127,19 @@ impl TileType {
             // check types
             match self {
                 TileType::Dirt => {}
-                TileType::Grass | TileType::Boulder | TileType::OakTree | TileType::BirdNest => {
+                TileType::BirdNest => {
+                    let entities: Vec<usize> = world.get_entities(pos).unwrap_or(vec![]);
+                    for idx in entities {
+                        let tile = &world.entities[idx];
+
+                        if tile.tile_type == TileType::OakTree {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+                TileType::Grass | TileType::Boulder | TileType::OakTree => {
                     if !world.entity_map.contains_key(&pos) {
                         return false;
                     }

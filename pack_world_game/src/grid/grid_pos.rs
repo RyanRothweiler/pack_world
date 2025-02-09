@@ -53,3 +53,25 @@ impl Iterator for GridPosIter {
         Some(result)
     }
 }
+
+mod test {
+    use super::*;
+
+    #[test]
+    fn adjacent_iter() {
+        let grid_pos = GridPos::new(10, 10);
+        let adjs: Vec<GridPos> = grid_pos.to_adjacents_iter().collect();
+
+        assert_eq!(adjs.len(), 8);
+        assert!(adjs.contains(&GridPos::new(9, 9)));
+        assert!(adjs.contains(&GridPos::new(9, 10)));
+        assert!(adjs.contains(&GridPos::new(9, 11)));
+
+        assert!(adjs.contains(&GridPos::new(10, 9)));
+        assert!(adjs.contains(&GridPos::new(10, 11)));
+
+        assert!(adjs.contains(&GridPos::new(11, 9)));
+        assert!(adjs.contains(&GridPos::new(11, 10)));
+        assert!(adjs.contains(&GridPos::new(11, 11)));
+    }
+}

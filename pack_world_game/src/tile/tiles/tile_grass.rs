@@ -16,6 +16,8 @@ use gengar_engine::{
 const HARVEST_SECONDS: f64 = 20.0;
 
 pub struct TileGrass {
+    pub drop_table: DropTableID,
+
     harvest_timer: HarvestTimer,
 }
 
@@ -25,6 +27,7 @@ impl TileGrass {
             grid_pos,
             tile_type: TileType::Grass,
             methods: TileMethods::Grass(TileGrass {
+                drop_table: DropTableID::Grass,
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Grass),
             }),
         }
@@ -42,7 +45,14 @@ impl TileGrass {
     }
 
     pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
-        self.harvest_timer.harvest(grid_pos)
+        // self.harvest_timer.harvest(grid_pos)
+        self.harvest_timer.reset();
+
+        println!("{:?}", self.drop_table);
+        vec![UpdateSignal::HarvestItemPullTable {
+            table: self.drop_table,
+            origin: grid_to_world(&grid_pos),
+        }]
     }
 
     pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
