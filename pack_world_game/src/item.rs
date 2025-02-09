@@ -1,5 +1,7 @@
 use crate::tile::*;
 
+mod item_data;
+
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum ItemType {
     DirtClod,
@@ -10,13 +12,19 @@ pub enum ItemType {
 }
 
 impl ItemType {
-    pub fn user_display(&self) -> String {
+    pub fn user_title(&self) -> &str {
         match self {
-            ItemType::DirtClod => "Dirt Clod".into(),
-            ItemType::Stick => "Stick".into(),
-            ItemType::Rock => "Rock".into(),
-            ItemType::OakLog => "OakWood".into(),
-            ItemType::Tile(tile_type) => format!("{:?}", tile_type).into(),
+            ItemType::DirtClod => item_data::dirt_clod::TITLE,
+            ItemType::Stick => item_data::stick::TITLE,
+            ItemType::Rock => item_data::rock::TITLE,
+            ItemType::OakLog => item_data::oak_wood::TITLE,
+            ItemType::Tile(tile_type) => tile_type.get_user_title(),
+        }
+    }
+
+    pub fn user_description(&self) -> Option<String> {
+        match self {
+            _ => None,
         }
     }
 }

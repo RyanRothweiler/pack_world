@@ -1,6 +1,9 @@
 use crate::vectors::*;
 use std::ops::Mul;
 
+pub mod anchors;
+pub use anchors::*;
+
 #[derive(Default, Debug, Clone, Copy)]
 pub struct Rect {
     pub top_left: VecTwo,
@@ -152,7 +155,7 @@ impl Rect {
         return mesh;
     }
 
-    // returns a mesh with the center of the rect centered at 0,0,0
+    // returns a mesh with the center of the rect at 0,0,0
     pub fn get_mesh_centered(&self, z: f64) -> Vec<VecThreeFloat> {
         let half_width = self.width() * 0.5;
         let half_height = self.height() * 0.5;
@@ -187,6 +190,22 @@ impl Rect {
         }
 
         return false;
+    }
+
+    // Returns a new rect relative to self
+    pub fn build_relative(&self, anchors: Anchors) -> Rect {
+        let mut r = *self;
+
+        let w = self.width();
+        let h = self.height();
+
+        r.top_left.y = self.top_left.y + (h * anchors.top);
+        r.top_left.x = self.top_left.x + (w * anchors.left);
+
+        r.bottom_right.y = self.bottom_right.y - (h * anchors.bottom);
+        r.bottom_right.x = self.bottom_right.x - (w * anchors.right);
+
+        return r;
     }
 }
 
@@ -229,5 +248,29 @@ mod test {
 
         assert_eq!(r.top_left, VecTwo::new(10.0, 10.0));
         assert_eq!(r.bottom_right, VecTwo::new(12.0, 30.0));
+    }
+
+    #[test]
+    fn anchors() {
+        let r = Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(20.0, 20.0));
+        let sized = r.build_relative(Anchors::new(0.5, 0.5, 0.5, 0.5));
+
+        assert_eq!(sized.top_left.x, 15.0);
+        assert_eq!(sized.top_left.y, 15.0);
+
+        assert_eq!(sized.bottom_right.x, 15.0);
+        assert_eq!(sized.bottom_right.y, 15.0);
+    }
+
+    #[test]
+    fn anchors_full() {
+        let r = Rect::new(VecTwo::new(10.0, 10.0), VecTwo::new(20.0, 20.0));
+        let sized = r.build_relative(Anchors::new(0.0, 0.0, 0.0, 0.0));
+
+        assert_eq!(sized.top_left.x, 10.0);
+        assert_eq!(sized.top_left.y, 10.0);
+
+        assert_eq!(sized.bottom_right.x, 20.0);
+        assert_eq!(sized.bottom_right.y, 20.0);
     }
 }

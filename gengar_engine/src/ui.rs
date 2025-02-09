@@ -38,14 +38,36 @@ impl UIFrameState {
     }
 
     pub fn get_origin(&self) -> VecTwo {
+        let mut origin = VecTwo::new(0.0, 0.0);
+
+        for p in &self.panel_stack {
+            origin = origin + p.top_left;
+        }
+
+        /*
         match self.panel_stack.last() {
             Some(p) => p.top_left,
             None => VecTwo::new(0.0, 0.0),
         }
+        */
+
+        return origin;
     }
 }
 
 pub fn draw_button(
+    display: &str,
+    maybe_icon: Option<u32>,
+    rect: &Rect,
+    ui_state: &mut UIFrameState,
+    line: u32,
+    context: &mut UIContext,
+) -> bool {
+    draw_button_id(0, display, maybe_icon, rect, ui_state, line, context)
+}
+
+pub fn draw_button_id(
+    id: i32,
     display: &str,
     maybe_icon: Option<u32>,
     rect: &Rect,
@@ -97,7 +119,7 @@ pub fn draw_button(
     );
 
     // handle state
-    let id = format!("{}{}", display, line);
+    let id = format!("{}{}{}", display, line, id);
     let button_state = context.button_state.entry(id).or_insert(ButtonState::new());
     button_state.update(context.mouse_down);
 

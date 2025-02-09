@@ -15,7 +15,10 @@ use std::collections::HashMap;
 pub mod harvest_timer;
 pub mod tiles;
 
-use tiles::{tile_bird_nest::*, tile_boulder::*, tile_dirt::*, tile_grass::*, tile_oak_tree::*};
+use tiles::{
+    tile_bird_nest::TileBirdNest, tile_boulder::TileBoulder, tile_dirt::TileDirt,
+    tile_grass::TileGrass, tile_oak_tree::TileOakTree,
+};
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum TileType {
@@ -24,6 +27,18 @@ pub enum TileType {
     Boulder,
     OakTree,
     BirdNest,
+}
+
+impl TileType {
+    pub fn get_user_title(&self) -> &str {
+        match self {
+            TileType::Dirt => tiles::tile_dirt::TITLE,
+            TileType::Grass => tiles::tile_grass::TITLE,
+            TileType::Boulder => tiles::tile_boulder::TITLE,
+            TileType::OakTree => tiles::tile_oak_tree::TITLE,
+            TileType::BirdNest => tiles::tile_bird_nest::TITLE,
+        }
+    }
 }
 
 pub enum TileMethods {

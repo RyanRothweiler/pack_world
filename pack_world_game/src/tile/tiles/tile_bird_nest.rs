@@ -11,6 +11,8 @@ use gengar_engine::{
     ui::*,
 };
 
+pub const TITLE: &str = "Bird Nest";
+
 const HARVEST_SECONDS: f64 = 360.0;
 
 pub struct TileBirdNest {

@@ -6,6 +6,8 @@ use gengar_engine::{
     vectors::*,
 };
 
+pub const TITLE: &str = "Dirt";
+
 pub struct TileDirt {}
 
 impl TileDirt {

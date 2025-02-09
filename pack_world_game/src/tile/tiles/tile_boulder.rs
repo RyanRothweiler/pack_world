@@ -11,6 +11,8 @@ use gengar_engine::{
     ui::*,
 };
 
+pub const TITLE: &str = "Boulder";
+
 const HARVEST_SECONDS: f64 = 120.0;
 
 pub struct TileBoulder {

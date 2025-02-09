@@ -11,6 +11,8 @@ use gengar_engine::{
     ui::*,
 };
 
+pub const TITLE: &str = "Oak Tree";
+
 const HARVEST_SECONDS: f64 = 360.0;
 
 pub struct TileOakTree {

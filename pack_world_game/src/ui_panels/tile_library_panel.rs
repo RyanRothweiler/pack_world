@@ -7,7 +7,7 @@ use crate::{
 use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 pub struct TileLibraryPanel {
-    pub item_selected: Option<ItemType>,
+    pub item_selected: Option<(i32, ItemType)>,
 }
 
 impl TileLibraryPanel {
@@ -33,7 +33,6 @@ impl TileLibraryPanel {
         begin_panel(base_rect, BG_COLOR, &mut ui_state, ui_context);
 
         let mut item_hovering: Option<(i32, ItemType)> = None;
-        // let mut item_details: Option<(i32, ItemType)> = None;
 
         let y_offset: f64 = 80.0;
         let mut i: i32 = 0;
@@ -50,7 +49,8 @@ impl TileLibraryPanel {
 
             match item_type {
                 ItemType::Tile(tile_type) => {
-                    if draw_button(
+                    if draw_button_id(
+                        i,
                         &disp,
                         Some(icon),
                         &button_rect,
@@ -59,7 +59,7 @@ impl TileLibraryPanel {
                         ui_context,
                     ) {
                         // ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
-                        // item_details = Some((i, *item_type));
+                        self.item_selected = Some((i, *item_type));
                     }
                 }
                 ItemType::DirtClod | ItemType::Stick | ItemType::Rock | ItemType::OakLog => {
@@ -81,6 +81,9 @@ impl TileLibraryPanel {
             i += 1;
         }
 
+        let grey = 0.2;
+        let grey_color = Color::new(grey, grey, grey, 1.0);
+
         // draw hover
         if let Some((index, item_type)) = item_hovering {
             let y: f64 = 50.0 + (y_offset * index as f64);
@@ -92,16 +95,10 @@ impl TileLibraryPanel {
             let mut details_rect = Rect::new_size(100.0, 50.0);
             details_rect.set_center(rect_offset.get_center() + VecTwo::new(110.0, 0.0));
 
-            let grey = 0.2;
-            draw_rect(
-                details_rect,
-                Color::new(grey, grey, grey, 1.0),
-                ui_state,
-                ui_context,
-            );
+            draw_rect(details_rect, grey_color, ui_state, ui_context);
 
             draw_text(
-                &item_type.user_display(),
+                &item_type.user_title(),
                 details_rect.bottom_left(),
                 ui_state,
                 ui_context,
@@ -109,11 +106,20 @@ impl TileLibraryPanel {
         }
 
         // details panel
-        {
-            let mut panel_rect = Rect::new_size(base_rect.width(), 400.0);
-            panel_rect.translate(VecTwo::new(base_rect.width() * 0.5, 600.0));
-            begin_panel(panel_rect, COLOR_RED, &mut ui_state, ui_context);
+        if let Some((index, item_type)) = self.item_selected {
+            let mut panel_rect = base_rect.build_relative(Anchors::new(0.5, 0.0, 0.0, 0.0));
 
+            panel_rect.translate(ui_state.get_origin() * -1.0);
+
+            begin_panel(panel_rect, grey_color, &mut ui_state, ui_context);
+            {
+                draw_text(
+                    &item_type.user_title(),
+                    VecTwo::new(10.0, 25.0),
+                    ui_state,
+                    ui_context,
+                );
+            }
             end_panel(&mut ui_state, ui_context);
         }
 
