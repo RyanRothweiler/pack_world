@@ -10,7 +10,7 @@ pub enum ItemType {
 }
 
 impl ItemType {
-    pub fn user_dislay(&self) -> String {
+    pub fn user_display(&self) -> String {
         match self {
             ItemType::DirtClod => "Dirt Clod".into(),
             ItemType::Stick => "Stick".into(),

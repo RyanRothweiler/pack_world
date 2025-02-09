@@ -145,17 +145,25 @@ pub fn begin_panel(
     frame_state: &mut UIFrameState,
     context: &mut UIContext,
 ) {
+    draw_rect(rect, color, frame_state, context);
+    frame_state.panel_stack.push(rect);
+}
+
+pub fn draw_rect(
+    mut rect: Rect,
+    color: Color,
+    frame_state: &mut UIFrameState,
+    context: &mut UIContext,
+) {
+    let origin = frame_state.get_origin();
+    rect.translate(origin);
+
     let mut mat = Material::new();
     mat.shader = Some(context.color_shader);
-
-    mat.uniforms
-        .insert("color".to_string(), UniformData::VecFour(color.into()));
-
+    mat.set_color(color);
     context
         .render_commands
         .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
-
-    frame_state.panel_stack.push(rect);
 }
 
 pub fn end_panel(frame_state: &mut UIFrameState, context: &mut UIContext) {

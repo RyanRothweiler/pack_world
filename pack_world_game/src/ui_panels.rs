@@ -78,7 +78,7 @@ impl CreatePanelData {
     pub fn create_panel(&self) -> UIPanel {
         match self {
             CreatePanelData::NavTabs => UIPanel::NavTabs(NavTabsPanel {}),
-            CreatePanelData::TileLibrary => UIPanel::TileLibrary(TileLibraryPanel {}),
+            CreatePanelData::TileLibrary => UIPanel::TileLibrary(TileLibraryPanel::new()),
             CreatePanelData::Shop => UIPanel::Shop(ShopPanel {}),
             CreatePanelData::Home => UIPanel::Home(HomePanel {
                 tab: home_panel::Tab::Inventory,
