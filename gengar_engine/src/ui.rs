@@ -44,13 +44,6 @@ impl UIFrameState {
             origin = origin + p.top_left;
         }
 
-        /*
-        match self.panel_stack.last() {
-            Some(p) => p.top_left,
-            None => VecTwo::new(0.0, 0.0),
-        }
-        */
-
         return origin;
     }
 }
@@ -152,11 +145,27 @@ pub fn draw_image(
 
 pub fn draw_text(display: &str, pos: VecTwo, ui_state: &mut UIFrameState, context: &mut UIContext) {
     let origin = ui_state.get_origin();
-
     render_word(
         display.into(),
         &context.button_font_style,
         pos + origin,
+        &mut context.render_commands,
+    );
+}
+
+pub fn draw_paragraph(
+    para: &str,
+    mut rect: Rect,
+    ui_state: &mut UIFrameState,
+    context: &mut UIContext,
+) {
+    let origin = ui_state.get_origin();
+    rect.translate(origin);
+
+    render_paragraph(
+        para.into(),
+        rect,
+        &context.button_font_style,
         &mut context.render_commands,
     );
 }
@@ -169,6 +178,33 @@ pub fn begin_panel(
 ) {
     draw_rect(rect, color, frame_state, context);
     frame_state.panel_stack.push(rect);
+}
+
+pub fn begin_panel_relative(
+    anchors: Anchors,
+    color: Color,
+    frame_state: &mut UIFrameState,
+    context: &mut UIContext,
+) {
+    let parent_rect: Rect = *frame_state
+        .panel_stack
+        .last()
+        .expect("This method does nothing if not nested");
+
+    let w = parent_rect.width();
+    let h = parent_rect.height();
+
+    let mut rel_rect = Rect::new_zero();
+    rel_rect.top_left.y = h * anchors.top;
+    rel_rect.top_left.x = w * anchors.left;
+
+    rel_rect.bottom_right.y = h - (h * anchors.bottom);
+    rel_rect.bottom_right.x = w - (w * anchors.right);
+
+    // draw rect
+    draw_rect(rel_rect, color, frame_state, context);
+
+    frame_state.panel_stack.push(rel_rect);
 }
 
 pub fn draw_rect(

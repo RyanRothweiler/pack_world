@@ -107,11 +107,13 @@ impl TileLibraryPanel {
 
         // details panel
         if let Some((index, item_type)) = self.item_selected {
-            let mut panel_rect = base_rect.build_relative(Anchors::new(0.5, 0.0, 0.0, 0.0));
+            begin_panel_relative(
+                Anchors::new(0.5, 0.0, 0.0, 0.0),
+                grey_color,
+                &mut ui_state,
+                ui_context,
+            );
 
-            panel_rect.translate(ui_state.get_origin() * -1.0);
-
-            begin_panel(panel_rect, grey_color, &mut ui_state, ui_context);
             {
                 draw_text(
                     &item_type.user_title(),
@@ -120,12 +122,26 @@ impl TileLibraryPanel {
                     ui_context,
                 );
 
-                draw_parag(
-                    &item_type.user_description(),
-                    VecTwo::new(10.0, 100.0),
-                    ui_state,
+                begin_panel_relative(
+                    Anchors::new(0.1, 0.05, 0.0, 0.05),
+                    COLOR_INV,
+                    &mut ui_state,
                     ui_context,
                 );
+                {
+                    let last_r = *ui_state.panel_stack.last().unwrap();
+
+                    draw_paragraph(
+                        &item_type.user_description(),
+                        Rect::new(
+                            VecTwo::new(0.0, 0.0),
+                            VecTwo::new(last_r.width(), last_r.height()),
+                        ),
+                        ui_state,
+                        ui_context,
+                    );
+                }
+                end_panel(&mut ui_state, ui_context);
             }
             end_panel(&mut ui_state, ui_context);
         }

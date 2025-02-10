@@ -18,6 +18,13 @@ impl Rect {
         }
     }
 
+    pub fn new_zero() -> Self {
+        Self {
+            top_left: VecTwo::new(0.0, 0.0),
+            bottom_right: VecTwo::new(0.0, 0.0),
+        }
+    }
+
     // top left doesn't move. width and height push out the bottom right
     pub fn new_top_size(top_left: VecTwo, width: f64, height: f64) -> Self {
         Self {
@@ -192,7 +199,9 @@ impl Rect {
         return false;
     }
 
-    // Returns a new rect relative to self
+    // Returns a new rect relative to self.
+    // Relative shrink. So anchors of 0.0 means no shrink.
+    // Anchor top of 0.25 means the top of the rect is slid down 1/4 of the height
     pub fn build_relative(&self, anchors: Anchors) -> Rect {
         let mut r = *self;
 
