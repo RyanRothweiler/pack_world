@@ -25,7 +25,7 @@ impl Rect {
         }
     }
 
-    // top left doesn't move. width and height push out the bottom right
+    /// Top left doesn't move. width and height push out the bottom right
     pub fn new_top_size(top_left: VecTwo, width: f64, height: f64) -> Self {
         Self {
             top_left,

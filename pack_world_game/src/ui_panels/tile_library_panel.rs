@@ -58,7 +58,7 @@ impl TileLibraryPanel {
                         std::line!(),
                         ui_context,
                     ) {
-                        // ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                        ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                         self.item_selected = Some((i, *item_type));
                     }
                 }
@@ -142,6 +142,22 @@ impl TileLibraryPanel {
                     );
                 }
                 end_panel(&mut ui_state, ui_context);
+
+                // buttons
+                let last_r = *ui_state.panel_stack.last().unwrap();
+
+                // sell button
+                {
+                    let sell_button_y = 300.0;
+                    let sell_rect = Rect::new(
+                        VecTwo::new(0.0, sell_button_y),
+                        VecTwo::new(last_r.width(), sell_button_y + 30.0),
+                    );
+
+                    if draw_button("Sell", None, &sell_rect, ui_state, std::line!(), ui_context) {
+                        // ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                    }
+                }
             }
             end_panel(&mut ui_state, ui_context);
         }
