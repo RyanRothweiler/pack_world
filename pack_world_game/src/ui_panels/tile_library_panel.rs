@@ -120,7 +120,7 @@ impl TileLibraryPanel {
                     ui_context,
                 );
 
-                draw_text(
+                draw_parag(
                     &item_type.user_description(),
                     VecTwo::new(10.0, 100.0),
                     ui_state,

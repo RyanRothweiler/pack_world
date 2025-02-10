@@ -15,7 +15,7 @@ const KERNING_ADJ: f64 = 0.98;
 
 pub fn load(
     image_read: impl std::io::Read,
-    metrics_data: &str,
+    font_data: &str,
     shader: Shader,
     render_api: &impl RenderApi,
 ) -> Result<Typeface, Error> {
@@ -40,9 +40,25 @@ pub fn load(
         }),
     );
 
+    // parse json
+    let font_json = crate::json::load(font_data)?;
+
     // load font metrics
-    let metrics_json = crate::json::load(metrics_data)?;
-    let json_glyphs = metrics_json
+    let metrics_json = font_json
+        .get(vec!["metrics".into()])
+        .ok_or(Error::FontErrorLoading)?;
+    match metrics_json {
+        crate::json::JsonData::Class(d) => {
+            typeface.line_height = d
+                .get_float(vec!["lineHeight".into()].into())
+                .ok_or(Error::FontErrorLoading)?;
+        }
+
+        _ => return Err(Error::FontErrorLoading),
+    };
+
+    // load font glyphs
+    let json_glyphs = font_json
         .get(vec!["glyphs".into()])
         .ok_or(Error::FontErrorLoading)?;
 
@@ -132,12 +148,25 @@ pub struct FontStyle {
     pub typeface: Typeface,
 }
 
+impl FontStyle {
+    pub fn get_word_width(&self, word: &str) -> f64 {
+        let mut ret: f64 = 0.0;
+        for c in word.chars() {
+            let glyph: &Glyph = self.typeface.glyphs.get(&c).unwrap();
+            ret += glyph.advance * EM_SCALE * KERNING_ADJ * self.size;
+        }
+
+        ret
+    }
+}
+
 #[derive(Clone, Default)]
 pub struct Typeface {
     pub glyphs: HashMap<char, Glyph>,
     pub atlas: Image,
     pub atlas_id: u32,
     pub material: Material,
+    pub line_height: f64,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -145,6 +174,30 @@ pub struct Glyph {
     pub advance: f64,
     pub atlas: Rect,
     pub plane: Rect,
+}
+
+pub fn render_paragraph(
+    paragraph: String,
+    rect: Rect,
+    style: &FontStyle,
+    render_commands: &mut Vec<RenderCommand>,
+) {
+    let line_height = style.typeface.line_height * EM_SCALE * style.size;
+    let space_width = style.get_word_width(" ");
+
+    let mut cursor = rect.top_left;
+    cursor.y += line_height;
+
+    for word in paragraph.split(' ') {
+        let word_width = style.get_word_width(word);
+        if cursor.x + word_width >= rect.bottom_right.x {
+            cursor.x = rect.top_left.x;
+            cursor.y += line_height;
+        }
+
+        render_word(word.into(), style, cursor, render_commands);
+        cursor.x += word_width + space_width;
+    }
 }
 
 pub fn render_word(
@@ -181,8 +234,6 @@ pub fn render_letter(
     r.top_left.y += bottom_left.y;
     r.bottom_right.x += bottom_left.x;
     r.bottom_right.y += bottom_left.y;
-
-    // crate::debug::draw_rect(&r, Color::new(1.0, 1.0, 1.0, 0.5));
 
     let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
     let uvs: Vec<VecTwo> = vec![
