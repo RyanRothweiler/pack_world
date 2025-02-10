@@ -6,6 +6,8 @@ use crate::{
 };
 use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
 
+const Y_OFFSET: f64 = 80.0;
+
 pub struct TileLibraryPanel {
     pub item_selected: Option<(i32, ItemType)>,
 }
@@ -32,62 +34,65 @@ impl TileLibraryPanel {
         let base_rect = Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y);
         begin_panel(base_rect, BG_COLOR, &mut ui_state, ui_context);
 
-        let mut item_hovering: Option<(i32, ItemType)> = None;
+        let mut item_hovering: Option<(f64, ItemType)> = None;
 
-        let y_offset: f64 = 80.0;
+        draw_text("Tiles", VecTwo::new(10.0, 30.0), ui_state, ui_context);
+
+        let mut y_cursor: f64 = 50.0;
+
         let mut i: i32 = 0;
-        for (item_type, count) in &inventory.items {
-            if *count == 0 {
-                continue;
-            }
 
-            let disp = format!("{count}");
-            let icon = assets.get_item_icon(item_type);
-
-            let y: f64 = 50.0 + (y_offset * i as f64);
-            let button_rect = Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0);
-
-            match item_type {
-                ItemType::Tile(tile_type) => {
-                    if draw_button_id(
-                        i,
-                        &disp,
-                        Some(icon),
-                        &button_rect,
-                        ui_state,
-                        std::line!(),
-                        ui_context,
-                    ) {
-                        ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
-                        self.item_selected = Some((i, *item_type));
-                    }
-                }
-                ItemType::DirtClod | ItemType::Stick | ItemType::Rock | ItemType::OakLog => {
-                    draw_image(button_rect, icon, COLOR_WHITE, ui_state, ui_context);
-                    draw_text(&disp, VecTwo::new(10.0, y), ui_state, ui_context);
-                }
-            };
-
-            let y: f64 = 50.0 + (y_offset * i as f64);
-            let button_rect = Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0);
-
-            // render hover detials
-            let mut rect_offset = button_rect;
-            rect_offset.translate(ui_state.get_origin());
-            if rect_offset.contains(ui_context.mouse_pos) {
-                item_hovering = Some((i, *item_type));
-            }
+        // render tiles list
+        for (item_type, count) in inventory
+            .items
+            .iter()
+            .filter(|(item_type, count)| item_type.is_tile() && **count > 0)
+        {
+            self.render_item(
+                i,
+                item_type,
+                count,
+                &mut item_hovering,
+                &mut y_cursor,
+                ui_state,
+                inventory,
+                assets,
+                ui_context,
+            );
 
             i += 1;
+        }
+
+        y_cursor += 20.0;
+        draw_text("Items", VecTwo::new(10.0, y_cursor), ui_state, ui_context);
+        y_cursor += 50.0;
+
+        // render items list
+        for (item_type, count) in inventory
+            .items
+            .iter()
+            .filter(|(item_type, count)| !item_type.is_tile() && **count > 0)
+        {
+            self.render_item(
+                i,
+                item_type,
+                count,
+                &mut item_hovering,
+                &mut y_cursor,
+                ui_state,
+                inventory,
+                assets,
+                ui_context,
+            );
         }
 
         let grey = 0.2;
         let grey_color = Color::new(grey, grey, grey, 1.0);
 
         // draw hover
-        if let Some((index, item_type)) = item_hovering {
-            let y: f64 = 50.0 + (y_offset * index as f64);
-            let button_rect = Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0);
+        if let Some((y_pos, item_type)) = item_hovering {
+            // let y: f64 = 50.0 + (Y_OFFSET * index as f64);
+            let button_rect = Rect::new_top_size(VecTwo::new(10.0, y_pos), 50.0, 50.0);
 
             // render hover detials
             let mut rect_offset = button_rect;
@@ -164,6 +169,59 @@ impl TileLibraryPanel {
 
         end_panel(&mut ui_state, ui_context);
 
+        return ret;
+    }
+
+    fn render_item(
+        &mut self,
+        i: i32,
+        item_type: &ItemType,
+        count: &i32,
+        mut item_hovering: &mut Option<(f64, ItemType)>,
+        mut y_cursor: &mut f64,
+        mut ui_state: &mut UIFrameState,
+        inventory: &Inventory,
+        assets: &Assets,
+        ui_context: &mut UIContext,
+    ) -> Vec<UpdateSignal> {
+        let mut ret: Vec<UpdateSignal> = vec![];
+
+        let disp = format!("{count}");
+        let icon = assets.get_item_icon(item_type);
+
+        let button_rect = Rect::new_top_size(VecTwo::new(10.0, *y_cursor), 50.0, 50.0);
+
+        match item_type {
+            ItemType::Tile(tile_type) => {
+                if draw_button_id(
+                    i,
+                    &disp,
+                    Some(icon),
+                    &button_rect,
+                    ui_state,
+                    std::line!(),
+                    ui_context,
+                ) {
+                    ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                    self.item_selected = Some((i, *item_type));
+                }
+            }
+            ItemType::DirtClod | ItemType::Stick | ItemType::Rock | ItemType::OakLog => {
+                draw_image(button_rect, icon, COLOR_WHITE, ui_state, ui_context);
+                draw_text(&disp, VecTwo::new(10.0, *y_cursor), ui_state, ui_context);
+            }
+        };
+
+        let button_rect = Rect::new_top_size(VecTwo::new(10.0, *y_cursor), 50.0, 50.0);
+
+        // render hover detials
+        let mut rect_offset = button_rect;
+        rect_offset.translate(ui_state.get_origin());
+        if rect_offset.contains(ui_context.mouse_pos) {
+            *item_hovering = Some((*y_cursor, *item_type));
+        }
+
+        *y_cursor += Y_OFFSET;
         return ret;
     }
 }

@@ -30,4 +30,11 @@ impl ItemType {
 
         ret.unwrap_or("No item description")
     }
+
+    pub fn is_tile(&self) -> bool {
+        match self {
+            ItemType::Tile(_) => true,
+            _ => false,
+        }
+    }
 }
