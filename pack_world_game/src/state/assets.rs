@@ -1,4 +1,4 @@
-use crate::{item::*, state::inventory::*, tile::*};
+use crate::{drop_table::*, item::*, state::inventory::*, tile::*};
 use gengar_engine::render::image::*;
 
 pub struct Assets {
@@ -50,5 +50,12 @@ impl Assets {
             ItemType::OakLog => return self.image_oak_wood.gl_id.unwrap(),
             ItemType::Tile(tile_type) => return self.get_tile_icon(tile_type),
         };
+    }
+
+    pub fn get_drop_icon(&self, drop: &Drop) -> u32 {
+        match drop {
+            Drop::Gold => return self.image_gold.gl_id.unwrap(),
+            Drop::Item { item_type } => return self.get_item_icon(item_type),
+        }
     }
 }

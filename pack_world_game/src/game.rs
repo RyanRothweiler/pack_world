@@ -124,10 +124,10 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     // setup initial inventory
     {
         gs.inventory
-            .add_item(ItemType::Tile(TileType::Dirt), 10)
+            .give_item(ItemType::Tile(TileType::Dirt), 10)
             .unwrap();
         gs.inventory
-            .add_item(ItemType::Tile(TileType::Grass), 10)
+            .give_item(ItemType::Tile(TileType::Grass), 10)
             .unwrap();
     }
 
@@ -295,7 +295,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             );
 
             if h.is_finished() {
-                gs.inventory.add_item(h.item_type, 1).unwrap();
+                gs.inventory.give_drop(h.drop, 1).unwrap();
             }
         }
 
@@ -349,7 +349,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         // place tile
         if input.mouse_left.on_press && can_place {
             if gs.world.try_place_tile(mouse_grid, tile).is_ok() {
-                let count = gs.inventory.add_item(ItemType::Tile(tile), -1).unwrap();
+                let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
                 if count == 0 {
                     gs.tile_placing = None;
                 }

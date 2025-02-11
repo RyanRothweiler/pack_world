@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use crate::{
+    drop_table::*,
     item::*,
     pack::*,
     state::{assets, inventory::*, *},
@@ -10,7 +11,7 @@ use crate::{
 use gengar_engine::{color::*, font::*, rect::*, render::material::*, ui::*, vectors::*};
 
 struct PullDisplay {
-    pub item_id: ItemType,
+    pub drop: Drop,
     pub pos: VecTwo,
 }
 
@@ -70,16 +71,16 @@ impl OpenPackPanel {
                 ui_context,
             ) {
                 // pull item from pack and give
-                let pull_item = pack_info.pull().unwrap();
-                update_signals.push(UpdateSignal::GiveItem {
-                    item_type: pull_item,
+                let pull = pack_info.pull().unwrap();
+                update_signals.push(UpdateSignal::GiveDrop {
+                    drop: pull,
                     count: 1,
                 });
 
                 self.items_remaining -= 1;
 
                 self.pulls.push(PullDisplay {
-                    item_id: pull_item,
+                    drop: pull,
                     pos: button_rect.get_center(),
                 });
             }
@@ -105,7 +106,7 @@ impl OpenPackPanel {
                 let x: f64 = 50.0 + (x_offset * i as f64);
                 p.pos = VecTwo::lerp(p.pos, VecTwo::new(x, 200.0), 0.25);
 
-                let icon = assets.get_item_icon(&p.item_id);
+                let icon = assets.get_drop_icon(&p.drop);
 
                 draw_image(
                     Rect::new_center(p.pos, VecTwo::new(50.0, 50.0)),

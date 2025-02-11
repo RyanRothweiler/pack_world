@@ -17,14 +17,11 @@ pub enum UpdateSignal {
     // set the active_page var
     SetActivePage(CreatePanelData),
 
-    // Start the harvest anim to give item at end of anim
-    HarvestItem { item_type: ItemType, origin: VecTwo },
-
     // Run harvest, pulling randomly from a table
     HarvestItemPullTable { table: DropTableID, origin: VecTwo },
 
     // Add an item to inventory
-    GiveItem { item_type: ItemType, count: i32 },
+    GiveItem { item_type: ItemType, count: i64 },
 
     // Update the tile that we're currently placing
     SetPlacingTile(Option<TileType>),
@@ -41,6 +38,9 @@ pub enum UpdateSignal {
 
     // Give gold
     GiveGold { amount: i64 },
+
+    // Give a drop
+    GiveDrop { drop: Drop, count: i64 },
 }
 
 pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
@@ -63,11 +63,11 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                     vec![]
                 }
                 UpdateSignal::GiveItem { item_type, count } => {
-                    *gs.inventory.items.entry(*item_type).or_insert(0) += count;
+                    gs.inventory.give_item(*item_type, *count).unwrap();
                     vec![]
                 }
-                UpdateSignal::HarvestItem { item_type, origin } => {
-                    gs.harvest_drops.push(HarvestDrop::new(*item_type, *origin));
+                UpdateSignal::GiveDrop { drop, count } => {
+                    gs.inventory.give_drop(*drop, *count).unwrap();
                     vec![]
                 }
                 UpdateSignal::HarvestItemPullTable { table, origin } => {
@@ -98,10 +98,7 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                     vec![]
                 }
                 UpdateSignal::GiveGold { amount } => {
-                    gs.inventory.gold += amount;
-                    if gs.inventory.gold <= 0 {
-                        gs.inventory.gold = 0;
-                    }
+                    let _ = gs.inventory.give_gold(*amount);
                     vec![]
                 }
             };

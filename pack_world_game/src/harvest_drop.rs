@@ -1,4 +1,5 @@
 use crate::{
+    drop_table::*,
     item::*,
     state::{assets::*, inventory::*},
 };
@@ -21,7 +22,7 @@ pub static ICON_SIZE: f64 = 30.0;
 pub static SIN_HEIGHT: f64 = 50.0;
 
 pub struct HarvestDrop {
-    pub item_type: ItemType,
+    pub drop: Drop,
     pub time: f64,
     pub origin: VecTwo,
 
@@ -32,13 +33,13 @@ pub struct HarvestDrop {
 }
 
 impl HarvestDrop {
-    pub fn new(item_type: ItemType, origin: VecTwo) -> Self {
+    pub fn new(drop: Drop, origin: VecTwo) -> Self {
         // not a uniform randomness here
         let x: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
         let y: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
 
         Self {
-            item_type,
+            drop,
             origin,
             time: 0.0,
 
@@ -92,7 +93,7 @@ impl HarvestDrop {
 
             let mut mat = Material::new();
             mat.shader = Some(shader);
-            mat.set_image(assets.get_item_icon(&self.item_type));
+            mat.set_image(assets.get_drop_icon(&self.drop));
             mat.set_color(COLOR_WHITE);
 
             render_pack

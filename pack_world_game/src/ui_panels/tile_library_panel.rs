@@ -178,7 +178,7 @@ impl TileLibraryPanel {
         &mut self,
         i: i32,
         item_type: &ItemType,
-        count: &i32,
+        count: &i64,
         mut item_hovering: &mut Option<(f64, ItemType)>,
         mut y_cursor: &mut f64,
         mut ui_state: &mut UIFrameState,

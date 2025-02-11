@@ -1,8 +1,8 @@
-use crate::{constants::*, error::*, item::*, tile::*};
+use crate::{constants::*, drop_table::*, error::*, item::*, tile::*};
 use std::collections::HashMap;
 
 pub struct Inventory {
-    pub items: HashMap<ItemType, i32>,
+    pub items: HashMap<ItemType, i64>,
     pub gold: i64,
     pub limit: usize,
 }
@@ -16,8 +16,15 @@ impl Inventory {
         }
     }
 
+    pub fn give_drop(&mut self, drop: Drop, amount: i64) -> Result<i64, Error> {
+        match drop {
+            Drop::Gold => self.give_gold(amount),
+            Drop::Item { item_type } => self.give_item(item_type, amount),
+        }
+    }
+
     // returns new item count
-    pub fn add_item(&mut self, item_type: ItemType, count: i32) -> Result<i32, Error> {
+    pub fn give_item(&mut self, item_type: ItemType, count: i64) -> Result<i64, Error> {
         // Will we be above the limit?
         if !self.items.contains_key(&item_type) && self.items.len() >= self.limit {
             return Err(Error::HitBankLimit);
@@ -37,7 +44,17 @@ impl Inventory {
         return Ok(current_count);
     }
 
-    pub fn has_atleast(&self, item_type: ItemType, count: i32) -> bool {
+    pub fn give_gold(&mut self, count: i64) -> Result<i64, Error> {
+        self.gold += count;
+        if self.gold < 0 {
+            self.gold = 0;
+            println!("Gold now at negative. That is an issue.");
+            return Err(Error::NegativeItemCount);
+        }
+        Ok(self.gold)
+    }
+
+    pub fn has_atleast(&self, item_type: ItemType, count: i64) -> bool {
         if !self.items.contains_key(&item_type) {
             return false;
         }
