@@ -72,10 +72,7 @@ impl OpenPackPanel {
             ) {
                 // pull item from pack and give
                 let pull = pack_info.pull().unwrap();
-                update_signals.push(UpdateSignal::GiveDrop {
-                    drop: pull,
-                    count: 1,
-                });
+                update_signals.push(UpdateSignal::GiveDrop(pull));
 
                 self.items_remaining -= 1;
 
@@ -106,7 +103,7 @@ impl OpenPackPanel {
                 let x: f64 = 50.0 + (x_offset * i as f64);
                 p.pos = VecTwo::lerp(p.pos, VecTwo::new(x, 200.0), 0.25);
 
-                let icon = assets.get_drop_icon(&p.drop);
+                let icon = assets.get_drop_icon(&p.drop.drop_type);
 
                 draw_image(
                     Rect::new_center(p.pos, VecTwo::new(50.0, 50.0)),
@@ -115,6 +112,8 @@ impl OpenPackPanel {
                     ui_state,
                     ui_context,
                 );
+
+                draw_text(&format!("{:?}", p.drop.amount), p.pos, ui_state, ui_context);
 
                 i += 1;
             }

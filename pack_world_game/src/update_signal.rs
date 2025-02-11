@@ -40,7 +40,7 @@ pub enum UpdateSignal {
     GiveGold { amount: i64 },
 
     // Give a drop
-    GiveDrop { drop: Drop, count: i64 },
+    GiveDrop(Drop),
 }
 
 pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
@@ -66,8 +66,8 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                     gs.inventory.give_item(*item_type, *count).unwrap();
                     vec![]
                 }
-                UpdateSignal::GiveDrop { drop, count } => {
-                    gs.inventory.give_drop(*drop, *count).unwrap();
+                UpdateSignal::GiveDrop(drop) => {
+                    gs.inventory.give_drop(*drop).unwrap();
                     vec![]
                 }
                 UpdateSignal::HarvestItemPullTable { table, origin } => {

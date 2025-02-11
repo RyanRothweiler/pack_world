@@ -93,7 +93,7 @@ impl HarvestDrop {
 
             let mut mat = Material::new();
             mat.shader = Some(shader);
-            mat.set_image(assets.get_drop_icon(&self.drop));
+            mat.set_image(assets.get_drop_icon(&self.drop.drop_type));
             mat.set_color(COLOR_WHITE);
 
             render_pack

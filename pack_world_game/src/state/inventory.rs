@@ -16,10 +16,10 @@ impl Inventory {
         }
     }
 
-    pub fn give_drop(&mut self, drop: Drop, amount: i64) -> Result<i64, Error> {
-        match drop {
-            Drop::Gold => self.give_gold(amount),
-            Drop::Item { item_type } => self.give_item(item_type, amount),
+    pub fn give_drop(&mut self, drop: Drop) -> Result<i64, Error> {
+        match drop.drop_type {
+            DropType::Gold => self.give_gold(drop.amount),
+            DropType::Item { item_type } => self.give_item(item_type, drop.amount),
         }
     }
 

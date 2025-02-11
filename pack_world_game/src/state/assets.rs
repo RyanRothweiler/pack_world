@@ -52,10 +52,10 @@ impl Assets {
         };
     }
 
-    pub fn get_drop_icon(&self, drop: &Drop) -> u32 {
+    pub fn get_drop_icon(&self, drop: &DropType) -> u32 {
         match drop {
-            Drop::Gold => return self.image_gold.gl_id.unwrap(),
-            Drop::Item { item_type } => return self.get_item_icon(item_type),
+            DropType::Gold => return self.image_gold.gl_id.unwrap(),
+            DropType::Item { item_type } => return self.get_item_icon(item_type),
         }
     }
 }

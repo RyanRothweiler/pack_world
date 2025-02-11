@@ -295,7 +295,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             );
 
             if h.is_finished() {
-                gs.inventory.give_drop(h.drop, 1).unwrap();
+                gs.inventory.give_drop(h.drop).unwrap();
             }
         }
 
