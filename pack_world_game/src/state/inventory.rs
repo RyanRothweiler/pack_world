@@ -1,4 +1,4 @@
-use crate::{error::*, item::*, tile::*};
+use crate::{constants::*, error::*, item::*, tile::*};
 use std::collections::HashMap;
 
 pub struct Inventory {
@@ -11,7 +11,7 @@ impl Inventory {
     pub fn new() -> Self {
         Self {
             items: HashMap::new(),
-            limit: 15,
+            limit: BANK_LIMIT_START,
             gold: 0,
         }
     }
@@ -48,6 +48,11 @@ impl Inventory {
 
     pub fn at_limit(&self) -> bool {
         return self.items.len() >= self.limit;
+    }
+
+    pub fn next_slot_cost(&self) -> i64 {
+        let next: f64 = (self.limit - BANK_LIMIT_START) as f64;
+        BANK_LIMIT_COST_BASE + next.powf(BANK_LIMIT_EXPO_PRICE) as i64
     }
 }
 

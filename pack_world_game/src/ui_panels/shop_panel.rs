@@ -55,6 +55,23 @@ impl ShopPanel {
                     ui_context,
                 );
             }
+
+            // bank slot
+            {
+                let mut r = Rect::new(VecTwo::new(0.0, 0.0), VecTwo::new(200.0, 50.0));
+                r.translate(VecTwo::new(10.0, 300.0));
+
+                if draw_button(
+                    &format!("1 Bank Slot {} gold", inventory.next_slot_cost()),
+                    None,
+                    &r,
+                    ui_state,
+                    std::line!(),
+                    ui_context,
+                ) {
+                    return vec![UpdateSignal::PurchaseBankSlot];
+                }
+            }
         }
 
         end_panel(&mut ui_state, ui_context);

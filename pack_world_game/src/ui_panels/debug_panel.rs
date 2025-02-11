@@ -30,6 +30,20 @@ impl DebugPanel {
             ItemType::OakLog,
         ];
 
+        // giving old
+        {
+            if draw_button(
+                "Gold 10,000",
+                Some(assets.image_gold.gl_id.unwrap()),
+                &Rect::new_top_size(VecTwo::new(300.0, 10.0), 50.0, 50.0),
+                ui_state,
+                std::line!(),
+                ui_context,
+            ) {
+                ret.push(UpdateSignal::GiveGold { amount: 10_000 });
+            }
+        }
+
         let y_offset: f64 = 80.0;
         let mut i: i32 = 0;
         for ty in item_types {

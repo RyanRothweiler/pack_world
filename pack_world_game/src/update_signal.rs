@@ -9,6 +9,9 @@ use crate::{
 };
 use gengar_engine::vectors::*;
 
+// TODO maybe consolidate shot purchases into one enum.
+// with state for the type of purchase
+
 // state update signals
 pub enum UpdateSignal {
     // set the active_page var
@@ -32,6 +35,12 @@ pub enum UpdateSignal {
     // For the home panel. Not good that this is here.
     // This is suggesting a different architecture.
     HomePanelTabChange(home_panel::Tab),
+
+    // Purchase a bank slot
+    PurchaseBankSlot,
+
+    // Give gold
+    GiveGold { amount: i64 },
 }
 
 pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
@@ -79,6 +88,20 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                 }
                 UpdateSignal::HomePanelTabChange(_) => {
                     panic!("Home panel needs to consume this");
+                    vec![]
+                }
+                UpdateSignal::PurchaseBankSlot => {
+                    if gs.inventory.gold >= gs.inventory.next_slot_cost() {
+                        gs.inventory.gold -= gs.inventory.next_slot_cost();
+                        gs.inventory.limit += 1;
+                    }
+                    vec![]
+                }
+                UpdateSignal::GiveGold { amount } => {
+                    gs.inventory.gold += amount;
+                    if gs.inventory.gold <= 0 {
+                        gs.inventory.gold = 0;
+                    }
                     vec![]
                 }
             };
