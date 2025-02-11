@@ -80,15 +80,15 @@ mod test {
     #[test]
     pub fn add_item() {
         let mut inv = Inventory::new();
-        inv.add_item(ItemType::DirtClod, 10).unwrap();
+        inv.give_item(ItemType::DirtClod, 10).unwrap();
 
         assert_eq!(inv.has_atleast(ItemType::DirtClod, 10), true);
 
-        let ret = inv.add_item(ItemType::DirtClod, -11);
+        let ret = inv.give_item(ItemType::DirtClod, -11);
         assert_eq!(ret, Err(Error::NegativeItemCount));
 
-        inv.add_item(ItemType::DirtClod, 20).unwrap();
-        inv.add_item(ItemType::DirtClod, 20).unwrap();
+        inv.give_item(ItemType::DirtClod, 20).unwrap();
+        inv.give_item(ItemType::DirtClod, 20).unwrap();
 
         assert_eq!(inv.has_atleast(ItemType::DirtClod, 40), true);
     }
@@ -96,7 +96,7 @@ mod test {
     #[test]
     pub fn has_atleast() {
         let mut inv = Inventory::new();
-        inv.add_item(ItemType::DirtClod, 10).unwrap();
+        inv.give_item(ItemType::DirtClod, 10).unwrap();
 
         assert_eq!(inv.has_atleast(ItemType::DirtClod, 10), true);
         assert_eq!(inv.has_atleast(ItemType::DirtClod, 1), true);
@@ -108,13 +108,13 @@ mod test {
         let mut inv = Inventory::new();
         inv.limit = 2;
 
-        let _ = inv.add_item(ItemType::DirtClod, 10).is_ok();
-        let _ = inv.add_item(ItemType::DirtClod, 10).is_ok();
-        let _ = inv.add_item(ItemType::OakLog, 10).is_ok();
-        let _ = inv.add_item(ItemType::OakLog, 10).is_ok();
+        let _ = inv.give_item(ItemType::DirtClod, 10).is_ok();
+        let _ = inv.give_item(ItemType::DirtClod, 10).is_ok();
+        let _ = inv.give_item(ItemType::OakLog, 10).is_ok();
+        let _ = inv.give_item(ItemType::OakLog, 10).is_ok();
 
-        let _ = inv.add_item(ItemType::Rock, 10).is_err();
+        let _ = inv.give_item(ItemType::Rock, 10).is_err();
 
-        let _ = inv.add_item(ItemType::OakLog, 10).is_ok();
+        let _ = inv.give_item(ItemType::OakLog, 10).is_ok();
     }
 }

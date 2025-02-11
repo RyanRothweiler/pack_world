@@ -119,20 +119,27 @@ mod test {
     #[test]
     fn build() {
         let table = DropTable::new(vec![
-            (ItemType::DirtClod, 10.0),
-            (ItemType::Tile(TileType::Grass), 5.0),
+            (Drop::new_item(ItemType::DirtClod, 1), 10.0),
+            (Drop::new_tile(TileType::Grass, 1), 5.0),
         ]);
 
         assert_eq!(table.entries_organized.len(), 2);
         assert_eq!(table.max, 15.0);
 
-        assert_eq!(table.entries_organized[0].val, 10.0);
-        assert_eq!(table.entries_organized[0].item_type, ItemType::DirtClod);
-
-        assert_eq!(table.entries_organized[1].val, 15.0);
+        assert_eq!(table.entries_organized[0].chance_val, 10.0);
         assert_eq!(
-            table.entries_organized[1].item_type,
-            ItemType::Tile(TileType::Grass)
+            table.entries_organized[0].drop.drop_type,
+            DropType::Item {
+                item_type: ItemType::DirtClod
+            }
+        );
+
+        assert_eq!(table.entries_organized[1].chance_val, 15.0);
+        assert_eq!(
+            table.entries_organized[1].drop.drop_type,
+            DropType::Item {
+                item_type: ItemType::Tile(TileType::Grass)
+            }
         );
     }
 }
