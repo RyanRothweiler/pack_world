@@ -29,6 +29,7 @@ use gengar_engine::{
 use gengar_render_opengl::*;
 use std::{collections::HashMap, fs::File, io::Cursor, path::Path};
 
+pub mod constants;
 pub mod drop_table;
 pub mod error;
 pub mod grid;
@@ -41,6 +42,7 @@ pub mod ui_panels;
 pub mod update_signal;
 pub mod world;
 
+pub use constants::*;
 use grid::*;
 use harvest_drop::*;
 use item::*;
@@ -87,6 +89,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/oak_wood.png"), render_api).unwrap();
     gs.assets.image_bird_nest =
         load_image_cursor(include_bytes!("../resources/bird_nest.png"), render_api).unwrap();
+    gs.assets.image_gold =
+        load_image_cursor(include_bytes!("../resources/gold.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

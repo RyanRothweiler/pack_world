@@ -32,11 +32,31 @@ impl HomePanel {
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
         begin_panel(
-            Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, 100.0),
+            Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, 200.0),
             BG_COLOR,
             &mut ui_state,
             ui_context,
         );
+
+        // draw gold
+        {
+            let mut gold_rect = Rect::new(VecTwo::new(0.0, 0.0), VecTwo::new(50.0, 50.0));
+            gold_rect.translate(VecTwo::new(0.0, 100.0));
+            draw_image(
+                gold_rect,
+                assets.image_gold.gl_id.unwrap(),
+                COLOR_WHITE,
+                ui_state,
+                ui_context,
+            );
+
+            draw_text(
+                &format!("{}", inventory.gold),
+                gold_rect.bottom_right + VecTwo::new(10.0, -10.0),
+                ui_state,
+                ui_context,
+            );
+        }
 
         update_signals.append(&mut self.ui_nav_tabs.update(
             ui_state,

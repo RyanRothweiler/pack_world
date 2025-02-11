@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 pub struct Inventory {
     pub items: HashMap<ItemType, i32>,
+    pub gold: i64,
     pub limit: usize,
 }
 
@@ -11,6 +12,7 @@ impl Inventory {
         Self {
             items: HashMap::new(),
             limit: 15,
+            gold: 0,
         }
     }
 

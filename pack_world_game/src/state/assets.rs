@@ -12,6 +12,7 @@ pub struct Assets {
     pub image_oak_wood: Image,
     pub image_pack_starter: Image,
     pub image_bird_nest: Image,
+    pub image_gold: Image,
 }
 
 impl Assets {
@@ -27,6 +28,7 @@ impl Assets {
             image_oak_tree: Image::new(),
             image_oak_wood: Image::new(),
             image_bird_nest: Image::new(),
+            image_gold: Image::new(),
         }
     }
 
