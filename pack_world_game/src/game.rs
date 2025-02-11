@@ -156,9 +156,23 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         render_commands: vec![],
         button_state: HashMap::new(),
     };
-    // gengar_engine::ui::frame_start(&input, es.shader_color_ui, es.color_texture_shader);
 
     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
+
+    #[cfg(feature = "dev")]
+    {
+        let fps = 1.0 / prev_delta_time;
+        draw_text(
+            &format!(
+                "{:?}fps {:?}ms",
+                fps as i32,
+                (prev_delta_time * 1000.0) as i32
+            ),
+            VecTwo::new(es.window_resolution.x - 200.0, 60.0),
+            &mut ui_frame_state,
+            &mut ui_context,
+        );
+    }
 
     // update UI
     {

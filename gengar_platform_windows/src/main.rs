@@ -278,7 +278,6 @@ fn main() {
             let time_start: SystemTime = SystemTime::now();
             let prev_frame_dur: Duration = time_start.duration_since(prev_time_start).unwrap();
             prev_time_start = time_start;
-            // println!("{}", prev_frame_dur.as_secs_f64());
 
             let mut message = MSG::default();
 

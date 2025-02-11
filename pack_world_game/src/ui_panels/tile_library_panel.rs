@@ -48,7 +48,7 @@ impl TileLibraryPanel {
             .iter()
             .filter(|(item_type, count)| item_type.is_tile() && **count > 0)
         {
-            self.render_item(
+            ret.append(&mut self.render_item(
                 i,
                 item_type,
                 count,
@@ -58,7 +58,7 @@ impl TileLibraryPanel {
                 inventory,
                 assets,
                 ui_context,
-            );
+            ));
 
             i += 1;
         }
@@ -73,7 +73,7 @@ impl TileLibraryPanel {
             .iter()
             .filter(|(item_type, count)| !item_type.is_tile() && **count > 0)
         {
-            self.render_item(
+            ret.append(&mut self.render_item(
                 i,
                 item_type,
                 count,
@@ -83,7 +83,9 @@ impl TileLibraryPanel {
                 inventory,
                 assets,
                 ui_context,
-            );
+            ));
+
+            i += 1;
         }
 
         let grey = 0.2;
@@ -207,8 +209,21 @@ impl TileLibraryPanel {
                 }
             }
             ItemType::DirtClod | ItemType::Stick | ItemType::Rock | ItemType::OakLog => {
-                draw_image(button_rect, icon, COLOR_WHITE, ui_state, ui_context);
-                draw_text(&disp, VecTwo::new(10.0, *y_cursor), ui_state, ui_context);
+                if draw_button_id(
+                    i,
+                    &disp,
+                    Some(icon),
+                    &button_rect,
+                    ui_state,
+                    std::line!(),
+                    ui_context,
+                ) {
+                    // ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                    self.item_selected = Some((i, *item_type));
+                }
+
+                // draw_image(button_rect, icon, COLOR_WHITE, ui_state, ui_context);
+                // draw_text(&disp, VecTwo::new(10.0, *y_cursor), ui_state, ui_context);
             }
         };
 

@@ -28,6 +28,7 @@ impl NavTabsPanel {
             ui_context,
         ) {
             ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Inventory));
+            ret.push(UpdateSignal::SetPlacingTile(None));
         }
 
         if draw_button(
@@ -39,6 +40,7 @@ impl NavTabsPanel {
             ui_context,
         ) {
             ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Shop));
+            ret.push(UpdateSignal::SetPlacingTile(None));
         }
 
         return ret;
