@@ -218,12 +218,8 @@ impl TileLibraryPanel {
                     std::line!(),
                     ui_context,
                 ) {
-                    // ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                     self.item_selected = Some((i, *item_type));
                 }
-
-                // draw_image(button_rect, icon, COLOR_WHITE, ui_state, ui_context);
-                // draw_text(&disp, VecTwo::new(10.0, *y_cursor), ui_state, ui_context);
             }
         };
 

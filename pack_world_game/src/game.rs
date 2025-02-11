@@ -184,6 +184,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
+                &gs.player_state,
                 &mut ui_context,
             ));
         }
@@ -194,6 +195,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
+                &gs.player_state,
                 &mut ui_context,
             )),
             None => {}
@@ -219,6 +221,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                     &mut ui_frame_state,
                     &gs.inventory,
                     &gs.assets,
+                    &gs.player_state,
                     &mut ui_context,
                 );
 

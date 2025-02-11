@@ -1,6 +1,6 @@
 use crate::{
     pack::*,
-    state::{assets, *},
+    state::{assets, player_state::*, *},
     ui_panels::{nav_tabs_panel::*, *},
     UpdateSignal,
 };
@@ -26,8 +26,11 @@ impl HomePanel {
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
+        player_state: &PlayerState,
         ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
+        let mut update_signals: Vec<UpdateSignal> = vec![];
+
         begin_panel(
             Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, 100.0),
             BG_COLOR,
@@ -35,22 +38,29 @@ impl HomePanel {
             ui_context,
         );
 
-        let mut update_signals: Vec<UpdateSignal> = vec![];
-
-        update_signals.append(
-            &mut self
-                .ui_nav_tabs
-                .update(ui_state, inventory, assets, ui_context),
-        );
+        update_signals.append(&mut self.ui_nav_tabs.update(
+            ui_state,
+            inventory,
+            assets,
+            player_state,
+            ui_context,
+        ));
 
         match self.tab {
-            Tab::Shop => update_signals
-                .append(&mut self.ui_shop.update(ui_state, inventory, assets, ui_context)),
-            Tab::Inventory => update_signals.append(
-                &mut self
-                    .ui_inventory
-                    .update(ui_state, inventory, assets, ui_context),
-            ),
+            Tab::Shop => update_signals.append(&mut self.ui_shop.update(
+                ui_state,
+                inventory,
+                assets,
+                player_state,
+                ui_context,
+            )),
+            Tab::Inventory => update_signals.append(&mut self.ui_inventory.update(
+                ui_state,
+                inventory,
+                assets,
+                player_state,
+                ui_context,
+            )),
         };
 
         // Consume home panel tab switch
