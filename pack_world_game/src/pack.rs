@@ -14,7 +14,7 @@ pub enum PackID {
 pub struct Pack {
     pub display_name: String,
     pub cost: Vec<(ItemType, i64)>,
-    pub table: DropTable,
+    pub table_id: DropTableID,
 
     pub content_count: i32,
 }
@@ -24,12 +24,12 @@ impl Pack {
         display_name: String,
         cost: Vec<(ItemType, i64)>,
         content_count: i32,
-        table: DropTable,
+        table_id: DropTableID,
     ) -> Pack {
         Pack {
             display_name,
             cost,
-            table,
+            table_id,
             content_count,
         }
     }
@@ -45,8 +45,9 @@ impl Pack {
     }
 
     // Assumes you can afford the pack
-    pub fn pull(&self) -> Option<Drop> {
-        Some(self.table.pull())
+    pub fn pull(&self) -> Drop {
+        get_drop(self.table_id)
+        // Some(self.table.pull())
     }
 }
 
@@ -55,15 +56,9 @@ static STARTER: LazyLock<Pack> = LazyLock::new(|| {
         "Starter".into(),
         vec![(ItemType::DirtClod, 5)],
         4,
-        DropTable::new(vec![
-            (Drop::new_tile(TileType::Dirt, 1), 25.0),
-            (Drop::new_tile(TileType::Grass, 1), 12.0),
-            (Drop::new_tile(TileType::Boulder, 1), 8.0),
-            (Drop::new_gold(15), 0.5),
-        ]),
+        DropTableID::Grass,
     )
 });
-
 pub fn get_pack_info(pack_id: PackID) -> &'static Pack {
     match pack_id {
         PackID::Starter => &STARTER,

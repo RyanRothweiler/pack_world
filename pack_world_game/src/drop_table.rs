@@ -2,6 +2,10 @@ use crate::{item::*, state::inventory::*, tile::*};
 use rand::prelude::*;
 use std::{collections::HashMap, sync::LazyLock};
 
+mod instances;
+pub use instances::*;
+
+// external. this will get sent out to other systems.
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 pub enum DropType {
     Gold,
@@ -37,17 +41,46 @@ impl Drop {
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
-pub enum DropTableID {
-    Grass,
-    Boulder,
-    OakTree,
+#[derive(Debug, Eq, PartialEq)]
+pub enum EntryOutputType {
+    Gold,
+    Item(ItemType),
+    Table(DropTableID),
+}
+
+// internal to drop table
+#[derive(Debug)]
+pub struct EntryOutput {
+    pub ty: EntryOutputType,
+    pub amount: i64,
+}
+
+impl EntryOutput {
+    pub fn new(ty: EntryOutputType, amount: i64) -> Self {
+        Self { ty, amount }
+    }
+
+    pub fn new_item(item: ItemType, amount: i64) -> Self {
+        Self::new(EntryOutputType::Item(item), amount)
+    }
+
+    pub fn new_table(table: DropTableID, amount: i64) -> Self {
+        Self::new(EntryOutputType::Table(table), amount)
+    }
+
+    pub fn new_tile(tile: TileType, amount: i64) -> Self {
+        Self::new(EntryOutputType::Item(ItemType::Tile(tile)), amount)
+    }
+
+    pub fn new_gold(amount: i64) -> Self {
+        Self::new(EntryOutputType::Gold, amount)
+    }
 }
 
 #[derive(Debug)]
-pub struct Entry {
+struct Entry {
     pub chance_val: f64,
-    pub drop: Drop,
+    pub output: EntryOutput,
 }
 
 #[derive(Debug)]
@@ -57,7 +90,7 @@ pub struct DropTable {
 }
 
 impl DropTable {
-    pub fn new(entries: Vec<(Drop, f64)>) -> Self {
+    pub fn new(entries: Vec<(EntryOutput, f64)>) -> Self {
         let mut org: Vec<Entry> = vec![];
 
         let mut accum: f64 = 0.0;
@@ -65,7 +98,7 @@ impl DropTable {
             accum += e.1;
             org.push(Entry {
                 chance_val: accum,
-                drop: e.0,
+                output: e.0,
             });
         }
 
@@ -75,42 +108,47 @@ impl DropTable {
         }
     }
 
-    pub fn pull(&self) -> Drop {
+    pub fn pull(&self, mut tables_visited: &mut Vec<DropTableID>) -> Drop {
         let num: f64 = rand::random_range(0.0..self.max);
         for e in &self.entries_organized {
             if e.chance_val > num {
-                return e.drop;
+                match e.output.ty {
+                    EntryOutputType::Gold => return Drop::new_gold(e.output.amount),
+                    EntryOutputType::Item(item_type) => {
+                        return Drop::new_item(item_type, e.output.amount)
+                    }
+                    EntryOutputType::Table(table_id) => {
+                        // todo this doesn't handle amount yet.
+
+                        if tables_visited.contains(&table_id) {
+                            panic!("Cycle detected. {:?} visited twice", table_id);
+                        }
+                        tables_visited.push(table_id);
+
+                        return get_drop_cycle_check(table_id, tables_visited);
+                    }
+                };
             }
         }
 
         panic!("Error pulling item.");
     }
-}
 
-pub fn get_drop(table: DropTableID) -> Drop {
-    match table {
-        DropTableID::Grass => GRASS.pull(),
-        DropTableID::Boulder => BOULDER.pull(),
-        DropTableID::OakTree => OAK_TREE.pull(),
+    // Will panic if a cycle exists
+    pub fn check_cycle(&self) {
+        let mut tables_visited: Vec<DropTableID> = vec![];
+
+        for e in &self.entries_organized {
+            match e.output.ty {
+                // Only check the table drops
+                EntryOutputType::Table(table_id) => {
+                    let _ = get_drop_cycle_check(table_id, &mut tables_visited);
+                }
+                _ => {}
+            }
+        }
     }
 }
-
-static GRASS: LazyLock<DropTable> = LazyLock::new(|| {
-    DropTable::new(vec![
-        (Drop::new_item(ItemType::DirtClod, 1), 10.0),
-        (Drop::new_item(ItemType::Stick, 1), 4.0),
-    ])
-});
-
-static BOULDER: LazyLock<DropTable> =
-    LazyLock::new(|| DropTable::new(vec![((Drop::new_item(ItemType::Rock, 1), 10.0))]));
-
-static OAK_TREE: LazyLock<DropTable> = LazyLock::new(|| {
-    DropTable::new(vec![
-        (Drop::new_item(ItemType::Stick, 1), 6.0),
-        (Drop::new_item(ItemType::OakLog, 1), 30.0),
-    ])
-});
 
 mod test {
     use super::*;
@@ -119,8 +157,8 @@ mod test {
     #[test]
     fn build() {
         let table = DropTable::new(vec![
-            (Drop::new_item(ItemType::DirtClod, 1), 10.0),
-            (Drop::new_tile(TileType::Grass, 1), 5.0),
+            (EntryOutput::new_item(ItemType::DirtClod, 1), 10.0),
+            (EntryOutput::new_tile(TileType::Grass, 1), 5.0),
         ]);
 
         assert_eq!(table.entries_organized.len(), 2);
@@ -128,18 +166,28 @@ mod test {
 
         assert_eq!(table.entries_organized[0].chance_val, 10.0);
         assert_eq!(
-            table.entries_organized[0].drop.drop_type,
-            DropType::Item {
-                item_type: ItemType::DirtClod
-            }
+            table.entries_organized[0].output.ty,
+            EntryOutputType::Item(ItemType::DirtClod)
         );
 
         assert_eq!(table.entries_organized[1].chance_val, 15.0);
         assert_eq!(
-            table.entries_organized[1].drop.drop_type,
-            DropType::Item {
-                item_type: ItemType::Tile(TileType::Grass)
-            }
+            table.entries_organized[1].output.ty,
+            EntryOutputType::Item(ItemType::Tile(TileType::Grass))
         );
+    }
+
+    #[test]
+    fn table_drop() {
+        let pull = get_drop(DropTableID::TestTable);
+
+        assert_eq!(pull.drop_type, DropType::Gold);
+        assert_eq!(pull.amount, 1);
+    }
+
+    #[test]
+    #[should_panic]
+    fn panic_on_cycle() {
+        let pull = get_drop(DropTableID::TestCycleA);
     }
 }

@@ -71,7 +71,7 @@ impl OpenPackPanel {
                 ui_context,
             ) {
                 // pull item from pack and give
-                let pull = pack_info.pull().unwrap();
+                let pull = pack_info.pull();
                 update_signals.push(UpdateSignal::GiveDrop(pull));
 
                 self.items_remaining -= 1;
