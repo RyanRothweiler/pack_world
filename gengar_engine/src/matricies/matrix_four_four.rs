@@ -226,7 +226,6 @@ mod test {
         }
 
         let ret = M44::multiply(&a, &b);
-        println!("{:?}", ret);
         assert_eq!(ret.get(0, 0), 90.0);
         assert_eq!(ret.get(1, 0), 100.0);
         assert_eq!(ret.get(2, 0), 110.0);

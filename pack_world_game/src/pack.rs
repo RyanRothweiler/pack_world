@@ -56,7 +56,7 @@ static STARTER: LazyLock<Pack> = LazyLock::new(|| {
         "Starter".into(),
         vec![(ItemType::DirtClod, 5)],
         4,
-        DropTableID::Grass,
+        DropTableID::Pack(PackID::Starter),
     )
 });
 pub fn get_pack_info(pack_id: PackID) -> &'static Pack {

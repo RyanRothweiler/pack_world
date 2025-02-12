@@ -118,8 +118,6 @@ impl DropTable {
                         return Drop::new_item(item_type, e.output.amount)
                     }
                     EntryOutputType::Table(table_id) => {
-                        // todo this doesn't handle amount yet.
-
                         if tables_visited.contains(&table_id) {
                             panic!("Cycle detected. {:?} visited twice", table_id);
                         }

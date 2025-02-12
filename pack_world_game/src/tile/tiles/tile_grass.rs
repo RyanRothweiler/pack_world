@@ -50,7 +50,6 @@ impl TileGrass {
         // self.harvest_timer.harvest(grid_pos)
         self.harvest_timer.reset();
 
-        println!("{:?}", self.drop_table);
         vec![UpdateSignal::HarvestItemPullTable {
             table: self.drop_table,
             origin: grid_to_world(&grid_pos),
