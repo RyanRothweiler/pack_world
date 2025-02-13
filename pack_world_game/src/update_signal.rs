@@ -18,7 +18,7 @@ pub enum UpdateSignal {
     SetActivePage(CreatePanelData),
 
     // Run harvest, pulling randomly from a table
-    HarvestItemPullTable { table: DropTableID, origin: VecTwo },
+    HarvestItemPullTable { table: FixedTableID, origin: VecTwo },
 
     // Add an item to inventory
     GiveItem { item_type: ItemType, count: i64 },

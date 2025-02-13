@@ -2,8 +2,9 @@ use crate::{item::*, state::inventory::*, tile::*};
 use rand::prelude::*;
 use std::{collections::HashMap, sync::LazyLock};
 
-mod instances;
-pub use instances::*;
+mod fixed_tables;
+mod table_instance;
+pub use {fixed_tables::*, table_instance::*};
 
 // external. this will get sent out to other systems.
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
@@ -41,15 +42,15 @@ impl Drop {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum EntryOutputType {
     Gold,
     Item(ItemType),
-    Table(DropTableID),
+    Table(FixedTableID),
 }
 
 // internal to drop table
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EntryOutput {
     pub ty: EntryOutputType,
     pub amount: i64,
@@ -64,7 +65,7 @@ impl EntryOutput {
         Self::new(EntryOutputType::Item(item), amount)
     }
 
-    pub fn new_table(table: DropTableID, amount: i64) -> Self {
+    pub fn new_table(table: FixedTableID, amount: i64) -> Self {
         Self::new(EntryOutputType::Table(table), amount)
     }
 
@@ -77,15 +78,29 @@ impl EntryOutput {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Entry {
+    // original input chance value
+    pub orig_chance: f64,
+
+    // accumulated chance value
     pub chance_val: f64,
     pub output: EntryOutput,
 }
 
-#[derive(Debug)]
+impl Entry {
+    pub fn new(input: (EntryOutput, f64)) -> Self {
+        Self {
+            output: input.0,
+            orig_chance: input.1,
+            chance_val: 0.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct DropTable {
-    entries_organized: Vec<Entry>,
+    entries: Vec<Entry>,
     max: f64,
 }
 
@@ -93,24 +108,21 @@ impl DropTable {
     pub fn new(entries: Vec<(EntryOutput, f64)>) -> Self {
         let mut org: Vec<Entry> = vec![];
 
-        let mut accum: f64 = 0.0;
         for e in entries {
-            accum += e.1;
-            org.push(Entry {
-                chance_val: accum,
-                output: e.0,
-            });
+            org.push(Entry::new(e));
         }
 
-        Self {
-            entries_organized: org,
-            max: accum,
-        }
+        let mut ret = Self {
+            entries: org,
+            max: 0.0,
+        };
+        ret.calc_chance_values();
+        ret
     }
 
-    pub fn pull(&self, mut tables_visited: &mut Vec<DropTableID>) -> Drop {
+    pub fn pull(&self, mut tables_visited: &mut Vec<FixedTableID>) -> Drop {
         let num: f64 = rand::random_range(0.0..self.max);
-        for e in &self.entries_organized {
+        for e in &self.entries {
             if e.chance_val > num {
                 match e.output.ty {
                     EntryOutputType::Gold => return Drop::new_gold(e.output.amount),
@@ -134,9 +146,9 @@ impl DropTable {
 
     // Will panic if a cycle exists
     pub fn check_cycle(&self) {
-        let mut tables_visited: Vec<DropTableID> = vec![];
+        let mut tables_visited: Vec<FixedTableID> = vec![];
 
-        for e in &self.entries_organized {
+        for e in &self.entries {
             match e.output.ty {
                 // Only check the table drops
                 EntryOutputType::Table(table_id) => {
@@ -145,6 +157,21 @@ impl DropTable {
                 _ => {}
             }
         }
+    }
+
+    pub fn add_entry(&mut self, input: (EntryOutput, f64)) {
+        self.entries.push(Entry::new(input));
+        self.calc_chance_values();
+    }
+
+    fn calc_chance_values(&mut self) {
+        let mut accum: f64 = 0.0;
+        for e in &mut self.entries {
+            accum += e.orig_chance;
+            e.chance_val = accum;
+        }
+
+        self.max = accum;
     }
 }
 
@@ -159,25 +186,25 @@ mod test {
             (EntryOutput::new_tile(TileType::Grass, 1), 5.0),
         ]);
 
-        assert_eq!(table.entries_organized.len(), 2);
+        assert_eq!(table.entries.len(), 2);
         assert_eq!(table.max, 15.0);
 
-        assert_eq!(table.entries_organized[0].chance_val, 10.0);
+        assert_eq!(table.entries[0].chance_val, 10.0);
         assert_eq!(
-            table.entries_organized[0].output.ty,
+            table.entries[0].output.ty,
             EntryOutputType::Item(ItemType::DirtClod)
         );
 
-        assert_eq!(table.entries_organized[1].chance_val, 15.0);
+        assert_eq!(table.entries[1].chance_val, 15.0);
         assert_eq!(
-            table.entries_organized[1].output.ty,
+            table.entries[1].output.ty,
             EntryOutputType::Item(ItemType::Tile(TileType::Grass))
         );
     }
 
     #[test]
     fn table_drop() {
-        let pull = get_drop(DropTableID::TestTable);
+        let pull = get_drop(FixedTableID::TestTable);
 
         assert_eq!(pull.drop_type, DropType::Gold);
         assert_eq!(pull.amount, 1);
@@ -186,6 +213,29 @@ mod test {
     #[test]
     #[should_panic]
     fn panic_on_cycle() {
-        let pull = get_drop(DropTableID::TestCycleA);
+        let pull = get_drop(FixedTableID::TestCycleA);
+    }
+
+    // create teble by using the add_entry
+    #[test]
+    fn add_entry() {
+        let mut table = DropTable::new(vec![]);
+        table.add_entry((EntryOutput::new_item(ItemType::DirtClod, 1), 10.0));
+        table.add_entry((EntryOutput::new_tile(TileType::Grass, 1), 5.0));
+
+        assert_eq!(table.entries.len(), 2);
+        assert_eq!(table.max, 15.0);
+
+        assert_eq!(table.entries[0].chance_val, 10.0);
+        assert_eq!(
+            table.entries[0].output.ty,
+            EntryOutputType::Item(ItemType::DirtClod)
+        );
+
+        assert_eq!(table.entries[1].chance_val, 15.0);
+        assert_eq!(
+            table.entries[1].output.ty,
+            EntryOutputType::Item(ItemType::Tile(TileType::Grass))
+        );
     }
 }

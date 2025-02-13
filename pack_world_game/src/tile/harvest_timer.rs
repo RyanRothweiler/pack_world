@@ -5,11 +5,11 @@ pub struct HarvestTimer {
     // tile until we can harvest
     length: f64,
     time: f64,
-    table_id: DropTableID,
+    table_id: FixedTableID,
 }
 
 impl HarvestTimer {
-    pub fn new(length: f64, table_id: DropTableID) -> Self {
+    pub fn new(length: f64, table_id: FixedTableID) -> Self {
         Self {
             length,
             table_id,

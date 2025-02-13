@@ -16,7 +16,7 @@ use drop_table_oak_tree::*;
 use drop_table_pack_starter::*;
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
-pub enum DropTableID {
+pub enum FixedTableID {
     // tiles
     Grass,
     Boulder,
@@ -35,28 +35,36 @@ pub enum DropTableID {
     TestCycleB,
 }
 
-pub fn get_drop(table: DropTableID) -> Drop {
-    let mut tables_visited: Vec<DropTableID> = vec![];
+pub fn get_drop(table: FixedTableID) -> Drop {
+    let mut tables_visited: Vec<FixedTableID> = vec![];
     get_drop_cycle_check(table, &mut tables_visited)
 }
 
-pub fn get_drop_cycle_check(table_id: DropTableID, tables_visited: &mut Vec<DropTableID>) -> Drop {
-    match table_id {
-        DropTableID::Grass => GRASS.pull(tables_visited),
-        DropTableID::Boulder => BOULDER.pull(tables_visited),
-        DropTableID::OakTree => OAK_TREE.pull(tables_visited),
+pub fn get_drop_cycle_check(
+    table_id: FixedTableID,
+    tables_visited: &mut Vec<FixedTableID>,
+) -> Drop {
+    let table = get_fixed_table(table_id);
+    return table.pull(tables_visited);
+}
 
-        DropTableID::Pack(pack_id) => match pack_id {
-            PackID::Starter => PACK_STARTER.pull(tables_visited),
+pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
+    match id {
+        FixedTableID::Grass => &GRASS,
+        FixedTableID::Boulder => &BOULDER,
+        FixedTableID::OakTree => &OAK_TREE,
+
+        FixedTableID::Pack(pack_id) => match pack_id {
+            PackID::Starter => &PACK_STARTER,
         },
 
         #[cfg(feature = "dev")]
-        DropTableID::TestTable => TEST_TABLE.pull(tables_visited),
+        FixedTableID::TestTable => &TEST_TABLE,
         #[cfg(feature = "dev")]
-        DropTableID::TestGold => TEST_GOLD.pull(tables_visited),
+        FixedTableID::TestGold => &TEST_GOLD,
         #[cfg(feature = "dev")]
-        DropTableID::TestCycleA => TEST_CYCLE_A.pull(tables_visited),
+        FixedTableID::TestCycleA => &TEST_CYCLE_A,
         #[cfg(feature = "dev")]
-        DropTableID::TestCycleB => TEST_CYCLE_B.pull(tables_visited),
+        FixedTableID::TestCycleB => &TEST_CYCLE_B,
     }
 }

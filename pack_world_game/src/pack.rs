@@ -14,7 +14,7 @@ pub enum PackID {
 pub struct Pack {
     pub display_name: String,
     pub cost: Vec<(ItemType, i64)>,
-    pub table_id: DropTableID,
+    pub table_id: FixedTableID,
 
     pub content_count: i32,
 }
@@ -24,7 +24,7 @@ impl Pack {
         display_name: String,
         cost: Vec<(ItemType, i64)>,
         content_count: i32,
-        table_id: DropTableID,
+        table_id: FixedTableID,
     ) -> Pack {
         Pack {
             display_name,
@@ -56,7 +56,7 @@ static STARTER: LazyLock<Pack> = LazyLock::new(|| {
         "Starter".into(),
         vec![(ItemType::DirtClod, 5)],
         4,
-        DropTableID::Pack(PackID::Starter),
+        FixedTableID::Pack(PackID::Starter),
     )
 });
 pub fn get_pack_info(pack_id: PackID) -> &'static Pack {

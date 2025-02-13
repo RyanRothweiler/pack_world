@@ -25,7 +25,7 @@ impl TileBirdNest {
             grid_pos,
             tile_type: TileType::BirdNest,
             methods: TileMethods::BirdNest(TileBirdNest {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
             }),
         }
     }

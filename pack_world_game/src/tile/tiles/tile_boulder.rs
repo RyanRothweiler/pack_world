@@ -25,7 +25,7 @@ impl TileBoulder {
             grid_pos,
             tile_type: TileType::Boulder,
             methods: TileMethods::Boulder(TileBoulder {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Boulder),
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Boulder),
             }),
         }
     }

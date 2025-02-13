@@ -95,7 +95,7 @@ impl World {
 
                         match &mut adj_tile_inst.methods {
                             TileMethods::Grass(tile_state) => {
-                                tile_state.drop_table = DropTableID::Boulder;
+                                tile_state.drop_table = FixedTableID::Boulder;
                             }
                             _ => {}
                         }

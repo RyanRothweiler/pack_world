@@ -25,7 +25,7 @@ impl TileOakTree {
             grid_pos,
             tile_type: TileType::OakTree,
             methods: TileMethods::OakTree(TileOakTree {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::OakTree),
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
             }),
         }
     }

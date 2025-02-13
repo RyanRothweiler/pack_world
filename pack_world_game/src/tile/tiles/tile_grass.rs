@@ -18,7 +18,7 @@ pub const TITLE: &str = "Grass";
 const HARVEST_SECONDS: f64 = 20.0;
 
 pub struct TileGrass {
-    pub drop_table: DropTableID,
+    pub drop_table: FixedTableID,
 
     harvest_timer: HarvestTimer,
 }
@@ -29,8 +29,8 @@ impl TileGrass {
             grid_pos,
             tile_type: TileType::Grass,
             methods: TileMethods::Grass(TileGrass {
-                drop_table: DropTableID::Grass,
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, DropTableID::Grass),
+                drop_table: FixedTableID::Grass,
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
             }),
         }
     }

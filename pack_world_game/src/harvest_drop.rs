@@ -23,13 +23,14 @@ pub static SIN_HEIGHT: f64 = 50.0;
 
 pub struct HarvestDrop {
     pub drop: Drop,
-    pub time: f64,
-    pub origin: VecTwo,
 
-    pub circle_target: VecTwo,
+    time: f64,
+    origin: VecTwo,
 
-    pub pos: VecTwo,
-    pub ground_pos: VecTwo,
+    circle_target: VecTwo,
+
+    pos: VecTwo,
+    ground_pos: VecTwo,
 }
 
 impl HarvestDrop {
