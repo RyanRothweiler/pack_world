@@ -13,6 +13,7 @@ pub struct Assets {
     pub image_pack_starter: Image,
     pub image_bird_nest: Image,
     pub image_gold: Image,
+    pub image_acorn: Image,
 }
 
 impl Assets {
@@ -29,6 +30,7 @@ impl Assets {
             image_oak_wood: Image::new(),
             image_bird_nest: Image::new(),
             image_gold: Image::new(),
+            image_acorn: Image::new(),
         }
     }
 
@@ -48,6 +50,7 @@ impl Assets {
             ItemType::Stick => return self.image_stick.gl_id.unwrap(),
             ItemType::Rock => return self.image_rock.gl_id.unwrap(),
             ItemType::OakLog => return self.image_oak_wood.gl_id.unwrap(),
+            ItemType::Acorn => return self.image_acorn.gl_id.unwrap(),
             ItemType::Tile(tile_type) => return self.get_tile_icon(tile_type),
         };
     }

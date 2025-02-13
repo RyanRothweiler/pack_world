@@ -208,7 +208,11 @@ impl TileLibraryPanel {
                     self.item_selected = Some((i, *item_type));
                 }
             }
-            ItemType::DirtClod | ItemType::Stick | ItemType::Rock | ItemType::OakLog => {
+            ItemType::DirtClod
+            | ItemType::Stick
+            | ItemType::Rock
+            | ItemType::OakLog
+            | ItemType::Acorn => {
                 if draw_button_id(
                     i,
                     &disp,

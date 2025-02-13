@@ -8,12 +8,14 @@ pub enum ItemType {
     Stick,
     Rock,
     OakLog,
+    Acorn,
     Tile(TileType),
 }
 
 impl ItemType {
     pub fn user_title(&self) -> &str {
         match self {
+            ItemType::Acorn => item_data::acorn::TITLE,
             ItemType::DirtClod => item_data::dirt_clod::TITLE,
             ItemType::Stick => item_data::stick::TITLE,
             ItemType::Rock => item_data::rock::TITLE,
