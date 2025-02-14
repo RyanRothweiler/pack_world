@@ -216,7 +216,7 @@ mod test {
         let pull = get_drop(FixedTableID::TestCycleA);
     }
 
-    // create teble by using the add_entry
+    // create teble by using the
     #[test]
     fn add_entry() {
         let mut table = DropTable::new(vec![]);

@@ -5,14 +5,14 @@ pub struct HarvestTimer {
     // tile until we can harvest
     length: f64,
     time: f64,
-    table_id: FixedTableID,
+    table: DropTableInstance,
 }
 
 impl HarvestTimer {
     pub fn new(length: f64, table_id: FixedTableID) -> Self {
         Self {
             length,
-            table_id,
+            table: DropTableInstance::new_fixed(table_id),
             time: 0.0,
         }
     }
@@ -34,11 +34,15 @@ impl HarvestTimer {
         self.time = 0.0;
     }
 
+    pub fn add_entry(&mut self, input: (EntryOutput, f64)) {
+        self.table = self.table.add_entry(input);
+    }
+
     pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
         self.reset();
 
-        vec![UpdateSignal::HarvestItemPullTable {
-            table: self.table_id,
+        vec![UpdateSignal::AddHarvestDrop {
+            drop: self.table.get_drop(),
             origin: grid_to_world(&grid_pos),
         }]
     }

@@ -14,33 +14,37 @@ use gengar_engine::vectors::*;
 
 // state update signals
 pub enum UpdateSignal {
-    // set the active_page var
+    /// set the active_page var
     SetActivePage(CreatePanelData),
 
-    // Run harvest, pulling randomly from a table
+    // TODO remove this. everything should use the AddHarvestDrop signal
+    /// Run harvest, pulling randomly from a table
     HarvestItemPullTable { table: FixedTableID, origin: VecTwo },
 
-    // Add an item to inventory
+    /// Add an item to inventory
     GiveItem { item_type: ItemType, count: i64 },
 
-    // Update the tile that we're currently placing
+    /// Update the tile that we're currently placing
     SetPlacingTile(Option<TileType>),
 
-    // Open a pack
+    /// Open a pack
     OpenPack(PackID),
 
-    // For the home panel. Not good that this is here.
-    // This is suggesting a different architecture.
+    /// For the home panel. Not good that this is here.
+    /// This is suggesting a different architecture.
     HomePanelTabChange(home_panel::Tab),
 
-    // Purchase a bank slot
+    /// Purchase a bank slot
     PurchaseBankSlot,
 
-    // Give gold
+    /// Give gold
     GiveGold { amount: i64 },
 
-    // Give a drop
+    /// Give a drop
     GiveDrop(Drop),
+
+    /// Setup a harvest drop
+    AddHarvestDrop { drop: Drop, origin: VecTwo },
 }
 
 pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
@@ -73,6 +77,11 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                 UpdateSignal::HarvestItemPullTable { table, origin } => {
                     let item_type = get_drop(*table);
                     gs.harvest_drops.push(HarvestDrop::new(item_type, *origin));
+                    vec![]
+                }
+                UpdateSignal::AddHarvestDrop { drop, origin } => {
+                    // let item_type = get_drop(*table);
+                    gs.harvest_drops.push(HarvestDrop::new(*drop, *origin));
                     vec![]
                 }
                 UpdateSignal::OpenPack(pack_id) => {

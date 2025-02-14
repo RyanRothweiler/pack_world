@@ -1,4 +1,4 @@
-use crate::{drop_table::*, error::*, grid::*, tile::*};
+use crate::{drop_table::*, error::*, grid::*, item::*, tile::*};
 use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
@@ -95,7 +95,9 @@ impl World {
 
                         match &mut adj_tile_inst.methods {
                             TileMethods::Grass(tile_state) => {
-                                tile_state.drop_table = FixedTableID::Boulder;
+                                tile_state
+                                    .harvest_timer
+                                    .add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
                             }
                             _ => {}
                         }

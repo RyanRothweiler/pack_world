@@ -18,9 +18,7 @@ pub const TITLE: &str = "Grass";
 const HARVEST_SECONDS: f64 = 20.0;
 
 pub struct TileGrass {
-    pub drop_table: FixedTableID,
-
-    harvest_timer: HarvestTimer,
+    pub harvest_timer: HarvestTimer,
 }
 
 impl TileGrass {
@@ -29,7 +27,6 @@ impl TileGrass {
             grid_pos,
             tile_type: TileType::Grass,
             methods: TileMethods::Grass(TileGrass {
-                drop_table: FixedTableID::Grass,
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
             }),
         }
@@ -47,13 +44,7 @@ impl TileGrass {
     }
 
     pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
-        // self.harvest_timer.harvest(grid_pos)
-        self.harvest_timer.reset();
-
-        vec![UpdateSignal::HarvestItemPullTable {
-            table: self.drop_table,
-            origin: grid_to_world(&grid_pos),
-        }]
+        self.harvest_timer.harvest(grid_pos)
     }
 
     pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
