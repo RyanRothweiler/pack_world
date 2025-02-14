@@ -17,10 +17,6 @@ pub enum UpdateSignal {
     /// set the active_page var
     SetActivePage(CreatePanelData),
 
-    // TODO remove this. everything should use the AddHarvestDrop signal
-    /// Run harvest, pulling randomly from a table
-    HarvestItemPullTable { table: FixedTableID, origin: VecTwo },
-
     /// Add an item to inventory
     GiveItem { item_type: ItemType, count: i64 },
 
@@ -72,11 +68,6 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                 }
                 UpdateSignal::GiveDrop(drop) => {
                     gs.inventory.give_drop(*drop).unwrap();
-                    vec![]
-                }
-                UpdateSignal::HarvestItemPullTable { table, origin } => {
-                    let item_type = get_drop(*table);
-                    gs.harvest_drops.push(HarvestDrop::new(item_type, *origin));
                     vec![]
                 }
                 UpdateSignal::AddHarvestDrop { drop, origin } => {
