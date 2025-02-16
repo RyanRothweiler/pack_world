@@ -1,6 +1,6 @@
 pub use crate::drop_table::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum DropTableInstance {
     /// Pull from one of the fixed static tables
     Fixed(FixedTableID),

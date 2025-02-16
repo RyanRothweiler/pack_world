@@ -15,7 +15,10 @@ pub const TITLE: &str = "Oak Tree";
 
 const HARVEST_SECONDS: f64 = 360.0;
 
+#[derive(Debug)]
 pub struct TileOakTree {
+    pub has_nest: bool,
+
     harvest_timer: HarvestTimer,
 }
 
@@ -26,6 +29,7 @@ impl TileOakTree {
             tile_type: TileType::OakTree,
             methods: TileMethods::OakTree(TileOakTree {
                 harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
+                has_nest: false,
             }),
         }
     }
@@ -55,6 +59,15 @@ impl TileOakTree {
             shader_color,
             render_pack,
         );
+    }
+
+    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: usize) {
+        match tile_type {
+            TileType::BirdNest => {
+                self.has_nest = true;
+            }
+            _ => {}
+        }
     }
 
     pub fn render(

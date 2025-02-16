@@ -48,6 +48,8 @@ impl TileType {
     }
 }
 
+/// This is just manual dynamic dispact because Dyn breaks hot realoding.
+#[derive(Debug)]
 pub enum TileMethods {
     Dirt(TileDirt),
     Grass(TileGrass),
@@ -104,10 +106,14 @@ impl TileMethods {
         }
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
+    pub fn harvest(
+        &mut self,
+        grid_pos: GridPos,
+        world_snapshot: &WorldSnapshot,
+    ) -> Vec<UpdateSignal> {
         match self {
             TileMethods::Dirt(state) => state.harvest(grid_pos),
-            TileMethods::Grass(state) => state.harvest(grid_pos),
+            TileMethods::Grass(state) => state.harvest(grid_pos, world_snapshot),
             TileMethods::Boulder(state) => state.harvest(grid_pos),
             TileMethods::OakTree(state) => state.harvest(grid_pos),
             TileMethods::BirdNest(state) => state.harvest(grid_pos),
@@ -121,6 +127,30 @@ impl TileMethods {
             TileMethods::Boulder(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::OakTree(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::BirdNest(state) => state.render_hover_info(shader_color, render_pack),
+        }
+    }
+
+    /// Convert the tile into a tilesnapshot
+    pub fn into_snapshot(&self) -> TileSnapshot {
+        match self {
+            TileMethods::Dirt(state) => TileSnapshot::Dirt,
+            TileMethods::Grass(state) => TileSnapshot::Grass,
+            TileMethods::Boulder(state) => TileSnapshot::Boulder,
+            TileMethods::OakTree(state) => TileSnapshot::OakTree {
+                has_nest: state.has_nest,
+            },
+            TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
+        }
+    }
+
+    /// Some other tile is placed ontop of this one.
+    /// top_id is the entity_id of the newly placed tile.
+    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: usize) {
+        match self {
+            TileMethods::OakTree(state) => state.tile_placed_ontop(tile_type, top_id),
+
+            // Default is that tile doesn't care
+            _ => {}
         }
     }
 }

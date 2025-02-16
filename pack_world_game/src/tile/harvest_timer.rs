@@ -1,11 +1,13 @@
 use crate::{drop_table::*, grid::*, update_signal::*};
 use gengar_engine::vectors::*;
 
+#[derive(Debug)]
 pub struct HarvestTimer {
     // tile until we can harvest
     length: f64,
     time: f64,
-    table: DropTableInstance,
+
+    pub table: DropTableInstance,
 }
 
 impl HarvestTimer {

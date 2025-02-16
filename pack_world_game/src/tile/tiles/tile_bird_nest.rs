@@ -15,6 +15,7 @@ pub const TITLE: &str = "Bird Nest";
 
 const HARVEST_SECONDS: f64 = 360.0;
 
+#[derive(Debug)]
 pub struct TileBirdNest {
     harvest_timer: HarvestTimer,
 }

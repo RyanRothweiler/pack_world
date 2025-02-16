@@ -361,6 +361,8 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
     // tile hovering
     {
+        let world_snapshot = gs.world.get_world_snapshot();
+
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
         if gs.tile_placing.is_none() {
@@ -379,7 +381,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {
-                    update_signals.append(&mut tile.methods.harvest(mouse_grid));
+                    update_signals.append(&mut tile.methods.harvest(mouse_grid, &world_snapshot));
                 }
 
                 // render hover rect

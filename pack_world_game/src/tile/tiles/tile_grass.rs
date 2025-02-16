@@ -3,8 +3,10 @@
 use crate::{
     drop_table::*,
     grid::*,
+    item::*,
     state::{inventory::*, *},
     tile::{harvest_timer::*, *},
+    world::*,
 };
 use gengar_engine::{
     color::*,
@@ -17,6 +19,7 @@ pub const TITLE: &str = "Grass";
 
 const HARVEST_SECONDS: f64 = 20.0;
 
+#[derive(Debug)]
 pub struct TileGrass {
     pub harvest_timer: HarvestTimer,
 }
@@ -43,8 +46,36 @@ impl TileGrass {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
-        self.harvest_timer.harvest(grid_pos)
+    pub fn harvest(
+        &mut self,
+        grid_pos: GridPos,
+        world_snapshot: &WorldSnapshot,
+    ) -> Vec<UpdateSignal> {
+        let mut nest_adj = false;
+
+        for adj_pos in grid_pos.to_adjacents_iter() {
+            for t in world_snapshot.get_pos_snapshot(adj_pos) {
+                match t {
+                    TileSnapshot::OakTree { has_nest } => {
+                        if has_nest {
+                            nest_adj = true;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        let mut drop_table = self.harvest_timer.table.clone();
+        if nest_adj {
+            drop_table = drop_table.add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
+        }
+
+        self.harvest_timer.reset();
+        vec![UpdateSignal::AddHarvestDrop {
+            drop: drop_table.get_drop(),
+            origin: grid_to_world(&grid_pos),
+        }]
     }
 
     pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {

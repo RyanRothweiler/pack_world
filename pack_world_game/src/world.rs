@@ -2,6 +2,9 @@ use crate::{drop_table::*, error::*, grid::*, item::*, tile::*};
 use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
+pub mod world_snapshot;
+pub use world_snapshot::*;
+
 pub struct World {
     pub entity_map: HashMap<GridPos, Vec<usize>>,
 
@@ -26,6 +29,18 @@ impl World {
     pub fn force_insert_tile(&mut self, grid_pos: GridPos, tile: TileType) {
         let inst_id = self.entities.len();
         let inst = tile.create_instance(grid_pos);
+
+        // tell below tiles that something was placed above. They might care.
+        let pos_entities_index: Vec<usize> = self.get_entities(grid_pos).unwrap_or(vec![]);
+        for p in pos_entities_index {
+            match self.entities.get_mut(p) {
+                Some(tile_inst) => tile_inst.methods.tile_placed_ontop(tile, inst_id),
+
+                // Nobody there to noify
+                None => {}
+            };
+        }
+
         self.entities.push(inst);
 
         for p in tile.get_tile_footprint() {
@@ -40,72 +55,24 @@ impl World {
 
             self.entity_map.entry(pos).or_insert(vec![]).push(inst_id);
         }
+    }
 
-        // this super stucks. we need to figure out something better
-        // update adjacent tile state
-        match tile {
-            TileType::BirdNest => {
-                // find the base tree.
-                // this assumes the tree_origin is the top left.
-                // I'm sure this will result in a bug one day
-                let mut tree_origin: GridPos = GridPos::new(0, 0);
-                let mut found = false;
-                let pos_entities_index = self.get_entities(grid_pos).unwrap();
-                for p in pos_entities_index {
-                    let tile_instance = self.entities.get(p).unwrap();
-                    if tile_instance.tile_type == TileType::OakTree {
-                        tree_origin = tile_instance.grid_pos;
-                        found = true;
-                    }
-                }
-                if !found {
-                    panic!("There must always be a tree for this bird nest.");
-                }
+    pub fn get_world_snapshot(&self) -> WorldSnapshot {
+        let mut ret = WorldSnapshot {
+            entity_map: HashMap::new(),
+            entities: vec![TileSnapshot::Grass; self.entities.len()],
+        };
 
-                // this assumes the tree footprint of four grid spaces
-                let adj_offsets: Vec<GridPos> = vec![
-                    GridPos::new(-1, -1),
-                    GridPos::new(0, -1),
-                    GridPos::new(1, -1),
-                    GridPos::new(2, -1),
-                    //
-                    GridPos::new(-1, 0),
-                    GridPos::new(2, 0),
-                    //
-                    GridPos::new(-1, 1),
-                    GridPos::new(2, 1),
-                    //
-                    GridPos::new(-1, 2),
-                    GridPos::new(0, 2),
-                    GridPos::new(1, 2),
-                    GridPos::new(2, 2),
-                ];
+        ret.entity_map = self.entity_map.clone();
 
-                // go through the adjacents for that tree
-                for offset in adj_offsets {
-                    let adj_pos = tree_origin + offset;
-
-                    let adj_entity_ids = self.get_entities(adj_pos).unwrap_or(vec![]);
-
-                    for adj_entity_id in adj_entity_ids {
-                        let adj_tile_inst = self
-                            .entities
-                            .get_mut(adj_entity_id)
-                            .expect("Invalid entity id");
-
-                        match &mut adj_tile_inst.methods {
-                            TileMethods::Grass(tile_state) => {
-                                tile_state
-                                    .harvest_timer
-                                    .add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
-                            }
-                            _ => {}
-                        }
-                    }
-                }
+        for (key, value) in &self.entity_map {
+            for eid in value {
+                let inst: &TileInstance = self.entities.get(*eid).unwrap();
+                ret.entities[*eid] = inst.methods.into_snapshot();
             }
-            _ => {}
         }
+
+        ret
     }
 
     pub fn get_entities(&self, grid_pos: GridPos) -> Option<Vec<usize>> {
