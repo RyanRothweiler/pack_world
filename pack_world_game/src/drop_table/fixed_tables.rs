@@ -5,14 +5,20 @@ mod test_tables;
 #[cfg(feature = "dev")]
 pub use test_tables::*;
 
+// item
 mod drop_table_boulder;
 mod drop_table_grass;
 mod drop_table_oak_tree;
-mod drop_table_pack_starter;
+mod drop_table_small_gold;
 
 use drop_table_boulder::*;
 use drop_table_grass::*;
 use drop_table_oak_tree::*;
+use drop_table_small_gold::*;
+
+// packs
+mod drop_table_pack_starter;
+
 use drop_table_pack_starter::*;
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
@@ -21,6 +27,7 @@ pub enum FixedTableID {
     Grass,
     Boulder,
     OakTree,
+    SmallGold,
 
     Pack(PackID),
 
@@ -53,6 +60,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
         FixedTableID::Grass => &GRASS,
         FixedTableID::Boulder => &BOULDER,
         FixedTableID::OakTree => &OAK_TREE,
+        FixedTableID::SmallGold => &SMALL_GOLD,
 
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,
