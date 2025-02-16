@@ -2,7 +2,7 @@ use crate::{drop_table::*, error::*, grid::*, item::*, tile::*};
 use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
-pub struct World {
+pub struct WorldEntities {
     pub entity_map: HashMap<GridPos, Vec<usize>>,
 
     // valid positions, and all adjacent valid positions
@@ -11,7 +11,7 @@ pub struct World {
     pub entities: Vec<TileInstance>,
 }
 
-impl World {
+impl WorldEntities {
     // Won't place tile if not valid.
     pub fn try_place_tile(&mut self, grid_pos: GridPos, tile: TileType) -> Result<(), Error> {
         if !tile.can_place_here(grid_pos, self) {
@@ -114,5 +114,31 @@ impl World {
         }
 
         return Some(self.entity_map.get(&grid_pos).unwrap().to_owned());
+    }
+
+    pub fn get_test(&self) {}
+}
+
+pub struct WorldMetaInfo {
+    pub tile_types: HashMap<GridPos, Vec<usize>>,
+}
+
+pub struct World {
+    pub entities: WorldEntities,
+    pub info: WorldMetaInfo,
+}
+
+impl World {
+    pub fn new() -> Self {
+        Self {
+            entities: WorldEntities {
+                entity_map: HashMap::new(),
+                valids: HashMap::new(),
+                entities: vec![],
+            },
+            info: WorldMetaInfo {
+                tile_types: HashMap::new(),
+            },
+        }
     }
 }

@@ -133,7 +133,7 @@ pub struct TileInstance {
 }
 
 impl TileType {
-    pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
+    pub fn can_place_here(&self, origin: GridPos, world: &WorldEntities) -> bool {
         let footprint = self.get_tile_footprint();
 
         for p in footprint {

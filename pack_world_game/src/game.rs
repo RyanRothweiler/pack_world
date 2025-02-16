@@ -119,7 +119,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             GridPos::new(21, 11),
         ];
         for p in init_dirt {
-            gs.world.force_insert_tile(p, TileType::Dirt);
+            gs.world.entities.force_insert_tile(p, TileType::Dirt);
         }
     }
 
@@ -246,7 +246,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
-        for entity in &mut gs.world.entities {
+        for entity in &mut gs.world.entities.entities {
             update_signals.append(&mut entity.methods.update(frame_delta));
         }
         handle_signals(update_signals, gs);
@@ -276,7 +276,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         // TODO chagne this to use delta_time
         gs.rotate_time += 0.08;
 
-        for entity in &gs.world.entities {
+        for entity in &gs.world.entities.entities {
             entity.methods.render(
                 gs.rotate_time,
                 &entity.grid_pos,
@@ -320,7 +320,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             gs.tile_placing = None;
         }
 
-        let can_place = tile.can_place_here(mouse_grid, &gs.world);
+        let can_place = tile.can_place_here(mouse_grid, &gs.world.entities);
 
         // render tile placing
         let footprint = tile.get_tile_footprint();
@@ -350,7 +350,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         // place tile
         if input.mouse_left.on_press && can_place {
-            if gs.world.try_place_tile(mouse_grid, tile).is_ok() {
+            if gs.world.entities.try_place_tile(mouse_grid, tile).is_ok() {
                 let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
                 if count == 0 {
                     gs.tile_placing = None;
@@ -372,10 +372,12 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 .camera
                 .world_to_screen(mouse_snapped);
 
-            let entities: Vec<usize> = gs.world.get_entities(mouse_grid).unwrap_or(vec![]);
+            let entities: Vec<usize> = gs.world.entities.get_entities(mouse_grid).unwrap_or(vec![]);
 
             for idx in entities {
-                let tile = &mut gs.world.entities[idx];
+                let tile = &mut gs.world.entities.entities[idx];
+
+                let adj_tiles = gs.world.info.tile_types.get(&GridPos::new(0, 0));
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {

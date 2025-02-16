@@ -74,11 +74,8 @@ impl State {
             font_style_button: Default::default(),
             active_page: None,
 
-            world: World {
-                entity_map: HashMap::new(),
-                valids: HashMap::new(),
-                entities: vec![],
-            },
+            world: World::new(),
+
             tile_placing: None,
             inventory: Inventory::new(),
             player_state: PlayerState::new(),
