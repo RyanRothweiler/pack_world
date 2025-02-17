@@ -16,8 +16,8 @@ pub mod harvest_timer;
 pub mod tiles;
 
 use tiles::{
-    tile_bird_nest::TileBirdNest, tile_boulder::TileBoulder, tile_dirt::TileDirt,
-    tile_grass::TileGrass, tile_oak_tree::TileOakTree,
+    tile_bird_nest::TileBirdNest, tile_boulder::TileBoulder, tile_cave::TileCave,
+    tile_dirt::TileDirt, tile_grass::TileGrass, tile_oak_tree::TileOakTree,
 };
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
@@ -27,6 +27,7 @@ pub enum TileType {
     Boulder,
     OakTree,
     BirdNest,
+    Cave,
 }
 
 impl TileType {
@@ -37,6 +38,7 @@ impl TileType {
             TileType::Boulder => tiles::tile_boulder::TITLE,
             TileType::OakTree => tiles::tile_oak_tree::TITLE,
             TileType::BirdNest => tiles::tile_bird_nest::TITLE,
+            TileType::Cave => tiles::tile_cave::TITLE,
         }
     }
 
@@ -56,6 +58,7 @@ pub enum TileMethods {
     Boulder(TileBoulder),
     OakTree(TileOakTree),
     BirdNest(TileBirdNest),
+    Cave(TileCave),
 }
 
 impl TileMethods {
@@ -66,6 +69,7 @@ impl TileMethods {
             TileMethods::Boulder(state) => state.update(time_step),
             TileMethods::OakTree(state) => state.update(time_step),
             TileMethods::BirdNest(state) => state.update(time_step),
+            TileMethods::Cave(state) => state.update(time_step),
         }
     }
 
@@ -93,6 +97,9 @@ impl TileMethods {
             TileMethods::BirdNest(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
+            TileMethods::Cave(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
         }
     }
 
@@ -103,6 +110,7 @@ impl TileMethods {
             TileMethods::Boulder(state) => state.can_harvest(),
             TileMethods::OakTree(state) => state.can_harvest(),
             TileMethods::BirdNest(state) => state.can_harvest(),
+            TileMethods::Cave(state) => state.can_harvest(),
         }
     }
 
@@ -117,6 +125,7 @@ impl TileMethods {
             TileMethods::Boulder(state) => state.harvest(grid_pos),
             TileMethods::OakTree(state) => state.harvest(grid_pos),
             TileMethods::BirdNest(state) => state.harvest(grid_pos),
+            TileMethods::Cave(state) => state.harvest(grid_pos),
         }
     }
 
@@ -127,6 +136,7 @@ impl TileMethods {
             TileMethods::Boulder(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::OakTree(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::BirdNest(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::Cave(state) => state.render_hover_info(shader_color, render_pack),
         }
     }
 
@@ -140,6 +150,7 @@ impl TileMethods {
                 has_nest: state.has_nest,
             },
             TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
+            TileMethods::Cave(state) => TileSnapshot::Cave,
         }
     }
 
@@ -177,6 +188,7 @@ impl TileType {
             }
 
             // check types
+            // TODO probably move this into each tile somehow
             match self {
                 TileType::Dirt => {}
                 TileType::BirdNest => {
@@ -191,7 +203,7 @@ impl TileType {
 
                     return false;
                 }
-                TileType::Grass | TileType::Boulder | TileType::OakTree => {
+                TileType::Grass | TileType::Boulder | TileType::OakTree | TileType::Cave => {
                     if !world.entity_map.contains_key(&pos) {
                         return false;
                     }
@@ -218,12 +230,17 @@ impl TileType {
             TileType::Boulder => TileBoulder::new(grid_pos),
             TileType::OakTree => TileOakTree::new(grid_pos),
             TileType::BirdNest => TileBirdNest::new(grid_pos),
+            TileType::Cave => TileCave::new(grid_pos),
         }
     }
 
     pub fn get_tile_footprint(&self) -> Vec<GridPos> {
         match self {
-            TileType::Dirt | TileType::Grass | TileType::Boulder | TileType::BirdNest => {
+            TileType::Dirt
+            | TileType::Grass
+            | TileType::Boulder
+            | TileType::BirdNest
+            | TileType::Cave => {
                 vec![GridPos::new(0, 0)]
             }
             TileType::OakTree => vec![

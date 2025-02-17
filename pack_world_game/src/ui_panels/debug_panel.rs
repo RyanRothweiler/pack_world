@@ -27,6 +27,7 @@ impl DebugPanel {
             ItemType::Tile(TileType::Boulder),
             ItemType::Tile(TileType::BirdNest),
             ItemType::Tile(TileType::OakTree),
+            ItemType::Tile(TileType::Cave),
             ItemType::OakLog,
         ];
 

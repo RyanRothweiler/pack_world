@@ -14,6 +14,7 @@ pub struct Assets {
     pub image_bird_nest: Image,
     pub image_gold: Image,
     pub image_acorn: Image,
+    pub image_cave: Image,
 }
 
 impl Assets {
@@ -31,17 +32,23 @@ impl Assets {
             image_bird_nest: Image::new(),
             image_gold: Image::new(),
             image_acorn: Image::new(),
+            image_cave: Image::new(),
         }
     }
 
     pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
-        match tile {
-            TileType::Dirt => return self.image_dirt.gl_id.unwrap(),
-            TileType::Grass => return self.image_grass.gl_id.unwrap(),
-            TileType::Boulder => return self.image_boulder.gl_id.unwrap(),
-            TileType::OakTree => return self.image_oak_tree.gl_id.unwrap(),
-            TileType::BirdNest => return self.image_bird_nest.gl_id.unwrap(),
-        };
+        fn get_image(assets: &Assets, tile: &TileType) -> Option<u32> {
+            match tile {
+                TileType::Dirt => return assets.image_dirt.gl_id,
+                TileType::Grass => return assets.image_grass.gl_id,
+                TileType::Boulder => return assets.image_boulder.gl_id,
+                TileType::OakTree => return assets.image_oak_tree.gl_id,
+                TileType::BirdNest => return assets.image_bird_nest.gl_id,
+                TileType::Cave => return assets.image_cave.gl_id,
+            };
+        }
+
+        get_image(self, tile).expect(&format!("Missing tile image for {:?}", tile))
     }
 
     pub fn get_item_icon(&self, item: &ItemType) -> u32 {
