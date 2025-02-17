@@ -29,6 +29,8 @@ impl DebugPanel {
             ItemType::Tile(TileType::OakTree),
             ItemType::Tile(TileType::Cave),
             ItemType::OakLog,
+            ItemType::Baby,
+            ItemType::DragonEgg,
         ];
 
         // giving old

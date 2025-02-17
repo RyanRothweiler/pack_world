@@ -212,6 +212,8 @@ impl TileLibraryPanel {
             | ItemType::Stick
             | ItemType::Rock
             | ItemType::OakLog
+            | ItemType::DragonEgg
+            | ItemType::Baby
             | ItemType::Acorn => {
                 if draw_button_id(
                     i,

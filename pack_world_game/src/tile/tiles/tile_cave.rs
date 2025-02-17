@@ -26,7 +26,7 @@ impl TileCave {
             grid_pos,
             tile_type: TileType::Cave,
             methods: TileMethods::Cave(TileCave {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
             }),
         }
     }

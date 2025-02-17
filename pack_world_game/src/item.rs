@@ -9,6 +9,9 @@ pub enum ItemType {
     Rock,
     OakLog,
     Acorn,
+    DragonEgg,
+    Baby,
+
     Tile(TileType),
 }
 
@@ -20,6 +23,8 @@ impl ItemType {
             ItemType::Stick => item_data::stick::TITLE,
             ItemType::Rock => item_data::rock::TITLE,
             ItemType::OakLog => item_data::oak_wood::TITLE,
+            ItemType::DragonEgg => item_data::dragon_egg::TITLE,
+            ItemType::Baby => item_data::baby::TITLE,
             ItemType::Tile(tile_type) => tile_type.user_title(),
         }
     }

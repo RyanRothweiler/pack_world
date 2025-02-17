@@ -1,5 +1,7 @@
 pub mod acorn;
+pub mod baby;
 pub mod dirt_clod;
+pub mod dragon_egg;
 pub mod oak_wood;
 pub mod rock;
 pub mod stick;
