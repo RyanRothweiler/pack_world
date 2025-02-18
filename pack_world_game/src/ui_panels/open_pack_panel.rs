@@ -64,7 +64,7 @@ impl OpenPackPanel {
         if self.items_remaining > 0 {
             if draw_button(
                 &pack_info.display_name,
-                assets.image_pack_starter.gl_id,
+                Some(assets.get_pack_icon(&self.pack_id)),
                 &button_rect,
                 ui_state,
                 std::line!(),

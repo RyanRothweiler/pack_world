@@ -22,8 +22,10 @@ use drop_table_small_gold::*;
 
 // packs
 mod drop_table_pack_starter;
+mod drop_table_pack_stick;
 
 use drop_table_pack_starter::*;
+use drop_table_pack_stick::*;
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 pub enum FixedTableID {
@@ -72,6 +74,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
 
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,
+            PackID::Stick => &PACK_STICK,
         },
 
         #[cfg(feature = "dev")]

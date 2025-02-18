@@ -23,54 +23,64 @@ impl ShopPanel {
             ui_context,
         );
 
-        {
-            let y_offset: f64 = 80.0;
+        let packs: Vec<PackID> = vec![PackID::Starter, PackID::Stick];
 
-            let pack_info: &Pack = get_pack_info(PackID::Starter);
+        let y_offset: f64 = 80.0;
+        let mut cursor_y: f64 = 50.0;
+
+        for (i, pack_id) in packs.iter().enumerate() {
+            let pack_info: &Pack = get_pack_info(*pack_id);
 
             let pack_image_size = VecTwo::new(448.0, 604.0) * 0.35;
 
             let button_rect = Rect::new_top_size(
-                VecTwo::new(10.0, 50.0),
+                VecTwo::new(10.0, cursor_y),
                 pack_image_size.x,
                 pack_image_size.y,
             );
 
             if draw_button(
                 &pack_info.display_name,
-                assets.image_pack_starter.gl_id,
+                Some(assets.get_pack_icon(&pack_id)),
                 &button_rect,
                 ui_state,
                 std::line!(),
                 ui_context,
             ) {
-                return vec![UpdateSignal::OpenPack(PackID::Starter)];
+                return vec![UpdateSignal::OpenPack(*pack_id)];
             }
 
-            for c in &pack_info.cost {
+            for (j, cost) in pack_info.cost.iter().enumerate() {
                 draw_text(
-                    &format!("   {:?}x{}", c.0, c.1),
-                    button_rect.top_right() + VecTwo::new(0.0, 10.0),
+                    &format!("   {:?} x {}", cost.0, cost.1),
+                    button_rect.top_right() + VecTwo::new(0.0, 40.0 * j as f64),
                     ui_state,
                     ui_context,
                 );
             }
 
-            // bank slot
-            {
-                let mut r = Rect::new(VecTwo::new(0.0, 0.0), VecTwo::new(200.0, 50.0));
-                r.translate(VecTwo::new(10.0, 300.0));
+            cursor_y += 300.0;
+        }
 
-                if draw_button(
-                    &format!("1 Bank Slot {} gold", inventory.next_slot_cost()),
-                    None,
-                    &r,
-                    ui_state,
-                    std::line!(),
-                    ui_context,
-                ) {
-                    return vec![UpdateSignal::PurchaseBankSlot];
-                }
+        cursor_y -= 300.0;
+
+        // bank slot
+        {
+            let mut r = Rect::new(
+                VecTwo::new(0.0, cursor_y),
+                VecTwo::new(200.0, cursor_y + 50.0),
+            );
+            r.translate(VecTwo::new(10.0, 300.0));
+
+            if draw_button(
+                &format!("1 Bank Slot {} gold", inventory.next_slot_cost()),
+                None,
+                &r,
+                ui_state,
+                std::line!(),
+                ui_context,
+            ) {
+                return vec![UpdateSignal::PurchaseBankSlot];
             }
         }
 

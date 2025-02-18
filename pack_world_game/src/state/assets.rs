@@ -1,4 +1,4 @@
-use crate::{drop_table::*, item::*, state::inventory::*, tile::*};
+use crate::{drop_table::*, item::*, pack::*, state::inventory::*, tile::*};
 use gengar_engine::render::image::*;
 
 pub struct Assets {
@@ -10,7 +10,6 @@ pub struct Assets {
     pub image_rock: Image,
     pub image_oak_tree: Image,
     pub image_oak_wood: Image,
-    pub image_pack_starter: Image,
     pub image_bird_nest: Image,
     pub image_gold: Image,
     pub image_acorn: Image,
@@ -19,6 +18,9 @@ pub struct Assets {
     pub image_baby: Image,
     pub image_shrub: Image,
     pub image_berry: Image,
+
+    pub image_pack_starter: Image,
+    pub image_pack_stick: Image,
 }
 
 impl Assets {
@@ -28,7 +30,6 @@ impl Assets {
             image_grass: Image::new(),
             image_stick: Image::new(),
             image_dirt_clod: Image::new(),
-            image_pack_starter: Image::new(),
             image_boulder: Image::new(),
             image_rock: Image::new(),
             image_oak_tree: Image::new(),
@@ -41,6 +42,9 @@ impl Assets {
             image_baby: Image::new(),
             image_shrub: Image::new(),
             image_berry: Image::new(),
+
+            image_pack_starter: Image::new(),
+            image_pack_stick: Image::new(),
         }
     }
 
@@ -59,6 +63,18 @@ impl Assets {
             DropType::Gold => return self.image_gold.gl_id.unwrap(),
             DropType::Item { item_type } => return self.get_item_icon(item_type),
         }
+    }
+
+    pub fn get_pack_icon(&self, pack_id: &PackID) -> u32 {
+        self.get_pack_image_opt(pack_id)
+            .expect(&format!("Missing pack image for {pack_id:?}"))
+    }
+
+    fn get_pack_image_opt(&self, pack: &PackID) -> Option<u32> {
+        match pack {
+            PackID::Starter => return self.image_pack_starter.gl_id,
+            PackID::Stick => return self.image_pack_stick.gl_id,
+        };
     }
 
     fn get_item_image_opt(&self, item: &ItemType) -> Option<u32> {

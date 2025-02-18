@@ -8,6 +8,7 @@ use std::{
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 pub enum PackID {
     Starter,
+    Stick,
 }
 
 #[derive(Debug)]
@@ -47,7 +48,6 @@ impl Pack {
     // Assumes you can afford the pack
     pub fn pull(&self) -> Drop {
         get_drop(self.table_id)
-        // Some(self.table.pull())
     }
 }
 
@@ -59,8 +59,19 @@ static STARTER: LazyLock<Pack> = LazyLock::new(|| {
         FixedTableID::Pack(PackID::Starter),
     )
 });
+
+static STICK: LazyLock<Pack> = LazyLock::new(|| {
+    Pack::new(
+        "Stick".into(),
+        vec![(ItemType::DirtClod, 50), (ItemType::Stick, 50)],
+        4,
+        FixedTableID::Pack(PackID::Stick),
+    )
+});
+
 pub fn get_pack_info(pack_id: PackID) -> &'static Pack {
     match pack_id {
         PackID::Starter => &STARTER,
+        PackID::Stick => &STICK,
     }
 }
