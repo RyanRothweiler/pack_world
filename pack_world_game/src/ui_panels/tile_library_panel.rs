@@ -211,6 +211,7 @@ impl TileLibraryPanel {
             ItemType::DirtClod
             | ItemType::Stick
             | ItemType::Rock
+            | ItemType::Berry
             | ItemType::OakLog
             | ItemType::DragonEgg
             | ItemType::Baby

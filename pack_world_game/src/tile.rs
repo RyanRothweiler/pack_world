@@ -17,7 +17,7 @@ pub mod tiles;
 
 use tiles::{
     tile_bird_nest::TileBirdNest, tile_boulder::TileBoulder, tile_cave::TileCave,
-    tile_dirt::TileDirt, tile_grass::TileGrass, tile_oak_tree::TileOakTree,
+    tile_dirt::TileDirt, tile_grass::TileGrass, tile_oak_tree::TileOakTree, tile_shrub::TileShrub,
 };
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
@@ -28,6 +28,7 @@ pub enum TileType {
     OakTree,
     BirdNest,
     Cave,
+    Shrub,
 }
 
 impl TileType {
@@ -39,6 +40,7 @@ impl TileType {
             TileType::OakTree => tiles::tile_oak_tree::TITLE,
             TileType::BirdNest => tiles::tile_bird_nest::TITLE,
             TileType::Cave => tiles::tile_cave::TITLE,
+            TileType::Shrub => tiles::tile_shrub::TITLE,
         }
     }
 
@@ -59,6 +61,7 @@ pub enum TileMethods {
     OakTree(TileOakTree),
     BirdNest(TileBirdNest),
     Cave(TileCave),
+    Shrub(TileShrub),
 }
 
 impl TileMethods {
@@ -70,6 +73,7 @@ impl TileMethods {
             TileMethods::OakTree(state) => state.update(time_step),
             TileMethods::BirdNest(state) => state.update(time_step),
             TileMethods::Cave(state) => state.update(time_step),
+            TileMethods::Shrub(state) => state.update(time_step),
         }
     }
 
@@ -100,6 +104,9 @@ impl TileMethods {
             TileMethods::Cave(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
+            TileMethods::Shrub(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
         }
     }
 
@@ -111,6 +118,7 @@ impl TileMethods {
             TileMethods::OakTree(state) => state.can_harvest(),
             TileMethods::BirdNest(state) => state.can_harvest(),
             TileMethods::Cave(state) => state.can_harvest(),
+            TileMethods::Shrub(state) => state.can_harvest(),
         }
     }
 
@@ -126,6 +134,7 @@ impl TileMethods {
             TileMethods::OakTree(state) => state.harvest(grid_pos),
             TileMethods::BirdNest(state) => state.harvest(grid_pos),
             TileMethods::Cave(state) => state.harvest(grid_pos),
+            TileMethods::Shrub(state) => state.harvest(grid_pos),
         }
     }
 
@@ -137,6 +146,7 @@ impl TileMethods {
             TileMethods::OakTree(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::BirdNest(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::Cave(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::Shrub(state) => state.render_hover_info(shader_color, render_pack),
         }
     }
 
@@ -151,6 +161,7 @@ impl TileMethods {
             },
             TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
             TileMethods::Cave(state) => TileSnapshot::Cave,
+            TileMethods::Shrub(state) => TileSnapshot::Shrub,
         }
     }
 
@@ -203,7 +214,11 @@ impl TileType {
 
                     return false;
                 }
-                TileType::Grass | TileType::Boulder | TileType::OakTree | TileType::Cave => {
+                TileType::Grass
+                | TileType::Boulder
+                | TileType::OakTree
+                | TileType::Cave
+                | TileType::Shrub => {
                     if !world.entity_map.contains_key(&pos) {
                         return false;
                     }
@@ -231,6 +246,7 @@ impl TileType {
             TileType::OakTree => TileOakTree::new(grid_pos),
             TileType::BirdNest => TileBirdNest::new(grid_pos),
             TileType::Cave => TileCave::new(grid_pos),
+            TileType::Shrub => TileShrub::new(grid_pos),
         }
     }
 
@@ -239,6 +255,7 @@ impl TileType {
             TileType::Dirt
             | TileType::Grass
             | TileType::Boulder
+            | TileType::Shrub
             | TileType::BirdNest
             | TileType::Cave => {
                 vec![GridPos::new(0, 0)]

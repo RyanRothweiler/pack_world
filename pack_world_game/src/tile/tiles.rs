@@ -7,3 +7,4 @@ pub mod tile_cave;
 pub mod tile_dirt;
 pub mod tile_grass;
 pub mod tile_oak_tree;
+pub mod tile_shrub;

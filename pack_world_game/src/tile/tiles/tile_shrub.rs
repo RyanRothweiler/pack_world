@@ -15,22 +15,22 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Grass";
+pub const TITLE: &str = "Shrub";
 
-const HARVEST_SECONDS: f64 = 20.0;
+const HARVEST_SECONDS: f64 = 60.0;
 
 #[derive(Debug)]
-pub struct TileGrass {
+pub struct TileShrub {
     pub harvest_timer: HarvestTimer,
 }
 
-impl TileGrass {
+impl TileShrub {
     pub fn new(grid_pos: GridPos) -> TileInstance {
         TileInstance {
             grid_pos,
-            tile_type: TileType::Grass,
-            methods: TileMethods::Grass(TileGrass {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
+            tile_type: TileType::Shrub,
+            methods: TileMethods::Shrub(TileShrub {
+                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Shrub),
             }),
         }
     }
@@ -44,36 +44,8 @@ impl TileGrass {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(
-        &mut self,
-        grid_pos: GridPos,
-        world_snapshot: &WorldSnapshot,
-    ) -> Vec<UpdateSignal> {
-        let mut nest_adj = false;
-
-        for adj_pos in grid_pos.to_adjacents_iter() {
-            for t in world_snapshot.get_pos_snapshot(adj_pos) {
-                match t {
-                    TileSnapshot::OakTree { has_nest } => {
-                        if has_nest {
-                            nest_adj = true;
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        let mut drop_table = self.harvest_timer.table.clone();
-        if nest_adj {
-            drop_table = drop_table.add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
-        }
-
-        self.harvest_timer.reset();
-        vec![UpdateSignal::AddHarvestDrop {
-            drop: drop_table.get_drop(),
-            origin: grid_to_world(&grid_pos),
-        }]
+    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
+        self.harvest_timer.harvest(grid_pos)
     }
 
     pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
@@ -104,7 +76,7 @@ impl TileGrass {
         }
 
         draw_tile(
-            TileType::Grass,
+            TileType::Shrub,
             rotation,
             pos,
             shader_color,

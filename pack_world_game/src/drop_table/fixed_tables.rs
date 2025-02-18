@@ -10,12 +10,14 @@ mod drop_table_boulder;
 mod drop_table_cave;
 mod drop_table_grass;
 mod drop_table_oak_tree;
+mod drop_table_shrub;
 mod drop_table_small_gold;
 
 use drop_table_boulder::*;
 use drop_table_cave::*;
 use drop_table_grass::*;
 use drop_table_oak_tree::*;
+use drop_table_shrub::*;
 use drop_table_small_gold::*;
 
 // packs
@@ -31,6 +33,7 @@ pub enum FixedTableID {
     OakTree,
     SmallGold,
     Cave,
+    Shrub,
 
     Pack(PackID),
 
@@ -65,6 +68,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
         FixedTableID::OakTree => &OAK_TREE,
         FixedTableID::SmallGold => &SMALL_GOLD,
         FixedTableID::Cave => &CAVE,
+        FixedTableID::Shrub => &SHRUB,
 
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,

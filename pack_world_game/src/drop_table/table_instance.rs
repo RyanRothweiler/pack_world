@@ -1,5 +1,6 @@
 pub use crate::drop_table::*;
 
+/// A specific 'reference' to a drop table. Can be easily converted between the options.
 #[derive(Clone, Debug)]
 pub enum DropTableInstance {
     /// Pull from one of the fixed static tables

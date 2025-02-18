@@ -9,6 +9,7 @@ pub enum TileSnapshot {
     OakTree { has_nest: bool },
     BirdNest,
     Cave,
+    Shrub,
 }
 
 /// Snapshot of world state.

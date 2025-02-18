@@ -99,6 +99,10 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/dragon_egg.png"), render_api).unwrap();
     gs.assets.image_baby =
         load_image_cursor(include_bytes!("../resources/baby.png"), render_api).unwrap();
+    gs.assets.image_shrub =
+        load_image_cursor(include_bytes!("../resources/shrub.png"), render_api).unwrap();
+    gs.assets.image_berry =
+        load_image_cursor(include_bytes!("../resources/berry.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

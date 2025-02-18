@@ -17,6 +17,8 @@ pub struct Assets {
     pub image_cave: Image,
     pub image_dragon_egg: Image,
     pub image_baby: Image,
+    pub image_shrub: Image,
+    pub image_berry: Image,
 }
 
 impl Assets {
@@ -37,6 +39,8 @@ impl Assets {
             image_cave: Image::new(),
             image_dragon_egg: Image::new(),
             image_baby: Image::new(),
+            image_shrub: Image::new(),
+            image_berry: Image::new(),
         }
     }
 
@@ -66,6 +70,7 @@ impl Assets {
             ItemType::Acorn => return self.image_acorn.gl_id,
             ItemType::DragonEgg => return self.image_dragon_egg.gl_id,
             ItemType::Baby => return self.image_baby.gl_id,
+            ItemType::Berry => return self.image_berry.gl_id,
             ItemType::Tile(tile_type) => return self.get_tile_image_opt(tile_type),
         };
     }
@@ -78,6 +83,7 @@ impl Assets {
             TileType::OakTree => return self.image_oak_tree.gl_id,
             TileType::BirdNest => return self.image_bird_nest.gl_id,
             TileType::Cave => return self.image_cave.gl_id,
+            TileType::Shrub => return self.image_shrub.gl_id,
         };
     }
 }

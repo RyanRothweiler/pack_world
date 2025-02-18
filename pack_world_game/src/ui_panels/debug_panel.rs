@@ -28,6 +28,8 @@ impl DebugPanel {
             ItemType::Tile(TileType::BirdNest),
             ItemType::Tile(TileType::OakTree),
             ItemType::Tile(TileType::Cave),
+            ItemType::Tile(TileType::Shrub),
+            ItemType::Berry,
             ItemType::OakLog,
             ItemType::Baby,
             ItemType::DragonEgg,
