@@ -31,6 +31,7 @@ pub enum TileType {
     Shrub,
 }
 
+// TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
 impl TileType {
     pub fn user_title(&self) -> &str {
         match self {
@@ -48,6 +49,18 @@ impl TileType {
         match self {
             TileType::Dirt => Some(tiles::tile_dirt::DESC),
             _ => None,
+        }
+    }
+
+    pub fn get_layer(&self) -> WorldLayer {
+        match self {
+            TileType::Dirt => WorldLayer::Ground,
+            TileType::BirdNest => WorldLayer::TreeAttachment,
+            TileType::Boulder
+            | TileType::OakTree
+            | TileType::Cave
+            | TileType::Shrub
+            | TileType::Grass => WorldLayer::Floor,
         }
     }
 }
@@ -138,15 +151,30 @@ impl TileMethods {
         }
     }
 
-    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
+    pub fn render_hover_info(
+        &self,
+        y_offset: f64,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+    ) {
         match self {
             TileMethods::Dirt(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::Grass(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::Boulder(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::OakTree(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::Grass(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
+            TileMethods::Boulder(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
+            TileMethods::OakTree(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
             TileMethods::BirdNest(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::Cave(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::Shrub(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::Cave(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
+            TileMethods::Shrub(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
         }
     }
 
@@ -202,36 +230,12 @@ impl TileType {
             // TODO probably move this into each tile somehow
             match self {
                 TileType::Dirt => {}
-                TileType::BirdNest => {
-                    let entities: Vec<usize> = world.get_entities(pos).unwrap_or(vec![]);
-                    for idx in entities {
-                        let tile = &world.entities[idx];
-
-                        if tile.tile_type == TileType::OakTree {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                }
+                TileType::BirdNest => return world.cell_contains_tile(pos, TileType::OakTree),
                 TileType::Grass
                 | TileType::Boulder
                 | TileType::OakTree
                 | TileType::Cave
-                | TileType::Shrub => {
-                    if !world.entity_map.contains_key(&pos) {
-                        return false;
-                    }
-
-                    let entities: Vec<usize> = world.get_entities(pos).unwrap_or(vec![]);
-                    for idx in entities {
-                        let tile = &world.entities[idx];
-
-                        if tile.tile_type != TileType::Dirt {
-                            return false;
-                        }
-                    }
-                }
+                | TileType::Shrub => return world.cell_contains_tile(pos, TileType::Dirt),
             };
         }
 

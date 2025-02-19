@@ -13,50 +13,33 @@ use gengar_engine::{
 
 pub const TITLE: &str = "Bird Nest";
 
-const HARVEST_SECONDS: f64 = 360.0;
-
 #[derive(Debug)]
-pub struct TileBirdNest {
-    harvest_timer: HarvestTimer,
-}
+pub struct TileBirdNest {}
 
 impl TileBirdNest {
     pub fn new(grid_pos: GridPos) -> TileInstance {
         TileInstance {
             grid_pos,
             tile_type: TileType::BirdNest,
-            methods: TileMethods::BirdNest(TileBirdNest {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
-            }),
+            methods: TileMethods::BirdNest(TileBirdNest {}),
         }
     }
 }
 
 impl TileBirdNest {
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        self.harvest_timer.inc(time_step);
         vec![]
     }
 
     pub fn can_harvest(&self) -> bool {
-        self.harvest_timer.can_harvest()
+        false
     }
 
     pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
-        self.harvest_timer.harvest(grid_pos)
+        vec![]
     }
 
-    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
-        let base: VecTwo = VecTwo::new(450.0, 120.0);
-        let r = Rect::new_top_size(base, 200.0, 10.0);
-
-        draw_progress_bar(
-            self.harvest_timer.percent_done(),
-            &r,
-            shader_color,
-            render_pack,
-        );
-    }
+    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}
 
     pub fn render(
         &self,
@@ -66,11 +49,6 @@ impl TileBirdNest {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
-        let mut rotation: f64 = 0.0;
-        if self.can_harvest() {
-            rotation = f64::sin(rot_time) * 7.0;
-        }
-
         // render tree
         {
             let mut r = Rect::new_square(GRID_SIZE);
@@ -95,7 +73,7 @@ impl TileBirdNest {
 
             render_pack
                 .commands
-                .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
+                .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
         }
     }
 }

@@ -48,8 +48,13 @@ impl TileShrub {
         self.harvest_timer.harvest(grid_pos)
     }
 
-    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {
-        let base: VecTwo = VecTwo::new(450.0, 120.0);
+    pub fn render_hover_info(
+        &self,
+        y_offset: f64,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+    ) {
+        let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
         draw_progress_bar(

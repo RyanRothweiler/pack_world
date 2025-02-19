@@ -131,7 +131,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
             GridPos::new(21, 11),
         ];
         for p in init_dirt {
-            gs.world.force_insert_tile(p, TileType::Dirt);
+            let _ = gs.world.force_insert_tile(p, TileType::Dirt);
         }
     }
 
@@ -362,11 +362,13 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         // place tile
         if input.mouse_left.on_press && can_place {
-            if gs.world.try_place_tile(mouse_grid, tile).is_ok() {
+            if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
                 let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
                 if count == 0 {
                     gs.tile_placing = None;
                 }
+
+                handle_signals(update_sigs, gs);
             }
         }
     }
@@ -386,10 +388,10 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 .camera
                 .world_to_screen(mouse_snapped);
 
-            let entities: Vec<usize> = gs.world.get_entities(mouse_grid).unwrap_or(vec![]);
+            let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
 
-            for idx in entities {
-                let tile = &mut gs.world.entities[idx];
+            for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
+                let tile = &mut gs.world.entities[*eid];
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {
@@ -418,14 +420,17 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 {
                     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
+                    let y = layer.to_index() as f64 * 40.0;
+
                     draw_text(
                         &format!("{:?}", tile.tile_type),
-                        VecTwo::new(450.0, 100.0),
+                        VecTwo::new(450.0, 100.0 + y),
                         &mut ui_frame_state,
                         &mut ui_context,
                     );
 
                     tile.methods.render_hover_info(
+                        y,
                         es.shader_color.clone(),
                         es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
                     );
