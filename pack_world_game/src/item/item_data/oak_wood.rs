@@ -1,1 +1,1 @@
-pub const TITLE: &str = "Oak WOod";
+pub const TITLE: &str = "Oak Wood";

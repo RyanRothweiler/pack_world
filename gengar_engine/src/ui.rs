@@ -273,3 +273,36 @@ pub fn draw_progress_bar(
             .push(RenderCommand::new_rect_outline(rect, -1.0, 1.0, &mat));
     }
 }
+
+pub struct GridLayoutInfo {
+    pub bounds_width: f64,
+    pub col_count: i32,
+    pub cell_height: f64,
+    pub gutter: f64,
+    pub cells_count: i32,
+}
+
+/// Returns list of rects in a grid layout
+/// This flows vertically for now with set columns count and width.
+/// This is gives a layout at origin 0,0
+pub fn get_grid_layout(layout_info: GridLayoutInfo) -> Vec<Rect> {
+    let cell_width: f64 = layout_info.bounds_width / layout_info.col_count as f64;
+    let mut ret: Vec<Rect> = vec![];
+
+    let mut top_left = VecTwo::new(0.0, 0.0);
+    for i in 1..(layout_info.cells_count + 1) {
+        let r = Rect::new(
+            top_left,
+            top_left + VecTwo::new(cell_width, layout_info.cell_height),
+        );
+        ret.push(r);
+
+        top_left.x += cell_width + layout_info.gutter;
+        if i as f64 % layout_info.col_count as f64 == 0.0 {
+            top_left.y += layout_info.cell_height + layout_info.gutter;
+            top_left.x = 0.0;
+        }
+    }
+
+    return ret;
+}

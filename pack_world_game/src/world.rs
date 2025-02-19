@@ -30,8 +30,6 @@ impl World {
         let inst_id = self.entities.len();
         let inst = tile.create_instance(grid_pos);
 
-        println!("inserting {tile:?}");
-
         // tell below tiles that something was placed above. They might care.
         let pos_entities_index: Vec<usize> = self.get_entities(grid_pos).unwrap_or(vec![]);
         for p in pos_entities_index {
