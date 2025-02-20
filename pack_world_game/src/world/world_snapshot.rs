@@ -16,7 +16,7 @@ pub enum TileSnapshot {
 /// Allows world entities to interact with eachother without needing references to eachother.
 pub struct WorldSnapshot {
     pub entity_map: HashMap<GridPos, WorldCell>,
-    pub entities: Vec<TileSnapshot>,
+    pub entities: HashMap<EntityID, TileSnapshot>,
 }
 
 impl WorldSnapshot {
@@ -26,7 +26,7 @@ impl WorldSnapshot {
 
         let mut ret: Vec<TileSnapshot> = vec![];
         for (layer, eid) in world_cell.layers {
-            ret.push(self.entities[eid]);
+            ret.push(*self.entities.get(&eid).unwrap());
         }
 
         ret

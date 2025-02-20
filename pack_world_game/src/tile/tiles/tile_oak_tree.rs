@@ -64,7 +64,7 @@ impl TileOakTree {
         );
     }
 
-    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: usize) {
+    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
         match tile_type {
             TileType::BirdNest => {
                 self.has_nest = true;

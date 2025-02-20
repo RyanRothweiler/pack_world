@@ -258,7 +258,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
 
         let mut update_signals: Vec<UpdateSignal> = vec![];
-        for entity in &mut gs.world.entities {
+        for (eid, entity) in &mut gs.world.entities {
             update_signals.append(&mut entity.methods.update(frame_delta));
         }
         handle_signals(update_signals, gs);
@@ -283,21 +283,79 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
     }
 
-    // render tiles
+    // render tiles. Render each layer separately.
+    // Kinda fucked but whatver. Maybe could setup a new data structure to handle this.
     {
         // TODO chagne this to use delta_time
         gs.rotate_time += 0.08;
 
-        for entity in &gs.world.entities {
-            entity.methods.render(
-                gs.rotate_time,
-                &entity.grid_pos,
-                es.color_texture_shader,
-                es.render_packs.get_mut(&RenderPackID::World).unwrap(),
-                &gs.assets,
-            );
+        for (grid_pos, world_cell) in &gs.world.entity_map {
+            for (layer, eid) in &world_cell.layers {
+                let entity = &gs
+                    .world
+                    .entities
+                    .get(&eid)
+                    .expect("Invalid entity id somehow");
+                match layer {
+                    WorldLayer::Ground => {
+                        entity.methods.render(
+                            gs.rotate_time,
+                            &entity.grid_pos,
+                            es.color_texture_shader,
+                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &gs.assets,
+                        );
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        for (grid_pos, world_cell) in &gs.world.entity_map {
+            for (layer, eid) in &world_cell.layers {
+                let entity = &gs
+                    .world
+                    .entities
+                    .get(&eid)
+                    .expect("Invalid entity id somehow");
+                match layer {
+                    WorldLayer::Floor => {
+                        entity.methods.render(
+                            gs.rotate_time,
+                            &entity.grid_pos,
+                            es.color_texture_shader,
+                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &gs.assets,
+                        );
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        for (grid_pos, world_cell) in &gs.world.entity_map {
+            for (layer, eid) in &world_cell.layers {
+                let entity = &gs
+                    .world
+                    .entities
+                    .get(&eid)
+                    .expect("Invalid entity id somehow");
+                match layer {
+                    WorldLayer::TreeAttachment => {
+                        entity.methods.render(
+                            gs.rotate_time,
+                            &entity.grid_pos,
+                            es.color_texture_shader,
+                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &gs.assets,
+                        );
+                    }
+                    _ => {}
+                }
+            }
         }
     }
+
     // update harvest drops
     {
         for h in &mut gs.harvest_drops {
@@ -391,7 +449,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
 
             for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
-                let tile = &mut gs.world.entities[*eid];
+                let tile = gs.world.entities.get_mut(eid).unwrap();
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {

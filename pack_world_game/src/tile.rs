@@ -195,7 +195,7 @@ impl TileMethods {
 
     /// Some other tile is placed ontop of this one.
     /// top_id is the entity_id of the newly placed tile.
-    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: usize) {
+    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
         match self {
             TileMethods::OakTree(state) => state.tile_placed_ontop(tile_type, top_id),
 
