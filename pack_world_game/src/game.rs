@@ -291,11 +291,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         for (grid_pos, world_cell) in &gs.world.entity_map {
             for (layer, eid) in &world_cell.layers {
-                let entity = &gs
-                    .world
-                    .entities
-                    .get(&eid)
-                    .expect("Invalid entity id somehow");
+                let entity = &gs.world.get_entity(&eid);
                 match layer {
                     WorldLayer::Ground => {
                         entity.methods.render(
@@ -313,11 +309,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         for (grid_pos, world_cell) in &gs.world.entity_map {
             for (layer, eid) in &world_cell.layers {
-                let entity = &gs
-                    .world
-                    .entities
-                    .get(&eid)
-                    .expect("Invalid entity id somehow");
+                let entity = &gs.world.get_entity(&eid);
                 match layer {
                     WorldLayer::Floor => {
                         entity.methods.render(
@@ -335,11 +327,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         for (grid_pos, world_cell) in &gs.world.entity_map {
             for (layer, eid) in &world_cell.layers {
-                let entity = &gs
-                    .world
-                    .entities
-                    .get(&eid)
-                    .expect("Invalid entity id somehow");
+                let entity = &gs.world.get_entity(&eid);
                 match layer {
                     WorldLayer::TreeAttachment => {
                         entity.methods.render(

@@ -111,7 +111,7 @@ impl World {
             };
         }
 
-        // Find tiles that are going to be overwritte, so that we can give them back to the player
+        // Find tiles that are going to be overwritten, so that we can give them back to the player
         {
             let mut eids_removing: Vec<EntityID> = vec![];
 
@@ -126,13 +126,25 @@ impl World {
                     if !eids_removing.contains(eid) {
                         eids_removing.push(*eid);
                     }
+
+                    // remove that entity from the grid map
                 }
             }
 
             for eid in eids_removing {
-                if let Some(tile_instance) = self.entities.remove(&eid) {
+                if let Some(tile_inst_removed) = self.entities.remove(&eid) {
+                    // remove the tile references from the grid map
+                    for p in tile_inst_removed.tile_type.get_tile_footprint() {
+                        let pos = tile_inst_removed.grid_pos + p;
+
+                        let mut world_cell: &mut WorldCell =
+                            self.entity_map.entry(pos).or_insert(WorldCell::new());
+                        world_cell.layers.remove(&tile_layer);
+                    }
+
+                    // give removed entities back to player
                     ret.push(UpdateSignal::AddHarvestDrop {
-                        drop: Drop::new_tile(tile_instance.tile_type, 1),
+                        drop: Drop::new_tile(tile_inst_removed.tile_type, 1),
                         origin: grid_to_world(&grid_pos),
                     });
                 }
@@ -165,16 +177,15 @@ impl World {
     pub fn get_world_snapshot(&self) -> WorldSnapshot {
         let mut ret = WorldSnapshot {
             entity_map: HashMap::new(),
-            // entities: vec![TileSnapshot::Grass; self.entities.len()],
             entities: HashMap::new(),
         };
 
         ret.entity_map = self.entity_map.clone();
 
-        for (key, world_layer) in &self.entity_map {
+        for (grid_pos, world_layer) in &self.entity_map {
             // for eid in value {
             for (layer_key, eid) in &world_layer.layers {
-                let inst: &TileInstance = self.entities.get(eid).expect("Invalid entity id");
+                let inst: &TileInstance = self.get_entity(eid);
                 ret.entities.insert(*eid, inst.methods.into_snapshot());
             }
         }
@@ -202,5 +213,10 @@ impl World {
         }
 
         return false;
+    }
+
+    /// Get an entity. Expects the entity to be valid. This is an assumption that must be upheld.
+    pub fn get_entity(&self, eid: &EntityID) -> &TileInstance {
+        self.entities.get(eid).expect("Invalid entity id")
     }
 }
