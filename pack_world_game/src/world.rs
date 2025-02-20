@@ -49,11 +49,11 @@ pub struct World {
     /// Get a WorldCell from grid pos.
     pub entity_map: HashMap<GridPos, WorldCell>,
 
-    // valid positions, and all adjacent valid positions
-    pub valids: HashMap<GridPos, bool>,
-
     /// All entities. organized by entity_id
     pub entities: HashMap<EntityID, TileInstance>,
+
+    // valid positions, and all adjacent valid positions
+    valids: HashMap<GridPos, bool>,
 
     next_entity_id: u64,
 }
@@ -215,8 +215,24 @@ impl World {
         return false;
     }
 
+    pub fn pos_valid(&self, pos: GridPos) -> bool {
+        if !self.entity_map.contains_key(&pos) {
+            if !self.valids.contains_key(&pos) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /// Get an entity. Expects the entity to be valid. This is an assumption that must be upheld.
     pub fn get_entity(&self, eid: &EntityID) -> &TileInstance {
         self.entities.get(eid).expect("Invalid entity id")
     }
+
+    /// Get an entity. Expects the entity to be valid. This is an assumption that must be upheld.
+    pub fn get_entity_mut(&mut self, eid: &EntityID) -> &mut TileInstance {
+        self.entities.get_mut(eid).expect("Invalid entity id")
+    }
 }
+
+// TODO we really should have test for inserting and overwritting tiles

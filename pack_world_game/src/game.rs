@@ -437,7 +437,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
 
             for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
-                let tile = gs.world.entities.get_mut(eid).unwrap();
+                let tile = gs.world.get_entity_mut(eid);
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {

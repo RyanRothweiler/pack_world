@@ -220,10 +220,8 @@ impl TileType {
             let pos = origin + p;
 
             // check adjacency
-            if !world.entity_map.contains_key(&pos) {
-                if !world.valids.contains_key(&pos) {
-                    return false;
-                }
+            if world.pos_valid(pos) {
+                return false;
             }
 
             // check types
