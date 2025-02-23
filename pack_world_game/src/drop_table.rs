@@ -40,6 +40,15 @@ impl Drop {
     pub fn new_gold(amount: i64) -> Self {
         Drop::new(DropType::Gold, amount)
     }
+
+    /// Convert one drop with an amount into vector of drops with one amount
+    pub fn to_individual(&self) -> Vec<Drop> {
+        let mut ret: Vec<Drop> = vec![];
+        for i in 0..self.amount {
+            ret.push(Drop::new(self.drop_type, 1));
+        }
+        ret
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]

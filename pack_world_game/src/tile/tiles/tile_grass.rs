@@ -25,14 +25,10 @@ pub struct TileGrass {
 }
 
 impl TileGrass {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
-        TileInstance {
-            grid_pos,
-            tile_type: TileType::Grass,
-            methods: TileMethods::Grass(TileGrass {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
-            }),
-        }
+    pub fn new_methods() -> TileMethods {
+        TileMethods::Grass(TileGrass {
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
+        })
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
@@ -44,11 +40,7 @@ impl TileGrass {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(
-        &mut self,
-        grid_pos: GridPos,
-        world_snapshot: &WorldSnapshot,
-    ) -> Vec<UpdateSignal> {
+    pub fn harvest(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) -> Drop {
         let mut nest_adj = false;
 
         for adj_pos in grid_pos.to_adjacents_iter() {
@@ -70,10 +62,7 @@ impl TileGrass {
         }
 
         self.harvest_timer.reset();
-        vec![UpdateSignal::AddHarvestDrop {
-            drop: drop_table.get_drop(),
-            origin: grid_to_world(&grid_pos),
-        }]
+        return drop_table.get_drop();
     }
 
     pub fn render_hover_info(

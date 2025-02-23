@@ -71,8 +71,13 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                     vec![]
                 }
                 UpdateSignal::AddHarvestDrop { drop, origin } => {
-                    // let item_type = get_drop(*table);
                     gs.harvest_drops.push(HarvestDrop::new(*drop, *origin));
+
+                    /*
+                    let drop_list = drop.to_individual();
+                    for d in drop_list {
+                    }
+                    */
                     vec![]
                 }
                 UpdateSignal::OpenPack(pack_id) => {

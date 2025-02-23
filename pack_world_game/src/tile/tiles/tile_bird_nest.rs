@@ -17,26 +17,16 @@ pub const TITLE: &str = "Bird Nest";
 pub struct TileBirdNest {}
 
 impl TileBirdNest {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
-        TileInstance {
-            grid_pos,
-            tile_type: TileType::BirdNest,
-            methods: TileMethods::BirdNest(TileBirdNest {}),
-        }
+    pub fn new_methods() -> TileMethods {
+        TileMethods::BirdNest(TileBirdNest {})
     }
-}
 
-impl TileBirdNest {
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         vec![]
     }
 
     pub fn can_harvest(&self) -> bool {
         false
-    }
-
-    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
-        vec![]
     }
 
     pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}

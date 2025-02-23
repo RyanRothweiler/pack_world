@@ -1,4 +1,5 @@
 use crate::{
+    drop_table::*,
     grid::*,
     state::{assets::*, *},
     update_signal::*,
@@ -61,6 +62,65 @@ impl TileType {
             | TileType::Cave
             | TileType::Shrub
             | TileType::Grass => WorldLayer::Floor,
+        }
+    }
+    pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
+        let footprint = self.get_tile_footprint();
+
+        for p in footprint {
+            let pos = origin + p;
+
+            // check adjacency
+            if !world.pos_valid(pos) {
+                return false;
+            }
+
+            // check types
+            // TODO probably move this into each tile somehow
+            match self {
+                TileType::Dirt => {}
+                TileType::BirdNest => return world.cell_contains_tile(pos, TileType::OakTree),
+                TileType::Grass
+                | TileType::Boulder
+                | TileType::OakTree
+                | TileType::Cave
+                | TileType::Shrub => return world.cell_contains_tile(pos, TileType::Dirt),
+            };
+        }
+
+        return true;
+    }
+
+    pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
+        let methods = match self {
+            TileType::Dirt => TileDirt::new_methods(),
+            TileType::Grass => TileGrass::new_methods(),
+            TileType::Boulder => TileBoulder::new_methods(),
+            TileType::OakTree => TileOakTree::new_methods(),
+            TileType::BirdNest => TileBirdNest::new_methods(),
+            TileType::Cave => TileCave::new_methods(),
+            TileType::Shrub => TileShrub::new_methods(),
+        };
+
+        TileInstance::new(*self, grid_pos, methods)
+    }
+
+    pub fn get_tile_footprint(&self) -> Vec<GridPos> {
+        match self {
+            TileType::Dirt
+            | TileType::Grass
+            | TileType::Boulder
+            | TileType::Shrub
+            | TileType::BirdNest
+            | TileType::Cave => {
+                vec![GridPos::new(0, 0)]
+            }
+            TileType::OakTree => vec![
+                GridPos::new(0, 0),
+                GridPos::new(1, 1),
+                GridPos::new(0, 1),
+                GridPos::new(1, 0),
+            ],
         }
     }
 }
@@ -135,19 +195,17 @@ impl TileMethods {
         }
     }
 
-    pub fn harvest(
-        &mut self,
-        grid_pos: GridPos,
-        world_snapshot: &WorldSnapshot,
-    ) -> Vec<UpdateSignal> {
+    pub fn harvest(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) -> Option<Drop> {
         match self {
-            TileMethods::Dirt(state) => state.harvest(grid_pos),
-            TileMethods::Grass(state) => state.harvest(grid_pos, world_snapshot),
-            TileMethods::Boulder(state) => state.harvest(grid_pos),
-            TileMethods::OakTree(state) => state.harvest(grid_pos),
-            TileMethods::BirdNest(state) => state.harvest(grid_pos),
-            TileMethods::Cave(state) => state.harvest(grid_pos),
-            TileMethods::Shrub(state) => state.harvest(grid_pos),
+            TileMethods::Grass(state) => Some(state.harvest(grid_pos, world_snapshot)),
+            TileMethods::Boulder(state) => Some(state.harvest(grid_pos)),
+            TileMethods::OakTree(state) => Some(state.harvest(grid_pos)),
+            TileMethods::Cave(state) => Some(state.harvest(grid_pos)),
+            TileMethods::Shrub(state) => Some(state.harvest(grid_pos)),
+
+            // these ones don't harvest
+            TileMethods::Dirt(state) => None,
+            TileMethods::BirdNest(state) => None,
         }
     }
 
@@ -210,65 +268,54 @@ pub struct TileInstance {
     pub tile_type: TileType,
     pub grid_pos: GridPos,
     pub methods: TileMethods,
+
+    // for giving offset drops
+    pub drop_timer: f64,
+    pub drops_queue: Vec<Drop>,
 }
 
-impl TileType {
-    pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
-        let footprint = self.get_tile_footprint();
-
-        for p in footprint {
-            let pos = origin + p;
-
-            // check adjacency
-            if !world.pos_valid(pos) {
-                return false;
-            }
-
-            // check types
-            // TODO probably move this into each tile somehow
-            match self {
-                TileType::Dirt => {}
-                TileType::BirdNest => return world.cell_contains_tile(pos, TileType::OakTree),
-                TileType::Grass
-                | TileType::Boulder
-                | TileType::OakTree
-                | TileType::Cave
-                | TileType::Shrub => return world.cell_contains_tile(pos, TileType::Dirt),
-            };
-        }
-
-        return true;
-    }
-
-    pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
-        match self {
-            TileType::Dirt => TileDirt::new(grid_pos),
-            TileType::Grass => TileGrass::new(grid_pos),
-            TileType::Boulder => TileBoulder::new(grid_pos),
-            TileType::OakTree => TileOakTree::new(grid_pos),
-            TileType::BirdNest => TileBirdNest::new(grid_pos),
-            TileType::Cave => TileCave::new(grid_pos),
-            TileType::Shrub => TileShrub::new(grid_pos),
+impl TileInstance {
+    pub fn new(tile_type: TileType, grid_pos: GridPos, methods: TileMethods) -> Self {
+        Self {
+            tile_type,
+            grid_pos,
+            methods,
+            drop_timer: 0.0,
+            drops_queue: vec![],
         }
     }
 
-    pub fn get_tile_footprint(&self) -> Vec<GridPos> {
-        match self {
-            TileType::Dirt
-            | TileType::Grass
-            | TileType::Boulder
-            | TileType::Shrub
-            | TileType::BirdNest
-            | TileType::Cave => {
-                vec![GridPos::new(0, 0)]
+    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot) {
+        let mut new_drop = self.methods.harvest(self.grid_pos, world_snapshot);
+
+        match new_drop {
+            Some(drop) => {
+                self.drops_queue.append(&mut drop.to_individual());
             }
-            TileType::OakTree => vec![
-                GridPos::new(0, 0),
-                GridPos::new(1, 1),
-                GridPos::new(0, 1),
-                GridPos::new(1, 0),
-            ],
+            None => {
+                println!("Attempted to harvest something which isn't harvestable.");
+                println!(
+                    "This is fine. Nothing will break. But this indicates an issue somewhere."
+                );
+            }
         }
+    }
+
+    pub fn update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
+        if self.drops_queue.len() > 0 {
+            self.drop_timer += delta_time;
+
+            if self.drop_timer > 0.06 {
+                self.drop_timer = 0.0;
+
+                return vec![UpdateSignal::AddHarvestDrop {
+                    drop: self.drops_queue.pop().unwrap(),
+                    origin: grid_to_world(&self.grid_pos),
+                }];
+            }
+        }
+
+        vec![]
     }
 }
 

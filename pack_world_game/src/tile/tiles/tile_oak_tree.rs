@@ -23,15 +23,11 @@ pub struct TileOakTree {
 }
 
 impl TileOakTree {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
-        TileInstance {
-            grid_pos,
-            tile_type: TileType::OakTree,
-            methods: TileMethods::OakTree(TileOakTree {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
-                has_nest: false,
-            }),
-        }
+    pub fn new_methods() -> TileMethods {
+        TileMethods::OakTree(TileOakTree {
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
+            has_nest: false,
+        })
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
@@ -43,8 +39,8 @@ impl TileOakTree {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
-        self.harvest_timer.harvest(grid_pos)
+    pub fn harvest(&mut self, grid_pos: GridPos) -> Drop {
+        self.harvest_timer.harvest()
     }
 
     pub fn render_hover_info(

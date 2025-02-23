@@ -40,12 +40,8 @@ impl HarvestTimer {
         self.table = self.table.add_entry(input);
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
+    pub fn harvest(&mut self) -> Drop {
         self.reset();
-
-        vec![UpdateSignal::AddHarvestDrop {
-            drop: self.table.get_drop(),
-            origin: grid_to_world(&grid_pos),
-        }]
+        return self.table.get_drop();
     }
 }

@@ -283,6 +283,15 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
     }
 
+    // run tile updates
+    {
+        let mut update_sigs: Vec<UpdateSignal> = vec![];
+        for (eid, tile_inst) in &mut gs.world.entities {
+            update_sigs.append(&mut tile_inst.update(prev_delta_time));
+        }
+        handle_signals(update_sigs, gs);
+    }
+
     // render tiles. Render each layer separately.
     // Kinda fucked but whatver. Maybe could setup a new data structure to handle this.
     {
@@ -423,8 +432,6 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
     {
         let world_snapshot = gs.world.get_world_snapshot();
 
-        let mut update_signals: Vec<UpdateSignal> = vec![];
-
         if gs.tile_placing.is_none() {
             let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
             let mouse_snapped_screen = es
@@ -441,7 +448,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
                 // Harvesting
                 if input.mouse_left.pressing && tile.methods.can_harvest() {
-                    update_signals.append(&mut tile.methods.harvest(mouse_grid, &world_snapshot));
+                    tile.harvest(&world_snapshot);
                 }
 
                 // render hover rect
@@ -483,8 +490,6 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 }
             }
         }
-
-        handle_signals(update_signals, gs);
     }
 
     es.render_packs

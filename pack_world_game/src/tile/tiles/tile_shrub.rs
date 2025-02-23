@@ -25,14 +25,10 @@ pub struct TileShrub {
 }
 
 impl TileShrub {
-    pub fn new(grid_pos: GridPos) -> TileInstance {
-        TileInstance {
-            grid_pos,
-            tile_type: TileType::Shrub,
-            methods: TileMethods::Shrub(TileShrub {
-                harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Shrub),
-            }),
-        }
+    pub fn new_methods() -> TileMethods {
+        TileMethods::Shrub(TileShrub {
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Shrub),
+        })
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
@@ -44,8 +40,8 @@ impl TileShrub {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos) -> Vec<UpdateSignal> {
-        self.harvest_timer.harvest(grid_pos)
+    pub fn harvest(&mut self, grid_pos: GridPos) -> Drop {
+        self.harvest_timer.harvest()
     }
 
     pub fn render_hover_info(
