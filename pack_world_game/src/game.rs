@@ -126,9 +126,9 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     {
         let init_dirt: Vec<GridPos> = vec![
             GridPos::new(20, 10),
-            GridPos::new(21, 10),
-            GridPos::new(20, 11),
-            GridPos::new(21, 11),
+            // GridPos::new(21, 10),
+            // GridPos::new(20, 11),
+            // GridPos::new(21, 11),
         ];
         for p in init_dirt {
             let _ = gs.world.force_insert_tile(p, TileType::Dirt);
@@ -138,10 +138,10 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     // setup initial inventory
     {
         gs.inventory
-            .give_item(ItemType::Tile(TileType::Dirt), 10)
+            .give_item(ItemType::Tile(TileType::Dirt), 4)
             .unwrap();
         gs.inventory
-            .give_item(ItemType::Tile(TileType::Grass), 10)
+            .give_item(ItemType::Tile(TileType::Grass), 4)
             .unwrap();
     }
 
