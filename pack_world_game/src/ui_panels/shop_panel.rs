@@ -54,6 +54,7 @@ impl ShopPanel {
                 draw_text(
                     &format!("   {:?} x {}", cost.0, cost.1),
                     button_rect.top_right() + VecTwo::new(0.0, 40.0 * j as f64),
+                    COLOR_WHITE,
                     ui_state,
                     ui_context,
                 );

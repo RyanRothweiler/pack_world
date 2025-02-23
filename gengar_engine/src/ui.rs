@@ -108,6 +108,7 @@ pub fn draw_button_id(
         display.into(),
         &context.button_font_style,
         rect.bottom_left() + VecTwo::new(7.0, -7.0),
+        COLOR_WHITE,
         &mut context.render_commands,
     );
 
@@ -143,12 +144,19 @@ pub fn draw_image(
         .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
 }
 
-pub fn draw_text(display: &str, pos: VecTwo, ui_state: &mut UIFrameState, context: &mut UIContext) {
+pub fn draw_text(
+    display: &str,
+    pos: VecTwo,
+    color: Color,
+    ui_state: &mut UIFrameState,
+    context: &mut UIContext,
+) {
     let origin = ui_state.get_origin();
     render_word(
         display.into(),
         &context.button_font_style,
         pos + origin,
+        color,
         &mut context.render_commands,
     );
 }
@@ -156,6 +164,7 @@ pub fn draw_text(display: &str, pos: VecTwo, ui_state: &mut UIFrameState, contex
 pub fn draw_paragraph(
     para: &str,
     mut rect: Rect,
+    color: Color,
     ui_state: &mut UIFrameState,
     context: &mut UIContext,
 ) {
@@ -166,6 +175,7 @@ pub fn draw_paragraph(
         para.into(),
         rect,
         &context.button_font_style,
+        color,
         &mut context.render_commands,
     );
 }

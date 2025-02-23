@@ -113,7 +113,13 @@ impl OpenPackPanel {
                     ui_context,
                 );
 
-                draw_text(&format!("{:?}", p.drop.amount), p.pos, ui_state, ui_context);
+                draw_text(
+                    &format!("{:?}", p.drop.amount),
+                    p.pos,
+                    COLOR_WHITE,
+                    ui_state,
+                    ui_context,
+                );
 
                 i += 1;
             }

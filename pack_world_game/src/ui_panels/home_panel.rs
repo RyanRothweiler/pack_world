@@ -53,6 +53,7 @@ impl HomePanel {
             draw_text(
                 &format!("{}", inventory.gold),
                 gold_rect.bottom_right + VecTwo::new(10.0, -10.0),
+                COLOR_WHITE,
                 ui_state,
                 ui_context,
             );

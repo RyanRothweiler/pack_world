@@ -1,4 +1,5 @@
 use crate::{
+    constants::*,
     item::*,
     state::{assets::*, *},
     ui_panels::*,
@@ -57,7 +58,13 @@ impl TileLibraryPanel {
                 ui_context,
             );
             {
-                draw_text("Tiles", VecTwo::new(10.0, 40.0), ui_state, ui_context);
+                draw_text(
+                    "Tiles",
+                    VecTwo::new(10.0, 40.0),
+                    COLOR_WHITE,
+                    ui_state,
+                    ui_context,
+                );
 
                 let all_tiles: Vec<(&ItemType, &i64)> = inventory
                     .items
@@ -87,6 +94,7 @@ impl TileLibraryPanel {
                 draw_text(
                     "Items",
                     grid_rects[(i + col_count) as usize].top_left + VecTwo::new(10.0, 50.0),
+                    COLOR_WHITE,
                     ui_state,
                     ui_context,
                 );
@@ -135,6 +143,7 @@ impl TileLibraryPanel {
                 draw_text(
                     &item_type.user_title(),
                     details_rect.bottom_left(),
+                    COLOR_WHITE,
                     ui_state,
                     ui_context,
                 );
@@ -153,6 +162,7 @@ impl TileLibraryPanel {
                     draw_text(
                         &item_type.user_title(),
                         VecTwo::new(10.0, 25.0),
+                        COLOR_WHITE,
                         ui_state,
                         ui_context,
                     );
@@ -166,12 +176,25 @@ impl TileLibraryPanel {
                     {
                         let last_r = *ui_state.panel_stack.last().unwrap();
 
+                        let mut disp: &str = NO_ITEM_DESC;
+                        let mut col = COLOR_WHITE;
+                        col.a = 0.35;
+
+                        match item_type.user_description() {
+                            Some(desc) => {
+                                disp = desc;
+                                col = COLOR_WHITE;
+                            }
+                            _ => {}
+                        }
+
                         draw_paragraph(
-                            &item_type.user_description(),
+                            disp,
                             Rect::new(
                                 VecTwo::new(0.0, 0.0),
                                 VecTwo::new(last_r.width(), last_r.height()),
                             ),
+                            col,
                             ui_state,
                             ui_context,
                         );
@@ -189,10 +212,12 @@ impl TileLibraryPanel {
                             VecTwo::new(last_r.width(), sell_button_y + 30.0),
                         );
 
+                        /*
                         if draw_button("Sell", None, &sell_rect, ui_state, std::line!(), ui_context)
                         {
                             // ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                         }
+                        */
                     }
                 }
                 end_panel(&mut ui_state, ui_context);

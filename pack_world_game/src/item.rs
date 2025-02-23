@@ -31,13 +31,13 @@ impl ItemType {
         }
     }
 
-    pub fn user_description(&self) -> &str {
+    pub fn user_description(&self) -> Option<&str> {
         let mut ret = match self {
             ItemType::Tile(tile_type) => tile_type.user_description(),
             _ => None,
         };
 
-        ret.unwrap_or("No item description")
+        ret
     }
 
     pub fn is_tile(&self) -> bool {

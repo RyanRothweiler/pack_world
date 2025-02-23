@@ -14,7 +14,7 @@ use rand::prelude::*;
 use std::f32::consts::PI;
 
 pub static CIRCLE_LEN: f64 = 0.01;
-pub static GROUND_LEN: f64 = 0.01;
+pub static GROUND_LEN: f64 = 0.035;
 pub static INVENTORY_LEN: f64 = 0.02;
 
 pub static DROP_RADIUS: f64 = 55.0;

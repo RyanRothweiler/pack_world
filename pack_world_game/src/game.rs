@@ -187,6 +187,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 (prev_delta_time * 1000.0) as i32
             ),
             VecTwo::new(es.window_resolution.x - 200.0, 60.0),
+            COLOR_WHITE,
             &mut ui_frame_state,
             &mut ui_context,
         );
@@ -478,6 +479,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                     draw_text(
                         &format!("{:?}", tile.tile_type),
                         VecTwo::new(450.0, 100.0 + y),
+                        COLOR_WHITE,
                         &mut ui_frame_state,
                         &mut ui_context,
                     );

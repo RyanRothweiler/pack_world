@@ -27,10 +27,7 @@ pub fn load(
 
     // create material for rendering
     typeface.material.shader = Some(shader);
-    typeface.material.uniforms.insert(
-        "color".to_string(),
-        UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 1.0).into()),
-    );
+    typeface.material.set_color(Color::new(1.0, 1.0, 1.0, 1.0));
 
     typeface.material.uniforms.insert(
         "tex".to_string(),
@@ -180,6 +177,7 @@ pub fn render_paragraph(
     paragraph: String,
     rect: Rect,
     style: &FontStyle,
+    color: Color,
     render_commands: &mut Vec<RenderCommand>,
 ) {
     let line_height = style.typeface.line_height * EM_SCALE * style.size;
@@ -195,7 +193,7 @@ pub fn render_paragraph(
             cursor.y += line_height;
         }
 
-        render_word(word.into(), style, cursor, render_commands);
+        render_word(word.into(), style, cursor, color, render_commands);
         cursor.x += word_width + space_width;
     }
 }
@@ -204,11 +202,12 @@ pub fn render_word(
     word: String,
     style: &FontStyle,
     pos: VecTwo,
+    color: Color,
     render_commands: &mut Vec<RenderCommand>,
 ) {
     let mut cursor = pos;
     for c in word.chars() {
-        render_letter(c, style, cursor, render_commands);
+        render_letter(c, style, cursor, color, render_commands);
 
         let glyph: &Glyph = style.typeface.glyphs.get(&c).unwrap();
         cursor.x += glyph.advance * EM_SCALE * KERNING_ADJ * style.size;
@@ -219,6 +218,7 @@ pub fn render_letter(
     letter: char,
     style: &FontStyle,
     bottom_left: VecTwo,
+    color: Color,
     render_commands: &mut Vec<RenderCommand>,
 ) {
     let glyph: &Glyph = style.typeface.glyphs.get(&letter).unwrap();
@@ -246,6 +246,9 @@ pub fn render_letter(
         VecTwo::new(glyph.atlas.right(), glyph.atlas.bottom()),
     ];
 
+    let mut uniforms = style.typeface.material.uniforms.clone();
+    uniforms.insert("color".into(), UniformData::VecFour(color.into()));
+
     let rc = RenderCommand {
         kind: VertexDataKind::DynamicMesh {
             mesh: r.get_mesh(-1.0),
@@ -254,7 +257,7 @@ pub fn render_letter(
 
         prog_id: style.typeface.material.shader.unwrap().prog_id,
         indices: indices,
-        uniforms: style.typeface.material.uniforms.clone(),
+        uniforms: uniforms,
     };
     render_commands.push(rc);
 }
