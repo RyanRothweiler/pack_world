@@ -220,7 +220,7 @@ impl TileType {
             let pos = origin + p;
 
             // check adjacency
-            if world.pos_valid(pos) {
+            if !world.pos_valid(pos) {
                 return false;
             }
 
