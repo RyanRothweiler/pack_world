@@ -21,14 +21,18 @@ float screenPxRange() {
     return max(0.5*dot(unitRange, screenTexSize), 1.0);
 }
 
+// bak
 void main() 
 {
-	vec3 msd = texture(font, vTexCoords).rgb;
+	vec3 msd = texture(tex, vTexCoord).rgb;
 	float sd = median(msd.r, msd.g, msd.b);
-	float screenPxDistance = screenPxRange()*(sd - 0.5);
-	float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+	
+	float sigDist = median(msd.r, msd.g, msd.b );
+	float w = fwidth(sigDist);
+	float opacity = smoothstep( 0.5 - w, 0.5 + w, sigDist);
+
 	vec4 bgColor = vec4(0,0,0,0);
-	vec4 fgColor = color;
+	vec4 fgColor = vColor;
 	
 	FragColor = mix(bgColor, fgColor, opacity);
 }

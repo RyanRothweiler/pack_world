@@ -8,27 +8,21 @@ out vec4 FragColor;
 uniform sampler2D tex;
 uniform float edge;
 
-const float pxRange = 2.0;
+const float pxRange = 2.25;
 
 float median(float r, float g, float b) {
     return max(min(r, g), min(max(r, g), b));
 }
 
-float screenPxRange() {
-    vec2 unitRange = vec2(pxRange)/vec2(textureSize(tex, 0));
-    vec2 screenTexSize = vec2(1.0)/fwidth(vTexCoord);
-    return max(0.5*dot(unitRange, screenTexSize), 1.0);
-}
-
 void main() 
 {
-	vec3 msd = texture(tex, vTexCoord).rgb;
-	float sd = median(msd.r, msd.g, msd.b);
-	float screenPxDistance = screenPxRange()*(sd - 0.5);
-	float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
-
+    vec3 msd = texture(tex, vTexCoord).rgb;
+    float sd = median(msd.r, msd.g, msd.b);
+    float screenPxDistance = pxRange * (sd - 0.5);
+    float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+		
 	vec4 bgColor = vec4(0,0,0,0);
 	vec4 fgColor = vColor;
 	
-	FragColor = mix(bgColor, fgColor, opacity);
+    FragColor = mix(bgColor, fgColor, opacity);
 }
