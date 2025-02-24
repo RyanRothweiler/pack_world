@@ -15,3 +15,12 @@ msdf-atlas-gen.exe ^
 -dimensions 512 512 ^
 -imageout roboto\roboto_regular_atlas.png ^
 -json roboto\roboto_regular_data.json
+
+msdf-atlas-gen.exe ^
+-font roboto\Roboto-Medium.ttf ^
+-type sdf ^
+-format png ^
+-pxrange 10 ^
+-dimensions 512 512 ^
+-imageout roboto\roboto_medium_atlas.png ^
+-json roboto\roboto_medium_data.json

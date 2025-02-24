@@ -36,7 +36,7 @@ pub struct State {
 
     pub light_trans: Option<usize>,
 
-    pub font_style_button: FontStyle,
+    pub font_style_body: FontStyle,
     pub font_style_header: FontStyle,
 
     pub active_ui_panels: Vec<UIPanel>,
@@ -72,7 +72,7 @@ impl State {
 
             light_trans: None,
 
-            font_style_button: Default::default(),
+            font_style_body: Default::default(),
             font_style_header: Default::default(),
 
             active_page: None,

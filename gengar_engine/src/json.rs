@@ -304,7 +304,7 @@ impl Tokenizer {
                 self.move_to_num();
                 let num_start = self.index;
 
-                self.move_until(|c| !c.is_numeric() && c != '.');
+                self.move_until(|c| !(c.is_numeric() || c == 'e') && c != '.');
 
                 let num_end = self.index;
 
@@ -317,7 +317,16 @@ impl Tokenizer {
                     Some(v) => v,
                     None => return Ok(Token::End),
                 };
-                let num: f64 = sub.parse()?;
+
+                let num: f64;
+                // just round scientific notation to 0.
+                // This will result in an error when actual scientific notation is desired
+                if sub.contains('e') {
+                    num = 0.0;
+                } else {
+                    num = sub.parse()?;
+                }
+
                 return Ok(Token::Float(num * neg));
 
                 //
@@ -460,5 +469,16 @@ mod test {
             data.get(vec!["first_idea".into()]),
             Some(JsonData::Array(ray))
         );
+    }
+
+    #[test]
+    fn scientific_notation() {
+        let input =
+            "{\"left\":-6.1643480066450249e-05,\"bottom\":-0.073089700996677734,\"right\":0.87701476848006643,\"top\":0.60465116279069775}";
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 4);
+
+        assert_eq!(data.get(vec!["left".into()]), Some(JsonData::Float(0.0)));
     }
 }

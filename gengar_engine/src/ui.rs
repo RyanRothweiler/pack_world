@@ -18,7 +18,8 @@ pub struct UIContext {
     pub render_commands: Vec<RenderCommand>,
     pub button_state: HashMap<String, ButtonState>,
 
-    pub button_font_style: FontStyle,
+    pub font_body: FontStyle,
+    pub font_header: FontStyle,
 }
 
 pub struct UIFrameState {
@@ -106,7 +107,7 @@ pub fn draw_button_id(
 
     render_word(
         display.into(),
-        &context.button_font_style,
+        &context.font_body,
         rect.bottom_left() + VecTwo::new(7.0, -7.0),
         COLOR_WHITE,
         &mut context.render_commands,
@@ -148,13 +149,14 @@ pub fn draw_text(
     display: &str,
     pos: VecTwo,
     color: Color,
+    style: &FontStyle,
     ui_state: &mut UIFrameState,
     context: &mut UIContext,
 ) {
     let origin = ui_state.get_origin();
     render_word(
         display.into(),
-        &context.button_font_style,
+        style,
         pos + origin,
         color,
         &mut context.render_commands,
@@ -174,7 +176,7 @@ pub fn draw_paragraph(
     render_paragraph(
         para.into(),
         rect,
-        &context.button_font_style,
+        &context.font_body,
         color,
         &mut context.render_commands,
     );

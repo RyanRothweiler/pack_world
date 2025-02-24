@@ -62,6 +62,7 @@ impl TileLibraryPanel {
                     "Tiles",
                     VecTwo::new(10.0, 40.0),
                     COLOR_WHITE,
+                    &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
                 );
@@ -95,6 +96,7 @@ impl TileLibraryPanel {
                     "Items",
                     grid_rects[(i + col_count) as usize].top_left + VecTwo::new(10.0, 50.0),
                     COLOR_WHITE,
+                    &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
                 );
@@ -144,6 +146,7 @@ impl TileLibraryPanel {
                     &item_type.user_title(),
                     details_rect.bottom_left(),
                     COLOR_WHITE,
+                    &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
                 );
@@ -163,6 +166,7 @@ impl TileLibraryPanel {
                         &item_type.user_title(),
                         VecTwo::new(10.0, 25.0),
                         COLOR_WHITE,
+                        &ui_context.font_body.clone(),
                         ui_state,
                         ui_context,
                     );

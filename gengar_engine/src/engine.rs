@@ -100,6 +100,14 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
             )),
             render_api,
         );
+        es.roboto_typeface.load_weight(
+            TypeWeight::Medium,
+            include_str!("../engine_resources/fonts/roboto/roboto_medium_data.json").into(),
+            Cursor::new(include_bytes!(
+                "../engine_resources/fonts/roboto/roboto_medium_atlas.png"
+            )),
+            render_api,
+        );
     }
 
     debug::init_context(

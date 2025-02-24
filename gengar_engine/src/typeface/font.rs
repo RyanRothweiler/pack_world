@@ -3,6 +3,7 @@ use crate::{
     debug::*,
     error::*,
     json::*,
+    math::*,
     matricies::matrix_four_four::*,
     rect::*,
     render::{image::*, material::*, render_command::*, shader::*, RenderApi},
@@ -246,8 +247,13 @@ pub fn render_letter(
         VecTwo::new(glyph.atlas.right(), glyph.atlas.bottom()),
     ];
 
+    // Guess the correct pxRange
+    let px_range = lerp(1.0, 24.0, style.size / 20.0);
+    // let px_range = 1.0;
+
     let mut uniforms = style.typeface.material.uniforms.clone();
     uniforms.insert("color".into(), UniformData::VecFour(color.into()));
+    uniforms.insert("pxRange".into(), UniformData::Float(px_range));
 
     let rc = RenderCommand {
         kind: VertexDataKind::DynamicMesh {

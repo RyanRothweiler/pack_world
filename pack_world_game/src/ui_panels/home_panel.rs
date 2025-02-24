@@ -54,6 +54,7 @@ impl HomePanel {
                 &format!("{}", inventory.gold),
                 gold_rect.bottom_right + VecTwo::new(10.0, -10.0),
                 COLOR_WHITE,
+                &ui_context.font_body.clone(),
                 ui_state,
                 ui_context,
             );

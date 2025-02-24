@@ -117,6 +117,7 @@ impl OpenPackPanel {
                     &format!("{:?}", p.drop.amount),
                     p.pos,
                     COLOR_WHITE,
+                    &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
                 );

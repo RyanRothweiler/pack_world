@@ -8,8 +8,8 @@ pub use font::*;
 #[derive(PartialEq, Eq, Hash, Debug)]
 pub enum TypeWeight {
     Regular,
+    Medium,
     Bold,
-    Light,
 }
 
 pub struct Typeface {

@@ -55,6 +55,7 @@ impl ShopPanel {
                     &format!("   {:?} x {}", cost.0, cost.1),
                     button_rect.top_right() + VecTwo::new(0.0, 40.0 * j as f64),
                     COLOR_WHITE,
+                    &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
                 );

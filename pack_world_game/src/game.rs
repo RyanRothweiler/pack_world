@@ -110,17 +110,19 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
     // setup font styles
     {
-        gs.font_style_button = FontStyle {
-            size: 10.0,
+        gs.font_style_body = FontStyle {
+            size: 2.0,
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Regular),
+        };
+
+        gs.font_style_header = FontStyle {
+            size: 5.0,
             typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
         };
     }
 
     // setup initial UI
-    {
-        // gs.active_ui_panels.push(PanelID::Home.create_panel());
-        gs.active_page = Some(CreatePanelData::Home.create_panel());
-    }
+    gs.active_page = Some(CreatePanelData::Home.create_panel());
 
     // setup first map
     {
@@ -169,7 +171,8 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         color_shader: es.shader_color_ui,
         color_shader_texture: es.color_texture_shader,
 
-        button_font_style: gs.font_style_button.clone(),
+        font_body: gs.font_style_body.clone(),
+        font_header: gs.font_style_header.clone(),
 
         render_commands: vec![],
         button_state: HashMap::new(),
@@ -188,16 +191,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             ),
             VecTwo::new(es.window_resolution.x - 200.0, 60.0),
             COLOR_WHITE,
-            &mut ui_frame_state,
-            &mut ui_context,
-        );
-    }
-
-    {
-        draw_text(
-            "Starter",
-            VecTwo::new(500.0, 500.0),
-            COLOR_WHITE,
+            &gs.font_style_body,
             &mut ui_frame_state,
             &mut ui_context,
         );
@@ -490,6 +484,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                         &format!("{:?}", tile.tile_type),
                         VecTwo::new(450.0, 100.0 + y),
                         COLOR_WHITE,
+                        &gs.font_style_body,
                         &mut ui_frame_state,
                         &mut ui_context,
                     );
