@@ -111,12 +111,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     // setup font styles
     {
         gs.font_style_button = FontStyle {
-            size: 2.0,
-            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
-        };
-
-        gs.font_style_button = FontStyle {
-            size: 2.0,
+            size: 10.0,
             typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
         };
     }
@@ -192,6 +187,16 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 (prev_delta_time * 1000.0) as i32
             ),
             VecTwo::new(es.window_resolution.x - 200.0, 60.0),
+            COLOR_WHITE,
+            &mut ui_frame_state,
+            &mut ui_context,
+        );
+    }
+
+    {
+        draw_text(
+            "Starter",
+            VecTwo::new(500.0, 500.0),
             COLOR_WHITE,
             &mut ui_frame_state,
             &mut ui_context,

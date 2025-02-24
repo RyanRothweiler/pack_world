@@ -82,15 +82,21 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
 
     // roboto
     {
-        es.roboto_typeface.setup(
-            include_str!("../engine_resources/fonts/roboto_mono/roboto_mono_bold_data.json").into(),
-            es.font_sdf,
-        );
+        es.roboto_typeface.setup(es.font_sdf);
 
         es.roboto_typeface.load_weight(
             TypeWeight::Bold,
+            include_str!("../engine_resources/fonts/roboto/roboto_bold_data.json").into(),
             Cursor::new(include_bytes!(
-                "../engine_resources/fonts/roboto_mono/roboto_mono_bold_atlas.png"
+                "../engine_resources/fonts/roboto/roboto_bold_atlas.png"
+            )),
+            render_api,
+        );
+        es.roboto_typeface.load_weight(
+            TypeWeight::Regular,
+            include_str!("../engine_resources/fonts/roboto/roboto_regular_data.json").into(),
+            Cursor::new(include_bytes!(
+                "../engine_resources/fonts/roboto/roboto_regular_atlas.png"
             )),
             render_api,
         );

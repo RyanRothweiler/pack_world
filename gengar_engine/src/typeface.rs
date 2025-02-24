@@ -14,7 +14,6 @@ pub enum TypeWeight {
 
 pub struct Typeface {
     fonts: HashMap<TypeWeight, Font>,
-    metrics_json: String,
     shader: Shader,
 }
 
@@ -22,23 +21,22 @@ impl Typeface {
     pub fn new() -> Self {
         Self {
             fonts: HashMap::new(),
-            metrics_json: String::new(),
             shader: Shader::new_empty(),
         }
     }
 
-    pub fn setup(&mut self, metrics: String, shader: Shader) {
-        self.metrics_json = metrics;
+    pub fn setup(&mut self, shader: Shader) {
         self.shader = shader;
     }
 
     pub fn load_weight(
         &mut self,
         weight: TypeWeight,
+        metrics: String,
         image_bytes: impl std::io::Read,
         render_api: &impl RenderApi,
     ) {
-        let font = font::load(image_bytes, &self.metrics_json, self.shader, render_api).unwrap();
+        let font = font::load(image_bytes, &metrics, self.shader, render_api).unwrap();
         self.fonts.insert(weight, font);
     }
 

@@ -1,8 +1,0 @@
-msdf-atlas-gen.exe ^
--font roboto_mono\RobotoMono-Bold.ttf ^
--type sdf ^
--format png ^
--pxrange 2 ^
--dimensions 512 512 ^
--imageout roboto_mono\roboto_mono_bold_atlas.png ^
--json roboto_mono\roboto_mono_bold_data.json
