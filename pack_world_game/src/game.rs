@@ -11,7 +11,6 @@ use gengar_engine::{
     ascii::*,
     color::*,
     debug::*,
-    font::*,
     input::*,
     matricies::matrix_four_four::*,
     model::*,
@@ -23,6 +22,7 @@ use gengar_engine::{
     },
     state::State as EngineState,
     transform::*,
+    typeface::*,
     ui::*,
     vectors::*,
 };
@@ -112,7 +112,12 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     {
         gs.font_style_button = FontStyle {
             size: 2.0,
-            typeface: es.roboto_font.clone(),
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
+        };
+
+        gs.font_style_button = FontStyle {
+            size: 2.0,
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
         };
     }
 

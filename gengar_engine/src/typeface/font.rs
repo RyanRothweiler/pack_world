@@ -18,8 +18,8 @@ pub fn load(
     font_data: &str,
     shader: Shader,
     render_api: &impl RenderApi,
-) -> Result<Typeface, Error> {
-    let mut typeface: Typeface = Default::default();
+) -> Result<Font, Error> {
+    let mut typeface: Font = Default::default();
 
     // load image
     typeface.atlas = crate::render::load_image(image_read).unwrap();
@@ -142,7 +142,7 @@ pub fn load(
 #[derive(Default, Clone)]
 pub struct FontStyle {
     pub size: f64,
-    pub typeface: Typeface,
+    pub typeface: Font,
 }
 
 impl FontStyle {
@@ -158,7 +158,7 @@ impl FontStyle {
 }
 
 #[derive(Clone, Default)]
-pub struct Typeface {
+pub struct Font {
     pub glyphs: HashMap<char, Glyph>,
     pub atlas: Image,
     pub atlas_id: u32,

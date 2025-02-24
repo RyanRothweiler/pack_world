@@ -8,7 +8,7 @@ use crate::{
     ui_panels::{nav_tabs_panel::*, *},
     UpdateSignal,
 };
-use gengar_engine::{color::*, font::*, rect::*, render::material::*, ui::*, vectors::*};
+use gengar_engine::{color::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*};
 
 struct PullDisplay {
     pub drop: Drop,

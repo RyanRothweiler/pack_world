@@ -1,9 +1,9 @@
 use crate::{
-    font::*,
     input::*,
     model::*,
     render::{camera::*, render_command::*, render_pack::*, shader::*, vao::*},
     transform::*,
+    typeface::*,
     ui::*,
     vectors::*,
 };
@@ -35,7 +35,7 @@ pub struct State {
     // This doesn't handle 'deallocation'
     pub transforms: Vec<Transform>,
 
-    pub roboto_font: Typeface,
+    pub roboto_typeface: Typeface,
 }
 
 impl State {
@@ -58,7 +58,7 @@ impl State {
             model_sphere: Model::new(),
             model_plane: Model::new(),
 
-            roboto_font: Default::default(),
+            roboto_typeface: Typeface::new(),
 
             frame: 0,
         };

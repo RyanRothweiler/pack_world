@@ -4,7 +4,7 @@ use crate::{
     ui_panels::*,
     UpdateSignal,
 };
-use gengar_engine::{font::*, rect::*, render::material::*, ui::*, vectors::*};
+use gengar_engine::{rect::*, render::material::*, typeface::*, ui::*, vectors::*};
 
 pub struct ShopPanel {}
 
@@ -17,7 +17,7 @@ impl ShopPanel {
         ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         begin_panel(
-            Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y),
+            Rect::new_top_size(VecTwo::new(0.0, 150.0), 900.0, ui_state.resolution.y),
             BG_COLOR,
             &mut ui_state,
             ui_context,
@@ -63,6 +63,7 @@ impl ShopPanel {
             cursor_y += 300.0;
         }
 
+        /*
         cursor_y -= 300.0;
 
         // bank slot
@@ -84,6 +85,7 @@ impl ShopPanel {
                 return vec![UpdateSignal::PurchaseBankSlot];
             }
         }
+        */
 
         end_panel(&mut ui_state, ui_context);
 

@@ -4,7 +4,7 @@ use crate::{
     tile::*,
     UpdateSignal,
 };
-use gengar_engine::{color::*, font::*, ui::*, vectors::*};
+use gengar_engine::{color::*, typeface::*, ui::*, vectors::*};
 
 pub mod debug_panel;
 pub mod home_panel;

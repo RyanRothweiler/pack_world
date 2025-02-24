@@ -12,7 +12,6 @@ pub mod ascii;
 pub mod color;
 pub mod debug;
 pub mod error;
-pub mod font;
 pub mod input;
 pub mod math;
 pub mod matricies;
@@ -21,6 +20,7 @@ pub mod rect;
 pub mod render;
 pub mod state;
 pub mod transform;
+pub mod typeface;
 pub mod ui;
 pub mod vectors;
 
@@ -30,13 +30,13 @@ pub mod obj;
 
 use ascii::*;
 use color::*;
-use font::*;
 use input::*;
 use matricies::matrix_four_four::*;
 use model::*;
 use render::{render_command::*, shader::*, vao::*};
 use state::*;
 use transform::*;
+use typeface::*;
 use vectors::*;
 
 pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
@@ -82,16 +82,18 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
 
     // roboto
     {
-        let image_bytes_cursor = Cursor::new(include_bytes!(
-            "../engine_resources/fonts/roboto_mono/roboto_mono_bold_atlas.png"
-        ));
-        es.roboto_font = font::load(
-            image_bytes_cursor,
-            include_str!("../engine_resources/fonts/roboto_mono/roboto_mono_bold_data.json"),
+        es.roboto_typeface.setup(
+            include_str!("../engine_resources/fonts/roboto_mono/roboto_mono_bold_data.json").into(),
             es.font_sdf,
+        );
+
+        es.roboto_typeface.load_weight(
+            TypeWeight::Bold,
+            Cursor::new(include_bytes!(
+                "../engine_resources/fonts/roboto_mono/roboto_mono_bold_atlas.png"
+            )),
             render_api,
-        )
-        .unwrap();
+        );
     }
 
     debug::init_context(
