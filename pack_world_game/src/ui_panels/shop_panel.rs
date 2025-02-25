@@ -17,6 +17,8 @@ impl ShopPanel {
         assets: &Assets,
         ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
+        let mut sigs: Vec<UpdateSignal> = vec![];
+
         begin_panel(
             Rect::new_top_size(VecTwo::new(0.0, 150.0), 900.0, ui_state.resolution.y),
             BG_COLOR,
@@ -76,40 +78,20 @@ impl ShopPanel {
                 }
             }
 
-            /*
-            // drops
-            {
-                let y: f64 = 90.0;
-
-                draw_text(
-                    "Drops",
-                    desc_origin + VecTwo::new(0.0, y + 30.0),
-                    COLOR_WHITE,
-                    &ui_context.font_body.clone(),
-                    ui_state,
-                    ui_context,
-                );
-                let list = get_fixed_table(pack_info.table_id).list_drops();
-
-                for (j, drop) in list.iter().enumerate() {
-                    let cost_origin = desc_origin + VecTwo::new(80.0 * j as f64, y + 35.0);
-                    let icon_size = 40.0;
-
-                    let icon = assets.get_drop_icon(&drop.drop_type);
-                    let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
-
-                    draw_image(r, icon, COLOR_WHITE, ui_state, ui_context);
-
-                    draw_text(
-                        &format!("{}", drop.amount),
-                        cost_origin + VecTwo::new(40.0, 30.0),
-                        COLOR_WHITE,
-                        &ui_context.font_body.clone(),
-                        ui_state,
-                        ui_context,
-                    );
-                }
+            if draw_button(
+                "Show Drop List",
+                None,
+                &Rect::new_top_size(desc_origin + VecTwo::new(0.0, 100.0), 150.0, 30.0),
+                ui_state,
+                std::line!(),
+                ui_context,
+            ) {
+                let new_panel_data = CreatePanelData::PackDetails { pack_id: *pack_id };
+                sigs.push(UpdateSignal::SetActivePage(new_panel_data));
             }
+
+            /*
+
             */
 
             // pack button
@@ -130,7 +112,7 @@ impl ShopPanel {
                     std::line!(),
                     ui_context,
                 ) {
-                    return vec![UpdateSignal::OpenPack(*pack_id)];
+                    sigs.push(UpdateSignal::OpenPack(*pack_id));
                 }
             }
 
@@ -139,6 +121,6 @@ impl ShopPanel {
 
         end_panel(&mut ui_state, ui_context);
 
-        vec![]
+        sigs
     }
 }

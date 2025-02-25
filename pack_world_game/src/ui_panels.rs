@@ -10,6 +10,7 @@ pub mod debug_panel;
 pub mod home_panel;
 pub mod nav_tabs_panel;
 pub mod open_pack_panel;
+pub mod pack_details_panel;
 pub mod shop_panel;
 pub mod tile_library_panel;
 
@@ -17,6 +18,7 @@ use debug_panel::*;
 use home_panel::*;
 use nav_tabs_panel::*;
 use open_pack_panel::*;
+use pack_details_panel::*;
 use shop_panel::*;
 use tile_library_panel::*;
 
@@ -34,6 +36,7 @@ pub enum UIPanel {
     Home(HomePanel),
     OpenPack(OpenPackPanel),
     DebugPanel(DebugPanel),
+    PackDetails(PackDetailsData),
 }
 
 impl UIPanel {
@@ -56,6 +59,7 @@ impl UIPanel {
             }
             UIPanel::OpenPack(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::DebugPanel(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::PackDetails(state) => state.update(ui_state, inventory, assets, ui_context),
         }
     }
 }
@@ -68,6 +72,7 @@ pub enum PanelID {
     Home,
     OpenPack,
     DebugPanel,
+    PackDetails,
 }
 
 #[derive(Clone, Copy)]
@@ -77,6 +82,7 @@ pub enum CreatePanelData {
     Shop,
     Home,
     OpenPack { pack_id: PackID },
+    PackDetails { pack_id: PackID },
 }
 
 impl CreatePanelData {
@@ -94,6 +100,9 @@ impl CreatePanelData {
             }),
             CreatePanelData::OpenPack { pack_id } => {
                 UIPanel::OpenPack(OpenPackPanel::new(*pack_id))
+            }
+            CreatePanelData::PackDetails { pack_id } => {
+                UIPanel::PackDetails(PackDetailsData::new(*pack_id))
             }
         }
     }
