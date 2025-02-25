@@ -182,6 +182,27 @@ impl DropTable {
 
         self.max = accum;
     }
+
+    /// flatten the drop table into one list of all possible drops
+    /// Does not check against cycles
+    pub fn list_drops(&self) -> Vec<Drop> {
+        let mut ret: Vec<Drop> = vec![];
+
+        for entry in &self.entries {
+            match entry.output.ty {
+                EntryOutputType::Gold => ret.push(Drop::new_gold(entry.output.amount)),
+                EntryOutputType::Item(item_type) => {
+                    ret.push(Drop::new_item(item_type, entry.output.amount));
+                }
+                EntryOutputType::Table(table_id) => {
+                    let table = get_fixed_table(table_id);
+                    ret.append(&mut table.list_drops());
+                }
+            };
+        }
+
+        return ret;
+    }
 }
 
 mod test {
@@ -217,6 +238,21 @@ mod test {
 
         assert_eq!(pull.drop_type, DropType::Gold);
         assert_eq!(pull.amount, 1);
+    }
+
+    #[test]
+    fn list_drops() {
+        let list = get_fixed_table(FixedTableID::TestTable).list_drops();
+
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].amount, 1);
+        assert_eq!(list[0].drop_type, DropType::Gold);
+
+        let list = get_fixed_table(FixedTableID::TestTable).list_drops();
+
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].amount, 1);
+        assert_eq!(list[0].drop_type, DropType::Gold);
     }
 
     #[test]

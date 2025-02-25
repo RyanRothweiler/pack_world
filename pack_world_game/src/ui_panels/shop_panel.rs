@@ -1,4 +1,5 @@
 use crate::{
+    drop_table::*,
     pack::*,
     state::{assets, *},
     ui_panels::*,
@@ -31,62 +32,110 @@ impl ShopPanel {
         for (i, pack_id) in packs.iter().enumerate() {
             let pack_info: &Pack = get_pack_info(*pack_id);
 
-            let pack_image_size = VecTwo::new(448.0, 604.0) * 0.35;
+            let origin = VecTwo::new(10.0, cursor_y);
 
-            let button_rect = Rect::new_top_size(
-                VecTwo::new(10.0, cursor_y),
-                pack_image_size.x,
-                pack_image_size.y,
+            let desc_origin = origin + VecTwo::new(175.0, 40.0);
+
+            // pack title
+            draw_text(
+                &pack_info.display_name,
+                desc_origin + VecTwo::new(0.0, 0.0),
+                COLOR_WHITE,
+                &ui_context.font_header.clone(),
+                ui_state,
+                ui_context,
             );
 
-            if draw_button(
-                &pack_info.display_name,
-                Some(assets.get_pack_icon(&pack_id)),
-                &button_rect,
-                ui_state,
-                std::line!(),
-                ui_context,
-            ) {
-                return vec![UpdateSignal::OpenPack(*pack_id)];
-            }
-
-            for (j, cost) in pack_info.cost.iter().enumerate() {
+            // cost
+            {
                 draw_text(
-                    &format!("   {:?} x {}", cost.0, cost.1),
-                    button_rect.top_right() + VecTwo::new(0.0, 40.0 * j as f64),
+                    "Cost",
+                    desc_origin + VecTwo::new(0.0, 30.0),
                     COLOR_WHITE,
                     &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
                 );
+                for (j, cost) in pack_info.cost.iter().enumerate() {
+                    let cost_origin = desc_origin + VecTwo::new(80.0 * j as f64, 35.0);
+                    let icon_size = 40.0;
+
+                    let icon = assets.get_item_icon(&cost.0);
+                    let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
+
+                    draw_image(r, icon, COLOR_WHITE, ui_state, ui_context);
+
+                    draw_text(
+                        &format!("{}", cost.1),
+                        cost_origin + VecTwo::new(40.0, 30.0),
+                        COLOR_WHITE,
+                        &ui_context.font_body.clone(),
+                        ui_state,
+                        ui_context,
+                    );
+                }
             }
 
-            cursor_y += 300.0;
-        }
+            /*
+            // drops
+            {
+                let y: f64 = 90.0;
 
-        /*
-        cursor_y -= 300.0;
+                draw_text(
+                    "Drops",
+                    desc_origin + VecTwo::new(0.0, y + 30.0),
+                    COLOR_WHITE,
+                    &ui_context.font_body.clone(),
+                    ui_state,
+                    ui_context,
+                );
+                let list = get_fixed_table(pack_info.table_id).list_drops();
 
-        // bank slot
-        {
-            let mut r = Rect::new(
-                VecTwo::new(0.0, cursor_y),
-                VecTwo::new(200.0, cursor_y + 50.0),
-            );
-            r.translate(VecTwo::new(10.0, 300.0));
+                for (j, drop) in list.iter().enumerate() {
+                    let cost_origin = desc_origin + VecTwo::new(80.0 * j as f64, y + 35.0);
+                    let icon_size = 40.0;
 
-            if draw_button(
-                &format!("1 Bank Slot {} gold", inventory.next_slot_cost()),
-                None,
-                &r,
-                ui_state,
-                std::line!(),
-                ui_context,
-            ) {
-                return vec![UpdateSignal::PurchaseBankSlot];
+                    let icon = assets.get_drop_icon(&drop.drop_type);
+                    let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
+
+                    draw_image(r, icon, COLOR_WHITE, ui_state, ui_context);
+
+                    draw_text(
+                        &format!("{}", drop.amount),
+                        cost_origin + VecTwo::new(40.0, 30.0),
+                        COLOR_WHITE,
+                        &ui_context.font_body.clone(),
+                        ui_state,
+                        ui_context,
+                    );
+                }
             }
+            */
+
+            // pack button
+            {
+                let pack_image_size = VecTwo::new(448.0, 604.0) * 0.35;
+
+                let button_rect = Rect::new_top_size(
+                    VecTwo::new(10.0, cursor_y),
+                    pack_image_size.x,
+                    pack_image_size.y,
+                );
+
+                if draw_button(
+                    "",
+                    Some(assets.get_pack_icon(&pack_id)),
+                    &button_rect,
+                    ui_state,
+                    std::line!(),
+                    ui_context,
+                ) {
+                    return vec![UpdateSignal::OpenPack(*pack_id)];
+                }
+            }
+
+            cursor_y += 250.0;
         }
-        */
 
         end_panel(&mut ui_state, ui_context);
 

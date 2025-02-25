@@ -116,7 +116,7 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         };
 
         gs.font_style_header = FontStyle {
-            size: 5.0,
+            size: 4.0,
             typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
         };
     }
