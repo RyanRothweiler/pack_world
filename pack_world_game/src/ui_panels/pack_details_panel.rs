@@ -76,7 +76,13 @@ impl PackDetailsData {
                 let cost_origin = desc_origin + VecTwo::new(80.0 * j as f64, y + 40.0);
                 let icon_size = 40.0;
 
-                let icon = assets.get_drop_icon(&drop.drop_type);
+                let mut icon: u32;
+                if inventory.drop_seen(drop) {
+                    icon = assets.get_drop_icon(&drop.drop_type);
+                } else {
+                    icon = assets.image_question_mark.gl_id.unwrap();
+                }
+
                 let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
 
                 draw_image(r, icon, COLOR_WHITE, ui_state, ui_context);

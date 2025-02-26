@@ -2,6 +2,7 @@ use crate::{constants::*, drop_table::*, error::*, item::*, tile::*};
 use std::collections::HashMap;
 
 pub struct Inventory {
+    pub items_seen: HashMap<ItemType, bool>,
     pub items: HashMap<ItemType, i64>,
     pub gold: i64,
     pub limit: usize,
@@ -11,8 +12,16 @@ impl Inventory {
     pub fn new() -> Self {
         Self {
             items: HashMap::new(),
+            items_seen: HashMap::new(),
             limit: BANK_LIMIT_START,
             gold: 0,
+        }
+    }
+
+    pub fn drop_seen(&self, drop: &Drop) -> bool {
+        match drop.drop_type {
+            DropType::Gold => true,
+            DropType::Item { item_type } => *self.items_seen.get(&item_type).unwrap_or(&false),
         }
     }
 
@@ -25,6 +34,8 @@ impl Inventory {
 
     // returns new item count
     pub fn give_item(&mut self, item_type: ItemType, count: i64) -> Result<i64, Error> {
+        self.items_seen.insert(item_type, true);
+
         // Will we be above the limit?
         if !self.items.contains_key(&item_type) && self.items.len() >= self.limit {
             return Err(Error::HitBankLimit);

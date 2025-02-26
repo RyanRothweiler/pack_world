@@ -18,6 +18,7 @@ pub struct Assets {
     pub image_baby: Image,
     pub image_shrub: Image,
     pub image_berry: Image,
+    pub image_question_mark: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -42,6 +43,7 @@ impl Assets {
             image_baby: Image::new(),
             image_shrub: Image::new(),
             image_berry: Image::new(),
+            image_question_mark: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),

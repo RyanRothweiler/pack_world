@@ -1,7 +1,8 @@
+use crate::drop_table::*;
+use std::collections::HashMap;
+
 // Player save file
-pub struct PlayerState {
-    // pub bank_size: i32,
-}
+pub struct PlayerState {}
 
 impl PlayerState {
     pub fn new() -> Self {

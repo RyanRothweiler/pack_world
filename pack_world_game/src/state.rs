@@ -45,10 +45,10 @@ pub struct State {
 
     pub tile_placing: Option<TileType>,
 
-    pub world: World,
-
+    // these things need to be saved and loaded between runs
     pub inventory: Inventory,
     pub player_state: PlayerState,
+    pub world: World,
 
     pub harvest_drops: Vec<HarvestDrop>,
 

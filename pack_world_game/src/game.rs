@@ -111,6 +111,8 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
         load_image_cursor(include_bytes!("../resources/berry.png"), render_api).unwrap();
     gs.assets.image_pack_stick =
         load_image_cursor(include_bytes!("../resources/pack_stick.png"), render_api).unwrap();
+    gs.assets.image_question_mark =
+        load_image_cursor(include_bytes!("../resources/question_mark.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
