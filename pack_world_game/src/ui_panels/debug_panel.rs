@@ -39,7 +39,7 @@ impl DebugPanel {
         {
             if draw_button(
                 "Gold 10,000",
-                Some(assets.image_gold.gl_id.unwrap()),
+                ButtonStyleData::new_outline(Some(assets.image_gold.gl_id.unwrap())),
                 &Rect::new_top_size(VecTwo::new(300.0, 10.0), 50.0, 50.0),
                 ui_state,
                 std::line!(),
@@ -58,7 +58,7 @@ impl DebugPanel {
 
             if draw_button(
                 &format!("{:?}", ty),
-                Some(icon),
+                ButtonStyleData::new_outline(Some(icon)),
                 &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
                 ui_state,
                 std::line!(),

@@ -98,7 +98,7 @@ impl PackDetailsData {
 
             if draw_button(
                 "Close",
-                None,
+                ButtonStyleData::new_outline(None),
                 &close_rect,
                 ui_state,
                 std::line!(),

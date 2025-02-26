@@ -1,25 +1,30 @@
 use crate::{
     color::*,
     font::*,
-    input::{ButtonState, Input},
+    input::{mouse::*, Input},
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     vectors::*,
 };
 use std::{cell::RefCell, collections::HashMap, sync::Mutex};
 
+pub mod button;
+
+pub use button::*;
+
 pub struct UIContext {
-    pub mouse_pos: VecTwo,
-    pub mouse_down: bool,
+    pub mouse: Mouse,
 
     pub color_shader: Shader,
     pub color_shader_texture: Shader,
 
     pub render_commands: Vec<RenderCommand>,
-    pub button_state: HashMap<String, ButtonState>,
+    pub button_state: HashMap<String, ButtonData>,
 
     pub font_body: FontStyle,
     pub font_header: FontStyle,
+
+    pub delta_time: f64,
 }
 
 pub struct UIFrameState {
@@ -32,7 +37,7 @@ pub struct UIFrameState {
 impl UIFrameState {
     pub fn new(input: &Input, resolution: VecTwo) -> Self {
         Self {
-            mouse_left: input.mouse_left.on_press,
+            mouse_left: input.mouse.button_left.on_press,
             panel_stack: vec![],
             resolution,
         }
@@ -47,82 +52,6 @@ impl UIFrameState {
 
         return origin;
     }
-}
-
-pub fn draw_button(
-    display: &str,
-    maybe_icon: Option<u32>,
-    rect: &Rect,
-    ui_state: &mut UIFrameState,
-    line: u32,
-    context: &mut UIContext,
-) -> bool {
-    draw_button_id(0, display, maybe_icon, rect, ui_state, line, context)
-}
-
-pub fn draw_button_id(
-    id: i32,
-    display: &str,
-    maybe_icon: Option<u32>,
-    rect: &Rect,
-    ui_state: &mut UIFrameState,
-    line: u32,
-    context: &mut UIContext,
-) -> bool {
-    let origin = ui_state.get_origin();
-
-    let mut rect = *rect;
-    rect.translate(origin);
-
-    let contains = rect.contains(context.mouse_pos);
-    let mut color = COLOR_BLUE;
-    if contains {
-        color = COLOR_GREEN;
-    }
-
-    // draw button outline
-    {
-        let mut mat = Material::new();
-        mat.shader = Some(context.color_shader);
-        mat.set_color(color);
-        context
-            .render_commands
-            .push(RenderCommand::new_rect_outline(&rect, -1.0, 1.0, &mat));
-    }
-
-    // draw icon
-    if let Some(icon) = maybe_icon {
-        let mut icon_rect: Rect = rect.clone();
-        icon_rect.shrink(2.0);
-
-        let mut mat = Material::new();
-        mat.shader = Some(context.color_shader_texture);
-        mat.set_image(icon);
-        mat.set_color(COLOR_WHITE);
-
-        context
-            .render_commands
-            .push(RenderCommand::new_rect(&icon_rect, -1.0, 0.0, &mat));
-    }
-
-    render_word(
-        display.into(),
-        &context.font_body,
-        rect.bottom_left() + VecTwo::new(7.0, -7.0),
-        COLOR_WHITE,
-        &mut context.render_commands,
-    );
-
-    // handle state
-    let id = format!("{}{}{}", display, line, id);
-    let button_state = context.button_state.entry(id).or_insert(ButtonState::new());
-    button_state.update(context.mouse_down);
-
-    if contains {
-        ui_state.mouse_left = false;
-    }
-
-    return contains && button_state.on_press;
 }
 
 pub fn draw_image(
@@ -241,7 +170,7 @@ pub fn end_panel(frame_state: &mut UIFrameState, context: &mut UIContext) {
         .panel_stack
         .pop()
         .expect("End panel called without an associated beginning panel.")
-        .contains(context.mouse_pos)
+        .contains(context.mouse.pos)
     {
         frame_state.mouse_left = false;
     }

@@ -1,22 +1,19 @@
 use crate::vectors::*;
 use std::collections::HashMap;
 
-pub struct Input {
-    pub mouse_pos: VecTwo,
-    pub mouse_pos_delta: VecTwo,
-    pub mouse_left: ButtonState,
-    pub mouse_right: ButtonState,
+pub mod mouse;
 
+pub use mouse::*;
+
+pub struct Input {
+    pub mouse: Mouse,
     pub keyboard: HashMap<KeyCode, ButtonState>,
 }
 
 impl Input {
     pub fn new() -> Self {
         Input {
-            mouse_left: ButtonState::new(),
-            mouse_right: ButtonState::new(),
-            mouse_pos: VecTwo::new(0.0, 0.0),
-            mouse_pos_delta: VecTwo::new(0.0, 0.0),
+            mouse: Mouse::new(),
             keyboard: HashMap::new(),
         }
     }

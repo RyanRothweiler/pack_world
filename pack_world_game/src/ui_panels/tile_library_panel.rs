@@ -257,7 +257,7 @@ impl TileLibraryPanel {
                 if draw_button_id(
                     i,
                     &disp,
-                    Some(icon),
+                    ButtonStyleData::new_outline(Some(icon)),
                     &grid_rect,
                     ui_state,
                     std::line!(),
@@ -278,7 +278,7 @@ impl TileLibraryPanel {
                 if draw_button_id(
                     i,
                     &disp,
-                    Some(icon),
+                    ButtonStyleData::new_outline(Some(icon)),
                     &grid_rect,
                     ui_state,
                     std::line!(),
@@ -295,7 +295,7 @@ impl TileLibraryPanel {
 
             let mut rect_offset = button_rect;
             rect_offset.translate(ui_state.get_origin());
-            if rect_offset.contains(ui_context.mouse_pos) {
+            if rect_offset.contains(ui_context.mouse.pos) {
                 *item_hovering = Some((*y_cursor, *item_type));
             }
         }

@@ -24,7 +24,7 @@ impl NavTabsPanel {
 
         if draw_button(
             &inv_disp,
-            None,
+            ButtonStyleData::new_outline(None),
             &Rect::new_top_size(VecTwo::new(10.0, 50.0), 50.0, 50.0),
             ui_state,
             std::line!(),
@@ -36,7 +36,7 @@ impl NavTabsPanel {
 
         if draw_button(
             "Shop",
-            None,
+            ButtonStyleData::new_outline(None),
             &Rect::new_top_size(VecTwo::new(200.0, 50.0), 50.0, 50.0),
             ui_state,
             std::line!(),

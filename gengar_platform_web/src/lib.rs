@@ -161,15 +161,15 @@ pub fn main_loop() {
         {
             let input: &mut Input = INPUT.as_mut().unwrap();
 
-            input.mouse_left.update(MOUSE_LEFT_DOWN);
-            input.mouse_right.update(MOUSE_RIGHT_DOWN);
+            input.mouse.button_left.update(MOUSE_LEFT_DOWN);
+            input.mouse.button_right.update(MOUSE_RIGHT_DOWN);
 
             // Mouse position
-            let prev_pos = input.mouse_pos;
-            input.mouse_pos = MOUSE_POS;
-            input.mouse_pos_delta = VecTwo::new(
-                prev_pos.x - input.mouse_pos.x as f64,
-                prev_pos.y - input.mouse_pos.y as f64,
+            let prev_pos = input.mouse.pos;
+            input.mouse.pos = MOUSE_POS;
+            input.mouse.pos_delta = VecTwo::new(
+                prev_pos.x - input.mouse.pos.x as f64,
+                prev_pos.y - input.mouse.pos.y as f64,
             );
         }
 

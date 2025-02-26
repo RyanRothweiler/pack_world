@@ -78,9 +78,10 @@ impl ShopPanel {
                 }
             }
 
-            if draw_button(
+            if draw_button_id(
+                i as i32,
                 "Show Drop List",
-                None,
+                ButtonStyleData::new_outline(None),
                 &Rect::new_top_size(desc_origin + VecTwo::new(0.0, 100.0), 150.0, 30.0),
                 ui_state,
                 std::line!(),
@@ -89,10 +90,6 @@ impl ShopPanel {
                 let new_panel_data = CreatePanelData::PackDetails { pack_id: *pack_id };
                 sigs.push(UpdateSignal::SetActivePage(new_panel_data));
             }
-
-            /*
-
-            */
 
             // pack button
             {
@@ -104,9 +101,10 @@ impl ShopPanel {
                     pack_image_size.y,
                 );
 
-                if draw_button(
+                if draw_button_id(
+                    i as i32,
                     "",
-                    Some(assets.get_pack_icon(&pack_id)),
+                    ButtonStyleData::new_shrink(Some(assets.get_pack_icon(&pack_id))),
                     &button_rect,
                     ui_state,
                     std::line!(),

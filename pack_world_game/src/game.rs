@@ -27,7 +27,13 @@ use gengar_engine::{
     vectors::*,
 };
 use gengar_render_opengl::*;
-use std::{collections::HashMap, fs::File, io::Cursor, path::Path};
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::Cursor,
+    path::Path,
+    sync::{LazyLock, Mutex},
+};
 
 pub mod constants;
 pub mod drop_table;
@@ -164,19 +170,26 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
     );
     gengar_engine::debug::frame_start();
 
-    let mut ui_context = UIContext {
-        mouse_pos: input.mouse_pos,
-        mouse_down: input.mouse_left.on_press,
+    // update ui_context
+    {
+        let ui_context = gs.ui_context.get_or_insert(UIContext {
+            mouse: input.mouse.clone(),
 
-        color_shader: es.shader_color_ui,
-        color_shader_texture: es.color_texture_shader,
+            color_shader: es.shader_color_ui,
+            color_shader_texture: es.color_texture_shader,
 
-        font_body: gs.font_style_body.clone(),
-        font_header: gs.font_style_header.clone(),
+            font_body: gs.font_style_body.clone(),
+            font_header: gs.font_style_header.clone(),
 
-        render_commands: vec![],
-        button_state: HashMap::new(),
-    };
+            render_commands: vec![],
+            button_state: HashMap::new(),
+
+            delta_time: prev_delta_time,
+        });
+
+        ui_context.mouse = input.mouse.clone();
+        ui_context.delta_time = prev_delta_time;
+    }
 
     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
@@ -193,7 +206,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             COLOR_WHITE,
             &gs.font_style_body,
             &mut ui_frame_state,
-            &mut ui_context,
+            &mut gs.ui_context.as_mut().unwrap(),
         );
     }
 
@@ -208,7 +221,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 &gs.inventory,
                 &gs.assets,
                 &gs.player_state,
-                &mut ui_context,
+                &mut gs.ui_context.as_mut().unwrap(),
             ));
         }
 
@@ -219,7 +232,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 &gs.inventory,
                 &gs.assets,
                 &gs.player_state,
-                &mut ui_context,
+                &mut gs.ui_context.as_mut().unwrap(),
             )),
             None => {}
         }
@@ -228,7 +241,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         handle_signals(update_signals, gs);
 
         // Update input
-        input.mouse_left.on_press = ui_frame_state.mouse_left;
+        input.mouse.button_left.on_press = ui_frame_state.mouse_left;
     }
 
     // debug panel
@@ -245,7 +258,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                     &gs.inventory,
                     &gs.assets,
                     &gs.player_state,
-                    &mut ui_context,
+                    &mut gs.ui_context.as_mut().unwrap(),
                 );
 
                 handle_signals(sigs, gs);
@@ -379,7 +392,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
     let mouse_grid: GridPos = {
         let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
-        let mouse_world = cam_pack.camera.screen_to_world(input.mouse_pos);
+        let mouse_world = cam_pack.camera.screen_to_world(input.mouse.pos);
         let mouse_grid: GridPos = world_to_grid(&mouse_world);
 
         mouse_grid
@@ -421,7 +434,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
 
         // place tile
-        if input.mouse_left.on_press && can_place {
+        if input.mouse.button_left.on_press && can_place {
             if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
                 let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
                 if count == 0 {
@@ -452,7 +465,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 let tile = gs.world.get_entity_mut(eid);
 
                 // Harvesting
-                if input.mouse_left.pressing && tile.methods.can_harvest() {
+                if input.mouse.button_left.pressing && tile.methods.can_harvest() {
                     tile.harvest(&world_snapshot);
                 }
 
@@ -486,7 +499,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                         COLOR_WHITE,
                         &gs.font_style_body,
                         &mut ui_frame_state,
-                        &mut ui_context,
+                        &mut gs.ui_context.as_mut().unwrap(),
                     );
 
                     tile.methods.render_hover_info(
@@ -503,7 +516,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         .get_mut(&RenderPackID::UI)
         .unwrap()
         .commands
-        .append(&mut ui_context.render_commands);
+        .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
 
     es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();

@@ -64,7 +64,7 @@ impl OpenPackPanel {
         if self.items_remaining > 0 {
             if draw_button(
                 &pack_info.display_name,
-                Some(assets.get_pack_icon(&self.pack_id)),
+                ButtonStyleData::new_outline(Some(assets.get_pack_icon(&self.pack_id))),
                 &button_rect,
                 ui_state,
                 std::line!(),
@@ -84,7 +84,7 @@ impl OpenPackPanel {
         } else {
             if draw_button(
                 "Close",
-                None,
+                ButtonStyleData::new_outline(None),
                 &close_rect,
                 ui_state,
                 std::line!(),

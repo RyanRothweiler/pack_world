@@ -143,10 +143,10 @@ impl Camera {
     // Control the camera as a fly-cam
     // Mouse for rotation and wasd for camera relative movement
     pub fn move_fly(&mut self, mov_speed: f64, input: &Input) {
-        if input.mouse_right.pressing {
+        if input.mouse.button_right.pressing {
             let sens = 0.08;
-            self.yaw = self.yaw - (input.mouse_pos_delta.x * sens);
-            self.pitch = self.pitch - (input.mouse_pos_delta.y * sens);
+            self.yaw = self.yaw - (input.mouse.pos_delta.x * sens);
+            self.pitch = self.pitch - (input.mouse.pos_delta.y * sens);
         }
 
         let mut right = VecThreeFloat::cross(self.forward, VecThreeFloat::new(0.0, 1.0, 0.0));

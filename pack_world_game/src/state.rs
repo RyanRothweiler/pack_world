@@ -10,6 +10,7 @@ use gengar_engine::{
     state::State as EngineState,
     transform::*,
     typeface::*,
+    ui::*,
     vectors::*,
 };
 use std::collections::HashMap;
@@ -53,6 +54,8 @@ pub struct State {
 
     // time for rotation animation
     pub rotate_time: f64,
+
+    pub ui_context: Option<UIContext>,
 }
 
 impl State {
@@ -83,6 +86,8 @@ impl State {
             player_state: PlayerState::new(),
 
             rotate_time: 0.0,
+
+            ui_context: None,
         }
     }
 }
