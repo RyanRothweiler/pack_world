@@ -15,6 +15,10 @@ impl VecTwo {
     pub fn lerp(a: Self, b: Self, t: f64) -> Self {
         a + (b - a) * t.clamp(0.0, 1.0)
     }
+
+    pub fn dist_from(&self, a: VecTwo) -> f64 {
+        ((self.x - a.x).powf(2.0) + (self.y - a.y).powf(2.0)).sqrt()
+    }
 }
 
 impl Mul<f64> for VecTwo {

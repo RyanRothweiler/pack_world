@@ -286,20 +286,34 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
     // camera controls
     {
+        let keyboard_speed = 1000.0;
+        let drag_speed = 0.75;
+
         let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
 
-        let cam_speed = 1000.0;
         if input.get_key(KeyCode::W).pressing {
-            cam_pack.camera.transform.local_position.y -= cam_speed * prev_delta_time;
+            cam_pack.camera.transform.local_position.y -= keyboard_speed * prev_delta_time;
         }
         if input.get_key(KeyCode::S).pressing {
-            cam_pack.camera.transform.local_position.y += cam_speed * prev_delta_time;
+            cam_pack.camera.transform.local_position.y += keyboard_speed * prev_delta_time;
         }
         if input.get_key(KeyCode::A).pressing {
-            cam_pack.camera.transform.local_position.x -= cam_speed * prev_delta_time;
+            cam_pack.camera.transform.local_position.x -= keyboard_speed * prev_delta_time;
         }
         if input.get_key(KeyCode::D).pressing {
-            cam_pack.camera.transform.local_position.x += cam_speed * prev_delta_time;
+            cam_pack.camera.transform.local_position.x += keyboard_speed * prev_delta_time;
+        }
+
+        // camera click dragging
+        {
+            if input.mouse.button_left.pressing {
+                if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
+                    cam_pack.camera.transform.local_position.x +=
+                        input.mouse.pos_delta.x * drag_speed;
+                    cam_pack.camera.transform.local_position.y +=
+                        input.mouse.pos_delta.y * drag_speed;
+                }
+            }
         }
     }
 
