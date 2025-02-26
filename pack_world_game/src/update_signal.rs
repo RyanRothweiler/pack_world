@@ -82,6 +82,8 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                         continue;
                     }
 
+                    pack_info.spend(&mut gs.inventory);
+
                     let new_panel_data = CreatePanelData::OpenPack { pack_id: *pack_id };
                     vec![UpdateSignal::SetActivePage(new_panel_data)]
                 }

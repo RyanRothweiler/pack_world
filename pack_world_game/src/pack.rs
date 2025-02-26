@@ -45,6 +45,17 @@ impl Pack {
         true
     }
 
+    pub fn spend(&self, inventory: &mut Inventory) {
+        if !self.can_afford(inventory) {
+            eprintln!("Attempted to open pack that you cannot afford.");
+            return;
+        }
+
+        for c in &self.cost {
+            inventory.give_item(c.0, -c.1).expect("Error spending item");
+        }
+    }
+
     // Assumes you can afford the pack
     pub fn pull(&self) -> Drop {
         get_drop(self.table_id)
