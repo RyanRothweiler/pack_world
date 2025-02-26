@@ -96,31 +96,39 @@ impl OpenPackPanel {
 
         // render pull displays
         {
+            let icon_size: f64 = 70.0;
             let x_offset: f64 = 120.0;
+
+            let center = panel_r.width() * 0.5;
+            let total_width = x_offset * (pack_info.content_count as f64 - 1.0);
+            let start = center - (total_width * 0.5);
+
             let mut i: i32 = 0;
 
             for p in &mut self.pulls {
-                let x: f64 = 50.0 + (x_offset * i as f64);
+                let x: f64 = start + (x_offset * i as f64);
                 p.pos = VecTwo::lerp(p.pos, VecTwo::new(x, 200.0), 0.25);
 
                 let icon = assets.get_drop_icon(&p.drop.drop_type);
 
                 draw_image(
-                    Rect::new_center(p.pos, VecTwo::new(50.0, 50.0)),
+                    Rect::new_center(p.pos, VecTwo::new(icon_size, icon_size)),
                     icon,
                     COLOR_WHITE,
                     ui_state,
                     ui_context,
                 );
 
-                draw_text(
-                    &format!("{:?}", p.drop.amount),
-                    p.pos,
-                    COLOR_WHITE,
-                    &ui_context.font_body.clone(),
-                    ui_state,
-                    ui_context,
-                );
+                if p.drop.amount > 1 {
+                    draw_text(
+                        &format!("{:?}", p.drop.amount),
+                        p.pos,
+                        COLOR_WHITE,
+                        &ui_context.font_body.clone(),
+                        ui_state,
+                        ui_context,
+                    );
+                }
 
                 i += 1;
             }

@@ -17,6 +17,7 @@ pub struct Pack {
     pub cost: Vec<(ItemType, i64)>,
     pub table_id: FixedTableID,
 
+    // how many drops to pull from pack
     pub content_count: i32,
 }
 

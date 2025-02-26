@@ -305,6 +305,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
 
         // camera click dragging
+        /*
         {
             if input.mouse.button_left.pressing {
                 if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
@@ -315,6 +316,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 }
             }
         }
+        */
     }
 
     // run tile updates
