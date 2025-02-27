@@ -30,6 +30,18 @@ impl TileOakTree {
         })
     }
 
+    pub fn can_place(pos: GridPos, world: &World) -> bool {
+        if !world.pos_valid(pos) {
+            return false;
+        }
+
+        if !world.cell_contains_tile(pos, TileType::Dirt) {
+            return false;
+        }
+
+        true
+    }
+
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
         vec![]
@@ -61,11 +73,8 @@ impl TileOakTree {
     }
 
     pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
-        match tile_type {
-            TileType::BirdNest => {
-                self.has_nest = true;
-            }
-            _ => {}
+        if tile_type == TileType::BirdNest {
+            self.has_nest = true;
         }
     }
 

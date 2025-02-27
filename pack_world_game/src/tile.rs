@@ -64,28 +64,26 @@ impl TileType {
             | TileType::Grass => WorldLayer::Floor,
         }
     }
+
+    /// Can you place the tile here
     pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
         let footprint = self.get_tile_footprint();
-
         for p in footprint {
             let pos = origin + p;
 
-            // check adjacency
-            if !world.pos_valid(pos) {
+            let val = match self {
+                TileType::Dirt => TileDirt::can_place(pos, world),
+                TileType::Grass => TileGrass::can_place(pos, world),
+                TileType::Boulder => TileBoulder::can_place(pos, world),
+                TileType::OakTree => TileOakTree::can_place(pos, world),
+                TileType::Cave => TileCave::can_place(pos, world),
+                TileType::Shrub => TileShrub::can_place(pos, world),
+                TileType::BirdNest => TileBirdNest::can_place(pos, world),
+            };
+
+            if !val {
                 return false;
             }
-
-            // check types
-            // TODO probably move this into each tile somehow
-            match self {
-                TileType::Dirt => {}
-                TileType::BirdNest => return world.cell_contains_tile(pos, TileType::OakTree),
-                TileType::Grass
-                | TileType::Boulder
-                | TileType::OakTree
-                | TileType::Cave
-                | TileType::Shrub => return world.cell_contains_tile(pos, TileType::Dirt),
-            };
         }
 
         return true;
@@ -258,6 +256,13 @@ impl TileMethods {
             TileMethods::OakTree(state) => state.tile_placed_ontop(tile_type, top_id),
 
             // Default is that tile doesn't care
+            _ => {}
+        }
+    }
+
+    pub fn tile_placed(&mut self, current_tiles: Vec<&TileInstance>) {
+        match self {
+            TileMethods::BirdNest(state) => state.tile_placed(current_tiles),
             _ => {}
         }
     }

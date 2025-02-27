@@ -205,7 +205,7 @@ impl DropTable {
     }
 }
 
-mod test {
+mod tests {
     use super::*;
     use crate::{state::inventory::*, tile::*};
 

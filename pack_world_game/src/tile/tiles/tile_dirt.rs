@@ -17,6 +17,14 @@ impl TileDirt {
         TileMethods::Dirt(TileDirt {})
     }
 
+    pub fn can_place(pos: GridPos, world: &World) -> bool {
+        if !world.pos_valid(pos) {
+            return false;
+        }
+
+        true
+    }
+
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         vec![]
     }

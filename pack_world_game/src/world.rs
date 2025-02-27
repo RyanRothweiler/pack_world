@@ -98,17 +98,30 @@ impl World {
 
         let tile_layer = tile.get_layer();
         let new_entity_id = self.get_next_entity_id();
-        let inst = tile.create_instance(grid_pos);
+        let mut inst = tile.create_instance(grid_pos);
 
         // tell below tiles that something was placed above. They might care.
         let world_cell = self.get_entities(grid_pos);
-        for (layer, eid) in world_cell.layers {
+        for (layer, eid) in &world_cell.layers {
             match self.entities.get_mut(&eid) {
                 Some(tile_inst) => tile_inst.methods.tile_placed_ontop(tile, new_entity_id),
 
                 // Nobody there to noify
                 None => {}
             };
+        }
+
+        // tell the new tile that its been placed
+        {
+            let mut currents: Vec<&TileInstance> = vec![];
+            for (layer, eid) in &world_cell.layers {
+                match self.entities.get(&eid) {
+                    Some(tile_inst) => currents.push(tile_inst),
+                    None => {}
+                }
+            }
+
+            inst.methods.tile_placed(currents);
         }
 
         // Find tiles that are going to be overwritten, so that we can give them back to the player
@@ -126,8 +139,6 @@ impl World {
                     if !eids_removing.contains(eid) {
                         eids_removing.push(*eid);
                     }
-
-                    // remove that entity from the grid map
                 }
             }
 
@@ -235,4 +246,67 @@ impl World {
     }
 }
 
-// TODO we really should have test for inserting and overwritting tiles
+mod tests {
+    use super::*;
+
+    #[test]
+    pub fn insert_overwrite() {
+        let mut world = World::new();
+
+        // insert tiles
+        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Dirt);
+        assert!(ret.is_ok());
+
+        // place invalid
+        let ret = world.try_place_tile(GridPos::new(10, 10), TileType::Dirt);
+        assert!(ret.is_err());
+
+        // place grass on dirt
+        let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Grass);
+        assert!(ret.is_ok());
+
+        // overwrite grass
+        let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Grass);
+        match ret {
+            Ok(list) => {
+                assert_eq!(list.len(), 1);
+                match list.get(0).unwrap() {
+                    UpdateSignal::AddHarvestDrop { drop, origin } => {
+                        assert_eq!(
+                            drop.drop_type,
+                            DropType::Item {
+                                item_type: ItemType::Tile(TileType::Grass),
+                            }
+                        );
+                    }
+                    _ => {
+                        panic!(
+                            "Overwriting should give a harvest drop to return the item harvested"
+                        );
+                    }
+                }
+            }
+            Err(e) => {
+                panic!("Should be a valid placement.");
+            }
+        }
+
+        // validate lists
+        assert_eq!(world.entities.len(), 3);
+        assert_eq!(world.valids.len(), 8);
+
+        // check all valids
+        assert_eq!(world.valids.contains_key(&GridPos::new(1, 0)), true);
+        assert_eq!(world.valids.contains_key(&GridPos::new(0, 0)), true);
+
+        assert_eq!(world.valids.contains_key(&GridPos::new(1, 1)), true);
+        assert_eq!(world.valids.contains_key(&GridPos::new(0, 1)), true);
+
+        assert_eq!(world.valids.contains_key(&GridPos::new(1, -1)), true);
+        assert_eq!(world.valids.contains_key(&GridPos::new(0, -1)), true);
+
+        assert_eq!(world.valids.contains_key(&GridPos::new(-1, 0)), true);
+        assert_eq!(world.valids.contains_key(&GridPos::new(2, 0)), true);
+    }
+}

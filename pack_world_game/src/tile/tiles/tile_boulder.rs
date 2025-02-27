@@ -26,9 +26,19 @@ impl TileBoulder {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Boulder),
         })
     }
-}
 
-impl TileBoulder {
+    pub fn can_place(pos: GridPos, world: &World) -> bool {
+        if !world.pos_valid(pos) {
+            return false;
+        }
+
+        if !world.cell_contains_tile(pos, TileType::Dirt) {
+            return false;
+        }
+
+        true
+    }
+
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
         vec![]
