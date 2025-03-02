@@ -17,7 +17,9 @@ const HARVEST_SECONDS: f64 = 360.0;
 
 #[derive(Debug)]
 pub struct TileOakTree {
+    // TODO remove has_nest and just use the next_id option
     pub has_nest: bool,
+    pub nest_id: Option<EntityID>,
 
     harvest_timer: HarvestTimer,
 }
@@ -27,6 +29,7 @@ impl TileOakTree {
         TileMethods::OakTree(TileOakTree {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
             has_nest: false,
+            nest_id: None,
         })
     }
 
@@ -35,7 +38,7 @@ impl TileOakTree {
             return false;
         }
 
-        if !world.cell_contains_tile(pos, TileType::Dirt) {
+        if !world.cell_contains_type(pos, TileType::Dirt) {
             return false;
         }
 
@@ -75,6 +78,7 @@ impl TileOakTree {
     pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
         if tile_type == TileType::BirdNest {
             self.has_nest = true;
+            self.nest_id = Some(top_id);
         }
     }
 

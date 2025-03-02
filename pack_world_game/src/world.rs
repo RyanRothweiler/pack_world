@@ -2,43 +2,13 @@ use crate::{drop_table::*, error::*, grid::*, item::*, tile::*, update_signal::*
 use gengar_engine::vectors::*;
 use std::collections::HashMap;
 
+pub mod world_cell;
+pub mod world_layer;
 pub mod world_snapshot;
+
+pub use world_cell::*;
+pub use world_layer::*;
 pub use world_snapshot::*;
-
-#[derive(Clone, Copy, Hash, Eq, PartialEq, Debug)]
-pub enum WorldLayer {
-    /// The ground itself. Dirt, water, sand.
-    Ground,
-
-    /// Stuff on the floor. Trees, grass.
-    Floor,
-
-    /// Find something better to do here. This is just for the birds nest. What to do about attachments?
-    TreeAttachment,
-}
-
-impl WorldLayer {
-    pub fn to_index(&self) -> i32 {
-        match self {
-            WorldLayer::Ground => 0,
-            WorldLayer::Floor => 1,
-            WorldLayer::TreeAttachment => 2,
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct WorldCell {
-    pub layers: HashMap<WorldLayer, EntityID>,
-}
-
-impl WorldCell {
-    pub fn new() -> Self {
-        Self {
-            layers: HashMap::new(),
-        }
-    }
-}
 
 #[derive(Clone, Copy, Hash, Debug, Eq, PartialEq)]
 pub struct EntityID {
@@ -126,36 +96,13 @@ impl World {
 
         // Find tiles that are going to be overwritten, so that we can give them back to the player
         {
-            let mut eids_removing: Vec<EntityID> = vec![];
-
             for p in tile.get_tile_footprint() {
                 let pos = grid_pos + p;
 
-                let mut world_cell: &mut WorldCell =
-                    self.entity_map.entry(pos).or_insert(WorldCell::new());
-
-                if world_cell.layers.contains_key(&tile_layer) {
-                    let eid = world_cell.layers.get(&tile_layer).unwrap();
-                    if !eids_removing.contains(eid) {
-                        eids_removing.push(*eid);
-                    }
-                }
-            }
-
-            for eid in eids_removing {
-                if let Some(tile_inst_removed) = self.entities.remove(&eid) {
-                    // remove the tile references from the grid map
-                    for p in tile_inst_removed.tile_type.get_tile_footprint() {
-                        let pos = tile_inst_removed.grid_pos + p;
-
-                        let mut world_cell: &mut WorldCell =
-                            self.entity_map.entry(pos).or_insert(WorldCell::new());
-                        world_cell.layers.remove(&tile_layer);
-                    }
-
-                    // give removed entities back to player
+                let types_removed = self.remove_tile(pos, tile_layer);
+                for t in types_removed {
                     ret.push(UpdateSignal::AddHarvestDrop {
-                        drop: Drop::new_tile(tile_inst_removed.tile_type, 1),
+                        drop: Drop::new_tile(t, 1),
                         origin: grid_to_world(&grid_pos),
                     });
                 }
@@ -183,6 +130,55 @@ impl World {
         }
 
         ret
+    }
+
+    /// Returns list of tile types removed.
+    /// Removing a tile can cause a cascade of multiple tiles removed.
+    /// Might return empty if no tiles are removed.
+    pub fn remove_tile(
+        &mut self,
+        pos_removing: GridPos,
+        layer_removing: WorldLayer,
+    ) -> Vec<TileType> {
+        let mut types_removing: Vec<TileType> = vec![];
+
+        let mut eids_removing: Vec<EntityID> = vec![];
+
+        if let Some(world_cell) = self.entity_map.get(&pos_removing) {
+            if let Some(eid) = world_cell.layers.get(&layer_removing) {
+                if !eids_removing.contains(eid) {
+                    eids_removing.push(*eid);
+                }
+            }
+        }
+
+        for eid in eids_removing {
+            types_removing.append(&mut self.remove_entity(eid, layer_removing));
+        }
+
+        types_removing
+    }
+
+    pub fn remove_entity(&mut self, eid: EntityID, layer_removing: WorldLayer) -> Vec<TileType> {
+        let mut types_removing: Vec<TileType> = vec![];
+
+        if let Some(tile_inst_removed) = self.entities.remove(&eid) {
+            // remove the tile references from the grid map
+            for p in tile_inst_removed.tile_type.get_tile_footprint() {
+                let pos = tile_inst_removed.grid_pos + p;
+
+                let mut world_cell: &mut WorldCell =
+                    self.entity_map.entry(pos).or_insert(WorldCell::new());
+                world_cell.layers.remove(&layer_removing);
+
+                types_removing.append(&mut self.remove_invalid(pos));
+            }
+
+            // give removed entities back to player
+            types_removing.push(tile_inst_removed.tile_type);
+        }
+
+        types_removing
     }
 
     pub fn get_world_snapshot(&self) -> WorldSnapshot {
@@ -213,7 +209,7 @@ impl World {
         return self.entity_map.get(&grid_pos).unwrap().to_owned();
     }
 
-    pub fn cell_contains_tile(&self, pos: GridPos, tile_type: TileType) -> bool {
+    pub fn cell_contains_type(&self, pos: GridPos, tile_type: TileType) -> bool {
         let world_cell: WorldCell = self.get_entities(pos);
         for (layer, eid) in world_cell.layers {
             let tile = &self.entities.get(&eid).unwrap();
@@ -235,19 +231,73 @@ impl World {
         return true;
     }
 
+    /// Removes tiles that cannot exist where they currently are.
+    /// Usually because some other tile was removed that was required.
+    /// Returns list of tile_types that were removed.
+    pub fn remove_invalid(&mut self, grid_pos: GridPos) -> Vec<TileType> {
+        let mut invalid_eids: Vec<(EntityID, WorldLayer)> = vec![];
+
+        if let Some(world_cell) = self.entity_map.get(&grid_pos) {
+            for (layer, eid) in &world_cell.layers {
+                let tile = &self.entities.get(&eid).unwrap();
+
+                if !tile.tile_type.can_place_here(grid_pos, self) {
+                    invalid_eids.push((*eid, *layer));
+                }
+            }
+        }
+
+        let mut ret: Vec<TileType> = vec![];
+        for (eid, layer) in invalid_eids {
+            ret.append(&mut self.remove_entity(eid, layer));
+        }
+
+        ret
+    }
+
     /// Get an entity. Expects the entity to be valid. This is an assumption that must be upheld.
     pub fn get_entity(&self, eid: &EntityID) -> &TileInstance {
-        self.entities.get(eid).expect("Invalid entity id")
+        self.entities
+            .get(eid)
+            .expect(&format!("Invalid entity id {:?}", eid))
     }
 
     /// Get an entity. Expects the entity to be valid. This is an assumption that must be upheld.
     pub fn get_entity_mut(&mut self, eid: &EntityID) -> &mut TileInstance {
-        self.entities.get_mut(eid).expect("Invalid entity id")
+        self.entities
+            .get_mut(eid)
+            .expect(&format!("Invalid entity id {:?}", eid))
     }
 }
 
 mod tests {
     use super::*;
+
+    #[cfg(test)]
+    pub fn signal_contains_drop(sigs: &Vec<UpdateSignal>, drop_type: DropType) -> bool {
+        for sig in sigs {
+            match sig {
+                UpdateSignal::AddHarvestDrop { drop, origin } => {
+                    if drop.drop_type == drop_type {
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        false
+    }
+
+    // Check that the entire grid points to valid entities. Panic if not.
+    #[cfg(test)]
+    pub fn validate_grid(world: &World) {
+        for (grid, layer) in &world.entity_map {
+            for (layer, eid) in &layer.layers {
+                let entity = world.get_entity(&eid);
+            }
+        }
+    }
 
     #[test]
     pub fn insert_overwrite() {
@@ -267,30 +317,16 @@ mod tests {
         assert!(ret.is_ok());
 
         // overwrite grass
-        let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Grass);
-        match ret {
-            Ok(list) => {
-                assert_eq!(list.len(), 1);
-                match list.get(0).unwrap() {
-                    UpdateSignal::AddHarvestDrop { drop, origin } => {
-                        assert_eq!(
-                            drop.drop_type,
-                            DropType::Item {
-                                item_type: ItemType::Tile(TileType::Grass),
-                            }
-                        );
-                    }
-                    _ => {
-                        panic!(
-                            "Overwriting should give a harvest drop to return the item harvested"
-                        );
-                    }
-                }
-            }
-            Err(e) => {
-                panic!("Should be a valid placement.");
-            }
-        }
+        let ret = world
+            .try_place_tile(GridPos::new(1, 0), TileType::Grass)
+            .unwrap();
+        assert_eq!(ret.len(), 1);
+        assert!(signal_contains_drop(
+            &ret,
+            DropType::Item {
+                item_type: ItemType::Tile(TileType::Grass),
+            },
+        ));
 
         // validate lists
         assert_eq!(world.entities.len(), 3);
@@ -308,5 +344,92 @@ mod tests {
 
         assert_eq!(world.valids.contains_key(&GridPos::new(-1, 0)), true);
         assert_eq!(world.valids.contains_key(&GridPos::new(2, 0)), true);
+
+        validate_grid(&world);
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn tree_invalid_placement() {
+        let mut world = World::new();
+
+        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(1, 1), TileType::Dirt);
+
+        // test invalid placement
+        world
+            .try_place_tile(GridPos::new(1, 0), TileType::OakTree)
+            .unwrap();
+
+        validate_grid(&world);
+    }
+
+    #[test]
+    pub fn overwrite_tree() {
+        let mut world = World::new();
+
+        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(1, 1), TileType::Dirt);
+
+        world
+            .try_place_tile(GridPos::new(0, 0), TileType::OakTree)
+            .unwrap();
+
+        let update_sigs = world
+            .try_place_tile(GridPos::new(1, 0), TileType::Grass)
+            .unwrap();
+
+        assert_eq!(update_sigs.len(), 1);
+        assert!(signal_contains_drop(
+            &update_sigs,
+            DropType::Item {
+                item_type: ItemType::Tile(TileType::OakTree),
+            },
+        ));
+
+        validate_grid(&world);
+    }
+
+    // Placing tree. place bird nest in tree. place grass under tree. the bird nest and tree should be given back to user.
+    #[test]
+    pub fn overwrite_tree_with_nest() {
+        let mut world = World::new();
+
+        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.force_insert_tile(GridPos::new(1, 1), TileType::Dirt);
+
+        world
+            .try_place_tile(GridPos::new(0, 0), TileType::OakTree)
+            .unwrap();
+
+        world
+            .try_place_tile(GridPos::new(0, 0), TileType::BirdNest)
+            .unwrap();
+
+        let update_sigs = world
+            .try_place_tile(GridPos::new(1, 0), TileType::Grass)
+            .unwrap();
+
+        assert_eq!(update_sigs.len(), 2);
+        assert!(signal_contains_drop(
+            &update_sigs,
+            DropType::Item {
+                item_type: ItemType::Tile(TileType::OakTree),
+            },
+        ));
+        assert!(signal_contains_drop(
+            &update_sigs,
+            DropType::Item {
+                item_type: ItemType::Tile(TileType::BirdNest),
+            },
+        ));
+
+        validate_grid(&world);
     }
 }

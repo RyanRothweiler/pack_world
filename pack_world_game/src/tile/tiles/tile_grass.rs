@@ -36,7 +36,7 @@ impl TileGrass {
             return false;
         }
 
-        if !world.cell_contains_tile(pos, TileType::Dirt) {
+        if !world.cell_contains_type(pos, TileType::Dirt) {
             return false;
         }
 

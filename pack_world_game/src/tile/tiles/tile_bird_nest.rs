@@ -30,7 +30,7 @@ impl TileBirdNest {
             return false;
         }
 
-        if !world.cell_contains_tile(pos, TileType::OakTree) {
+        if !world.cell_contains_type(pos, TileType::OakTree) {
             return false;
         }
 
