@@ -35,6 +35,12 @@ use windows::{
 };
 
 mod gl;
+mod vol_mem;
+
+use vol_mem::*;
+
+#[global_allocator]
+static A: TrackingAlloc = TrackingAlloc;
 
 const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
@@ -74,6 +80,9 @@ struct GameDll {
 }
 
 fn main() {
+    vol_mem::ENABLED.store(true, std::sync::atomic::Ordering::SeqCst);
+    memory_track!("total");
+
     let dll_path = format!("{}.dll", game::PACKAGE_NAME);
     let dll_current_path = format!("{}_current.dll", game::PACKAGE_NAME);
 
@@ -356,6 +365,11 @@ fn main() {
                 let to_sleep: Duration = FRAME_TARGET - frame_duration;
                 let slp = to_sleep.as_millis();
                 thread::sleep(to_sleep);
+            }
+
+            for (id, block) in TRACKING_BLOCKS.lock().unwrap().iter() {
+                let mem_used = TRACKERS[block.tracker_index as usize].allocated_memory;
+                println!("{id} -> {mem_used}");
             }
         }
     }
