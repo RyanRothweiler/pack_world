@@ -194,6 +194,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
     }
 
     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
+    gs.ui_context.as_mut().unwrap().render_commands.clear();
 
     #[cfg(feature = "dev")]
     {
@@ -530,12 +531,38 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         }
     }
 
-    es.render_packs
-        .get_mut(&RenderPackID::UI)
-        .unwrap()
-        .commands
-        .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
+    // es.render_packs.get_mut(&RenderPackID::UI).unwrap().commands = vec![];
+    es.render_packs.get_mut(&RenderPackID::UI).unwrap().commands =
+        gs.ui_context.as_mut().unwrap().render_commands.clone();
 
-    es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
-    es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
+    println!(
+        "{} {} {} {}",
+        gs.ui_context.as_mut().unwrap().render_commands.capacity(),
+        es.render_packs
+            .get_mut(&RenderPackID::UI)
+            .unwrap()
+            .commands
+            .len(),
+        es.render_packs
+            .get_mut(&RenderPackID::UI)
+            .unwrap()
+            .commands
+            .capacity(),
+        es.render_packs.len(),
+    );
+
+    /*
+    println!(
+        "{}",
+        es.render_packs
+            .get_mut(&RenderPackID::UI)
+            .unwrap()
+            .commands
+            .len()
+    );
+    println!("{}", gs.ui_context.as_mut().unwrap().render_commands.len());
+    */
+
+    // es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
+    // es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
 }

@@ -278,7 +278,9 @@ impl EngineRenderApiTrait for OglRenderApi {
         location: u32,
     ) -> Result<(), EngineError> {
         self.platform_api.bind_vertex_array(vao.id);
+        println!("{}", vao.id);
 
+        /*
         // setup the vertex buffer
         {
             let mut buf_id: u32 = 0;
@@ -294,6 +296,7 @@ impl EngineRenderApiTrait for OglRenderApi {
         }
 
         self.platform_api.bind_vertex_array(0);
+        */
 
         Ok(())
     }
@@ -304,6 +307,7 @@ impl EngineRenderApiTrait for OglRenderApi {
         data: &Vec<VecTwo>,
         location: u32,
     ) -> Result<(), EngineError> {
+        /*
         self.platform_api.bind_vertex_array(vao.id);
 
         let mut buf_id: u32 = 0;
@@ -318,6 +322,7 @@ impl EngineRenderApiTrait for OglRenderApi {
         self.platform_api.bind_buffer(GL_ARRAY_BUFFER, 0);
 
         self.platform_api.bind_vertex_array(0);
+        */
 
         Ok(())
     }
@@ -380,17 +385,19 @@ pub fn render(
 
     render_render_pack(
         light_pos,
-        es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
         &render_api,
     );
+    /*
     render_render_pack(
         light_pos,
-        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+        es.render_packs.get_mut(&RenderPackID::World).unwrap(),
         &render_api,
     );
     if es.render_packs.len() > 2 {
         panic!("This assumes two render packs for now. If there is more then sometning needs to be done.");
     }
+    */
 
     // Debug rendering
     {
@@ -427,35 +434,33 @@ fn render_render_pack(light_pos: VecThreeFloat, pack: &mut RenderPack, render_ap
 
 fn render_list(
     light_pos: VecThreeFloat,
-    render_commands: &mut Vec<RenderCommand>,
+    render_commands: &Vec<RenderCommand>,
     camera: &Camera,
     render_api: &OglRenderApi,
 ) {
     for command in render_commands {
         render_api.platform_api.use_program(command.prog_id);
 
+        let mut unifs = command.uniforms.clone();
+
         // setup the camera transforms
-        command
-            .uniforms
-            .insert("view".to_string(), UniformData::M44(camera.view_mat));
-        command.uniforms.insert(
+        unifs.insert("view".to_string(), UniformData::M44(camera.view_mat));
+        unifs.insert(
             "projection".to_string(),
             UniformData::M44(camera.projection_mat),
         );
-        command.uniforms.insert(
+        unifs.insert(
             "viewPos".to_string(),
             UniformData::VecThree(camera.transform.local_position),
         );
-        command
-            .uniforms
-            .insert("lightPos".to_string(), UniformData::VecThree(light_pos));
-        command.uniforms.insert(
+        unifs.insert("lightPos".to_string(), UniformData::VecThree(light_pos));
+        unifs.insert(
             "lightColor".to_string(),
             UniformData::VecThree(VecThreeFloat::new(150.0, 150.0, 150.0)),
         );
 
         // upload uniform data
-        for (key, value) in &command.uniforms {
+        for (key, value) in &unifs {
             match value {
                 UniformData::M44(data) => {
                     let loc = render_api
@@ -518,9 +523,11 @@ fn render_list(
             }
         };
 
+        /*
         render_api.platform_api.bind_vertex_array(vao_id);
         render_api
             .platform_api
             .draw_elements(GL_TRIANGLES, &command.indices);
+        */
     }
 }
