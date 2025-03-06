@@ -8,6 +8,7 @@
 
 use std::{include_str, io::Cursor};
 
+pub mod arena;
 pub mod ascii;
 pub mod color;
 pub mod debug;
@@ -32,12 +33,33 @@ use ascii::*;
 use color::*;
 use input::*;
 use matricies::matrix_four_four::*;
+// use memory_arena::*;
 use model::*;
 use render::{render_command::*, shader::*, vao::*};
 use state::*;
 use transform::*;
 use typeface::*;
 use vectors::*;
+
+use bumpalo::Bump;
+
+fn test() {
+    struct Doggo {
+        val: i32,
+    }
+
+    let bump = Bump::new();
+
+    let dog_one: &mut Doggo = bump.alloc(Doggo { val: 0 });
+    dog_one.val = 0;
+
+    let dog_two: &mut Doggo = bump.alloc(Doggo { val: 0 });
+    dog_two.val = 0;
+
+    dog_one.val = dog_two.val;
+    dog_two.val = 10;
+    dog_one.val = 10;
+}
 
 pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     es.pbr_shader = Shader::compile(
