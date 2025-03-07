@@ -8,7 +8,7 @@
 
 use std::{include_str, io::Cursor};
 
-pub mod arena;
+pub mod memory_arena;
 pub mod ascii;
 pub mod color;
 pub mod debug;
