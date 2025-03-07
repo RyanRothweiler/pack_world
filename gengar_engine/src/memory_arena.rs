@@ -93,7 +93,7 @@ mod test {
     #[test]
     fn alloc() {
         let arena_size = 8;
-        let mut mem = MemoryArena::new(arena_size);
+        let mem = MemoryArena::new(arena_size);
         let tgs = mem.alloc(TempGameState::new());
 
         let struct_bytes = std::mem::size_of::<TempGameState>();
