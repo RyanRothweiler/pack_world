@@ -65,6 +65,7 @@ type FuncGameLoop = fn(
     &mut gengar_engine::state::State,
     &mut gengar_engine::input::Input,
     &mut gengar_engine::state::NewState,
+    &gengar_engine::memory_arena::MemoryArena,
 );
 
 struct GameDll {
@@ -261,11 +262,11 @@ fn main() {
 
         let mut game_dll = load_game_dll().unwrap();
 
-        let persistent_memory =
+        let permanent_memory =
             MemoryArena::new(gengar_engine::byte_conversion::kilobyte_to_bytes(1.0) as usize);
 
         let new_engine_state =
-            persistent_memory.alloc(gengar_engine::state::NewState::new(resolution));
+            permanent_memory.alloc(gengar_engine::state::NewState::new(resolution));
 
         // after context is setup, get the render api calls
         let render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
@@ -346,6 +347,7 @@ fn main() {
                 &mut engine_state,
                 &mut input,
                 new_engine_state,
+                &permanent_memory,
             );
             gengar_engine::engine_frame_end(&mut engine_state);
 

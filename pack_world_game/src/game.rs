@@ -13,6 +13,7 @@ use gengar_engine::{
     debug::*,
     input::*,
     matricies::matrix_four_four::*,
+    memory_arena::*,
     model::*,
     obj,
     rect::*,
@@ -169,6 +170,7 @@ pub fn game_loop(
     es: &mut EngineState,
     input: &mut Input,
     nes: &mut NewEngineState,
+    perm_mem: &MemoryArena,
 ) {
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
@@ -206,11 +208,12 @@ pub fn game_loop(
         let fps = 1.0 / prev_delta_time;
         draw_text(
             &format!(
-                "{:?}fps {:?}ms",
+                "{:.2}% pmem {:?}fps {:?}ms",
+                perm_mem.perc_used(),
                 fps as i32,
                 (prev_delta_time * 1000.0) as i32
             ),
-            VecTwo::new(nes.window_resolution.x - 200.0, 60.0),
+            VecTwo::new(nes.window_resolution.x - 500.0, 60.0),
             COLOR_WHITE,
             &gs.font_style_body,
             &mut ui_frame_state,
