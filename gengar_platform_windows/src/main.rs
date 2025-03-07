@@ -365,8 +365,6 @@ fn main() {
                 let slp = to_sleep.as_millis();
                 thread::sleep(to_sleep);
             }
-
-            persistent_memory.print_diag();
         }
     }
 }

@@ -13,6 +13,9 @@ pub enum Error {
     ObjTokenParsingError,
     CreateVAO,
 
+    FixedStringNotEnoughMemory,
+    FixedStringInvalidString,
+
     // windows plaform errors
     WindowsGetFileAttributes,
     WindowCopyFile,

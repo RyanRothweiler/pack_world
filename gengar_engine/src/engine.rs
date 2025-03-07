@@ -13,6 +13,7 @@ pub mod byte_conversion;
 pub mod color;
 pub mod debug;
 pub mod error;
+pub mod fixed_string;
 pub mod input;
 pub mod math;
 pub mod matricies;
