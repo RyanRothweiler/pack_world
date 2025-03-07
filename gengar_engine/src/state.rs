@@ -13,11 +13,15 @@ use std::{cell::RefCell, collections::HashMap};
 // slowly start migrating things from state into StateArena
 pub struct NewState {
     pub window_resolution: VecTwo,
+    pub frame: i64,
 }
 
 impl NewState {
     pub fn new(window_resolution: VecTwo) -> Self {
-        Self { window_resolution }
+        Self {
+            window_resolution,
+            frame: 0,
+        }
     }
 }
 
@@ -31,8 +35,6 @@ pub struct State {
 
     pub model_sphere: Model,
     pub model_plane: Model,
-
-    pub frame: i64,
 
     // the game runs its its own dll. so the debug render commands is in the dll memory space
     // after the game frame ends, the game passes its debug render commands here
@@ -68,8 +70,6 @@ impl State {
             model_plane: Model::new(),
 
             roboto_typeface: Typeface::new(),
-
-            frame: 0,
         };
 
         state.render_packs.insert(

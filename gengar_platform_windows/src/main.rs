@@ -340,7 +340,12 @@ fn main() {
             }
 
             // Run game / engine loops
-            gengar_engine::engine_frame_start(&mut engine_state, &input, &render_api);
+            gengar_engine::engine_frame_start(
+                &mut engine_state,
+                new_engine_state,
+                &input,
+                &render_api,
+            );
             (game_dll.proc_loop)(
                 prev_frame_dur.as_secs_f64(),
                 &mut game_state,

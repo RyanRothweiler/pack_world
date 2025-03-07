@@ -121,13 +121,18 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     );
 }
 
-pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
+pub fn engine_frame_start(
+    es: &mut State,
+    nes: &mut NewState,
+    _input: &Input,
+    _render_api: &impl render::RenderApi,
+) {
     // reset render lists
     for (key, pack) in &mut es.render_packs {
         pack.commands.clear();
     }
 
-    es.frame = es.frame + 1;
+    nes.frame = nes.frame + 1;
 
     debug::frame_start();
 }

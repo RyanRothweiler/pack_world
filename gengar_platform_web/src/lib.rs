@@ -175,12 +175,12 @@ pub fn main_loop() {
             );
         }
 
+        /*
         gengar_engine::engine_frame_start(
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
         );
-        /*
         game_loop(
             0.001,
             GAME_STATE.as_mut().unwrap(),
