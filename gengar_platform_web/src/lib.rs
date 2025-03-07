@@ -157,6 +157,8 @@ pub fn main_loop() {
         .unwrap();
 
     unsafe {
+        todo!("Update to handle new allocation syste");
+
         // Update input
         {
             let input: &mut Input = INPUT.as_mut().unwrap();
@@ -178,12 +180,14 @@ pub fn main_loop() {
             INPUT.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
         );
+        /*
         game_loop(
             0.001,
             GAME_STATE.as_mut().unwrap(),
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
         );
+        */
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
 
         let light_trans = ENGINE_STATE.as_mut().unwrap().transforms

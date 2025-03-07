@@ -9,6 +9,7 @@
 use std::{include_str, io::Cursor};
 
 pub mod ascii;
+pub mod byte_conversion;
 pub mod color;
 pub mod debug;
 pub mod error;
@@ -33,7 +34,6 @@ use ascii::*;
 use color::*;
 use input::*;
 use matricies::matrix_four_four::*;
-// use memory_arena::*;
 use model::*;
 use render::{render_command::*, shader::*, vao::*};
 use state::*;

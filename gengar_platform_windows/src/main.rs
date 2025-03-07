@@ -15,7 +15,7 @@
 // https://github.com/glowcoil/raw-gl-context/blob/master/src/win.rs
 
 use game;
-use gengar_engine::{error::Error as EngineError, input::*, vectors::*};
+use gengar_engine::{error::Error as EngineError, input::*, memory_arena::*, vectors::*};
 use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
@@ -64,6 +64,7 @@ type FuncGameLoop = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
     &mut gengar_engine::input::Input,
+    &mut gengar_engine::state::NewState,
 );
 
 struct GameDll {
@@ -260,6 +261,12 @@ fn main() {
 
         let mut game_dll = load_game_dll().unwrap();
 
+        let persistent_memory =
+            MemoryArena::new(gengar_engine::byte_conversion::kilobyte_to_bytes(1.0) as usize);
+
+        let new_engine_state =
+            persistent_memory.alloc(gengar_engine::state::NewState::new(resolution));
+
         // after context is setup, get the render api calls
         let render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
 
@@ -338,6 +345,7 @@ fn main() {
                 &mut game_state,
                 &mut engine_state,
                 &mut input,
+                new_engine_state,
             );
             gengar_engine::engine_frame_end(&mut engine_state);
 
@@ -357,6 +365,8 @@ fn main() {
                 let slp = to_sleep.as_millis();
                 thread::sleep(to_sleep);
             }
+
+            persistent_memory.print_diag();
         }
     }
 }

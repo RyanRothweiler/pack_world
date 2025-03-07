@@ -20,7 +20,7 @@ use gengar_engine::{
         image::Image, load_image, load_image_cursor, material::*, render_command::RenderCommand,
         render_pack::*, shader::*, vao::*, RenderApi,
     },
-    state::State as EngineState,
+    state::{NewState as NewEngineState, State as EngineState},
     transform::*,
     typeface::*,
     ui::*,
@@ -163,7 +163,13 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
 // Prev delta time is in seconds. So for 60 fps 0.016666.
 #[no_mangle]
-pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, input: &mut Input) {
+pub fn game_loop(
+    prev_delta_time: f64,
+    gs: &mut State,
+    es: &mut EngineState,
+    input: &mut Input,
+    nes: &mut NewEngineState,
+) {
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
@@ -193,7 +199,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         ui_context.delta_time = prev_delta_time;
     }
 
-    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
+    let mut ui_frame_state = UIFrameState::new(&input, nes.window_resolution);
 
     #[cfg(feature = "dev")]
     {
@@ -204,7 +210,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 fps as i32,
                 (prev_delta_time * 1000.0) as i32
             ),
-            VecTwo::new(es.window_resolution.x - 200.0, 60.0),
+            VecTwo::new(nes.window_resolution.x - 200.0, 60.0),
             COLOR_WHITE,
             &gs.font_style_body,
             &mut ui_frame_state,
@@ -507,7 +513,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
                 // render info
                 {
-                    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
+                    let mut ui_frame_state = UIFrameState::new(&input, nes.window_resolution);
 
                     let y = layer.to_index() as f64 * 40.0;
 

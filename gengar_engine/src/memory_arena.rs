@@ -71,8 +71,8 @@ impl MemoryArena {
         let mem_block = self.block.borrow();
         let perc_allocated: f64 = (mem_block.offset as f64 / mem_block.size_bytes as f64) * 100.0;
         println!(
-            "Allocated {} bytes. {:.2}% allocated",
-            mem_block.offset, perc_allocated
+            "{:.2}% allocated {} bytes. ",
+            perc_allocated, mem_block.offset
         );
     }
 }

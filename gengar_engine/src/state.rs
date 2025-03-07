@@ -9,10 +9,19 @@ use crate::{
 };
 use std::{cell::RefCell, collections::HashMap};
 
+// slowly start migrating things from state into StateArena
+pub struct NewState {
+    pub window_resolution: VecTwo,
+}
+
+impl NewState {
+    pub fn new(window_resolution: VecTwo) -> Self {
+        Self { window_resolution }
+    }
+}
+
 // TODO rename engine state
 pub struct State {
-    pub window_resolution: VecTwo,
-
     pub pbr_shader: Shader,
     pub shader_color: Shader,
     pub shader_color_ui: Shader,
@@ -52,7 +61,6 @@ impl State {
 
             render_packs: HashMap::new(),
 
-            window_resolution,
             transforms: vec![],
 
             model_sphere: Model::new(),
