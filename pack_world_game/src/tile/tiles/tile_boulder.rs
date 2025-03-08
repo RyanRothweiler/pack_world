@@ -61,12 +61,14 @@ impl TileBoulder {
         let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
+        /*
         draw_progress_bar(
             self.harvest_timer.percent_done(),
             &r,
             shader_color,
             render_pack,
         );
+        */
     }
 
     pub fn render(
@@ -81,9 +83,10 @@ impl TileBoulder {
 
         let mut rotation: f64 = 0.0;
         if self.can_harvest() {
-            rotation = f64::sin(rot_time) * 7.0;
+            // rotation = f64::sin(rot_time) * 7.0;
         }
 
+        /*
         draw_tile(
             TileType::Boulder,
             rotation,
@@ -92,5 +95,6 @@ impl TileBoulder {
             render_pack,
             assets,
         );
+        */
     }
 }

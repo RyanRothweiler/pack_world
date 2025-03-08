@@ -81,6 +81,7 @@ impl TileBirdNest {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
+        /*
         // render tree
         {
             let mut r = Rect::new_square(GRID_SIZE);
@@ -108,5 +109,6 @@ impl TileBirdNest {
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
         }
+        */
     }
 }

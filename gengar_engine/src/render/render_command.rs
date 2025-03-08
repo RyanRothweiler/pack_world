@@ -44,7 +44,7 @@ impl RenderCommand {
 
         RenderCommand {
             kind: VertexDataKind::Vao { id: model.vao.id },
-            prog_id: material.shader.unwrap().prog_id,
+            prog_id: material.shader.unwrap(),
             indices: model.indices.clone(),
             uniforms: uniforms,
         }
@@ -77,7 +77,7 @@ impl RenderCommand {
                 uvs: uvs,
             },
 
-            prog_id: material.shader.unwrap().prog_id,
+            prog_id: material.shader.unwrap(),
             indices: indices,
             uniforms: uniforms,
         }
@@ -121,7 +121,7 @@ impl RenderCommand {
                 uvs: vec![],
             },
 
-            prog_id: material.shader.unwrap().prog_id,
+            prog_id: material.shader.unwrap(),
             indices: indices,
             uniforms: uniforms,
         }

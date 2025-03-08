@@ -88,6 +88,7 @@ impl HarvestDrop {
         }
 
         // draw
+        /*
         {
             let mut rect = Rect::new_size(ICON_SIZE, ICON_SIZE);
             rect.shrink(lerp(ICON_SIZE * 0.5, 0.0, self.time / CIRCLE_LEN));
@@ -103,5 +104,6 @@ impl HarvestDrop {
                 .commands
                 .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
         }
+        */
     }
 }

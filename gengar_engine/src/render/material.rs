@@ -4,7 +4,7 @@ use std::collections::HashMap;
 #[derive(Clone, Default)]
 pub struct Material {
     pub uniforms: HashMap<String, UniformData>,
-    pub shader: Option<Shader>,
+    pub shader: Option<u32>,
 }
 
 impl Material {

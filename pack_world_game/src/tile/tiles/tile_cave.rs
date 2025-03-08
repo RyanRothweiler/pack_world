@@ -61,12 +61,14 @@ impl TileCave {
         let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
+        /*
         draw_progress_bar(
             self.harvest_timer.percent_done(),
             &r,
             shader_color,
             render_pack,
         );
+        */
     }
 
     pub fn render(

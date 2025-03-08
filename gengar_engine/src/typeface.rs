@@ -25,8 +25,8 @@ impl Typeface {
         }
     }
 
-    pub fn setup(&mut self, shader: Shader) {
-        self.shader = shader;
+    pub fn setup(&mut self, prog_id: u32) {
+        self.shader.prog_id = prog_id;
     }
 
     pub fn load_weight(
@@ -36,7 +36,7 @@ impl Typeface {
         image_bytes: impl std::io::Read,
         render_api: &impl RenderApi,
     ) {
-        let font = font::load(image_bytes, &metrics, self.shader, render_api).unwrap();
+        let font = font::load(image_bytes, &metrics, &self.shader, render_api).unwrap();
         self.fonts.insert(weight, font);
     }
 

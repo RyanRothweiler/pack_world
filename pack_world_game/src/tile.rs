@@ -332,6 +332,7 @@ pub fn draw_tile(
     render_pack: &mut RenderPack,
     assets: &Assets,
 ) {
+    /*
     let mut r = Rect::new_square(GRID_SIZE);
 
     r.set_center(grid_to_world(pos));
@@ -355,4 +356,5 @@ pub fn draw_tile(
     render_pack
         .commands
         .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
+    */
 }

@@ -64,14 +64,24 @@ pub const PACKAGE_NAME: &str = "pack_world_game";
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
-pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRenderApi) {
-    game_init(gs, es, render_api)
+pub fn game_init_ogl(
+    gs: &mut State,
+    es: &mut EngineState,
+    nes: &mut NewEngineState,
+    render_api: &OglRenderApi,
+) {
+    game_init(gs, es, nes, render_api)
 }
 
-pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
+pub fn game_init(
+    gs: &mut State,
+    es: &mut EngineState,
+    nes: &mut NewEngineState,
+    render_api: &impl RenderApi,
+) {
     gengar_engine::debug::init_context(
-        es.shader_color.clone(),
-        es.shader_color_ui,
+        nes.shader_color.prog_id,
+        nes.shader_color_ui.prog_id,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
@@ -173,8 +183,8 @@ pub fn game_loop(
     perm_mem: &MemoryArena,
 ) {
     gengar_engine::debug::init_context(
-        es.shader_color.clone(),
-        es.shader_color_ui.clone(),
+        nes.shader_color.prog_id,
+        nes.shader_color_ui.prog_id,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
@@ -185,8 +195,8 @@ pub fn game_loop(
         let ui_context = gs.ui_context.get_or_insert(UIContext {
             mouse: input.mouse.clone(),
 
-            color_shader: es.shader_color_ui,
-            color_shader_texture: es.color_texture_shader,
+            color_shader: nes.shader_color_ui.prog_id,
+            color_shader_texture: nes.color_texture_shader.prog_id,
 
             font_body: gs.font_style_body.clone(),
             font_header: gs.font_style_header.clone(),
@@ -343,6 +353,7 @@ pub fn game_loop(
         // TODO chagne this to use delta_time
         gs.rotate_time += 0.08;
 
+        /*
         for (grid_pos, world_cell) in &gs.world.entity_map {
             for (layer, eid) in &world_cell.layers {
                 let entity = &gs.world.get_entity(&eid);
@@ -351,7 +362,7 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            es.color_texture_shader,
+                            nes.color_texture_shader,
                             es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                             &gs.assets,
                         );
@@ -369,7 +380,7 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            es.color_texture_shader,
+                            nes.color_texture_shader,
                             es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                             &gs.assets,
                         );
@@ -387,7 +398,7 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            es.color_texture_shader,
+                            nes.color_texture_shader,
                             es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                             &gs.assets,
                         );
@@ -396,14 +407,16 @@ pub fn game_loop(
                 }
             }
         }
+        */
     }
 
+    /*
     // update harvest drops
     {
         for h in &mut gs.harvest_drops {
             h.update_and_draw(
                 0.001,
-                es.color_texture_shader,
+                nes.color_texture_shader,
                 es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                 &gs.assets,
             );
@@ -416,6 +429,7 @@ pub fn game_loop(
         // remove fnished
         gs.harvest_drops.retain(|h| !h.is_finished());
     }
+    */
 
     let mouse_grid: GridPos = {
         let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
@@ -449,7 +463,7 @@ pub fn game_loop(
             }
 
             let mut mat = Material::new();
-            mat.shader = Some(es.color_texture_shader);
+            mat.shader = Some(nes.color_texture_shader.prog_id);
             mat.set_image(gs.assets.get_tile_icon(&tile));
             mat.set_color(color);
 
@@ -504,7 +518,7 @@ pub fn game_loop(
                     );
 
                     let mut mat = Material::new();
-                    mat.shader = Some(es.shader_color);
+                    mat.shader = Some(nes.shader_color.prog_id);
                     mat.set_color(Color::new(1.0, 1.0, 1.0, 0.5));
 
                     es.render_packs
@@ -529,11 +543,13 @@ pub fn game_loop(
                         &mut gs.ui_context.as_mut().unwrap(),
                     );
 
+                    /*
                     tile.methods.render_hover_info(
                         y,
-                        es.shader_color.clone(),
+                        nes.shader_color.,
                         es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
                     );
+                    */
                 }
             }
         }

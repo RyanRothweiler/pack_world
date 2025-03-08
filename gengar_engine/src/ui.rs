@@ -15,8 +15,8 @@ pub use button::*;
 pub struct UIContext {
     pub mouse: Mouse,
 
-    pub color_shader: Shader,
-    pub color_shader_texture: Shader,
+    pub color_shader: u32,
+    pub color_shader_texture: u32,
 
     pub render_commands: Vec<RenderCommand>,
     pub button_state: HashMap<String, ButtonData>,
@@ -179,7 +179,7 @@ pub fn end_panel(frame_state: &mut UIFrameState, context: &mut UIContext) {
 pub fn draw_progress_bar(
     progress: f64,
     rect: &Rect,
-    shader_color: Shader,
+    shader_color: &Shader,
     render_pack: &mut RenderPack,
 ) {
     // draw fill
@@ -189,7 +189,7 @@ pub fn draw_progress_bar(
         fill_rect.resize_right(width * progress.clamp(0.0, 1.0));
 
         let mut mat = Material::new();
-        mat.shader = Some(shader_color);
+        mat.shader = Some(shader_color.prog_id);
         mat.uniforms.insert(
             "color".to_string(),
             UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),
@@ -203,7 +203,7 @@ pub fn draw_progress_bar(
     // draw outline
     {
         let mut mat = Material::new();
-        mat.shader = Some(shader_color);
+        mat.shader = Some(shader_color.prog_id);
         mat.uniforms.insert(
             "color".to_string(),
             UniformData::VecFour(Color::new(1.0, 1.0, 1.0, 0.5).into()),

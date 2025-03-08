@@ -42,41 +42,46 @@ use transform::*;
 use typeface::*;
 use vectors::*;
 
-pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
-    es.pbr_shader = Shader::compile(
-        include_str!("../engine_resources/shaders/pbr.vs"),
-        include_str!("../engine_resources/shaders/pbr.fs"),
-        render_api,
-    )
-    .unwrap();
+pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl render::RenderApi) {
+    nes.pbr_shader
+        .compile(
+            include_str!("../engine_resources/shaders/pbr.vs"),
+            include_str!("../engine_resources/shaders/pbr.fs"),
+            render_api,
+        )
+        .unwrap();
 
-    es.shader_color = Shader::compile(
-        include_str!("../engine_resources/shaders/color.vs"),
-        include_str!("../engine_resources/shaders/color.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.shader_color
+        .compile(
+            include_str!("../engine_resources/shaders/color.vs"),
+            include_str!("../engine_resources/shaders/color.fs"),
+            render_api,
+        )
+        .unwrap();
 
-    es.font_sdf = Shader::compile(
-        include_str!("../engine_resources/shaders/font_sdf.vs"),
-        include_str!("../engine_resources/shaders/font_sdf.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.font_sdf
+        .compile(
+            include_str!("../engine_resources/shaders/font_sdf.vs"),
+            include_str!("../engine_resources/shaders/font_sdf.fs"),
+            render_api,
+        )
+        .unwrap();
 
-    es.color_texture_shader = Shader::compile(
-        include_str!("../engine_resources/shaders/color_texture.vs"),
-        include_str!("../engine_resources/shaders/color_texture.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.color_texture_shader
+        .compile(
+            include_str!("../engine_resources/shaders/color_texture.vs"),
+            include_str!("../engine_resources/shaders/color_texture.fs"),
+            render_api,
+        )
+        .unwrap();
 
-    es.shader_color_ui = Shader::compile(
-        include_str!("../engine_resources/shaders/color_ui.vs"),
-        include_str!("../engine_resources/shaders/color_ui.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.shader_color_ui
+        .compile(
+            include_str!("../engine_resources/shaders/color_ui.vs"),
+            include_str!("../engine_resources/shaders/color_ui.fs"),
+            render_api,
+        )
+        .unwrap();
 
     es.model_sphere =
         Model::load_upload(include_str!("../engine_resources/sphere.obj"), render_api).unwrap();
@@ -85,7 +90,7 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
 
     // roboto
     {
-        es.roboto_typeface.setup(es.font_sdf);
+        es.roboto_typeface.setup(nes.font_sdf.prog_id);
 
         es.roboto_typeface.load_weight(
             TypeWeight::Bold,
@@ -114,8 +119,8 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     }
 
     debug::init_context(
-        es.shader_color,
-        es.shader_color_ui,
+        nes.shader_color.prog_id,
+        nes.shader_color_ui.prog_id,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );

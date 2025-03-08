@@ -67,12 +67,14 @@ impl TileOakTree {
         let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
+        /*
         draw_progress_bar(
             self.harvest_timer.percent_done(),
             &r,
             shader_color,
             render_pack,
         );
+        */
     }
 
     pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
@@ -94,9 +96,10 @@ impl TileOakTree {
 
         let mut rotation: f64 = 0.0;
         if self.can_harvest() {
-            rotation = f64::sin(rot_time) * 7.0;
+            // rotation = f64::sin(rot_time) * 7.0;
         }
 
+        /*
         // render tree
         {
             let mut r = Rect::new_square(GRID_SIZE * 2.0);
@@ -123,5 +126,6 @@ impl TileOakTree {
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
         }
+        */
     }
 }

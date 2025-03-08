@@ -14,8 +14,8 @@ pub struct DebugContext {
     pub render_commands: Vec<RenderCommand>,
     pub ui_render_commands: Vec<RenderCommand>,
 
-    pub shader_color: Shader,
-    pub shader_color_ui: Shader,
+    pub shader_color: u32,
+    pub shader_color_ui: u32,
 
     pub model_sphere: Model,
     pub model_plane: Model,
@@ -24,8 +24,8 @@ pub struct DebugContext {
 static mut DEBUG_CONTEXT: Option<DebugContext> = None;
 
 pub fn init_context(
-    shader_color: Shader,
-    shader_color_ui: Shader,
+    shader_color: u32,
+    shader_color_ui: u32,
     model_sphere: Model,
     model_plane: Model,
 ) {

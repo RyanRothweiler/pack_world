@@ -17,7 +17,7 @@ const KERNING_ADJ: f64 = 0.98;
 pub fn load(
     image_read: impl std::io::Read,
     font_data: &str,
-    shader: Shader,
+    shader: &Shader,
     render_api: &impl RenderApi,
 ) -> Result<Font, Error> {
     let mut typeface: Font = Default::default();
@@ -27,7 +27,7 @@ pub fn load(
     typeface.atlas_id = render_api.upload_texture(&typeface.atlas, false).unwrap();
 
     // create material for rendering
-    typeface.material.shader = Some(shader);
+    typeface.material.shader = Some(shader.prog_id);
     typeface.material.set_color(Color::new(1.0, 1.0, 1.0, 1.0));
 
     typeface.material.uniforms.insert(
@@ -261,7 +261,7 @@ pub fn render_letter(
             uvs: uvs,
         },
 
-        prog_id: style.typeface.material.shader.unwrap().prog_id,
+        prog_id: style.typeface.material.shader.unwrap(),
         indices: indices,
         uniforms: uniforms,
     };
