@@ -81,10 +81,14 @@ pub fn start() {
         ENGINE_STATE = Some(gengar_engine::state::State::new(resolution));
         GAME_STATE = Some(game::state::State::new());
 
+        todo!();
+
+        /*
         gengar_engine::load_resources(
             &mut ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
         );
+        */
 
         game_init(
             GAME_STATE.as_mut().unwrap(),

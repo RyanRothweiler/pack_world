@@ -42,7 +42,7 @@ use transform::*;
 use typeface::*;
 use vectors::*;
 
-pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
+pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl render::RenderApi) {
     es.pbr_shader = Shader::compile(
         include_str!("../engine_resources/shaders/pbr.vs"),
         include_str!("../engine_resources/shaders/pbr.fs"),
@@ -57,12 +57,13 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
     )
     .unwrap();
 
-    es.font_sdf = Shader::compile(
-        include_str!("../engine_resources/shaders/font_sdf.vs"),
-        include_str!("../engine_resources/shaders/font_sdf.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.font_sdf
+        .compile_self(
+            include_str!("../engine_resources/shaders/font_sdf.vs"),
+            include_str!("../engine_resources/shaders/font_sdf.fs"),
+            render_api,
+        )
+        .unwrap();
 
     es.color_texture_shader = Shader::compile(
         include_str!("../engine_resources/shaders/color_texture.vs"),
@@ -85,7 +86,7 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
 
     // roboto
     {
-        es.roboto_typeface.setup(es.font_sdf);
+        es.roboto_typeface.setup(nes.font_sdf);
 
         es.roboto_typeface.load_weight(
             TypeWeight::Bold,

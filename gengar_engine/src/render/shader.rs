@@ -30,4 +30,14 @@ impl Shader {
         let prog_id = render_api.make_shader_program(vert, frag)?;
         Ok(Shader { prog_id: prog_id })
     }
+
+    pub fn compile_self(
+        &mut self,
+        vert: &str,
+        frag: &str,
+        render_api: &impl RenderApi,
+    ) -> Result<(), Error> {
+        self.prog_id = render_api.make_shader_program(vert, frag)?;
+        Ok(())
+    }
 }

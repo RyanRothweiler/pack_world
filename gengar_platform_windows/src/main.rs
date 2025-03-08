@@ -277,7 +277,7 @@ fn main() {
         // setup input
         let mut input = gengar_engine::input::Input::new();
 
-        gengar_engine::load_resources(&mut engine_state, &render_api);
+        gengar_engine::load_resources(&mut engine_state, new_engine_state, &render_api);
         (game_dll.proc_init)(&mut game_state, &mut engine_state, &render_api);
 
         let mut prev_time_start: SystemTime = SystemTime::now();
