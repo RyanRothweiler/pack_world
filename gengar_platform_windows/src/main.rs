@@ -57,6 +57,7 @@ static mut KEYBOARD_NEW: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
 type FuncGameInit = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
+    &mut gengar_engine::state::NewState,
     &gengar_render_opengl::OglRenderApi,
 );
 type FuncGameLoop = fn(
@@ -278,7 +279,12 @@ fn main() {
         let mut input = gengar_engine::input::Input::new();
 
         gengar_engine::load_resources(&mut engine_state, new_engine_state, &render_api);
-        (game_dll.proc_init)(&mut game_state, &mut engine_state, &render_api);
+        (game_dll.proc_init)(
+            &mut game_state,
+            &mut engine_state,
+            new_engine_state,
+            &render_api,
+        );
 
         let mut prev_time_start: SystemTime = SystemTime::now();
 

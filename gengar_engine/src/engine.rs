@@ -50,12 +50,13 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
     )
     .unwrap();
 
-    es.shader_color = Shader::compile(
-        include_str!("../engine_resources/shaders/color.vs"),
-        include_str!("../engine_resources/shaders/color.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.shader_color
+        .compile_self(
+            include_str!("../engine_resources/shaders/color.vs"),
+            include_str!("../engine_resources/shaders/color.fs"),
+            render_api,
+        )
+        .unwrap();
 
     nes.font_sdf
         .compile_self(
@@ -72,12 +73,13 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
     )
     .unwrap();
 
-    es.shader_color_ui = Shader::compile(
-        include_str!("../engine_resources/shaders/color_ui.vs"),
-        include_str!("../engine_resources/shaders/color_ui.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.shader_color_ui
+        .compile_self(
+            include_str!("../engine_resources/shaders/color_ui.vs"),
+            include_str!("../engine_resources/shaders/color_ui.fs"),
+            render_api,
+        )
+        .unwrap();
 
     es.model_sphere =
         Model::load_upload(include_str!("../engine_resources/sphere.obj"), render_api).unwrap();
@@ -115,8 +117,8 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
     }
 
     debug::init_context(
-        es.shader_color,
-        es.shader_color_ui,
+        nes.shader_color,
+        nes.shader_color_ui,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );

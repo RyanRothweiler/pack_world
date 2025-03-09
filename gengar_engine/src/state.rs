@@ -16,6 +16,8 @@ pub struct NewState {
     pub frame: i64,
 
     pub font_sdf: Shader,
+    pub shader_color: Shader,
+    pub shader_color_ui: Shader,
 }
 
 impl NewState {
@@ -24,6 +26,8 @@ impl NewState {
             window_resolution,
             frame: 0,
 
+            shader_color: Shader::new_empty(),
+            shader_color_ui: Shader::new_empty(),
             font_sdf: Shader::new_empty(),
         }
     }
@@ -32,8 +36,6 @@ impl NewState {
 // TODO rename engine state
 pub struct State {
     pub pbr_shader: Shader,
-    pub shader_color: Shader,
-    pub shader_color_ui: Shader,
     pub color_texture_shader: Shader,
 
     pub model_sphere: Model,
@@ -58,8 +60,6 @@ impl State {
         let mut state = State {
             pbr_shader: Shader::new_empty(),
             color_texture_shader: Shader::new_empty(),
-            shader_color: Shader::new_empty(),
-            shader_color_ui: Shader::new_empty(),
 
             game_debug_render_commands: vec![],
             game_ui_debug_render_commands: vec![],

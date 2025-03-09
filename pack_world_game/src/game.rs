@@ -64,14 +64,24 @@ pub const PACKAGE_NAME: &str = "pack_world_game";
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
-pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRenderApi) {
-    game_init(gs, es, render_api)
+pub fn game_init_ogl(
+    gs: &mut State,
+    es: &mut EngineState,
+    nes: &mut NewEngineState,
+    render_api: &OglRenderApi,
+) {
+    game_init(gs, es, nes, render_api)
 }
 
-pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
+pub fn game_init(
+    gs: &mut State,
+    es: &mut EngineState,
+    nes: &mut NewEngineState,
+    render_api: &impl RenderApi,
+) {
     gengar_engine::debug::init_context(
-        es.shader_color.clone(),
-        es.shader_color_ui,
+        nes.shader_color.clone(),
+        nes.shader_color_ui,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
@@ -173,8 +183,8 @@ pub fn game_loop(
     perm_mem: &MemoryArena,
 ) {
     gengar_engine::debug::init_context(
-        es.shader_color.clone(),
-        es.shader_color_ui.clone(),
+        nes.shader_color.clone(),
+        nes.shader_color_ui.clone(),
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
@@ -185,7 +195,7 @@ pub fn game_loop(
         let ui_context = gs.ui_context.get_or_insert(UIContext {
             mouse: input.mouse.clone(),
 
-            color_shader: es.shader_color_ui,
+            color_shader: nes.shader_color_ui,
             color_shader_texture: es.color_texture_shader,
 
             font_body: gs.font_style_body.clone(),
@@ -504,7 +514,7 @@ pub fn game_loop(
                     );
 
                     let mut mat = Material::new();
-                    mat.shader = Some(es.shader_color);
+                    mat.shader = Some(nes.shader_color);
                     mat.set_color(Color::new(1.0, 1.0, 1.0, 0.5));
 
                     es.render_packs
@@ -531,7 +541,7 @@ pub fn game_loop(
 
                     tile.methods.render_hover_info(
                         y,
-                        es.shader_color.clone(),
+                        nes.shader_color.clone(),
                         es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
                     );
                 }

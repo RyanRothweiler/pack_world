@@ -88,13 +88,14 @@ pub fn start() {
             &mut ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
         );
-        */
 
         game_init(
             GAME_STATE.as_mut().unwrap(),
             ENGINE_STATE.as_mut().unwrap(),
+            // new_engine_state,
             RENDER_API.as_mut().unwrap(),
         );
+        */
     };
 }
 
