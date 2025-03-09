@@ -69,12 +69,14 @@ pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRende
 }
 
 pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
+    /*
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
+    */
 
     gs.assets.image_dirt =
         load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
@@ -171,6 +173,7 @@ pub fn game_loop(
     input: &mut Input,
     perm_mem: &MemoryArena,
 ) {
+    /*
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
@@ -178,6 +181,7 @@ pub fn game_loop(
         es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
+    */
 
     // update ui_context
     {

@@ -76,13 +76,6 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
         )
         .unwrap();
 
-    es.model_sphere
-        .load_upload(include_str!("../engine_resources/sphere.obj"), render_api)
-        .unwrap();
-    es.model_plane
-        .load_upload(include_str!("../engine_resources/plane.obj"), render_api)
-        .unwrap();
-
     // roboto
     {
         es.roboto_typeface.setup(es.font_sdf);
@@ -113,12 +106,14 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
         );
     }
 
+    /*
     debug::init_context(
         es.shader_color,
         es.shader_color_ui,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
+    */
 }
 
 pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
@@ -128,7 +123,7 @@ pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl ren
 
     es.frame = es.frame + 1;
 
-    debug::frame_start();
+    // debug::frame_start();
 }
 
 pub fn engine_frame_end(es: &mut State) {
