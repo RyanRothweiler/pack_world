@@ -255,7 +255,7 @@ pub fn render_letter(
     uniforms.insert("color".into(), UniformData::VecFour(color.into()));
     uniforms.insert("pxRange".into(), UniformData::Float(px_range));
 
-    let rc = RenderCommand {
+    let mut rc = RenderCommand {
         kind: VertexDataKind::DynamicMesh {
             mesh: r.get_mesh(-1.0),
             uvs: uvs,
@@ -263,7 +263,16 @@ pub fn render_letter(
 
         prog_id: style.typeface.material.shader.unwrap().prog_id,
         indices: indices,
-        uniforms: uniforms,
+        unifs: [Uniform::new_empty(); 10],
+        unifs_count: 0,
     };
+
+    for (id, data) in uniforms {
+        rc.push_uniform(Uniform::new(&id, data));
+    }
+
+    rc.push_uniform(Uniform::new("color", UniformData::VecFour(color.into())));
+    rc.push_uniform(Uniform::new("pxRange", UniformData::Float(px_range)));
+
     render_commands.push(rc);
 }

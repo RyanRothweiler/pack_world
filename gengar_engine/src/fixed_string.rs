@@ -1,5 +1,6 @@
 use crate::{error::*, memory_arena::*};
 
+#[derive(Clone, Copy, Debug)]
 pub struct FixedString {
     pub mem: [u8; 256],
     pub len: usize,

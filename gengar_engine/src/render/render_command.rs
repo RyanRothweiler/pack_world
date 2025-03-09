@@ -1,4 +1,5 @@
 use crate::{
+    fixed_string::*,
     matricies::matrix_four_four::*,
     model::*,
     rect::*,
@@ -19,13 +20,41 @@ pub enum VertexDataKind {
     },
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct Uniform {
+    pub id: FixedString,
+    pub data: UniformData,
+}
+
+impl Uniform {
+    pub fn new_empty() -> Self {
+        Self {
+            id: FixedString::new(),
+            data: UniformData::None,
+        }
+    }
+
+    pub fn new(id: &str, data: UniformData) -> Self {
+        let mut ret = Self {
+            id: FixedString::new(),
+            data: data,
+        };
+
+        ret.id.set(id).unwrap();
+
+        return ret;
+    }
+}
+
 #[derive(Clone)]
 pub struct RenderCommand {
     pub kind: VertexDataKind,
 
     pub prog_id: u32,
     pub indices: Vec<u32>,
-    pub uniforms: HashMap<String, UniformData>,
+
+    pub unifs: [Uniform; 10],
+    pub unifs_count: usize,
 }
 
 impl RenderCommand {
@@ -42,12 +71,29 @@ impl RenderCommand {
             UniformData::M44(transform.global_matrix.clone()),
         );
 
-        RenderCommand {
+        let mut command = RenderCommand {
             kind: VertexDataKind::Vao { id: model.vao.id },
             prog_id: material.shader.unwrap().prog_id,
             indices: model.indices.clone(),
-            uniforms: uniforms,
+            // uniforms: uniforms,
+            unifs: [Uniform::new_empty(); 10],
+            unifs_count: 0,
+        };
+
+        for (id, data) in uniforms {
+            command.push_uniform(Uniform::new(&id, data));
         }
+
+        command.push_uniform(Uniform::new(
+            "model",
+            UniformData::M44(transform.global_matrix.clone()),
+        ));
+        command.push_uniform(Uniform::new(
+            "lightPos",
+            UniformData::M44(transform.global_matrix.clone()),
+        ));
+
+        command
     }
 
     pub fn new_rect(rect: &Rect, z: f64, rot_deg: f64, material: &Material) -> Self {
@@ -71,7 +117,7 @@ impl RenderCommand {
         model_mat.rotate_z(rot_deg.to_radians());
         uniforms.insert("model".to_string(), UniformData::M44(model_mat));
 
-        RenderCommand {
+        let mut command = RenderCommand {
             kind: VertexDataKind::DynamicMesh {
                 mesh: rect.get_mesh_centered(z),
                 uvs: uvs,
@@ -79,8 +125,18 @@ impl RenderCommand {
 
             prog_id: material.shader.unwrap().prog_id,
             indices: indices,
-            uniforms: uniforms,
+            // uniforms: uniforms,
+            unifs: [Uniform::new_empty(); 10],
+            unifs_count: 0,
+        };
+
+        for (id, data) in uniforms {
+            command.push_uniform(Uniform::new(&id, data));
         }
+
+        command.push_uniform(Uniform::new("model", UniformData::M44(model_mat)));
+
+        command
     }
 
     pub fn new_rect_outline(rect: &Rect, z: f64, width: f64, material: &Material) -> Self {
@@ -115,7 +171,7 @@ impl RenderCommand {
         let mut uniforms: HashMap<String, UniformData> = material.uniforms.clone();
         uniforms.insert("model".to_string(), UniformData::M44(M44::new_identity()));
 
-        RenderCommand {
+        let mut command = RenderCommand {
             kind: VertexDataKind::DynamicMesh {
                 mesh: mesh,
                 uvs: vec![],
@@ -123,7 +179,25 @@ impl RenderCommand {
 
             prog_id: material.shader.unwrap().prog_id,
             indices: indices,
-            uniforms: uniforms,
+            // uniforms: uniforms,
+            unifs: [Uniform::new_empty(); 10],
+            unifs_count: 0,
+        };
+
+        for (id, data) in uniforms {
+            command.push_uniform(Uniform::new(&id, data));
         }
+
+        command.push_uniform(Uniform::new("model", UniformData::M44(M44::new_identity())));
+
+        command
+    }
+
+    pub fn push_uniform(&mut self, new_uniform: Uniform) {
+        assert!(self.unifs_count < self.unifs.len());
+
+        self.unifs[self.unifs_count] = new_uniform;
+
+        self.unifs_count += 1;
     }
 }

@@ -49,6 +49,8 @@ impl NewState {
             game_ui_debug_render_commands: vec![],
 
             roboto_typeface: Typeface::new(),
+            
+            // ui
         }
     }
 }

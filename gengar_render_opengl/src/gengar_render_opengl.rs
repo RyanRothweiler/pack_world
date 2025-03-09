@@ -437,32 +437,48 @@ fn render_list(
         render_api.platform_api.use_program(command.prog_id);
 
         // setup the camera transforms
-        command
-            .uniforms
-            .insert("view".to_string(), UniformData::M44(camera.view_mat));
-        command.uniforms.insert(
-            "projection".to_string(),
+        command.push_uniform(Uniform::new("view", UniformData::M44(camera.view_mat)));
+        command.push_uniform(Uniform::new(
+            "projection",
             UniformData::M44(camera.projection_mat),
-        );
-        command.uniforms.insert(
-            "viewPos".to_string(),
+        ));
+        command.push_uniform(Uniform::new(
+            "viewPos",
             UniformData::VecThree(camera.transform.local_position),
-        );
-        command
+        ));
+        command.push_uniform(Uniform::new("lightPos", UniformData::VecThree(light_pos)));
+        command.push_uniform(Uniform::new(
+            "lightColor",
+            UniformData::VecThree(VecThreeFloat::new(150.0, 150.0, 150.0)),
+        ));
+
+        // .insert("view".to_string(), UniformData::M44(camera.view_mat));
+        /*
+            command.uniforms.insert(
+                "projection".to_string(),
+                UniformData::M44(camera.projection_mat),
+            );
+            command.uniforms.insert(
+                "viewPos".to_string(),
+                UniformData::VecThree(camera.transform.local_position),
+            );
+            command
             .uniforms
             .insert("lightPos".to_string(), UniformData::VecThree(light_pos));
         command.uniforms.insert(
             "lightColor".to_string(),
             UniformData::VecThree(VecThreeFloat::new(150.0, 150.0, 150.0)),
         );
+        */
 
         // upload uniform data
-        for (key, value) in &command.uniforms {
-            match value {
+        for unif in &command.unifs {
+            match &unif.data {
+                UniformData::None => {}
                 UniformData::M44(data) => {
                     let loc = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
+                        .get_uniform_location(command.prog_id, unif.id.get().unwrap());
                     render_api
                         .platform_api
                         .uniform_matrix_4fv(loc, 1, false, data);
@@ -470,25 +486,25 @@ fn render_list(
                 UniformData::VecFour(data) => {
                     let loc = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
+                        .get_uniform_location(command.prog_id, unif.id.get().unwrap());
                     render_api.platform_api.uniform_4fv(loc, 1, data);
                 }
                 UniformData::VecThree(data) => {
                     let loc = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
+                        .get_uniform_location(command.prog_id, unif.id.get().unwrap());
                     render_api.platform_api.uniform_3fv(loc, 1, data);
                 }
                 UniformData::Float(data) => {
                     let loc = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
+                        .get_uniform_location(command.prog_id, unif.id.get().unwrap());
                     render_api.platform_api.uniform_1f(loc, *data as f32);
                 }
                 UniformData::Texture(data) => {
                     let loc = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
+                        .get_uniform_location(command.prog_id, unif.id.get().unwrap());
 
                     render_api
                         .platform_api
