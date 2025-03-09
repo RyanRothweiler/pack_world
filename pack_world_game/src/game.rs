@@ -308,7 +308,7 @@ pub fn game_loop(
         let keyboard_speed = 1000.0;
         let drag_speed = 0.75;
 
-        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
+        let cam_pack = &mut nes.game_render_pack;
 
         if input.get_key(KeyCode::W).pressing {
             cam_pack.camera.transform.local_position.y -= keyboard_speed * prev_delta_time;
@@ -362,7 +362,7 @@ pub fn game_loop(
                             gs.rotate_time,
                             &entity.grid_pos,
                             nes.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &mut nes.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -380,7 +380,7 @@ pub fn game_loop(
                             gs.rotate_time,
                             &entity.grid_pos,
                             nes.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &mut nes.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -398,7 +398,7 @@ pub fn game_loop(
                             gs.rotate_time,
                             &entity.grid_pos,
                             nes.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &mut nes.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -414,7 +414,7 @@ pub fn game_loop(
             h.update_and_draw(
                 0.001,
                 nes.color_texture_shader,
-                es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                &mut nes.game_render_pack,
                 &gs.assets,
             );
 
@@ -428,8 +428,7 @@ pub fn game_loop(
     }
 
     let mouse_grid: GridPos = {
-        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
-        let mouse_world = cam_pack.camera.screen_to_world(input.mouse.pos);
+        let mouse_world = nes.game_render_pack.camera.screen_to_world(input.mouse.pos);
         let mouse_grid: GridPos = world_to_grid(&mouse_world);
 
         mouse_grid
@@ -463,9 +462,7 @@ pub fn game_loop(
             mat.set_image(gs.assets.get_tile_icon(&tile));
             mat.set_color(color);
 
-            es.render_packs
-                .get_mut(&RenderPackID::World)
-                .unwrap()
+            nes.game_render_pack
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
         }
@@ -489,12 +486,7 @@ pub fn game_loop(
 
         if gs.tile_placing.is_none() {
             let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
-            let mouse_snapped_screen = es
-                .render_packs
-                .get_mut(&RenderPackID::World)
-                .unwrap()
-                .camera
-                .world_to_screen(mouse_snapped);
+            let mouse_snapped_screen = nes.game_render_pack.camera.world_to_screen(mouse_snapped);
 
             let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
 
@@ -517,9 +509,7 @@ pub fn game_loop(
                     mat.shader = Some(nes.shader_color);
                     mat.set_color(Color::new(1.0, 1.0, 1.0, 0.5));
 
-                    es.render_packs
-                        .get_mut(&RenderPackID::UI)
-                        .unwrap()
+                    nes.ui_render_pack
                         .commands
                         .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
                 }
@@ -542,16 +532,14 @@ pub fn game_loop(
                     tile.methods.render_hover_info(
                         y,
                         nes.shader_color.clone(),
-                        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                        &mut nes.ui_render_pack,
                     );
                 }
             }
         }
     }
 
-    es.render_packs
-        .get_mut(&RenderPackID::UI)
-        .unwrap()
+    nes.ui_render_pack
         .commands
         .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
 

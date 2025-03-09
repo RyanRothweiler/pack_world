@@ -7,7 +7,7 @@ use gengar_engine::{
         camera::*, image::Image, render_command::*, render_pack::*, shader::*, vao::Vao,
         RenderApi as EngineRenderApiTrait, ShaderType,
     },
-    state::State as EngineState,
+    state::{NewState as NewEngineState, State as EngineState},
     vectors::*,
 };
 
@@ -359,6 +359,7 @@ impl EngineRenderApiTrait for OglRenderApi {
 
 pub fn render(
     es: &mut EngineState,
+    nes: &mut NewEngineState,
     light_pos: VecThreeFloat,
     resolution: &VecTwo,
     render_api: &OglRenderApi,
@@ -378,22 +379,12 @@ pub fn render(
     render_api.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
     render_api.platform_api.clear();
 
-    render_render_pack(
-        light_pos,
-        es.render_packs.get_mut(&RenderPackID::World).unwrap(),
-        &render_api,
-    );
-    render_render_pack(
-        light_pos,
-        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
-        &render_api,
-    );
-    if es.render_packs.len() > 2 {
-        panic!("This assumes two render packs for now. If there is more then sometning needs to be done.");
-    }
+    render_render_pack(light_pos, &mut nes.game_render_pack, &render_api);
+    render_render_pack(light_pos, &mut nes.ui_render_pack, &render_api);
 
     // Debug rendering
     {
+        /*
         render_list(
             VecThreeFloat::new_zero(),
             gengar_engine::debug::get_render_list(),
@@ -406,7 +397,6 @@ pub fn render(
             &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
-        /*
         render_list(
             VecThreeFloat::new_zero(),
             &mut es.game_debug_render_commands,

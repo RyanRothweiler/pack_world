@@ -192,8 +192,8 @@ pub fn main_loop() {
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
         );
-        */
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
+        */
 
         let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
             [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]

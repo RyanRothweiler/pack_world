@@ -127,19 +127,17 @@ pub fn engine_frame_start(
     _render_api: &impl render::RenderApi,
 ) {
     // reset render lists
-    for (key, pack) in &mut es.render_packs {
-        pack.commands.clear();
-    }
+    nes.ui_render_pack.commands.clear();
+    nes.game_render_pack.commands.clear();
 
     nes.frame = nes.frame + 1;
 
     debug::frame_start();
 }
 
-pub fn engine_frame_end(es: &mut State) {
-    for (key, pack) in &mut es.render_packs {
-        pack.camera.update_matricies();
-    }
+pub fn engine_frame_end(es: &mut State, nes: &mut NewState) {
+    nes.ui_render_pack.camera.update_matricies();
+    nes.game_render_pack.camera.update_matricies();
 
     Transform::update_all(&mut es.transforms);
 }

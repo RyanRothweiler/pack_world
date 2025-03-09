@@ -360,13 +360,19 @@ fn main() {
                 new_engine_state,
                 &permanent_memory,
             );
-            gengar_engine::engine_frame_end(&mut engine_state);
+            gengar_engine::engine_frame_end(&mut engine_state, new_engine_state);
 
             let light_trans = engine_state.transforms[game_state.light_trans.unwrap()]
                 .global_matrix
                 .get_position();
 
-            render(&mut engine_state, light_trans, &resolution, &render_api);
+            render(
+                &mut engine_state,
+                new_engine_state,
+                light_trans,
+                &resolution,
+                &render_api,
+            );
 
             wglSwapLayerBuffers(device_context, gl::WGL_SWAP_MAIN_PLANE).unwrap();
 

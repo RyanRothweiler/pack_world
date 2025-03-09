@@ -194,7 +194,10 @@ impl RenderCommand {
     }
 
     pub fn push_uniform(&mut self, new_uniform: Uniform) {
-        assert!(self.unifs_count < self.unifs.len());
+        assert!(
+            self.unifs_count < self.unifs.len(),
+            "Hit limit of uniforms array"
+        );
 
         self.unifs[self.unifs_count] = new_uniform;
 

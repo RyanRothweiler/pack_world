@@ -29,6 +29,9 @@ pub struct NewState {
     // after the game frame ends, the game passes its debug render commands here
     pub game_debug_render_commands: Vec<RenderCommand>,
     pub game_ui_debug_render_commands: Vec<RenderCommand>,
+
+    pub ui_render_pack: RenderPack,
+    pub game_render_pack: RenderPack,
 }
 
 impl NewState {
@@ -49,39 +52,20 @@ impl NewState {
             game_ui_debug_render_commands: vec![],
 
             roboto_typeface: Typeface::new(),
-            
-            // ui
+
+            ui_render_pack: RenderPack::new(ProjectionType::Orthographic, window_resolution),
+            game_render_pack: RenderPack::new(ProjectionType::Orthographic, window_resolution),
         }
     }
 }
 
-// TODO rename engine state
 pub struct State {
-    pub render_packs: HashMap<RenderPackID, RenderPack>,
-
-    // Pseudo ecs stuff.
-    // This doesn't handle 'deallocation'
     pub transforms: Vec<Transform>,
 }
 
 impl State {
     pub fn new(window_resolution: VecTwo) -> Self {
-        let mut state = State {
-            render_packs: HashMap::new(),
-
-            transforms: vec![],
-        };
-
-        state.render_packs.insert(
-            RenderPackID::World,
-            RenderPack::new(ProjectionType::Orthographic, window_resolution),
-        );
-
-        state.render_packs.insert(
-            RenderPackID::UI,
-            RenderPack::new(ProjectionType::Orthographic, window_resolution),
-        );
-
+        let state = State { transforms: vec![] };
         return state;
     }
 
