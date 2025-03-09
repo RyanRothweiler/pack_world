@@ -57,7 +57,6 @@ static mut KEYBOARD_NEW: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
 type FuncGameInit = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
-    &mut gengar_engine::state::NewState,
     &gengar_render_opengl::OglRenderApi,
 );
 type FuncGameLoop = fn(
@@ -65,7 +64,6 @@ type FuncGameLoop = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
     &mut gengar_engine::input::Input,
-    &mut gengar_engine::state::NewState,
     &gengar_engine::memory_arena::MemoryArena,
 );
 
@@ -266,25 +264,19 @@ fn main() {
         let permanent_memory =
             MemoryArena::new(gengar_engine::byte_conversion::kilobyte_to_bytes(32.0) as usize);
 
-        let new_engine_state =
-            permanent_memory.alloc(gengar_engine::state::NewState::new(resolution));
+        let new_engine_state = permanent_memory.alloc(gengar_engine::state::State::new(resolution));
 
         // after context is setup, get the render api calls
         let render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
 
-        let mut engine_state = gengar_engine::state::State::new(resolution);
+        let engine_state = gengar_engine::state::State::new(resolution);
         let mut game_state = game::state::State::new();
 
         // setup input
         let mut input = gengar_engine::input::Input::new();
 
-        gengar_engine::load_resources(&mut engine_state, new_engine_state, &render_api);
-        (game_dll.proc_init)(
-            &mut game_state,
-            &mut engine_state,
-            new_engine_state,
-            &render_api,
-        );
+        gengar_engine::load_resources(new_engine_state, &render_api);
+        (game_dll.proc_init)(&mut game_state, new_engine_state, &render_api);
 
         let mut prev_time_start: SystemTime = SystemTime::now();
 
@@ -346,30 +338,19 @@ fn main() {
             }
 
             // Run game / engine loops
-            gengar_engine::engine_frame_start(
-                &mut engine_state,
-                new_engine_state,
-                &input,
-                &render_api,
-            );
+            gengar_engine::engine_frame_start(new_engine_state, &input, &render_api);
             (game_dll.proc_loop)(
                 prev_frame_dur.as_secs_f64(),
                 &mut game_state,
-                &mut engine_state,
-                &mut input,
                 new_engine_state,
+                &mut input,
                 &permanent_memory,
             );
-            gengar_engine::engine_frame_end(&mut engine_state, new_engine_state);
-
-            let light_trans = engine_state.transforms[game_state.light_trans.unwrap()]
-                .global_matrix
-                .get_position();
+            gengar_engine::engine_frame_end(new_engine_state);
 
             render(
-                &mut engine_state,
                 new_engine_state,
-                light_trans,
+                VecThreeFloat::new_zero(),
                 &resolution,
                 &render_api,
             );

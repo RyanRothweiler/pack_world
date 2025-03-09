@@ -42,8 +42,8 @@ use transform::*;
 use typeface::*;
 use vectors::*;
 
-pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl render::RenderApi) {
-    nes.shader_color
+pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
+    es.shader_color
         .compile(
             include_str!("../engine_resources/shaders/color.vs"),
             include_str!("../engine_resources/shaders/color.fs"),
@@ -51,7 +51,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         )
         .unwrap();
 
-    nes.font_sdf
+    es.font_sdf
         .compile(
             include_str!("../engine_resources/shaders/font_sdf.vs"),
             include_str!("../engine_resources/shaders/font_sdf.fs"),
@@ -59,7 +59,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         )
         .unwrap();
 
-    nes.color_texture_shader
+    es.color_texture_shader
         .compile(
             include_str!("../engine_resources/shaders/color_texture.vs"),
             include_str!("../engine_resources/shaders/color_texture.fs"),
@@ -67,7 +67,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         )
         .unwrap();
 
-    nes.shader_color_ui
+    es.shader_color_ui
         .compile(
             include_str!("../engine_resources/shaders/color_ui.vs"),
             include_str!("../engine_resources/shaders/color_ui.fs"),
@@ -75,18 +75,18 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         )
         .unwrap();
 
-    nes.model_sphere
+    es.model_sphere
         .load_upload(include_str!("../engine_resources/sphere.obj"), render_api)
         .unwrap();
-    nes.model_plane
+    es.model_plane
         .load_upload(include_str!("../engine_resources/plane.obj"), render_api)
         .unwrap();
 
     // roboto
     {
-        nes.roboto_typeface.setup(nes.font_sdf);
+        es.roboto_typeface.setup(es.font_sdf);
 
-        nes.roboto_typeface.load_weight(
+        es.roboto_typeface.load_weight(
             TypeWeight::Bold,
             include_str!("../engine_resources/fonts/roboto/roboto_bold_data.json").into(),
             Cursor::new(include_bytes!(
@@ -94,7 +94,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
             )),
             render_api,
         );
-        nes.roboto_typeface.load_weight(
+        es.roboto_typeface.load_weight(
             TypeWeight::Regular,
             include_str!("../engine_resources/fonts/roboto/roboto_regular_data.json").into(),
             Cursor::new(include_bytes!(
@@ -102,7 +102,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
             )),
             render_api,
         );
-        nes.roboto_typeface.load_weight(
+        es.roboto_typeface.load_weight(
             TypeWeight::Medium,
             include_str!("../engine_resources/fonts/roboto/roboto_medium_data.json").into(),
             Cursor::new(include_bytes!(
@@ -113,31 +113,24 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
     }
 
     debug::init_context(
-        nes.shader_color,
-        nes.shader_color_ui,
-        nes.model_sphere.clone(),
-        nes.model_plane.clone(),
+        es.shader_color,
+        es.shader_color_ui,
+        es.model_sphere.clone(),
+        es.model_plane.clone(),
     );
 }
 
-pub fn engine_frame_start(
-    es: &mut State,
-    nes: &mut NewState,
-    _input: &Input,
-    _render_api: &impl render::RenderApi,
-) {
+pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
     // reset render lists
-    nes.ui_render_pack.commands.clear();
-    nes.game_render_pack.commands.clear();
+    es.ui_render_pack.commands.clear();
+    es.game_render_pack.commands.clear();
 
-    nes.frame = nes.frame + 1;
+    es.frame = es.frame + 1;
 
     debug::frame_start();
 }
 
-pub fn engine_frame_end(es: &mut State, nes: &mut NewState) {
-    nes.ui_render_pack.camera.update_matricies();
-    nes.game_render_pack.camera.update_matricies();
-
-    Transform::update_all(&mut es.transforms);
+pub fn engine_frame_end(es: &mut State) {
+    es.ui_render_pack.camera.update_matricies();
+    es.game_render_pack.camera.update_matricies();
 }

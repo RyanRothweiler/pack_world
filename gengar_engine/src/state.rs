@@ -10,8 +10,7 @@ use crate::{
 };
 use std::{cell::RefCell, collections::HashMap};
 
-// slowly start migrating things from state into StateArena
-pub struct NewState {
+pub struct State {
     pub window_resolution: VecTwo,
     pub frame: i64,
 
@@ -34,7 +33,7 @@ pub struct NewState {
     pub game_render_pack: RenderPack,
 }
 
-impl NewState {
+impl State {
     pub fn new(window_resolution: VecTwo) -> Self {
         Self {
             window_resolution,
@@ -56,21 +55,5 @@ impl NewState {
             ui_render_pack: RenderPack::new(ProjectionType::Orthographic, window_resolution),
             game_render_pack: RenderPack::new(ProjectionType::Orthographic, window_resolution),
         }
-    }
-}
-
-pub struct State {
-    pub transforms: Vec<Transform>,
-}
-
-impl State {
-    pub fn new(window_resolution: VecTwo) -> Self {
-        let state = State { transforms: vec![] };
-        return state;
-    }
-
-    pub fn new_transform(&mut self) -> usize {
-        self.transforms.push(Transform::new());
-        return self.transforms.len() - 1;
     }
 }

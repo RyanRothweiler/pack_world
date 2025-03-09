@@ -21,7 +21,7 @@ use gengar_engine::{
         image::Image, load_image, load_image_cursor, material::*, render_command::RenderCommand,
         render_pack::*, shader::*, vao::*, RenderApi,
     },
-    state::{NewState as NewEngineState, State as EngineState},
+    state::State as EngineState,
     transform::*,
     typeface::*,
     ui::*,
@@ -64,26 +64,16 @@ pub const PACKAGE_NAME: &str = "pack_world_game";
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
-pub fn game_init_ogl(
-    gs: &mut State,
-    es: &mut EngineState,
-    nes: &mut NewEngineState,
-    render_api: &OglRenderApi,
-) {
-    game_init(gs, es, nes, render_api)
+pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRenderApi) {
+    game_init(gs, es, render_api)
 }
 
-pub fn game_init(
-    gs: &mut State,
-    es: &mut EngineState,
-    nes: &mut NewEngineState,
-    render_api: &impl RenderApi,
-) {
+pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
     gengar_engine::debug::init_context(
-        nes.shader_color.clone(),
-        nes.shader_color_ui,
-        nes.model_sphere.clone(),
-        nes.model_plane.clone(),
+        es.shader_color.clone(),
+        es.shader_color_ui,
+        es.model_sphere.clone(),
+        es.model_plane.clone(),
     );
 
     gs.assets.image_dirt =
@@ -125,18 +115,18 @@ pub fn game_init(
     gs.assets.image_question_mark =
         load_image_cursor(include_bytes!("../resources/question_mark.png"), render_api).unwrap();
 
-    gs.light_trans = Some(es.new_transform());
+    // gs.light_trans = Some(es.new_transform());
 
     // setup font styles
     {
         gs.font_style_body = FontStyle {
             size: 2.0,
-            typeface: nes.roboto_typeface.get_weight(TypeWeight::Regular).clone(),
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Regular).clone(),
         };
 
         gs.font_style_header = FontStyle {
             size: 4.0,
-            typeface: nes.roboto_typeface.get_weight(TypeWeight::Bold).clone(),
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold).clone(),
         };
     }
 
@@ -179,14 +169,13 @@ pub fn game_loop(
     gs: &mut State,
     es: &mut EngineState,
     input: &mut Input,
-    nes: &mut NewEngineState,
     perm_mem: &MemoryArena,
 ) {
     gengar_engine::debug::init_context(
-        nes.shader_color.clone(),
-        nes.shader_color_ui.clone(),
-        nes.model_sphere.clone(),
-        nes.model_plane.clone(),
+        es.shader_color.clone(),
+        es.shader_color_ui.clone(),
+        es.model_sphere.clone(),
+        es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
 
@@ -195,8 +184,8 @@ pub fn game_loop(
         let ui_context = gs.ui_context.get_or_insert(UIContext {
             mouse: input.mouse.clone(),
 
-            color_shader: nes.shader_color_ui,
-            color_shader_texture: nes.color_texture_shader,
+            color_shader: es.shader_color_ui,
+            color_shader_texture: es.color_texture_shader,
 
             font_body: gs.font_style_body.clone(),
             font_header: gs.font_style_header.clone(),
@@ -211,7 +200,7 @@ pub fn game_loop(
         ui_context.delta_time = prev_delta_time;
     }
 
-    let mut ui_frame_state = UIFrameState::new(&input, nes.window_resolution);
+    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
     #[cfg(feature = "dev")]
     {
@@ -223,7 +212,7 @@ pub fn game_loop(
                 fps as i32,
                 (prev_delta_time * 1000.0) as i32
             ),
-            VecTwo::new(nes.window_resolution.x - 500.0, 60.0),
+            VecTwo::new(es.window_resolution.x - 500.0, 60.0),
             COLOR_WHITE,
             &gs.font_style_body,
             &mut ui_frame_state,
@@ -308,7 +297,7 @@ pub fn game_loop(
         let keyboard_speed = 1000.0;
         let drag_speed = 0.75;
 
-        let cam_pack = &mut nes.game_render_pack;
+        let cam_pack = &mut es.game_render_pack;
 
         if input.get_key(KeyCode::W).pressing {
             cam_pack.camera.transform.local_position.y -= keyboard_speed * prev_delta_time;
@@ -361,8 +350,8 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            nes.color_texture_shader,
-                            &mut nes.game_render_pack,
+                            es.color_texture_shader,
+                            &mut es.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -379,8 +368,8 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            nes.color_texture_shader,
-                            &mut nes.game_render_pack,
+                            es.color_texture_shader,
+                            &mut es.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -397,8 +386,8 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            nes.color_texture_shader,
-                            &mut nes.game_render_pack,
+                            es.color_texture_shader,
+                            &mut es.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -413,8 +402,8 @@ pub fn game_loop(
         for h in &mut gs.harvest_drops {
             h.update_and_draw(
                 0.001,
-                nes.color_texture_shader,
-                &mut nes.game_render_pack,
+                es.color_texture_shader,
+                &mut es.game_render_pack,
                 &gs.assets,
             );
 
@@ -428,7 +417,7 @@ pub fn game_loop(
     }
 
     let mouse_grid: GridPos = {
-        let mouse_world = nes.game_render_pack.camera.screen_to_world(input.mouse.pos);
+        let mouse_world = es.game_render_pack.camera.screen_to_world(input.mouse.pos);
         let mouse_grid: GridPos = world_to_grid(&mouse_world);
 
         mouse_grid
@@ -458,11 +447,11 @@ pub fn game_loop(
             }
 
             let mut mat = Material::new();
-            mat.shader = Some(nes.color_texture_shader);
+            mat.shader = Some(es.color_texture_shader);
             mat.set_image(gs.assets.get_tile_icon(&tile));
             mat.set_color(color);
 
-            nes.game_render_pack
+            es.game_render_pack
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
         }
@@ -486,7 +475,7 @@ pub fn game_loop(
 
         if gs.tile_placing.is_none() {
             let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
-            let mouse_snapped_screen = nes.game_render_pack.camera.world_to_screen(mouse_snapped);
+            let mouse_snapped_screen = es.game_render_pack.camera.world_to_screen(mouse_snapped);
 
             let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
 
@@ -506,17 +495,17 @@ pub fn game_loop(
                     );
 
                     let mut mat = Material::new();
-                    mat.shader = Some(nes.shader_color);
+                    mat.shader = Some(es.shader_color);
                     mat.set_color(Color::new(1.0, 1.0, 1.0, 0.5));
 
-                    nes.ui_render_pack
+                    es.ui_render_pack
                         .commands
                         .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
                 }
 
                 // render info
                 {
-                    let mut ui_frame_state = UIFrameState::new(&input, nes.window_resolution);
+                    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
                     let y = layer.to_index() as f64 * 40.0;
 
@@ -531,15 +520,15 @@ pub fn game_loop(
 
                     tile.methods.render_hover_info(
                         y,
-                        nes.shader_color.clone(),
-                        &mut nes.ui_render_pack,
+                        es.shader_color.clone(),
+                        &mut es.ui_render_pack,
                     );
                 }
             }
         }
     }
 
-    nes.ui_render_pack
+    es.ui_render_pack
         .commands
         .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
 

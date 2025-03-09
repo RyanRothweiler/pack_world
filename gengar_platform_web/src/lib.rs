@@ -195,17 +195,19 @@ pub fn main_loop() {
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
         */
 
-        let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
-            [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]
-        .global_matrix
-        .get_position();
+        /*
+            let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
+                [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]
+            .global_matrix
+            .get_position();
 
         render(
             ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
             &resolution,
             &gl_context,
-            light_trans,
+            // VecThreeNew::new_zero(),
         );
+        */
     }
 }

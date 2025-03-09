@@ -7,7 +7,7 @@ use gengar_engine::{
         camera::*, image::Image, render_command::*, render_pack::*, shader::*, vao::Vao,
         RenderApi as EngineRenderApiTrait, ShaderType,
     },
-    state::{NewState as NewEngineState, State as EngineState},
+    state::State as EngineState,
     vectors::*,
 };
 
@@ -359,7 +359,6 @@ impl EngineRenderApiTrait for OglRenderApi {
 
 pub fn render(
     es: &mut EngineState,
-    nes: &mut NewEngineState,
     light_pos: VecThreeFloat,
     resolution: &VecTwo,
     render_api: &OglRenderApi,
@@ -379,8 +378,8 @@ pub fn render(
     render_api.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
     render_api.platform_api.clear();
 
-    render_render_pack(light_pos, &mut nes.game_render_pack, &render_api);
-    render_render_pack(light_pos, &mut nes.ui_render_pack, &render_api);
+    render_render_pack(light_pos, &mut es.game_render_pack, &render_api);
+    render_render_pack(light_pos, &mut es.ui_render_pack, &render_api);
 
     // Debug rendering
     {
