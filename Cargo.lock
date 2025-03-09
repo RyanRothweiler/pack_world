@@ -95,7 +95,6 @@ dependencies = [
 name = "gengar_engine"
 version = "0.1.0"
 dependencies = [
- "peak_alloc",
  "png",
 ]
 
