@@ -32,7 +32,6 @@ impl MemoryArena {
         }
     }
 
-    // Allocate raw memory for a custom type T
     pub fn alloc<T>(&self, initial_val: T) -> &mut T {
         let mut mem_block = self.block.borrow_mut();
 
@@ -58,6 +57,28 @@ impl MemoryArena {
         }
     }
 
+    pub fn alloc_array<T>(&self, count: usize) -> &mut T {
+        let mut mem_block = self.block.borrow_mut();
+
+        let size = Layout::new::<T>().size() * count;
+
+        // Ensure there’s enough space left in the arena
+        if mem_block.offset + size > mem_block.size_bytes {
+            panic!("Out of memory!");
+        }
+
+        // Get the raw pointer to the allocated memory
+        let ptr = unsafe { mem_block.memory.add(mem_block.offset) as *mut T };
+
+        // Update the offset to reflect the new allocation
+        mem_block.offset += size;
+
+        unsafe {
+            let owned_ptr = NonNull::new_unchecked(ptr);
+            return &mut *owned_ptr.as_ptr();
+        }
+    }
+
     pub fn reset(&self) {
         self.block.borrow_mut().offset = 0;
     }
@@ -70,6 +91,11 @@ impl MemoryArena {
     pub fn perc_used(&self) -> f64 {
         let mem_block = self.block.borrow();
         (mem_block.offset as f64 / mem_block.size_bytes as f64) * 100.0
+    }
+
+    pub fn bytes_used(&self) -> usize {
+        let mem_block = self.block.borrow();
+        mem_block.offset
     }
 
     /// get diagnostics display string
@@ -101,6 +127,26 @@ mod test {
 
         let struct_bytes = std::mem::size_of::<TempGameState>();
         assert_eq!(mem.bytes_avail(), arena_size - struct_bytes);
+    }
+
+    #[test]
+    fn alloc_array() {
+        let mem = MemoryArena::new(1024);
+
+        unsafe {
+            let mut tgs: *mut TempGameState = mem.alloc_array(2);
+
+            (*tgs).val = 12345;
+            tgs = tgs.offset(1);
+            (*tgs).val = 99;
+            tgs = tgs.offset(-1);
+
+            let sec_block: *mut TempGameState = mem.alloc_array(2);
+
+            assert_eq!((*tgs).val, 12345);
+            tgs = tgs.offset(1);
+            assert_eq!((*tgs).val, 99);
+        }
     }
 
     #[test]
