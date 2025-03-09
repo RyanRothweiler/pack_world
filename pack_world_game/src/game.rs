@@ -131,12 +131,12 @@ pub fn game_init(
     {
         gs.font_style_body = FontStyle {
             size: 2.0,
-            typeface: es.roboto_typeface.get_weight(TypeWeight::Regular),
+            typeface: nes.roboto_typeface.get_weight(TypeWeight::Regular).clone(),
         };
 
         gs.font_style_header = FontStyle {
             size: 4.0,
-            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
+            typeface: nes.roboto_typeface.get_weight(TypeWeight::Bold).clone(),
         };
     }
 
@@ -555,6 +555,6 @@ pub fn game_loop(
         .commands
         .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
 
-    es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
-    es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
+    // es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
+    // nes.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
 }

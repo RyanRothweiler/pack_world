@@ -22,6 +22,13 @@ pub struct NewState {
 
     pub model_sphere: Model,
     pub model_plane: Model,
+
+    pub roboto_typeface: Typeface,
+
+    // the game runs its its own dll. so the debug render commands is in the dll memory space
+    // after the game frame ends, the game passes its debug render commands here
+    pub game_debug_render_commands: Vec<RenderCommand>,
+    pub game_ui_debug_render_commands: Vec<RenderCommand>,
 }
 
 impl NewState {
@@ -37,37 +44,30 @@ impl NewState {
 
             model_sphere: Model::new(),
             model_plane: Model::new(),
+
+            game_debug_render_commands: vec![],
+            game_ui_debug_render_commands: vec![],
+
+            roboto_typeface: Typeface::new(),
         }
     }
 }
 
 // TODO rename engine state
 pub struct State {
-    // the game runs its its own dll. so the debug render commands is in the dll memory space
-    // after the game frame ends, the game passes its debug render commands here
-    pub game_debug_render_commands: Vec<RenderCommand>,
-    pub game_ui_debug_render_commands: Vec<RenderCommand>,
-
     pub render_packs: HashMap<RenderPackID, RenderPack>,
 
     // Pseudo ecs stuff.
     // This doesn't handle 'deallocation'
     pub transforms: Vec<Transform>,
-
-    pub roboto_typeface: Typeface,
 }
 
 impl State {
     pub fn new(window_resolution: VecTwo) -> Self {
         let mut state = State {
-            game_debug_render_commands: vec![],
-            game_ui_debug_render_commands: vec![],
-
             render_packs: HashMap::new(),
 
             transforms: vec![],
-
-            roboto_typeface: Typeface::new(),
         };
 
         state.render_packs.insert(

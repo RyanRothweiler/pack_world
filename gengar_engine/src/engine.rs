@@ -84,9 +84,9 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
 
     // roboto
     {
-        es.roboto_typeface.setup(nes.font_sdf);
+        nes.roboto_typeface.setup(nes.font_sdf);
 
-        es.roboto_typeface.load_weight(
+        nes.roboto_typeface.load_weight(
             TypeWeight::Bold,
             include_str!("../engine_resources/fonts/roboto/roboto_bold_data.json").into(),
             Cursor::new(include_bytes!(
@@ -94,7 +94,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
             )),
             render_api,
         );
-        es.roboto_typeface.load_weight(
+        nes.roboto_typeface.load_weight(
             TypeWeight::Regular,
             include_str!("../engine_resources/fonts/roboto/roboto_regular_data.json").into(),
             Cursor::new(include_bytes!(
@@ -102,7 +102,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
             )),
             render_api,
         );
-        es.roboto_typeface.load_weight(
+        nes.roboto_typeface.load_weight(
             TypeWeight::Medium,
             include_str!("../engine_resources/fonts/roboto/roboto_medium_data.json").into(),
             Cursor::new(include_bytes!(
