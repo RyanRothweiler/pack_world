@@ -17,6 +17,7 @@
 use game;
 use gengar_engine::{error::Error as EngineError, input::*, memory_arena::*, vectors::*};
 use gengar_render_opengl::*;
+use peak_alloc::PeakAlloc;
 use std::{
     collections::HashMap,
     sync::{LazyLock, Mutex},
@@ -35,6 +36,9 @@ use windows::{
 };
 
 mod gl;
+
+#[global_allocator]
+static PEAK_ALLOC: PeakAlloc = PeakAlloc;
 
 const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
@@ -372,6 +376,9 @@ fn main() {
                 let slp = to_sleep.as_millis();
                 thread::sleep(to_sleep);
             }
+
+            // let current_mem = PEAK_ALLOC.current_usage_as_mb();
+            // println!("{} MB", current_mem);
         }
     }
 }
