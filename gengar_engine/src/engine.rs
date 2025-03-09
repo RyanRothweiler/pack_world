@@ -43,13 +43,6 @@ use typeface::*;
 use vectors::*;
 
 pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl render::RenderApi) {
-    es.pbr_shader = Shader::compile(
-        include_str!("../engine_resources/shaders/pbr.vs"),
-        include_str!("../engine_resources/shaders/pbr.fs"),
-        render_api,
-    )
-    .unwrap();
-
     nes.shader_color
         .compile_self(
             include_str!("../engine_resources/shaders/color.vs"),
@@ -66,12 +59,14 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         )
         .unwrap();
 
-    es.color_texture_shader = Shader::compile(
-        include_str!("../engine_resources/shaders/color_texture.vs"),
-        include_str!("../engine_resources/shaders/color_texture.fs"),
-        render_api,
-    )
-    .unwrap();
+    nes.color_texture_shader
+        .compile_self
+        (
+            include_str!("../engine_resources/shaders/color_texture.vs"),
+            include_str!("../engine_resources/shaders/color_texture.fs"),
+            render_api,
+        )
+        .unwrap();
 
     nes.shader_color_ui
         .compile_self(

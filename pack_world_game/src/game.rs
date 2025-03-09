@@ -196,7 +196,7 @@ pub fn game_loop(
             mouse: input.mouse.clone(),
 
             color_shader: nes.shader_color_ui,
-            color_shader_texture: es.color_texture_shader,
+            color_shader_texture: nes.color_texture_shader,
 
             font_body: gs.font_style_body.clone(),
             font_header: gs.font_style_header.clone(),
@@ -361,7 +361,7 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            es.color_texture_shader,
+                            nes.color_texture_shader,
                             es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                             &gs.assets,
                         );
@@ -379,7 +379,7 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            es.color_texture_shader,
+                            nes.color_texture_shader,
                             es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                             &gs.assets,
                         );
@@ -397,7 +397,7 @@ pub fn game_loop(
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,
-                            es.color_texture_shader,
+                            nes.color_texture_shader,
                             es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                             &gs.assets,
                         );
@@ -413,7 +413,7 @@ pub fn game_loop(
         for h in &mut gs.harvest_drops {
             h.update_and_draw(
                 0.001,
-                es.color_texture_shader,
+                nes.color_texture_shader,
                 es.render_packs.get_mut(&RenderPackID::World).unwrap(),
                 &gs.assets,
             );
@@ -459,7 +459,7 @@ pub fn game_loop(
             }
 
             let mut mat = Material::new();
-            mat.shader = Some(es.color_texture_shader);
+            mat.shader = Some(nes.color_texture_shader);
             mat.set_image(gs.assets.get_tile_icon(&tile));
             mat.set_color(color);
 
