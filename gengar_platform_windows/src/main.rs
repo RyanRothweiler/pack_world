@@ -276,7 +276,12 @@ fn main() {
         let mut input = gengar_engine::input::Input::new();
 
         gengar_engine::load_resources(new_engine_state, &render_api);
-        (game_dll.proc_init)(&mut game_state, new_engine_state, &render_api);
+
+        if cfg!(feature = "hotreloading_dll") {
+            (game_dll.proc_init)(&mut game_state, new_engine_state, &render_api);
+        } else {
+            game::game_init(&mut game_state, new_engine_state, &render_api);
+        }
 
         let mut prev_time_start: SystemTime = SystemTime::now();
 
@@ -292,7 +297,7 @@ fn main() {
             }
 
             // check hot relaod game dll
-            {
+            if cfg!(feature = "hotreloading_dll") {
                 match get_file_write_time(GAME_DLL_PATH) {
                     Ok(v) => {
                         println!("Reloding game dll");
@@ -339,13 +344,23 @@ fn main() {
 
             // Run game / engine loops
             gengar_engine::engine_frame_start(new_engine_state, &input, &render_api);
-            (game_dll.proc_loop)(
-                prev_frame_dur.as_secs_f64(),
-                &mut game_state,
-                new_engine_state,
-                &mut input,
-                &permanent_memory,
-            );
+            if cfg!(feature = "hotreloading_dll") {
+                (game_dll.proc_loop)(
+                    prev_frame_dur.as_secs_f64(),
+                    &mut game_state,
+                    new_engine_state,
+                    &mut input,
+                    &permanent_memory,
+                );
+            } else {
+                game::game_loop(
+                    prev_frame_dur.as_secs_f64(),
+                    &mut game_state,
+                    new_engine_state,
+                    &mut input,
+                    &permanent_memory,
+                );
+            }
             gengar_engine::engine_frame_end(new_engine_state);
 
             render(
