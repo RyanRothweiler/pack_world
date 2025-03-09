@@ -31,37 +31,33 @@ impl Model {
         }
     }
 
-    // This assumes locations for shader layout data.
+    // This assumes locations for shader layout data.k
     // If the layout locations in the shader changes this will break
-    pub fn load_upload(data: &str, render_api: &impl RenderApi) -> Result<Self, Error> {
-        let mut model = obj::load(data)?;
+    pub fn load_upload(&mut self, data: &str, render_api: &impl RenderApi) -> Result<(), Error> {
+        obj::load(self, data)?;
 
-        model.vao = Vao::new(render_api);
+        self.vao = Vao::new(render_api);
 
         // vertices
-        model
-            .vao
-            .upload_v3(render_api, &model.vertices, &model.indices, 0)?;
+        self.vao
+            .upload_v3(render_api, &self.vertices, &self.indices, 0)?;
 
         // uvs
-        model.vao.upload_v2(render_api, &model.uvs, 1)?;
+        self.vao.upload_v2(render_api, &self.uvs, 1)?;
 
         // normals
-        model
-            .vao
-            .upload_v3(render_api, &model.normals, &model.indices, 2)?;
+        self.vao
+            .upload_v3(render_api, &self.normals, &self.indices, 2)?;
 
         // tangents
-        model
-            .vao
-            .upload_v3(render_api, &model.normal_tans, &model.indices, 3)?;
+        self.vao
+            .upload_v3(render_api, &self.normal_tans, &self.indices, 3)?;
 
         // bi tans
-        model
-            .vao
-            .upload_v3(render_api, &model.normal_bi_tans, &model.indices, 4)?;
+        self.vao
+            .upload_v3(render_api, &self.normal_bi_tans, &self.indices, 4)?;
 
-        Ok(model)
+        Ok(())
     }
 
     // Highly unsafe. Assumes vertices in triangles and data linear / un-spooled / not indexed

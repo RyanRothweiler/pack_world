@@ -264,7 +264,7 @@ fn main() {
         let mut game_dll = load_game_dll().unwrap();
 
         let permanent_memory =
-            MemoryArena::new(gengar_engine::byte_conversion::kilobyte_to_bytes(1.0) as usize);
+            MemoryArena::new(gengar_engine::byte_conversion::kilobyte_to_bytes(32.0) as usize);
 
         let new_engine_state =
             permanent_memory.alloc(gengar_engine::state::NewState::new(resolution));

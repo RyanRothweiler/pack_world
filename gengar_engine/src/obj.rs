@@ -1,14 +1,12 @@
 use crate::{error::*, model::*, vectors::*};
 use std::path::Path;
 
-pub fn load_file(file_path: &Path) -> Result<Model, Error> {
+pub fn load_file(model: &mut Model, file_path: &Path) -> Result<(), Error> {
     let file_data = std::fs::read_to_string(file_path)?;
-    load(&file_data)
+    load(model, &file_data)
 }
 
-pub fn load(input: &str) -> Result<Model, Error> {
-    let mut model = Model::new();
-
+pub fn load(model: &mut Model, input: &str) -> Result<(), Error> {
     let mut tokenizer = Tokenizer::new(input);
 
     let mut vertices: Vec<VecThreeFloat> = vec![];
@@ -113,7 +111,7 @@ pub fn load(input: &str) -> Result<Model, Error> {
 
     model.calculate_tangents();
 
-    Ok(model)
+    Ok(())
 }
 
 #[derive(PartialEq, Debug)]

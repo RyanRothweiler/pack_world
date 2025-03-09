@@ -19,6 +19,9 @@ pub struct NewState {
     pub shader_color: Shader,
     pub shader_color_ui: Shader,
     pub color_texture_shader: Shader,
+
+    pub model_sphere: Model,
+    pub model_plane: Model,
 }
 
 impl NewState {
@@ -31,15 +34,15 @@ impl NewState {
             shader_color_ui: Shader::new_empty(),
             color_texture_shader: Shader::new_empty(),
             font_sdf: Shader::new_empty(),
+
+            model_sphere: Model::new(),
+            model_plane: Model::new(),
         }
     }
 }
 
 // TODO rename engine state
 pub struct State {
-    pub model_sphere: Model,
-    pub model_plane: Model,
-
     // the game runs its its own dll. so the debug render commands is in the dll memory space
     // after the game frame ends, the game passes its debug render commands here
     pub game_debug_render_commands: Vec<RenderCommand>,
@@ -63,9 +66,6 @@ impl State {
             render_packs: HashMap::new(),
 
             transforms: vec![],
-
-            model_sphere: Model::new(),
-            model_plane: Model::new(),
 
             roboto_typeface: Typeface::new(),
         };

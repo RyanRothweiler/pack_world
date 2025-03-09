@@ -82,8 +82,8 @@ pub fn game_init(
     gengar_engine::debug::init_context(
         nes.shader_color.clone(),
         nes.shader_color_ui,
-        es.model_sphere.clone(),
-        es.model_plane.clone(),
+        nes.model_sphere.clone(),
+        nes.model_plane.clone(),
     );
 
     gs.assets.image_dirt =
@@ -185,8 +185,8 @@ pub fn game_loop(
     gengar_engine::debug::init_context(
         nes.shader_color.clone(),
         nes.shader_color_ui.clone(),
-        es.model_sphere.clone(),
-        es.model_plane.clone(),
+        nes.model_sphere.clone(),
+        nes.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
 

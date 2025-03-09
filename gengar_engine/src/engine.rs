@@ -44,7 +44,7 @@ use vectors::*;
 
 pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl render::RenderApi) {
     nes.shader_color
-        .compile_self(
+        .compile(
             include_str!("../engine_resources/shaders/color.vs"),
             include_str!("../engine_resources/shaders/color.fs"),
             render_api,
@@ -52,7 +52,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         .unwrap();
 
     nes.font_sdf
-        .compile_self(
+        .compile(
             include_str!("../engine_resources/shaders/font_sdf.vs"),
             include_str!("../engine_resources/shaders/font_sdf.fs"),
             render_api,
@@ -60,8 +60,7 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         .unwrap();
 
     nes.color_texture_shader
-        .compile_self
-        (
+        .compile(
             include_str!("../engine_resources/shaders/color_texture.vs"),
             include_str!("../engine_resources/shaders/color_texture.fs"),
             render_api,
@@ -69,17 +68,19 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
         .unwrap();
 
     nes.shader_color_ui
-        .compile_self(
+        .compile(
             include_str!("../engine_resources/shaders/color_ui.vs"),
             include_str!("../engine_resources/shaders/color_ui.fs"),
             render_api,
         )
         .unwrap();
 
-    es.model_sphere =
-        Model::load_upload(include_str!("../engine_resources/sphere.obj"), render_api).unwrap();
-    es.model_plane =
-        Model::load_upload(include_str!("../engine_resources/plane.obj"), render_api).unwrap();
+    nes.model_sphere
+        .load_upload(include_str!("../engine_resources/sphere.obj"), render_api)
+        .unwrap();
+    nes.model_plane
+        .load_upload(include_str!("../engine_resources/plane.obj"), render_api)
+        .unwrap();
 
     // roboto
     {
@@ -114,8 +115,8 @@ pub fn load_resources(es: &mut State, nes: &mut NewState, render_api: &impl rend
     debug::init_context(
         nes.shader_color,
         nes.shader_color_ui,
-        es.model_sphere.clone(),
-        es.model_plane.clone(),
+        nes.model_sphere.clone(),
+        nes.model_plane.clone(),
     );
 }
 
