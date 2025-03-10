@@ -6,8 +6,8 @@ use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
     render::{
-        camera::*, render_command::*, shader::*, vao::Vao, RenderApi as EngineRenderApiTrait,
-        ShaderType,
+        camera::*, render_command::*, render_pack::*, shader::*, vao::Vao,
+        RenderApi as EngineRenderApiTrait, ShaderType,
     },
     state::State as EngineState,
     vectors::*,
@@ -38,6 +38,18 @@ pub fn render(
 
     todo!("render the render packs");
 
+    render_render_pack(
+        light_pos,
+        es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+        &render_api,
+        context,
+    );
+    render_render_pack(
+        light_pos,
+        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+        &render_api,
+        context,
+    );
     /*
     render_list(
         light_pos,
@@ -70,6 +82,21 @@ pub fn render(
         context,
     );
     */
+}
+
+fn render_render_pack(
+    light_pos: VecThreeFloat,
+    pack: &mut RenderPack,
+    render_api: &WebGLRenderApi,
+    context: &WebGl2RenderingContext,
+) {
+    render_list(
+        light_pos,
+        &mut pack.commands,
+        &pack.camera,
+        render_api,
+        context,
+    );
 }
 
 fn render_list(
