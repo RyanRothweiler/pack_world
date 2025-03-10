@@ -17,6 +17,7 @@
 use game;
 use gengar_engine::{error::Error as EngineError, input::*, memory_arena::*, vectors::*};
 use gengar_render_opengl::*;
+use peak_alloc::PeakAlloc;
 use std::{
     collections::HashMap,
     sync::{LazyLock, Mutex},
@@ -33,6 +34,9 @@ use windows::{
         UI::{Shell::*, WindowsAndMessaging::*},
     },
 };
+
+#[global_allocator]
+static PEAK_ALLOC: PeakAlloc = PeakAlloc;
 
 mod gl;
 
@@ -380,6 +384,9 @@ fn main() {
                 let slp = to_sleep.as_millis();
                 thread::sleep(to_sleep);
             }
+
+            let current_mem = PEAK_ALLOC.current_usage_as_mb();
+            println!("This program currently uses {} MB of RAM.", current_mem);
         }
     }
 }

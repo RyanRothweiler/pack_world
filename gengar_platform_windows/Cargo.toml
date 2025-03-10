@@ -9,6 +9,7 @@ gengar_renderapi_opengl_windows = { path = "../gengar_renderapi_opengl_windows" 
 gengar_render_opengl = { path = "../gengar_render_opengl" }
 
 game = { path = "../pack_world_game", package="pack_world_game" }
+peak_alloc = "0.2.1"
 
 [dependencies.windows]
 version = "0.52"
@@ -19,5 +20,4 @@ features = [
 ]
 
 [features]
-default = ["hotreloading_dll"]
 hotreloading_dll = []
