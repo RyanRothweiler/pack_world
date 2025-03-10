@@ -81,6 +81,9 @@ pub fn start() {
         ENGINE_STATE = Some(gengar_engine::state::State::new(resolution));
         GAME_STATE = Some(game::state::State::new());
 
+        todo!();
+
+        /*
         gengar_engine::load_resources(
             &mut ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
@@ -89,8 +92,10 @@ pub fn start() {
         game_init(
             GAME_STATE.as_mut().unwrap(),
             ENGINE_STATE.as_mut().unwrap(),
+            // new_engine_state,
             RENDER_API.as_mut().unwrap(),
         );
+        */
     };
 }
 
@@ -157,6 +162,8 @@ pub fn main_loop() {
         .unwrap();
 
     unsafe {
+        todo!("Update to handle new allocation syste");
+
         // Update input
         {
             let input: &mut Input = INPUT.as_mut().unwrap();
@@ -173,6 +180,7 @@ pub fn main_loop() {
             );
         }
 
+        /*
         gengar_engine::engine_frame_start(
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
@@ -185,18 +193,21 @@ pub fn main_loop() {
             INPUT.as_mut().unwrap(),
         );
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
+        */
 
-        let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
-            [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]
-        .global_matrix
-        .get_position();
+        /*
+            let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
+                [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]
+            .global_matrix
+            .get_position();
 
         render(
             ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
             &resolution,
             &gl_context,
-            light_trans,
+            // VecThreeNew::new_zero(),
         );
+        */
     }
 }

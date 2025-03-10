@@ -3,12 +3,6 @@ use crate::{
     vectors::*,
 };
 
-#[derive(Eq, PartialEq, Hash)]
-pub enum RenderPackID {
-    UI,
-    World,
-}
-
 pub struct RenderPack {
     pub commands: Vec<RenderCommand>,
     pub camera: Camera,

@@ -79,6 +79,8 @@ fn render_list(
     render_api: &WebGLRenderApi,
     context: &WebGl2RenderingContext,
 ) {
+    todo!("new uniform setup");
+    /*
     for command in render_commands {
         (render_api.gl_use_program)(command.prog_id);
 
@@ -103,6 +105,7 @@ fn render_list(
 
         for (key, value) in &command.uniforms {
             match value {
+                UniformData::None => {}
                 UniformData::M44(data) => {
                     match (render_api.gl_get_uniform_location)(command.prog_id, key) {
                         Some(loc) => (render_api.gl_uniform_matrix_4fv)(&loc, false, data),
@@ -172,4 +175,5 @@ fn render_list(
         (render_api.gl_bind_vertex_array_engine)(vao_id).unwrap();
         (render_api.gl_draw_arrays)(WebGl2RenderingContext::TRIANGLES as i32, &command.indices);
     }
+    */
 }

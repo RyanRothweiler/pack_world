@@ -17,3 +17,7 @@ features = [
     "Win32_UI_Shell",
     "Win32_UI_Input_KeyboardAndMouse"
 ]
+
+[features]
+default = ["hotreloading_dll"]
+hotreloading_dll = []

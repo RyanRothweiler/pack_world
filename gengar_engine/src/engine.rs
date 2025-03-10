@@ -9,12 +9,16 @@
 use std::{include_str, io::Cursor};
 
 pub mod ascii;
+pub mod byte_conversion;
 pub mod color;
 pub mod debug;
 pub mod error;
+pub mod fixed_string;
+pub mod gen_vec;
 pub mod input;
 pub mod math;
 pub mod matricies;
+pub mod memory_arena;
 pub mod model;
 pub mod rect;
 pub mod render;
@@ -40,45 +44,37 @@ use typeface::*;
 use vectors::*;
 
 pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
-    es.pbr_shader = Shader::compile(
-        include_str!("../engine_resources/shaders/pbr.vs"),
-        include_str!("../engine_resources/shaders/pbr.fs"),
-        render_api,
-    )
-    .unwrap();
+    es.shader_color
+        .compile(
+            include_str!("../engine_resources/shaders/color.vs"),
+            include_str!("../engine_resources/shaders/color.fs"),
+            render_api,
+        )
+        .unwrap();
 
-    es.shader_color = Shader::compile(
-        include_str!("../engine_resources/shaders/color.vs"),
-        include_str!("../engine_resources/shaders/color.fs"),
-        render_api,
-    )
-    .unwrap();
+    es.font_sdf
+        .compile(
+            include_str!("../engine_resources/shaders/font_sdf.vs"),
+            include_str!("../engine_resources/shaders/font_sdf.fs"),
+            render_api,
+        )
+        .unwrap();
 
-    es.font_sdf = Shader::compile(
-        include_str!("../engine_resources/shaders/font_sdf.vs"),
-        include_str!("../engine_resources/shaders/font_sdf.fs"),
-        render_api,
-    )
-    .unwrap();
+    es.color_texture_shader
+        .compile(
+            include_str!("../engine_resources/shaders/color_texture.vs"),
+            include_str!("../engine_resources/shaders/color_texture.fs"),
+            render_api,
+        )
+        .unwrap();
 
-    es.color_texture_shader = Shader::compile(
-        include_str!("../engine_resources/shaders/color_texture.vs"),
-        include_str!("../engine_resources/shaders/color_texture.fs"),
-        render_api,
-    )
-    .unwrap();
-
-    es.shader_color_ui = Shader::compile(
-        include_str!("../engine_resources/shaders/color_ui.vs"),
-        include_str!("../engine_resources/shaders/color_ui.fs"),
-        render_api,
-    )
-    .unwrap();
-
-    es.model_sphere =
-        Model::load_upload(include_str!("../engine_resources/sphere.obj"), render_api).unwrap();
-    es.model_plane =
-        Model::load_upload(include_str!("../engine_resources/plane.obj"), render_api).unwrap();
+    es.shader_color_ui
+        .compile(
+            include_str!("../engine_resources/shaders/color_ui.vs"),
+            include_str!("../engine_resources/shaders/color_ui.fs"),
+            render_api,
+        )
+        .unwrap();
 
     // roboto
     {
@@ -110,29 +106,27 @@ pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
         );
     }
 
+    /*
     debug::init_context(
         es.shader_color,
         es.shader_color_ui,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
+    */
 }
 
 pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
     // reset render lists
-    for (key, pack) in &mut es.render_packs {
-        pack.commands.clear();
-    }
+    es.ui_render_pack.commands.clear();
+    es.game_render_pack.commands.clear();
 
     es.frame = es.frame + 1;
 
-    debug::frame_start();
+    // debug::frame_start();
 }
 
 pub fn engine_frame_end(es: &mut State) {
-    for (key, pack) in &mut es.render_packs {
-        pack.camera.update_matricies();
-    }
-
-    Transform::update_all(&mut es.transforms);
+    es.ui_render_pack.camera.update_matricies();
+    es.game_render_pack.camera.update_matricies();
 }

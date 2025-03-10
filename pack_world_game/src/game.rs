@@ -13,6 +13,7 @@ use gengar_engine::{
     debug::*,
     input::*,
     matricies::matrix_four_four::*,
+    memory_arena::*,
     model::*,
     obj,
     rect::*,
@@ -68,12 +69,14 @@ pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRende
 }
 
 pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
+    /*
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui,
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
+    */
 
     gs.assets.image_dirt =
         load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
@@ -114,18 +117,18 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
     gs.assets.image_question_mark =
         load_image_cursor(include_bytes!("../resources/question_mark.png"), render_api).unwrap();
 
-    gs.light_trans = Some(es.new_transform());
+    // gs.light_trans = Some(es.new_transform());
 
     // setup font styles
     {
         gs.font_style_body = FontStyle {
             size: 2.0,
-            typeface: es.roboto_typeface.get_weight(TypeWeight::Regular),
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Regular).clone(),
         };
 
         gs.font_style_header = FontStyle {
             size: 4.0,
-            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold).clone(),
         };
     }
 
@@ -163,7 +166,14 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
 // Prev delta time is in seconds. So for 60 fps 0.016666.
 #[no_mangle]
-pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, input: &mut Input) {
+pub fn game_loop(
+    prev_delta_time: f64,
+    gs: &mut State,
+    es: &mut EngineState,
+    input: &mut Input,
+    perm_mem: &MemoryArena,
+) {
+    /*
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
@@ -171,6 +181,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
+    */
 
     // update ui_context
     {
@@ -200,11 +211,12 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         let fps = 1.0 / prev_delta_time;
         draw_text(
             &format!(
-                "{:?}fps {:?}ms",
+                "{:.2}% pmem {:?}fps {:?}ms",
+                perm_mem.perc_used(),
                 fps as i32,
                 (prev_delta_time * 1000.0) as i32
             ),
-            VecTwo::new(es.window_resolution.x - 200.0, 60.0),
+            VecTwo::new(es.window_resolution.x - 500.0, 60.0),
             COLOR_WHITE,
             &gs.font_style_body,
             &mut ui_frame_state,
@@ -289,7 +301,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         let keyboard_speed = 1000.0;
         let drag_speed = 0.75;
 
-        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
+        let cam_pack = &mut es.game_render_pack;
 
         if input.get_key(KeyCode::W).pressing {
             cam_pack.camera.transform.local_position.y -= keyboard_speed * prev_delta_time;
@@ -343,7 +355,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &mut es.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -361,7 +373,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &mut es.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -379,7 +391,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &mut es.game_render_pack,
                             &gs.assets,
                         );
                     }
@@ -395,7 +407,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             h.update_and_draw(
                 0.001,
                 es.color_texture_shader,
-                es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                &mut es.game_render_pack,
                 &gs.assets,
             );
 
@@ -409,8 +421,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
     }
 
     let mouse_grid: GridPos = {
-        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
-        let mouse_world = cam_pack.camera.screen_to_world(input.mouse.pos);
+        let mouse_world = es.game_render_pack.camera.screen_to_world(input.mouse.pos);
         let mouse_grid: GridPos = world_to_grid(&mouse_world);
 
         mouse_grid
@@ -444,9 +455,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
             mat.set_image(gs.assets.get_tile_icon(&tile));
             mat.set_color(color);
 
-            es.render_packs
-                .get_mut(&RenderPackID::World)
-                .unwrap()
+            es.game_render_pack
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
         }
@@ -470,12 +479,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
         if gs.tile_placing.is_none() {
             let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
-            let mouse_snapped_screen = es
-                .render_packs
-                .get_mut(&RenderPackID::World)
-                .unwrap()
-                .camera
-                .world_to_screen(mouse_snapped);
+            let mouse_snapped_screen = es.game_render_pack.camera.world_to_screen(mouse_snapped);
 
             let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
 
@@ -498,9 +502,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                     mat.shader = Some(es.shader_color);
                     mat.set_color(Color::new(1.0, 1.0, 1.0, 0.5));
 
-                    es.render_packs
-                        .get_mut(&RenderPackID::UI)
-                        .unwrap()
+                    es.ui_render_pack
                         .commands
                         .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
                 }
@@ -523,19 +525,17 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                     tile.methods.render_hover_info(
                         y,
                         es.shader_color.clone(),
-                        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                        &mut es.ui_render_pack,
                     );
                 }
             }
         }
     }
 
-    es.render_packs
-        .get_mut(&RenderPackID::UI)
-        .unwrap()
+    es.ui_render_pack
         .commands
         .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
 
-    es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
-    es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
+    // es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
+    // nes.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
 }
