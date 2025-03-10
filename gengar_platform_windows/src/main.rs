@@ -38,6 +38,7 @@ use windows::{
     },
 };
 
+#[cfg(feature = "tracking_allocator")]
 #[global_allocator]
 static A: TrackingAlloc = TrackingAlloc;
 
@@ -277,7 +278,11 @@ fn main() {
         let mut input = gengar_engine::input::Input::new();
 
         gengar_engine::load_resources(&mut engine_state, &render_api);
-        (game_dll.proc_init)(&mut game_state, &mut engine_state, &render_api);
+        if cfg!(feature = "hotreloading_dll") {
+            (game_dll.proc_init)(&mut game_state, &mut engine_state, &render_api);
+        } else {
+            game::game_init(&mut game_state, &mut engine_state, &render_api);
+        }
 
         let mut prev_time_start: SystemTime = SystemTime::now();
 
@@ -293,7 +298,7 @@ fn main() {
             }
 
             // check hot relaod game dll
-            {
+            if cfg!(feature = "hotreloading_dll") {
                 match get_file_write_time(GAME_DLL_PATH) {
                     Ok(v) => {
                         println!("Reloding game dll");
@@ -340,12 +345,22 @@ fn main() {
 
             // Run game / engine loops
             gengar_engine::engine_frame_start(&mut engine_state, &input, &render_api);
-            (game_dll.proc_loop)(
-                prev_frame_dur.as_secs_f64(),
-                &mut game_state,
-                &mut engine_state,
-                &mut input,
-            );
+            if cfg!(feature = "hotreloading_dll") {
+                (game_dll.proc_loop)(
+                    prev_frame_dur.as_secs_f64(),
+                    &mut game_state,
+                    &mut engine_state,
+                    &mut input,
+                );
+            } else {
+                game::game_loop(
+                    prev_frame_dur.as_secs_f64(),
+                    &mut game_state,
+                    &mut engine_state,
+                    &mut input,
+                );
+            }
+
             gengar_engine::engine_frame_end(&mut engine_state);
 
             let light_trans = engine_state.transforms[game_state.light_trans.unwrap()]
@@ -365,9 +380,8 @@ fn main() {
                 thread::sleep(to_sleep);
             }
 
-            {
-                println!("{}mb", bytes_to_megabytes(TRACKERS[0].allocated_memory));
-            }
+            // print allocated memory
+            // println!("{:.2} mb", bytes_to_megabytes(TRACKERS[0].allocated_memory));
         }
     }
 }

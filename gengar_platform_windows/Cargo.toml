@@ -3,6 +3,11 @@ name = "gengar_platform_windows"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = ["hotreloading_dll"]
+hotreloading_dll = []
+tracking_allocator = []
+
 [dependencies]
 gengar_engine = { path = "../gengar_engine" }
 gengar_renderapi_opengl_windows = { path = "../gengar_renderapi_opengl_windows" }
