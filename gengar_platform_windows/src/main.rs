@@ -14,6 +14,9 @@
 // example of entire setup
 // https://github.com/glowcoil/raw-gl-context/blob/master/src/win.rs
 
+mod gl;
+mod vol_mem;
+
 use game;
 use gengar_engine::{error::Error as EngineError, input::*, vectors::*};
 use gengar_render_opengl::*;
@@ -23,6 +26,7 @@ use std::{
     thread,
     time::{Duration, SystemTime},
 };
+use vol_mem::*;
 use windows::{
     core::*,
     Win32::{
@@ -33,8 +37,6 @@ use windows::{
         UI::{Shell::*, WindowsAndMessaging::*},
     },
 };
-
-mod gl;
 
 const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
@@ -74,6 +76,8 @@ struct GameDll {
 }
 
 fn main() {
+    memory_track!("main");
+
     let dll_path = format!("{}.dll", game::PACKAGE_NAME);
     let dll_current_path = format!("{}_current.dll", game::PACKAGE_NAME);
 
@@ -356,6 +360,10 @@ fn main() {
                 let to_sleep: Duration = FRAME_TARGET - frame_duration;
                 let slp = to_sleep.as_millis();
                 thread::sleep(to_sleep);
+            }
+
+            {
+                println!("{}mb", TRACKERS[0].allocated_memory);
             }
         }
     }
