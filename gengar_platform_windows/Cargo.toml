@@ -19,5 +19,4 @@ features = [
 ]
 
 [features]
-default = ["hotreloading_dll"]
 hotreloading_dll = []

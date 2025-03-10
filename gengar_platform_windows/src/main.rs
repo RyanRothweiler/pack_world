@@ -15,7 +15,9 @@
 // https://github.com/glowcoil/raw-gl-context/blob/master/src/win.rs
 
 use game;
-use gengar_engine::{error::Error as EngineError, input::*, memory_arena::*, vectors::*};
+use gengar_engine::{
+    byte_conversion::*, error::Error as EngineError, input::*, memory_arena::*, vectors::*,
+};
 use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
@@ -81,7 +83,6 @@ struct GameDll {
 }
 
 fn main() {
-    vol_mem::ENABLED.store(true, std::sync::atomic::Ordering::SeqCst);
     memory_track!("total");
 
     let dll_path = format!("{}.dll", game::PACKAGE_NAME);
@@ -392,7 +393,7 @@ fn main() {
 
             for (id, block) in TRACKING_BLOCKS.lock().unwrap().iter() {
                 let mem_used = TRACKERS[block.tracker_index as usize].allocated_memory;
-                println!("{id} -> {mem_used}");
+                println!("{id} -> {:.2}mb", bytes_to_megabytes(mem_used));
             }
         }
     }

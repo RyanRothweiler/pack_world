@@ -71,8 +71,6 @@ pub struct BlockInfo {
     pub allocated_memory: i64,
 }
 
-pub static ENABLED: AtomicBool = AtomicBool::new(false);
-
 pub static mut TRACKERS: [BlockInfo; TRACKER_SLOTS_COUNT] = [BlockInfo {
     allocated_memory: 0,
 }; TRACKER_SLOTS_COUNT];
@@ -83,7 +81,7 @@ pub static mut CURRENT_TRACKERS: [i32; TRACKER_SLOTS_COUNT] = [-1; TRACKER_SLOTS
 unsafe impl GlobalAlloc for TrackingAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         let ret = System.alloc(layout);
-        if !ret.is_null() && ENABLED.load(Ordering::SeqCst) {
+        if !ret.is_null() {
             // Update memory for all living trackers
             for i in 0..CURRENT_TRACKERS_LEN {
                 TRACKERS[CURRENT_TRACKERS[i] as usize].allocated_memory += layout.size() as i64;
@@ -95,11 +93,9 @@ unsafe impl GlobalAlloc for TrackingAlloc {
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
         System.dealloc(ptr, layout);
 
-        if ENABLED.load(Ordering::SeqCst) {
-            // Update memory for all living trackers
-            for i in 0..CURRENT_TRACKERS_LEN {
-                TRACKERS[CURRENT_TRACKERS[i] as usize].allocated_memory -= layout.size() as i64;
-            }
+        // Update memory for all living trackers
+        for i in 0..CURRENT_TRACKERS_LEN {
+            TRACKERS[CURRENT_TRACKERS[i] as usize].allocated_memory -= layout.size() as i64;
         }
     }
 }
