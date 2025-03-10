@@ -18,7 +18,7 @@ mod gl;
 mod vol_mem;
 
 use game;
-use gengar_engine::{error::Error as EngineError, input::*, vectors::*};
+use gengar_engine::{byte_conversion::*, error::Error as EngineError, input::*, vectors::*};
 use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
@@ -37,6 +37,9 @@ use windows::{
         UI::{Shell::*, WindowsAndMessaging::*},
     },
 };
+
+#[global_allocator]
+static A: TrackingAlloc = TrackingAlloc;
 
 const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
@@ -363,7 +366,7 @@ fn main() {
             }
 
             {
-                println!("{}mb", TRACKERS[0].allocated_memory);
+                println!("{}mb", bytes_to_megabytes(TRACKERS[0].allocated_memory));
             }
         }
     }

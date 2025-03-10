@@ -9,6 +9,7 @@
 use std::{include_str, io::Cursor};
 
 pub mod ascii;
+pub mod byte_conversion;
 pub mod color;
 pub mod debug;
 pub mod error;
