@@ -24,6 +24,7 @@ pub mod transform;
 pub mod typeface;
 pub mod ui;
 pub mod vectors;
+pub mod vol_mem;
 
 // loaders
 pub mod json;

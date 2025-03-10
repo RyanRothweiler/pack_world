@@ -15,10 +15,9 @@
 // https://github.com/glowcoil/raw-gl-context/blob/master/src/win.rs
 
 mod gl;
-mod vol_mem;
 
 use game;
-use gengar_engine::{byte_conversion::*, error::Error as EngineError, input::*, vectors::*};
+use gengar_engine::{error::Error as EngineError, input::*, vectors::*, vol_mem::*};
 use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
@@ -26,7 +25,6 @@ use std::{
     thread,
     time::{Duration, SystemTime},
 };
-use vol_mem::*;
 use windows::{
     core::*,
     Win32::{
@@ -41,6 +39,9 @@ use windows::{
 #[cfg(feature = "tracking_allocator")]
 #[global_allocator]
 static A: TrackingAlloc = TrackingAlloc;
+
+#[cfg(all(feature = "hotreloading_dll", feature = "tracking_allocator"))]
+compile_error!("Cannot use hotreloading and tracking allocator at the same time");
 
 const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
@@ -80,7 +81,7 @@ struct GameDll {
 }
 
 fn main() {
-    memory_track!("main");
+    gengar_engine::memory_track!("main");
 
     let dll_path = format!("{}.dll", game::PACKAGE_NAME);
     let dll_current_path = format!("{}_current.dll", game::PACKAGE_NAME);
@@ -381,7 +382,12 @@ fn main() {
             }
 
             // print allocated memory
-            // println!("{:.2} mb", bytes_to_megabytes(TRACKERS[0].allocated_memory));
+            /*
+            println!(
+                "{:.2} mb",
+                gengar_engine::byte_conversion::bytes_to_megabytes(TRACKERS[0].allocated_memory)
+            );
+            */
         }
     }
 }
