@@ -10,13 +10,16 @@
 
 use game::{game_init, game_loop, state::*};
 use gengar_engine::{input::*, platform_api::PlatformApi, state::State as EngineState, vectors::*};
-
+use std::{
+    cell::RefCell,
+    collections::HashMap,
+    rc::Rc,
+    sync::{LazyLock, Mutex},
+};
 use wasm_bindgen::prelude::*;
 use web_sys::{
     console, KeyboardEvent, MouseEvent, WebGl2RenderingContext, WebGlProgram, WebGlShader,
 };
-
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 mod webgl;
 
@@ -26,6 +29,9 @@ static mut ENGINE_STATE: Option<EngineState> = None;
 static mut GAME_STATE: Option<game::state::State> = None;
 static mut RENDER_API: Option<WebGLRenderApi> = None;
 static mut INPUT: Option<Input> = None;
+
+static KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
+    LazyLock::new(|| Mutex::new(HashMap::new()));
 
 static mut MOUSE_POS: VecTwo = VecTwo { x: 0.0, y: 0.0 };
 static mut MOUSE_LEFT_DOWN: bool = false;
@@ -100,9 +106,16 @@ pub fn start() {
 
 #[wasm_bindgen]
 pub fn key_down(vent: KeyboardEvent) {
-    let input: &mut Input = unsafe { INPUT.as_mut().unwrap() };
-    // input.keyboard[vent.key_code() as usize].update(true);
-    todo!("fix keyboard input")
+    if let Some(key) = to_keycode(vent.key()) {
+        KEYBOARD.lock().unwrap().insert(key, true);
+    }
+}
+
+#[wasm_bindgen]
+pub fn key_up(vent: KeyboardEvent) {
+    if let Some(key) = to_keycode(vent.key()) {
+        KEYBOARD.lock().unwrap().insert(key, false);
+    }
 }
 
 #[wasm_bindgen]
@@ -125,13 +138,6 @@ pub fn mouse_up(vent: MouseEvent) {
             MOUSE_RIGHT_DOWN = false;
         }
     }
-}
-
-#[wasm_bindgen]
-pub fn key_up(vent: KeyboardEvent) {
-    let input: &mut Input = unsafe { INPUT.as_mut().unwrap() };
-    // input.keyboard[vent.key_code() as usize].update(false);
-    todo!("fix keyboard input")
 }
 
 #[wasm_bindgen]
@@ -177,6 +183,15 @@ pub fn main_loop() {
                 prev_pos.x - input.mouse.pos.x as f64,
                 prev_pos.y - input.mouse.pos.y as f64,
             );
+
+            let key_states: &HashMap<KeyCode, bool> = &KEYBOARD.lock().unwrap();
+            for (key, value) in key_states {
+                input
+                    .keyboard
+                    .entry(*key)
+                    .or_insert(ButtonState::new())
+                    .update(*value);
+            }
         }
 
         gengar_engine::engine_frame_start(
@@ -205,5 +220,56 @@ pub fn main_loop() {
             &gl_context,
             light_trans,
         );
+    }
+}
+
+pub fn to_keycode(key: String) -> Option<KeyCode> {
+    let st: &str = &key;
+    match st {
+        "a" => Some(KeyCode::A),
+        "b" => Some(KeyCode::B),
+        "c" => Some(KeyCode::C),
+        "d" => Some(KeyCode::D),
+        "e" => Some(KeyCode::E),
+        "f" => Some(KeyCode::F),
+        "g" => Some(KeyCode::G),
+        "h" => Some(KeyCode::H),
+        "i" => Some(KeyCode::I),
+        "j" => Some(KeyCode::J),
+        "k" => Some(KeyCode::K),
+        "l" => Some(KeyCode::L),
+        "m" => Some(KeyCode::M),
+        "n" => Some(KeyCode::N),
+        "o" => Some(KeyCode::O),
+        "p" => Some(KeyCode::P),
+        "q" => Some(KeyCode::Q),
+        "r" => Some(KeyCode::R),
+        "s" => Some(KeyCode::S),
+        "t" => Some(KeyCode::T),
+        "u" => Some(KeyCode::U),
+        "v" => Some(KeyCode::V),
+        "w" => Some(KeyCode::W),
+        "x" => Some(KeyCode::X),
+        "y" => Some(KeyCode::Y),
+        "z" => Some(KeyCode::Z),
+
+        "0" => Some(KeyCode::Zero),
+        "1" => Some(KeyCode::One),
+        "2" => Some(KeyCode::Two),
+        "3" => Some(KeyCode::Three),
+        "4" => Some(KeyCode::Four),
+        "5" => Some(KeyCode::Five),
+        "6" => Some(KeyCode::Six),
+        "7" => Some(KeyCode::Seven),
+        "8" => Some(KeyCode::Eight),
+        "9" => Some(KeyCode::Nine),
+
+        "Tab" => Some(KeyCode::Tab),
+        "Escape" => Some(KeyCode::Escape),
+        " " => Some(KeyCode::Spacebar),
+        _ => {
+            log(&format!("Unknown keycode {:?}", key));
+            return None;
+        }
     }
 }

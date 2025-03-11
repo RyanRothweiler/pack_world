@@ -36,8 +36,6 @@ pub fn render(
     context
         .clear(WebGl2RenderingContext::COLOR_BUFFER_BIT | WebGl2RenderingContext::DEPTH_BUFFER_BIT);
 
-    todo!("render the render packs");
-
     render_render_pack(
         light_pos,
         es.render_packs.get_mut(&RenderPackID::World).unwrap(),

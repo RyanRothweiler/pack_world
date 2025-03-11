@@ -60,7 +60,7 @@ static mut RUNNING: bool = true;
 
 static mut MOUSE_LEFT_DOWN: bool = false;
 static mut MOUSE_RIGHT_DOWN: bool = false;
-static mut KEYBOARD_NEW: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
+static mut KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 type FuncGameInit = fn(
@@ -347,7 +347,7 @@ fn main() {
                 );
 
                 // Keyboard
-                let key_states: &HashMap<KeyCode, bool> = &KEYBOARD_NEW.lock().unwrap();
+                let key_states: &HashMap<KeyCode, bool> = &KEYBOARD.lock().unwrap();
                 for (key, value) in key_states {
                     input
                         .keyboard
@@ -440,7 +440,7 @@ extern "system" fn windows_callback(
             WM_KEYUP => {
                 match vk_to_keycode(wparam.0) {
                     Some(keycode) => {
-                        KEYBOARD_NEW.lock().unwrap().insert(keycode, false);
+                        KEYBOARD.lock().unwrap().insert(keycode, false);
                     }
                     None => {}
                 }
@@ -450,7 +450,7 @@ extern "system" fn windows_callback(
             WM_KEYDOWN => {
                 match vk_to_keycode(wparam.0) {
                     Some(keycode) => {
-                        KEYBOARD_NEW.lock().unwrap().insert(keycode, true);
+                        KEYBOARD.lock().unwrap().insert(keycode, true);
                     }
                     None => {}
                 }
