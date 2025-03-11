@@ -10,6 +10,7 @@
 
 use game::{game_init, game_loop, state::*};
 use gengar_engine::{input::*, platform_api::PlatformApi, state::State as EngineState, vectors::*};
+use js_sys::Math;
 use std::{
     cell::RefCell,
     collections::HashMap,
@@ -47,7 +48,7 @@ pub fn log(input: &str) {
 }
 
 fn rand() -> f64 {
-    todo!("use random here");
+    Math::random()
 }
 
 #[wasm_bindgen(start)]
