@@ -1,5 +1,5 @@
 use crate::{item::*, state::inventory::*, tile::*};
-use rand::prelude::*;
+use gengar_engine::platform_api::*;
 use std::{collections::HashMap, sync::LazyLock};
 
 mod fixed_tables;
@@ -129,8 +129,13 @@ impl DropTable {
         ret
     }
 
-    pub fn pull(&self, mut tables_visited: &mut Vec<FixedTableID>) -> Drop {
-        let num: f64 = rand::random_range(0.0..self.max);
+    pub fn pull(
+        &self,
+        mut tables_visited: &mut Vec<FixedTableID>,
+        platform_api: &PlatformApi,
+    ) -> Drop {
+        // let num: f64 = rand::random_range(0.0..self.max);
+        let num: f64 = (platform_api.rand)() * self.max;
         for e in &self.entries {
             if e.chance_val > num {
                 match e.output.ty {
@@ -144,7 +149,7 @@ impl DropTable {
                         }
                         tables_visited.push(table_id);
 
-                        return get_drop_cycle_check(table_id, tables_visited);
+                        return get_drop_cycle_check(table_id, tables_visited, platform_api);
                     }
                 };
             }
@@ -154,14 +159,14 @@ impl DropTable {
     }
 
     // Will panic if a cycle exists
-    pub fn check_cycle(&self) {
+    pub fn check_cycle(&self, platform_api: &PlatformApi) {
         let mut tables_visited: Vec<FixedTableID> = vec![];
 
         for e in &self.entries {
             match e.output.ty {
                 // Only check the table drops
                 EntryOutputType::Table(table_id) => {
-                    let _ = get_drop_cycle_check(table_id, &mut tables_visited);
+                    let _ = get_drop_cycle_check(table_id, &mut tables_visited, platform_api);
                 }
                 _ => {}
             }
@@ -205,9 +210,10 @@ impl DropTable {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{state::inventory::*, tile::*};
+    use crate::{state::inventory::*, testing_infra::*, tile::*};
 
     #[test]
     fn build() {
@@ -234,7 +240,8 @@ mod tests {
 
     #[test]
     fn table_drop() {
-        let pull = get_drop(FixedTableID::TestTable);
+        let plat_api = windows_plaform_api();
+        let pull = get_drop(FixedTableID::TestTable, &plat_api);
 
         assert_eq!(pull.drop_type, DropType::Gold);
         assert_eq!(pull.amount, 1);
@@ -258,7 +265,8 @@ mod tests {
     #[test]
     #[should_panic]
     fn panic_on_cycle() {
-        let pull = get_drop(FixedTableID::TestCycleA);
+        let plat_api = windows_plaform_api();
+        let pull = get_drop(FixedTableID::TestCycleA, &plat_api);
     }
 
     // create teble by using the

@@ -8,7 +8,9 @@ use crate::{
     ui_panels::{nav_tabs_panel::*, *},
     UpdateSignal,
 };
-use gengar_engine::{color::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*};
+use gengar_engine::{
+    color::*, platform_api::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
+};
 
 struct PullDisplay {
     pub drop: Drop,
@@ -41,6 +43,7 @@ impl OpenPackPanel {
         inventory: &Inventory,
         assets: &Assets,
         ui_context: &mut UIContext,
+        platform_api: &PlatformApi,
     ) -> Vec<UpdateSignal> {
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
@@ -71,7 +74,7 @@ impl OpenPackPanel {
                 ui_context,
             ) {
                 // pull item from pack and give
-                let pull = pack_info.pull();
+                let pull = pack_info.pull(platform_api);
                 update_signals.push(UpdateSignal::GiveDrop(pull));
 
                 self.items_remaining -= 1;

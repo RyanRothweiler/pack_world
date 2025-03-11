@@ -9,7 +9,7 @@
 )]
 
 use game::{game_init, game_loop, state::*};
-use gengar_engine::{input::*, state::State as EngineState, vectors::*};
+use gengar_engine::{input::*, platform_api::PlatformApi, state::State as EngineState, vectors::*};
 
 use wasm_bindgen::prelude::*;
 use web_sys::{
@@ -38,6 +38,10 @@ extern "C" {
 
 pub fn log(input: &str) {
     console::log_1(&input.into());
+}
+
+fn rand() -> f64 {
+    todo!("use random here");
 }
 
 #[wasm_bindgen(start)]
@@ -140,6 +144,8 @@ pub fn mouse_move(vent: MouseEvent) {
 
 #[wasm_bindgen]
 pub fn main_loop() {
+    let platform_api = PlatformApi { rand: rand };
+
     let window = web_sys::window().unwrap();
     let document = window.document().unwrap();
 
@@ -183,6 +189,7 @@ pub fn main_loop() {
             GAME_STATE.as_mut().unwrap(),
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
+            &platform_api,
         );
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
 

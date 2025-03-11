@@ -10,6 +10,8 @@ path = "src/game.rs"
 [dependencies]
 gengar_engine = { path = "../gengar_engine" }
 gengar_render_opengl = { path = "../gengar_render_opengl" }
+
+[dev-dependencies]
 rand = "0.9.0"
 
 [features]

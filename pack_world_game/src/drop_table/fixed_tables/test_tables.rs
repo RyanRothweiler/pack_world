@@ -24,12 +24,15 @@ pub static TEST_TABLE: LazyLock<DropTable> = LazyLock::new(|| {
     )])
 });
 
+#[cfg(test)]
 mod test {
     use super::*;
+    use crate::testing_infra::*;
 
     #[test]
     #[should_panic]
     fn check_cycle() {
-        TEST_CYCLE_A.check_cycle();
+        let plat_api = windows_plaform_api();
+        TEST_CYCLE_A.check_cycle(&plat_api);
     }
 }

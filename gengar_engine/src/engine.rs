@@ -17,6 +17,7 @@ pub mod input;
 pub mod math;
 pub mod matricies;
 pub mod model;
+pub mod platform_api;
 pub mod rect;
 pub mod render;
 pub mod state;

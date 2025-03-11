@@ -15,6 +15,7 @@ use gengar_engine::{
     matricies::matrix_four_four::*,
     model::*,
     obj,
+    platform_api::*,
     rect::*,
     render::{
         image::Image, load_image, load_image_cursor, material::*, render_command::RenderCommand,
@@ -47,6 +48,9 @@ pub mod tile;
 pub mod ui_panels;
 pub mod update_signal;
 pub mod world;
+
+#[cfg(test)]
+pub mod testing_infra;
 
 pub use constants::*;
 use grid::*;
@@ -163,7 +167,13 @@ pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderA
 
 // Prev delta time is in seconds. So for 60 fps 0.016666.
 #[no_mangle]
-pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, input: &mut Input) {
+pub fn game_loop(
+    prev_delta_time: f64,
+    gs: &mut State,
+    es: &mut EngineState,
+    input: &mut Input,
+    platform_api: &PlatformApi,
+) {
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
@@ -224,6 +234,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 &gs.assets,
                 &gs.player_state,
                 &mut gs.ui_context.as_mut().unwrap(),
+                platform_api,
             ));
         }
 
@@ -235,12 +246,13 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                 &gs.assets,
                 &gs.player_state,
                 &mut gs.ui_context.as_mut().unwrap(),
+                platform_api,
             )),
             None => {}
         }
 
         // Handle signals
-        handle_signals(update_signals, gs);
+        handle_signals(update_signals, gs, platform_api);
 
         // Update input
         input.mouse.button_left.on_press = ui_frame_state.mouse_left;
@@ -261,9 +273,10 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                     &gs.assets,
                     &gs.player_state,
                     &mut gs.ui_context.as_mut().unwrap(),
+                    platform_api,
                 );
 
-                handle_signals(sigs, gs);
+                handle_signals(sigs, gs, platform_api);
             }
         }
     }
@@ -281,7 +294,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         for (eid, entity) in &mut gs.world.entities {
             update_signals.append(&mut entity.methods.update(frame_delta));
         }
-        handle_signals(update_signals, gs);
+        handle_signals(update_signals, gs, platform_api);
     }
 
     // camera controls
@@ -325,7 +338,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
         for (eid, tile_inst) in &mut gs.world.entities {
             update_sigs.append(&mut tile_inst.update(prev_delta_time));
         }
-        handle_signals(update_sigs, gs);
+        handle_signals(update_sigs, gs, platform_api);
     }
 
     // render tiles. Render each layer separately.
@@ -459,7 +472,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
                     gs.tile_placing = None;
                 }
 
-                handle_signals(update_sigs, gs);
+                handle_signals(update_sigs, gs, platform_api);
             }
         }
     }
@@ -484,7 +497,7 @@ pub fn game_loop(prev_delta_time: f64, gs: &mut State, es: &mut EngineState, inp
 
                 // Harvesting
                 if input.mouse.button_left.pressing && tile.methods.can_harvest() {
-                    tile.harvest(&world_snapshot);
+                    tile.harvest(&world_snapshot, platform_api);
                 }
 
                 // render hover rect

@@ -7,7 +7,7 @@ use crate::{
     tile::*,
     ui_panels::{home_panel::*, *},
 };
-use gengar_engine::vectors::*;
+use gengar_engine::{platform_api::*, vectors::*};
 
 // TODO maybe consolidate shot purchases into one enum.
 // with state for the type of purchase
@@ -43,7 +43,7 @@ pub enum UpdateSignal {
     AddHarvestDrop { drop: Drop, origin: VecTwo },
 }
 
-pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
+pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_api: &PlatformApi) {
     let mut curr_signals: Vec<UpdateSignal> = vec![];
     curr_signals.append(&mut signals);
 
@@ -71,7 +71,8 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State) {
                     vec![]
                 }
                 UpdateSignal::AddHarvestDrop { drop, origin } => {
-                    gs.harvest_drops.push(HarvestDrop::new(*drop, *origin));
+                    gs.harvest_drops
+                        .push(HarvestDrop::new(*drop, *origin, platform_api));
                     vec![]
                 }
                 UpdateSignal::OpenPack(pack_id) => {

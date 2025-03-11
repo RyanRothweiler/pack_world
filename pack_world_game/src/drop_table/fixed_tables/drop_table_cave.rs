@@ -9,11 +9,14 @@ pub static CAVE: LazyLock<DropTable> = LazyLock::new(|| {
     ])
 });
 
+#[cfg(test)]
 mod test {
     use super::*;
+    use crate::testing_infra::*;
 
     #[test]
     pub fn check_cycle() {
-        CAVE.check_cycle();
+        let plat_api = windows_plaform_api();
+        CAVE.check_cycle(&plat_api);
     }
 }

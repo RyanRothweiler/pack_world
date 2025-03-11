@@ -10,6 +10,7 @@ use crate::{
 };
 use gengar_engine::{
     color::*,
+    platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     ui::*,
@@ -52,8 +53,8 @@ impl TileShrub {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos) -> Drop {
-        self.harvest_timer.harvest()
+    pub fn harvest(&mut self, grid_pos: GridPos, platform_api: &PlatformApi) -> Drop {
+        self.harvest_timer.harvest(platform_api)
     }
 
     pub fn render_hover_info(

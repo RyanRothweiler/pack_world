@@ -7,6 +7,7 @@ use crate::{
 };
 use gengar_engine::{
     color::*,
+    platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     vectors::*,
@@ -193,13 +194,20 @@ impl TileMethods {
         }
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) -> Option<Drop> {
+    pub fn harvest(
+        &mut self,
+        grid_pos: GridPos,
+        world_snapshot: &WorldSnapshot,
+        platform_api: &PlatformApi,
+    ) -> Option<Drop> {
         match self {
-            TileMethods::Grass(state) => Some(state.harvest(grid_pos, world_snapshot)),
-            TileMethods::Boulder(state) => Some(state.harvest(grid_pos)),
-            TileMethods::OakTree(state) => Some(state.harvest(grid_pos)),
-            TileMethods::Cave(state) => Some(state.harvest(grid_pos)),
-            TileMethods::Shrub(state) => Some(state.harvest(grid_pos)),
+            TileMethods::Grass(state) => {
+                Some(state.harvest(grid_pos, world_snapshot, platform_api))
+            }
+            TileMethods::Boulder(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::OakTree(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Cave(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Shrub(state) => Some(state.harvest(grid_pos, platform_api)),
 
             // these ones don't harvest
             TileMethods::Dirt(state) => None,
@@ -290,8 +298,10 @@ impl TileInstance {
         }
     }
 
-    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot) {
-        let mut new_drop = self.methods.harvest(self.grid_pos, world_snapshot);
+    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
+        let mut new_drop = self
+            .methods
+            .harvest(self.grid_pos, world_snapshot, platform_api);
 
         match new_drop {
             Some(drop) => {

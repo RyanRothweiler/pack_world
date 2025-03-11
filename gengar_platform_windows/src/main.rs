@@ -17,7 +17,9 @@
 mod gl;
 
 use game;
-use gengar_engine::{error::Error as EngineError, input::*, vectors::*, vol_mem::*};
+use gengar_engine::{
+    error::Error as EngineError, input::*, platform_api::PlatformApi, vectors::*, vol_mem::*,
+};
 use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
@@ -71,6 +73,7 @@ type FuncGameLoop = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
     &mut gengar_engine::input::Input,
+    &PlatformApi,
 );
 
 struct GameDll {
@@ -78,6 +81,14 @@ struct GameDll {
     file_write_time: FILETIME,
     proc_init: FuncGameInit,
     proc_loop: FuncGameLoop,
+}
+
+fn random() -> f64 {
+    rand::random_range(0.0..1.0)
+}
+
+pub fn get_platform_api() -> PlatformApi {
+    PlatformApi { rand: random }
 }
 
 fn main() {
@@ -89,6 +100,8 @@ fn main() {
     // These need to be here. Pointers are taken from them, so they cannot be dropped.
     let h_dll_path = HSTRING::from(dll_path);
     let h_dll_current_path = HSTRING::from(dll_current_path);
+
+    let platform_api = get_platform_api();
 
     unsafe {
         GAME_DLL_PATH = PCWSTR(h_dll_path.as_ptr());
@@ -352,6 +365,7 @@ fn main() {
                     &mut game_state,
                     &mut engine_state,
                     &mut input,
+                    &platform_api,
                 );
             } else {
                 game::game_loop(
@@ -359,6 +373,7 @@ fn main() {
                     &mut game_state,
                     &mut engine_state,
                     &mut input,
+                    &platform_api,
                 );
             }
 

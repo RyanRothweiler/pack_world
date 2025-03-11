@@ -10,6 +10,7 @@ use crate::{
 };
 use gengar_engine::{
     color::*,
+    platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     ui::*,
@@ -52,7 +53,12 @@ impl TileGrass {
         self.harvest_timer.can_harvest()
     }
 
-    pub fn harvest(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) -> Drop {
+    pub fn harvest(
+        &mut self,
+        grid_pos: GridPos,
+        world_snapshot: &WorldSnapshot,
+        platform_api: &PlatformApi,
+    ) -> Drop {
         let mut nest_adj = false;
 
         for adj_pos in grid_pos.to_adjacents_iter() {
@@ -74,7 +80,7 @@ impl TileGrass {
         }
 
         self.harvest_timer.reset();
-        return drop_table.get_drop();
+        return drop_table.get_drop(platform_api);
     }
 
     pub fn render_hover_info(

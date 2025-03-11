@@ -1,4 +1,5 @@
-pub use crate::drop_table::*;
+use crate::drop_table::*;
+use gengar_engine::platform_api::*;
 
 /// A specific 'reference' to a drop table. Can be easily converted between the options.
 #[derive(Clone, Debug)]
@@ -37,12 +38,12 @@ impl DropTableInstance {
         return ret;
     }
 
-    pub fn get_drop(&self) -> Drop {
+    pub fn get_drop(&self, platform_api: &PlatformApi) -> Drop {
         match self {
-            DropTableInstance::Fixed(table_id) => get_drop(*table_id),
+            DropTableInstance::Fixed(table_id) => get_drop(*table_id, platform_api),
             DropTableInstance::Custom(table) => {
                 let mut tables_visited: Vec<FixedTableID> = vec![];
-                table.pull(&mut tables_visited)
+                table.pull(&mut tables_visited, platform_api)
             }
         }
     }
@@ -55,15 +56,19 @@ impl DropTableInstance {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
+    use crate::testing_infra::*;
 
     #[test]
     pub fn table_conversion() {
+        let plat_api = windows_plaform_api();
+
         let mut table = DropTableInstance::new_fixed(FixedTableID::TestGold);
         assert_eq!(table.entries_count(), 1);
 
-        let drop = table.get_drop();
+        let drop = table.get_drop(&plat_api);
         assert_eq!(drop.amount, 1);
         assert_eq!(drop.drop_type, DropType::Gold);
 

@@ -10,11 +10,14 @@ pub static PACK_STARTER: LazyLock<DropTable> = LazyLock::new(|| {
     ])
 });
 
+#[cfg(test)]
 mod test {
     use super::*;
+    use crate::testing_infra::*;
 
     #[test]
     pub fn check_cycle() {
-        PACK_STARTER.check_cycle();
+        let plat_api = windows_plaform_api();
+        PACK_STARTER.check_cycle(&plat_api);
     }
 }

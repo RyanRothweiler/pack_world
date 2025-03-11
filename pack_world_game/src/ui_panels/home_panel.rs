@@ -4,7 +4,9 @@ use crate::{
     ui_panels::{nav_tabs_panel::*, *},
     UpdateSignal,
 };
-use gengar_engine::{rect::*, render::material::*, typeface::*, ui::*, vectors::*};
+use gengar_engine::{
+    platform_api::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
+};
 
 #[derive(Clone, Copy, Debug)]
 pub enum Tab {
@@ -28,6 +30,7 @@ impl HomePanel {
         assets: &Assets,
         player_state: &PlayerState,
         ui_context: &mut UIContext,
+        platform_api: &PlatformApi,
     ) -> Vec<UpdateSignal> {
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
@@ -66,6 +69,7 @@ impl HomePanel {
             assets,
             player_state,
             ui_context,
+            platform_api,
         ));
 
         match self.tab {
@@ -75,6 +79,7 @@ impl HomePanel {
                 assets,
                 player_state,
                 ui_context,
+                platform_api,
             )),
             Tab::Inventory => update_signals.append(&mut self.ui_inventory.update(
                 ui_state,
@@ -82,6 +87,7 @@ impl HomePanel {
                 assets,
                 player_state,
                 ui_context,
+                platform_api,
             )),
         };
 

@@ -6,11 +6,11 @@ use crate::{
 use gengar_engine::{
     color::*,
     math::*,
+    platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*, *},
     vectors::*,
 };
-use rand::prelude::*;
 use std::f32::consts::PI;
 
 pub static CIRCLE_LEN: f64 = 0.01;
@@ -34,10 +34,13 @@ pub struct HarvestDrop {
 }
 
 impl HarvestDrop {
-    pub fn new(drop: Drop, origin: VecTwo) -> Self {
+    pub fn new(drop: Drop, origin: VecTwo, platform_api: &PlatformApi) -> Self {
         // not a uniform randomness here
-        let x: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
-        let y: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
+        let x: f64 = ((platform_api.rand)() * DROP_RADIUS * 2.0) - DROP_RADIUS;
+        let y: f64 = ((platform_api.rand)() * DROP_RADIUS * 2.0) - DROP_RADIUS;
+
+        // let x: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
+        // let y: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
 
         Self {
             drop,

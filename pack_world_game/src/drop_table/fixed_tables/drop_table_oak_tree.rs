@@ -9,11 +9,14 @@ pub static OAK_TREE: LazyLock<DropTable> = LazyLock::new(|| {
     ])
 });
 
+#[cfg(test)]
 mod test {
     use super::*;
+    use crate::testing_infra::*;
 
     #[test]
     pub fn check_cycle() {
-        OAK_TREE.check_cycle();
+        let plat_api = windows_plaform_api();
+        OAK_TREE.check_cycle(&plat_api);
     }
 }

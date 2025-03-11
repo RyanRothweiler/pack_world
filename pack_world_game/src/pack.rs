@@ -1,5 +1,5 @@
 use crate::{drop_table::*, item::*, state::inventory::*, tile::*};
-use rand::prelude::*;
+use gengar_engine::platform_api::*;
 use std::{
     collections::HashMap,
     sync::{LazyLock, OnceLock},
@@ -58,8 +58,8 @@ impl Pack {
     }
 
     // Assumes you can afford the pack
-    pub fn pull(&self) -> Drop {
-        get_drop(self.table_id)
+    pub fn pull(&self, platform_api: &PlatformApi) -> Drop {
+        get_drop(self.table_id, platform_api)
     }
 }
 

@@ -1,4 +1,5 @@
 use crate::{drop_table::*, pack::*};
+use gengar_engine::platform_api::*;
 
 #[cfg(feature = "dev")]
 mod test_tables;
@@ -50,17 +51,18 @@ pub enum FixedTableID {
     TestCycleB,
 }
 
-pub fn get_drop(table: FixedTableID) -> Drop {
+pub fn get_drop(table: FixedTableID, platform_api: &PlatformApi) -> Drop {
     let mut tables_visited: Vec<FixedTableID> = vec![];
-    get_drop_cycle_check(table, &mut tables_visited)
+    get_drop_cycle_check(table, &mut tables_visited, platform_api)
 }
 
 pub fn get_drop_cycle_check(
     table_id: FixedTableID,
     tables_visited: &mut Vec<FixedTableID>,
+    platform_api: &PlatformApi,
 ) -> Drop {
     let table = get_fixed_table(table_id);
-    return table.pull(tables_visited);
+    return table.pull(tables_visited, platform_api);
 }
 
 pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {

@@ -9,11 +9,14 @@ hotreloading_dll = []
 tracking_allocator = []
 
 [dependencies]
+rand = "0.9.0"
+
 gengar_engine = { path = "../gengar_engine" }
 gengar_renderapi_opengl_windows = { path = "../gengar_renderapi_opengl_windows" }
 gengar_render_opengl = { path = "../gengar_render_opengl" }
 
 game = { path = "../pack_world_game", package="pack_world_game" }
+
 
 [dependencies.windows]
 version = "0.52"

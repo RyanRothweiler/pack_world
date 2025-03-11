@@ -1,5 +1,5 @@
 use crate::{drop_table::*, grid::*, update_signal::*};
-use gengar_engine::vectors::*;
+use gengar_engine::{platform_api::*, vectors::*};
 
 #[derive(Debug)]
 pub struct HarvestTimer {
@@ -40,8 +40,8 @@ impl HarvestTimer {
         self.table = self.table.add_entry(input);
     }
 
-    pub fn harvest(&mut self) -> Drop {
+    pub fn harvest(&mut self, platform_api: &PlatformApi) -> Drop {
         self.reset();
-        return self.table.get_drop();
+        return self.table.get_drop(platform_api);
     }
 }

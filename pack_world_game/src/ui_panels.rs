@@ -4,7 +4,7 @@ use crate::{
     tile::*,
     UpdateSignal,
 };
-use gengar_engine::{color::*, typeface::*, ui::*, vectors::*};
+use gengar_engine::{color::*, platform_api::*, typeface::*, ui::*, vectors::*};
 
 pub mod debug_panel;
 pub mod home_panel;
@@ -47,6 +47,7 @@ impl UIPanel {
         assets: &Assets,
         player_state: &PlayerState,
         ui_context: &mut UIContext,
+        platform_api: &PlatformApi,
     ) -> Vec<UpdateSignal> {
         match self {
             UIPanel::NavTabs(state) => {
@@ -54,10 +55,17 @@ impl UIPanel {
             }
             UIPanel::TileLibrary(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::Shop(state) => state.update(ui_state, inventory, assets, ui_context),
-            UIPanel::Home(state) => {
-                state.update(ui_state, inventory, assets, player_state, ui_context)
+            UIPanel::Home(state) => state.update(
+                ui_state,
+                inventory,
+                assets,
+                player_state,
+                ui_context,
+                platform_api,
+            ),
+            UIPanel::OpenPack(state) => {
+                state.update(ui_state, inventory, assets, ui_context, platform_api)
             }
-            UIPanel::OpenPack(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::DebugPanel(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::PackDetails(state) => state.update(ui_state, inventory, assets, ui_context),
         }
