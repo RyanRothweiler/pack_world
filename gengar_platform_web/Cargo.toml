@@ -43,7 +43,9 @@ features = [
   "WebGlUniformLocation",
   "Window",
   "console",
-  "WebGlTexture"
+  "WebGlTexture",
+  "Performance", 
+  "PerformanceTiming"
 ]
 
 [lints.rust]

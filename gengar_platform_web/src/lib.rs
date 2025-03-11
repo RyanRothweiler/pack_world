@@ -66,6 +66,9 @@ pub fn start() {
     };
 
     let window = web_sys::window().unwrap();
+    let performance = window
+        .performance()
+        .expect("performance should be available");
     let document = window.document().unwrap();
 
     let canvas = document.get_element_by_id("gengar_canvas").unwrap();
@@ -101,6 +104,8 @@ pub fn start() {
             ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
         );
+
+        PREV_TIME = performance.now();
     };
 }
 
@@ -148,11 +153,16 @@ pub fn mouse_move(vent: MouseEvent) {
     };
 }
 
+static mut PREV_TIME: f64 = 0.0;
+
 #[wasm_bindgen]
 pub fn main_loop() {
     let platform_api = PlatformApi { rand: rand };
 
     let window = web_sys::window().unwrap();
+    let performance = window
+        .performance()
+        .expect("performance should be available");
     let document = window.document().unwrap();
 
     let canvas = document.get_element_by_id("gengar_canvas").unwrap();
@@ -169,6 +179,10 @@ pub fn main_loop() {
         .unwrap();
 
     unsafe {
+        let time_start = performance.now();
+        let prev_frame_dur = performance.now() - PREV_TIME;
+        PREV_TIME = time_start;
+
         // Update input
         {
             let input: &mut Input = INPUT.as_mut().unwrap();
@@ -200,7 +214,7 @@ pub fn main_loop() {
             RENDER_API.as_mut().unwrap(),
         );
         game_loop(
-            0.001,
+            prev_frame_dur / 1000.0,
             GAME_STATE.as_mut().unwrap(),
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
