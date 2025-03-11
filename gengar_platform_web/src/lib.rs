@@ -77,8 +77,13 @@ pub fn start() {
 
     let resolution = VecTwo::new(canvas.client_width() as f64, canvas.client_height() as f64);
 
+    let context_attributes = web_sys::WebGlContextAttributes::new();
+    context_attributes.set_alpha(false);
+    context_attributes.set_antialias(true);
+    context_attributes.set_premultiplied_alpha(false);
+
     let gl_context = canvas
-        .get_context("webgl2")
+        .get_context_with_context_options("webgl2", &context_attributes)
         .unwrap()
         .unwrap()
         .dyn_into::<WebGl2RenderingContext>()
@@ -171,8 +176,13 @@ pub fn main_loop() {
 
     let resolution = VecTwo::new(canvas.client_width() as f64, canvas.client_height() as f64);
 
+    let context_attributes = web_sys::WebGlContextAttributes::new();
+    context_attributes.set_alpha(false);
+    context_attributes.set_antialias(true);
+    context_attributes.set_premultiplied_alpha(false);
+
     let gl_context = canvas
-        .get_context("webgl2")
+        .get_context_with_context_options("webgl2", &context_attributes)
         .unwrap()
         .unwrap()
         .dyn_into::<WebGl2RenderingContext>()

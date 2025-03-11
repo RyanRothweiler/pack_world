@@ -260,13 +260,15 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         let mip_level: i32 = 0;
         let border: i32 = 0;
 
-        let mut gl_internal_format: i32 = WebGl2RenderingContext::RGBA as i32;
+        let gl_internal_format: i32 = WebGl2RenderingContext::RGBA as i32;
         let image_format: u32 = WebGl2RenderingContext::RGBA as u32;
         let image_pixel_format: u32 = WebGl2RenderingContext::UNSIGNED_BYTE as u32;
 
+        /*
         if gamma_correct {
             gl_internal_format = WebGl2RenderingContext::SRGB8 as i32;
         }
+        */
 
         context
             .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_u8_array_and_src_offset(
