@@ -18,8 +18,10 @@ use std::{
     sync::{LazyLock, Mutex},
 };
 use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::JsFuture;
 use web_sys::{
-    console, KeyboardEvent, MouseEvent, WebGl2RenderingContext, WebGlProgram, WebGlShader,
+    console, KeyboardEvent, MouseEvent, Request, RequestInit, RequestMode, Response,
+    WebGl2RenderingContext, WebGlProgram, WebGlShader,
 };
 
 mod webgl;
@@ -49,6 +51,39 @@ pub fn log(input: &str) {
 
 fn rand() -> f64 {
     Math::random()
+}
+
+async fn send_event() {
+    log("sending event");
+
+    let event_id = "app_start_testing";
+
+    let opts = RequestInit::new();
+    opts.set_method("POST");
+    opts.set_mode(RequestMode::Cors);
+
+    opts.set_body(&wasm_bindgen::JsValue::from_str("[1, 2, 3]"));
+
+    let url = "https://api.mixpanel.com/track";
+
+    let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+
+    request
+        .headers()
+        .set("content-type", "application/json")
+        .unwrap();
+    request.headers().set("accept", "text/plain").unwrap();
+
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request))
+        .await
+        .unwrap();
+
+    // `resp_value` is a `Response` object.
+    assert!(resp_value.is_instance_of::<Response>());
+    let resp: Response = resp_value.dyn_into().unwrap();
+
+    log(&format!("finished sending {}", resp.status()));
 }
 
 #[wasm_bindgen(start)]
@@ -82,6 +117,10 @@ pub fn start() {
     context_attributes.set_alpha(false);
     context_attributes.set_antialias(true);
     context_attributes.set_premultiplied_alpha(false);
+
+    wasm_bindgen_futures::spawn_local(send_event());
+
+    // send_event();
 
     let gl_context = canvas
         .get_context_with_context_options("webgl2", &context_attributes)
