@@ -150,7 +150,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
         location: u32,
-    ) -> Result<(), EngineError> {
+    ) -> Result<u32, EngineError> {
         let gl_state: &mut WebGLState =
             unsafe { GL_STATE.as_mut().ok_or(EngineError::WebGlNoState)? };
         let context = unsafe { GL_CONTEXT.as_mut().ok_or(EngineError::WebGlNoContext)? };
@@ -163,23 +163,21 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         context.bind_vertex_array(Some(gl_vao));
 
         // setup vertex buffer
-        {
-            let buf = context
-                .create_buffer()
-                .ok_or(EngineError::WebGlCreateBuffer)?;
+        let buf = context
+            .create_buffer()
+            .ok_or(EngineError::WebGlCreateBuffer)?;
 
-            context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&buf));
-            gl_buffer_data_v3(
-                WebGl2RenderingContext::ARRAY_BUFFER,
-                data,
-                WebGl2RenderingContext::STATIC_DRAW,
-            );
+        context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, Some(&buf));
+        gl_buffer_data_v3(
+            WebGl2RenderingContext::ARRAY_BUFFER,
+            data,
+            WebGl2RenderingContext::STATIC_DRAW,
+        );
 
-            vertex_attrib_pointer_v3(location);
-            context.enable_vertex_attrib_array(location);
+        vertex_attrib_pointer_v3(location);
+        context.enable_vertex_attrib_array(location);
 
-            context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, None);
-        }
+        context.bind_buffer(WebGl2RenderingContext::ARRAY_BUFFER, None);
 
         // setup the index buffer
         {
@@ -196,7 +194,8 @@ impl EngineRenderApiTrait for WebGLRenderApi {
 
         context.bind_vertex_array(None);
 
-        Ok(())
+        todo!("fix the opengl deleting buffers things");
+        Ok(0)
     }
 
     fn vao_upload_v2(
@@ -204,7 +203,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         vao: &Vao,
         data: &Vec<VecTwo>,
         location: u32,
-    ) -> Result<(), EngineError> {
+    ) -> Result<u32, EngineError> {
         let context = unsafe { GL_CONTEXT.as_mut().ok_or(EngineError::WebGlNoContext)? };
 
         let gl_state: &mut WebGLState =
@@ -234,7 +233,8 @@ impl EngineRenderApiTrait for WebGLRenderApi {
 
         context.bind_vertex_array(None);
 
-        Ok(())
+        todo!("fix the opengl deleting buffers things");
+        Ok(0)
     }
 
     fn upload_texture(&self, data: &Image, gamma_correct: bool) -> Result<u32, EngineError> {

@@ -30,10 +30,14 @@ pub trait RenderApi {
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
         location: u32,
-    ) -> Result<(), Error>;
+    ) -> Result<u32, Error>;
 
-    fn vao_upload_v2(&self, vao: &vao::Vao, data: &Vec<VecTwo>, location: u32)
-        -> Result<(), Error>;
+    fn vao_upload_v2(
+        &self,
+        vao: &vao::Vao,
+        data: &Vec<VecTwo>,
+        location: u32,
+    ) -> Result<u32, Error>;
 }
 
 pub enum ShaderType {

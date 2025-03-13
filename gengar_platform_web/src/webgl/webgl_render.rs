@@ -196,5 +196,7 @@ fn render_list(
 
         (render_api.gl_bind_vertex_array_engine)(vao_id).unwrap();
         (render_api.gl_draw_arrays)(WebGl2RenderingContext::TRIANGLES as i32, &command.indices);
+
+        todo!("handle deleting the vao");
     }
 }

@@ -173,6 +173,9 @@ pub trait OGLPlatformImpl {
     fn draw_elements(&self, mode: i32, indecies: &Vec<u32>);
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32);
 
+    fn delete_vertex_arrays(&self, count: i32, vao: u32);
+    fn delete_buffers(&self, count: i32, buf_id: u32);
+
     fn buffer_data_v3(&self, buf_id: i32, data: &Vec<VecThreeFloat>, usage: i32);
     fn buffer_data_v2(&self, buf_id: i32, data: &Vec<VecTwo>, usage: i32);
     fn buffer_data_u32(&self, buf_id: i32, data: &Vec<u32>, usaage: i32);
@@ -276,26 +279,24 @@ impl EngineRenderApiTrait for OglRenderApi {
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
         location: u32,
-    ) -> Result<(), EngineError> {
+    ) -> Result<u32, EngineError> {
         self.platform_api.bind_vertex_array(vao.id);
 
         // setup the vertex buffer
-        {
-            let mut buf_id: u32 = 0;
-            self.platform_api.gen_buffers(1, &mut buf_id);
+        let mut buf_id: u32 = 0;
+        self.platform_api.gen_buffers(1, &mut buf_id);
 
-            self.platform_api.bind_buffer(GL_ARRAY_BUFFER, buf_id);
-            self.platform_api
-                .buffer_data_v3(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
-            self.platform_api.vertex_attrib_pointer_v3(location);
-            self.platform_api.enable_vertex_attrib_array(location);
+        self.platform_api.bind_buffer(GL_ARRAY_BUFFER, buf_id);
+        self.platform_api
+            .buffer_data_v3(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
+        self.platform_api.vertex_attrib_pointer_v3(location);
+        self.platform_api.enable_vertex_attrib_array(location);
 
-            self.platform_api.bind_buffer(GL_ARRAY_BUFFER, 0);
-        }
+        self.platform_api.bind_buffer(GL_ARRAY_BUFFER, 0);
 
         self.platform_api.bind_vertex_array(0);
 
-        Ok(())
+        Ok(buf_id)
     }
 
     fn vao_upload_v2(
@@ -303,7 +304,7 @@ impl EngineRenderApiTrait for OglRenderApi {
         vao: &Vao,
         data: &Vec<VecTwo>,
         location: u32,
-    ) -> Result<(), EngineError> {
+    ) -> Result<u32, EngineError> {
         self.platform_api.bind_vertex_array(vao.id);
 
         let mut buf_id: u32 = 0;
@@ -319,7 +320,7 @@ impl EngineRenderApiTrait for OglRenderApi {
 
         self.platform_api.bind_vertex_array(0);
 
-        Ok(())
+        Ok(buf_id)
     }
 
     fn upload_texture(&self, image: &Image, gamma_correct: bool) -> Result<u32, EngineError> {
@@ -502,17 +503,20 @@ fn render_list(
             }
         }
 
+        let mut dynamic_mesh_buffers: Vec<u32> = vec![];
         let vao_id: u32 = match &command.kind {
             VertexDataKind::Vao { id } => *id,
             VertexDataKind::DynamicMesh { mesh, uvs } => {
                 let vao = Vao::new(render_api);
 
                 // location is assumed 0. All shaders vertex positions are at location 0... for now.
-                vao.upload_v3(render_api, mesh, &command.indices, 0)
-                    .unwrap();
+                dynamic_mesh_buffers.push(
+                    vao.upload_v3(render_api, mesh, &command.indices, 0)
+                        .unwrap(),
+                );
 
                 // uvs
-                vao.upload_v2(render_api, uvs, 1).unwrap();
+                dynamic_mesh_buffers.push(vao.upload_v2(render_api, uvs, 1).unwrap());
 
                 vao.id
             }
@@ -522,5 +526,17 @@ fn render_list(
         render_api
             .platform_api
             .draw_elements(GL_TRIANGLES, &command.indices);
+
+        // Delete any dynamically created vao stuff
+        {
+            if let VertexDataKind::DynamicMesh { mesh, uvs } = &command.kind {
+                render_api.platform_api.delete_vertex_arrays(1, vao_id);
+
+                // These buf ids are hard coded for now
+                for b in dynamic_mesh_buffers {
+                    render_api.platform_api.delete_buffers(1, b);
+                }
+            }
+        }
     }
 }

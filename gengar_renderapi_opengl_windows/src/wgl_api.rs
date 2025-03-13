@@ -21,7 +21,7 @@ const GL_UNSIGNED_INT: i32 = 0x1405;
 #[macro_export]
 macro_rules! wgl_get_proc_address {
     ($x:expr) => {{
-        let func = wglGetProcAddress($x).unwrap();
+        let func = wglGetProcAddress($x).expect("Error getting proc address.");
         std::mem::transmute(func)
     }};
 }
@@ -48,6 +48,8 @@ type func_glBindTexture = extern "stdcall" fn(i32, u32);
 type func_glActiveTexture = extern "stdcall" fn(i32);
 type func_glVertexAttribPointer =
     extern "stdcall" fn(u32, u32, i32, bool, i32, *const libc::c_void);
+type func_glDeleteVertexArrays = extern "stdcall" fn(i32, *const u32);
+type func_glDeleteBuffers = extern "stdcall" fn(i32, *const u32);
 
 type func_glGetUniformLocation = extern "stdcall" fn(u32, *const libc::c_char) -> i32;
 type func_glUniform1f = extern "stdcall" fn(i32, f32);
@@ -79,13 +81,15 @@ pub struct WglMethods {
     glShaderSource: func_glShaderSource,
     glCreateShader: func_glCreateShader,
 
+    glDeleteVertexArrays: func_glDeleteVertexArrays,
+    glDeleteBuffers: func_glDeleteBuffers,
+
     glGetUniformLocation: func_glGetUniformLocation,
     glUniform1f: func_glUniform1f,
     glUniform1i: func_glUniform1i,
     glUniform3fv: func_glUniform3fv,
     glUniform4fv: func_glUniform4fv,
     glUniformMatrix4fv: func_glUniformMatrix4fv,
-    // pub ogl_render_api: OglRenderApi,
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
@@ -135,6 +139,14 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
 
     fn gen_vertex_arrays(&self, count: i32, vao: *mut u32) {
         (self.glGenVertexArrays)(count, vao);
+    }
+
+    fn delete_vertex_arrays(&self, count: i32, vao: u32) {
+        (self.glDeleteVertexArrays)(count, &vao);
+    }
+
+    fn delete_buffers(&self, count: i32, buf_id: u32) {
+        (self.glDeleteBuffers)(count, &buf_id);
     }
 
     fn bind_vertex_array(&self, vao_id: u32) {
@@ -338,6 +350,10 @@ pub fn get_ogl_render_api() -> OglRenderApi {
             glCompileShader: wgl_get_proc_address!(s!("glCompileShader")),
             glShaderSource: wgl_get_proc_address!(s!("glShaderSource")),
             glCreateShader: wgl_get_proc_address!(s!("glCreateShader")),
+
+            glDeleteVertexArrays: wgl_get_proc_address!(s!("glDeleteVertexArrays")),
+            glDeleteBuffers: wgl_get_proc_address!(s!("glDeleteBuffers")),
+
             // glViewport: wgl_get_proc_address!(s!("glViewport")),
             glGetUniformLocation: wgl_get_proc_address!(s!("glGetUniformLocation")),
             glUniform1f: wgl_get_proc_address!(s!("glUniform1f")),
