@@ -532,7 +532,6 @@ fn render_list(
             if let VertexDataKind::DynamicMesh { mesh, uvs } = &command.kind {
                 render_api.platform_api.delete_vertex_arrays(1, vao_id);
 
-                // These buf ids are hard coded for now
                 for b in dynamic_mesh_buffers {
                     render_api.platform_api.delete_buffers(1, b);
                 }

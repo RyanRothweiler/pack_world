@@ -178,17 +178,20 @@ fn render_list(
             }
         }
 
+        let mut dynamic_mesh_buffers: Vec<u32> = vec![];
         let vao_id: u32 = match &command.kind {
             VertexDataKind::Vao { id } => *id,
             VertexDataKind::DynamicMesh { mesh, uvs } => {
                 let vao = Vao::new(render_api);
 
                 // location is assumed 0. All shaders vertex positions are at location 0... for now.
-                vao.upload_v3(render_api, mesh, &command.indices, 0)
-                    .unwrap();
+                dynamic_mesh_buffers.push(
+                    vao.upload_v3(render_api, mesh, &command.indices, 0)
+                        .unwrap(),
+                );
 
                 // uvs
-                vao.upload_v2(render_api, uvs, 1).unwrap();
+                dynamic_mesh_buffers.push(vao.upload_v2(render_api, uvs, 1).unwrap());
 
                 vao.id
             }
@@ -197,6 +200,15 @@ fn render_list(
         (render_api.gl_bind_vertex_array_engine)(vao_id).unwrap();
         (render_api.gl_draw_arrays)(WebGl2RenderingContext::TRIANGLES as i32, &command.indices);
 
-        todo!("handle deleting the vao");
+        // Delete any dynamically created vao stuff
+        {
+            if let VertexDataKind::DynamicMesh { mesh, uvs } = &command.kind {
+                (render_api.gl_delete_vertex_array)(vao_id);
+
+                for b in dynamic_mesh_buffers {
+                    (render_api.gl_delete_buffer)(b);
+                }
+            }
+        }
     }
 }

@@ -99,6 +99,9 @@ pub fn start() {
 
         textures: HashMap::new(),
         next_texture_id: 0,
+
+        buffers: HashMap::new(),
+        next_buffer_id: 0,
     };
 
     let window = web_sys::window().unwrap();
@@ -118,9 +121,7 @@ pub fn start() {
     context_attributes.set_antialias(true);
     context_attributes.set_premultiplied_alpha(false);
 
-    wasm_bindgen_futures::spawn_local(send_event());
-
-    // send_event();
+    // wasm_bindgen_futures::spawn_local(send_event());
 
     let gl_context = canvas
         .get_context_with_context_options("webgl2", &context_attributes)

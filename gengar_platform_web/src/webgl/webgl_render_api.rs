@@ -26,6 +26,18 @@ pub struct WebGLState {
 
     pub textures: HashMap<u32, WebGlTexture>,
     pub next_texture_id: u32,
+
+    pub buffers: HashMap<u32, WebGlBuffer>,
+    pub next_buffer_id: u32,
+}
+
+impl WebGLState {
+    pub fn push_buffer(&mut self, buf: WebGlBuffer) -> u32 {
+        let buf_id = self.next_buffer_id;
+        self.next_buffer_id += 1;
+        self.buffers.insert(buf_id, buf);
+        buf_id
+    }
 }
 
 pub struct WebGLRenderApi {
@@ -35,6 +47,8 @@ pub struct WebGLRenderApi {
     pub gl_draw_arrays: fn(i32, &Vec<u32>),
     pub gl_viewport: fn(i32, i32, i32, i32),
     pub gl_bind_texture: fn(u32),
+    pub gl_delete_vertex_array: fn(u32),
+    pub gl_delete_buffer: fn(u32),
 
     pub gl_uniform_matrix_4fv: fn(&WebGlUniformLocation, bool, &M44),
     pub gl_uniform_4fv: fn(&WebGlUniformLocation, &VecFour),
@@ -49,6 +63,8 @@ pub fn get_render_api() -> WebGLRenderApi {
         gl_draw_arrays: gl_draw_arrays,
         gl_viewport: gl_viewport,
         gl_bind_texture: gl_bind_texture,
+        gl_delete_vertex_array: gl_delete_vertex_array,
+        gl_delete_buffer: gl_delete_buffer,
 
         gl_uniform_matrix_4fv: gl_uniform_matrix_4fv,
         gl_uniform_4fv: gl_uniform_4fv,
@@ -163,7 +179,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         context.bind_vertex_array(Some(gl_vao));
 
         // setup vertex buffer
-        let buf = context
+        let buf: WebGlBuffer = context
             .create_buffer()
             .ok_or(EngineError::WebGlCreateBuffer)?;
 
@@ -194,8 +210,8 @@ impl EngineRenderApiTrait for WebGLRenderApi {
 
         context.bind_vertex_array(None);
 
-        todo!("fix the opengl deleting buffers things");
-        Ok(0)
+        let buf_id = unsafe { GL_STATE.as_mut().unwrap().push_buffer(buf) };
+        Ok(buf_id)
     }
 
     fn vao_upload_v2(
@@ -233,8 +249,8 @@ impl EngineRenderApiTrait for WebGLRenderApi {
 
         context.bind_vertex_array(None);
 
-        todo!("fix the opengl deleting buffers things");
-        Ok(0)
+        let buf_id = unsafe { GL_STATE.as_mut().unwrap().push_buffer(buf) };
+        Ok(buf_id)
     }
 
     fn upload_texture(&self, data: &Image, gamma_correct: bool) -> Result<u32, EngineError> {
@@ -464,5 +480,23 @@ fn gl_bind_texture(id: u32) {
     unsafe {
         (GL_CONTEXT.as_mut().unwrap())
             .bind_texture(WebGl2RenderingContext::TEXTURE_2D, Some(&gl_texture));
+    }
+}
+
+fn gl_delete_vertex_array(id: u32) {
+    unsafe {
+        let gl_state: &mut WebGLState = GL_STATE.as_mut().unwrap();
+        let vao = gl_state.vaos.remove(&id).expect("Invalid vao id");
+
+        (GL_CONTEXT.as_mut().unwrap()).delete_vertex_array(Some(&vao));
+    }
+}
+
+fn gl_delete_buffer(id: u32) {
+    unsafe {
+        let gl_state: &mut WebGLState = GL_STATE.as_mut().unwrap();
+        let buf = gl_state.buffers.remove(&id).expect("Invalid buf id");
+
+        (GL_CONTEXT.as_mut().unwrap()).delete_buffer(Some(&buf));
     }
 }
