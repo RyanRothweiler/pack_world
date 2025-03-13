@@ -8,6 +8,7 @@
 
 use crate::state::*;
 use gengar_engine::{
+    analytics::*,
     ascii::*,
     color::*,
     debug::*,
@@ -67,11 +68,23 @@ pub const PACKAGE_NAME: &str = "pack_world_game";
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
-pub fn game_init_ogl(gs: &mut State, es: &mut EngineState, render_api: &OglRenderApi) {
-    game_init(gs, es, render_api)
+pub fn game_init_ogl(
+    gs: &mut State,
+    es: &mut EngineState,
+    render_api: &OglRenderApi,
+    platform_api: &PlatformApi,
+) {
+    game_init(gs, es, render_api, platform_api)
 }
 
-pub fn game_init(gs: &mut State, es: &mut EngineState, render_api: &impl RenderApi) {
+pub fn game_init(
+    gs: &mut State,
+    es: &mut EngineState,
+    render_api: &impl RenderApi,
+    platform_api: &PlatformApi,
+) {
+    (platform_api.send_event)(AnalyticsEvent::AppStart);
+
     gengar_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui,

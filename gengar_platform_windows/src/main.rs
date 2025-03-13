@@ -18,7 +18,8 @@ mod gl;
 
 use game;
 use gengar_engine::{
-    error::Error as EngineError, input::*, platform_api::PlatformApi, vectors::*, vol_mem::*,
+    analytics::*, error::Error as EngineError, input::*, platform_api::PlatformApi, vectors::*,
+    vol_mem::*,
 };
 use gengar_render_opengl::*;
 use std::{
@@ -67,6 +68,7 @@ type FuncGameInit = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
     &gengar_render_opengl::OglRenderApi,
+    &PlatformApi,
 );
 type FuncGameLoop = fn(
     f64,
@@ -87,8 +89,16 @@ fn random() -> f64 {
     rand::random_range(0.0..1.0)
 }
 
+fn send_event(event: AnalyticsEvent) {
+    // do nothing for now on pc
+    println!("AnalyticsEvent: {:?}", event);
+}
+
 pub fn get_platform_api() -> PlatformApi {
-    PlatformApi { rand: random }
+    PlatformApi {
+        rand: random,
+        send_event: send_event,
+    }
 }
 
 fn main() {
@@ -293,9 +303,19 @@ fn main() {
 
         gengar_engine::load_resources(&mut engine_state, &render_api);
         if cfg!(feature = "hotreloading_dll") {
-            (game_dll.proc_init)(&mut game_state, &mut engine_state, &render_api);
+            (game_dll.proc_init)(
+                &mut game_state,
+                &mut engine_state,
+                &render_api,
+                &platform_api,
+            );
         } else {
-            game::game_init(&mut game_state, &mut engine_state, &render_api);
+            game::game_init(
+                &mut game_state,
+                &mut engine_state,
+                &render_api,
+                &platform_api,
+            );
         }
 
         let mut prev_time_start: SystemTime = SystemTime::now();

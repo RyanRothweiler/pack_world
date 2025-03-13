@@ -53,7 +53,11 @@ fn rand() -> f64 {
     Math::random()
 }
 
-async fn send_event(event: AnalyticsEvent) {
+fn send_event(event: AnalyticsEvent) {
+    wasm_bindgen_futures::spawn_local(send_event_async(event));
+}
+
+async fn send_event_async(event: AnalyticsEvent) {
     log(&format!("Analytics Sending {:?}", event));
 
     let data = format!("{{ \"type\": \"track\", \"payload\": {{ \"name\": \"{}\", \"properties\": {{ \"test\": \"property\" }} }} }}", event.to_id());
@@ -86,11 +90,19 @@ async fn send_event(event: AnalyticsEvent) {
     assert!(resp_value.is_instance_of::<Response>());
     let resp: Response = resp_value.dyn_into().unwrap();
 
-    log(&format!("Sent {} {:?}", resp.status(), event));
+    log(&format!("Sent {:?} -> {}", event, resp.status()));
+}
+
+pub fn get_platform_api() -> PlatformApi {
+    PlatformApi {
+        rand: rand,
+        send_event: send_event,
+    }
 }
 
 #[wasm_bindgen(start)]
 pub fn start() {
+    let platform_api = get_platform_api();
     console_error_panic_hook::set_once();
 
     let gl_state = webgl::webgl_render_api::WebGLState {
@@ -124,8 +136,6 @@ pub fn start() {
     context_attributes.set_antialias(true);
     context_attributes.set_premultiplied_alpha(false);
 
-    wasm_bindgen_futures::spawn_local(send_event(AnalyticsEvent::AppStart));
-
     let gl_context = canvas
         .get_context_with_context_options("webgl2", &context_attributes)
         .unwrap()
@@ -152,6 +162,7 @@ pub fn start() {
             GAME_STATE.as_mut().unwrap(),
             ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
+            &platform_api,
         );
 
         PREV_TIME = performance.now();
@@ -206,7 +217,7 @@ static mut PREV_TIME: f64 = 0.0;
 
 #[wasm_bindgen]
 pub fn main_loop() {
-    let platform_api = PlatformApi { rand: rand };
+    let platform_api = get_platform_api();
 
     let window = web_sys::window().unwrap();
     let performance = window
