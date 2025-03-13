@@ -3,12 +3,7 @@
 use crate::webgl::webgl_render_api::*;
 
 use gengar_engine::{
-    error::Error as EngineError,
-    matricies::matrix_four_four::*,
-    render::{
-        camera::*, render_command::*, render_pack::*, shader::*, vao::Vao,
-        RenderApi as EngineRenderApiTrait, ShaderType,
-    },
+    render::{camera::*, render_command::*, render_pack::*, shader::*, vao::Vao},
     state::State as EngineState,
     vectors::*,
 };

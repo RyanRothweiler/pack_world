@@ -1,12 +1,11 @@
 use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
-    render::{image::Image, shader::*, vao::Vao, RenderApi as EngineRenderApiTrait, ShaderType},
-    state::State as EngineState,
+    render::{image::Image, vao::Vao, RenderApi as EngineRenderApiTrait, ShaderType},
     vectors::*,
 };
 use web_sys::{
-    console, WebGl2RenderingContext, WebGlBuffer, WebGlProgram, WebGlShader, WebGlTexture,
+    WebGl2RenderingContext, WebGlBuffer, WebGlProgram, WebGlShader, WebGlTexture,
     WebGlUniformLocation, WebGlVertexArrayObject,
 };
 
