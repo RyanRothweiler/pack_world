@@ -22,6 +22,8 @@ impl DebugPanel {
         begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
 
         let item_types: Vec<ItemType> = vec![
+            ItemType::DirtClod,
+            ItemType::Stick,
             ItemType::Tile(TileType::Dirt),
             ItemType::Tile(TileType::Grass),
             ItemType::Tile(TileType::Boulder),
