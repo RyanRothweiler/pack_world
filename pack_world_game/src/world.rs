@@ -1,19 +1,13 @@
 use crate::{drop_table::*, error::*, grid::*, item::*, tile::*, update_signal::*};
-use gengar_engine::vectors::*;
-use std::collections::HashMap;
+use gengar_engine::{error::Error as EngineError, vectors::*};
+use std::{collections::HashMap, fs::File, io::Write};
 
+pub mod entity_id;
 pub mod world_cell;
 pub mod world_layer;
 pub mod world_snapshot;
 
-pub use world_cell::*;
-pub use world_layer::*;
-pub use world_snapshot::*;
-
-#[derive(Clone, Copy, Hash, Debug, Eq, PartialEq)]
-pub struct EntityID {
-    id: u64,
-}
+pub use {entity_id::*, world_cell::*, world_layer::*, world_snapshot::*};
 
 pub struct World {
     /// Get a WorldCell from grid pos.

@@ -1,6 +1,6 @@
 use crate::{
     pack::*,
-    state::{assets::*, inventory::*, player_state::*, *},
+    state::{assets::*, inventory::*, *},
     tile::*,
     UpdateSignal,
 };
@@ -45,24 +45,16 @@ impl UIPanel {
         ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
-        player_state: &PlayerState,
         ui_context: &mut UIContext,
         platform_api: &PlatformApi,
     ) -> Vec<UpdateSignal> {
         match self {
-            UIPanel::NavTabs(state) => {
-                state.update(ui_state, inventory, assets, player_state, ui_context)
-            }
+            UIPanel::NavTabs(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::TileLibrary(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::Shop(state) => state.update(ui_state, inventory, assets, ui_context),
-            UIPanel::Home(state) => state.update(
-                ui_state,
-                inventory,
-                assets,
-                player_state,
-                ui_context,
-                platform_api,
-            ),
+            UIPanel::Home(state) => {
+                state.update(ui_state, inventory, assets, ui_context, platform_api)
+            }
             UIPanel::OpenPack(state) => {
                 state.update(ui_state, inventory, assets, ui_context, platform_api)
             }

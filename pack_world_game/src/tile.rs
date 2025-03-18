@@ -7,122 +7,25 @@ use crate::{
 };
 use gengar_engine::{
     color::*,
+    error::*,
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     vectors::*,
 };
-use std::collections::HashMap;
+use std::{collections::HashMap, fs::File, io::Write};
 
 pub mod harvest_timer;
+pub mod tile_instance;
+pub mod tile_type;
 pub mod tiles;
+
+pub use {tile_instance::*, tile_type::*};
 
 use tiles::{
     tile_bird_nest::TileBirdNest, tile_boulder::TileBoulder, tile_cave::TileCave,
     tile_dirt::TileDirt, tile_grass::TileGrass, tile_oak_tree::TileOakTree, tile_shrub::TileShrub,
 };
-
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
-pub enum TileType {
-    Dirt,
-    Grass,
-    Boulder,
-    OakTree,
-    BirdNest,
-    Cave,
-    Shrub,
-}
-
-// TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
-impl TileType {
-    pub fn user_title(&self) -> &str {
-        match self {
-            TileType::Dirt => tiles::tile_dirt::TITLE,
-            TileType::Grass => tiles::tile_grass::TITLE,
-            TileType::Boulder => tiles::tile_boulder::TITLE,
-            TileType::OakTree => tiles::tile_oak_tree::TITLE,
-            TileType::BirdNest => tiles::tile_bird_nest::TITLE,
-            TileType::Cave => tiles::tile_cave::TITLE,
-            TileType::Shrub => tiles::tile_shrub::TITLE,
-        }
-    }
-
-    pub fn user_description(&self) -> Option<&str> {
-        match self {
-            TileType::Dirt => Some(tiles::tile_dirt::DESC),
-            _ => None,
-        }
-    }
-
-    pub fn get_layer(&self) -> WorldLayer {
-        match self {
-            TileType::Dirt => WorldLayer::Ground,
-            TileType::BirdNest => WorldLayer::TreeAttachment,
-            TileType::Boulder
-            | TileType::OakTree
-            | TileType::Cave
-            | TileType::Shrub
-            | TileType::Grass => WorldLayer::Floor,
-        }
-    }
-
-    /// Can you place the tile here
-    pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
-        let footprint = self.get_tile_footprint();
-        for p in footprint {
-            let pos = origin + p;
-
-            let val = match self {
-                TileType::Dirt => TileDirt::can_place(pos, world),
-                TileType::Grass => TileGrass::can_place(pos, world),
-                TileType::Boulder => TileBoulder::can_place(pos, world),
-                TileType::OakTree => TileOakTree::can_place(pos, world),
-                TileType::Cave => TileCave::can_place(pos, world),
-                TileType::Shrub => TileShrub::can_place(pos, world),
-                TileType::BirdNest => TileBirdNest::can_place(pos, world),
-            };
-
-            if !val {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
-        let methods = match self {
-            TileType::Dirt => TileDirt::new_methods(),
-            TileType::Grass => TileGrass::new_methods(),
-            TileType::Boulder => TileBoulder::new_methods(),
-            TileType::OakTree => TileOakTree::new_methods(),
-            TileType::BirdNest => TileBirdNest::new_methods(),
-            TileType::Cave => TileCave::new_methods(),
-            TileType::Shrub => TileShrub::new_methods(),
-        };
-
-        TileInstance::new(*self, grid_pos, methods)
-    }
-
-    pub fn get_tile_footprint(&self) -> Vec<GridPos> {
-        match self {
-            TileType::Dirt
-            | TileType::Grass
-            | TileType::Boulder
-            | TileType::Shrub
-            | TileType::BirdNest
-            | TileType::Cave => {
-                vec![GridPos::new(0, 0)]
-            }
-            TileType::OakTree => vec![
-                GridPos::new(0, 0),
-                GridPos::new(1, 1),
-                GridPos::new(0, 1),
-                GridPos::new(1, 0),
-            ],
-        }
-    }
-}
 
 /// This is just manual dynamic dispact because Dyn breaks hot realoding.
 #[derive(Debug)]
@@ -273,64 +176,6 @@ impl TileMethods {
             TileMethods::BirdNest(state) => state.tile_placed(current_tiles),
             _ => {}
         }
-    }
-}
-
-// TODO make these private?
-pub struct TileInstance {
-    pub tile_type: TileType,
-    pub grid_pos: GridPos,
-    pub methods: TileMethods,
-
-    // for giving offset drops
-    pub drop_timer: f64,
-    pub drops_queue: Vec<Drop>,
-}
-
-impl TileInstance {
-    pub fn new(tile_type: TileType, grid_pos: GridPos, methods: TileMethods) -> Self {
-        Self {
-            tile_type,
-            grid_pos,
-            methods,
-            drop_timer: 0.0,
-            drops_queue: vec![],
-        }
-    }
-
-    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
-        let mut new_drop = self
-            .methods
-            .harvest(self.grid_pos, world_snapshot, platform_api);
-
-        match new_drop {
-            Some(drop) => {
-                self.drops_queue.append(&mut drop.to_individual());
-            }
-            None => {
-                println!("Attempted to harvest something which isn't harvestable.");
-                println!(
-                    "This is fine. Nothing will break. But this indicates an issue somewhere."
-                );
-            }
-        }
-    }
-
-    pub fn update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
-        if self.drops_queue.len() > 0 {
-            self.drop_timer += delta_time;
-
-            if self.drop_timer > 0.06 {
-                self.drop_timer = 0.0;
-
-                return vec![UpdateSignal::AddHarvestDrop {
-                    drop: self.drops_queue.pop().unwrap(),
-                    origin: grid_to_world(&self.grid_pos),
-                }];
-            }
-        }
-
-        vec![]
     }
 }
 

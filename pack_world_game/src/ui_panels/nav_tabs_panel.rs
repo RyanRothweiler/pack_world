@@ -1,5 +1,5 @@
 use crate::{
-    state::{player_state::*, *},
+    state::*,
     ui_panels::{home_panel::*, *},
     UpdateSignal,
 };
@@ -13,7 +13,6 @@ impl NavTabsPanel {
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
-        player_state: &PlayerState,
         ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];

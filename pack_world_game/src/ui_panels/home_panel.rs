@@ -1,6 +1,6 @@
 use crate::{
     pack::*,
-    state::{assets, player_state::*, *},
+    state::{assets, *},
     ui_panels::{nav_tabs_panel::*, *},
     UpdateSignal,
 };
@@ -28,7 +28,6 @@ impl HomePanel {
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &Assets,
-        player_state: &PlayerState,
         ui_context: &mut UIContext,
         platform_api: &PlatformApi,
     ) -> Vec<UpdateSignal> {
@@ -67,7 +66,6 @@ impl HomePanel {
             ui_state,
             inventory,
             assets,
-            player_state,
             ui_context,
             platform_api,
         ));
@@ -77,7 +75,6 @@ impl HomePanel {
                 ui_state,
                 inventory,
                 assets,
-                player_state,
                 ui_context,
                 platform_api,
             )),
@@ -85,7 +82,6 @@ impl HomePanel {
                 ui_state,
                 inventory,
                 assets,
-                player_state,
                 ui_context,
                 platform_api,
             )),

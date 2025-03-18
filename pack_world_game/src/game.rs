@@ -44,6 +44,7 @@ pub mod grid;
 pub mod harvest_drop;
 pub mod item;
 pub mod pack;
+pub mod save_file;
 pub mod state;
 pub mod tile;
 pub mod ui_panels;
@@ -57,6 +58,7 @@ pub use constants::*;
 use grid::*;
 use harvest_drop::*;
 use item::*;
+use save_file::*;
 use state::inventory::*;
 use tile::*;
 use ui_panels::{debug_panel::*, nav_tabs_panel::*, tile_library_panel::*, *};
@@ -235,6 +237,31 @@ pub fn game_loop(
         );
     }
 
+    // save game
+    {
+        if input.get_key(KeyCode::Q).on_press {
+            match save_game(&gs.world) {
+                Err(error) => {
+                    eprintln!("Error writing save file \n {:?}", error);
+                }
+                Ok(()) => {
+                    println!("Game successfully saved");
+                }
+            }
+        }
+
+        if input.get_key(KeyCode::L).on_press {
+            match load_game(&mut gs.world) {
+                Err(error) => {
+                    eprintln!("Error loading save file \n {:?}", error);
+                }
+                Ok(()) => {
+                    println!("Game successfully loaded");
+                }
+            }
+        }
+    }
+
     // update UI
     {
         let mut update_signals: Vec<UpdateSignal> = vec![];
@@ -245,7 +272,6 @@ pub fn game_loop(
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
-                &gs.player_state,
                 &mut gs.ui_context.as_mut().unwrap(),
                 platform_api,
             ));
@@ -257,7 +283,6 @@ pub fn game_loop(
                 &mut ui_frame_state,
                 &gs.inventory,
                 &gs.assets,
-                &gs.player_state,
                 &mut gs.ui_context.as_mut().unwrap(),
                 platform_api,
             )),
@@ -284,7 +309,6 @@ pub fn game_loop(
                     &mut ui_frame_state,
                     &gs.inventory,
                     &gs.assets,
-                    &gs.player_state,
                     &mut gs.ui_context.as_mut().unwrap(),
                     platform_api,
                 );

@@ -17,11 +17,9 @@ use std::collections::HashMap;
 
 pub mod assets;
 pub mod inventory;
-pub mod player_state;
 
 use assets::*;
 use inventory::*;
-use player_state::*;
 
 #[cfg(feature = "dev")]
 pub struct DebugState {
@@ -47,7 +45,6 @@ pub struct State {
 
     // these things need to be saved and loaded between runs
     pub inventory: Inventory,
-    pub player_state: PlayerState,
     pub world: World,
 
     pub harvest_drops: Vec<HarvestDrop>,
@@ -83,7 +80,6 @@ impl State {
             world: World::new(),
             tile_placing: None,
             inventory: Inventory::new(),
-            player_state: PlayerState::new(),
 
             rotate_time: 0.0,
 
