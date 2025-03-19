@@ -1,5 +1,8 @@
 use crate::{error::*, save_file::load};
-use std::{fs::File, io::Write};
+use std::{
+    fs::File,
+    io::{Read, Seek, Write},
+};
 
 #[derive(Clone, Copy, Hash, Debug, Eq, PartialEq)]
 pub struct EntityID {
@@ -13,9 +16,11 @@ impl EntityID {
         Ok(())
     }
 
-    pub fn read(file: &mut File) -> Result<EntityID, Error> {
+    /*
+    pub fn read<W: Read, Seek>(reader: &mut W) -> Result<EntityID, Error> {
         Ok(EntityID {
-            id: load::read_u64(file)?,
+            id: load::read_u64(reader)?,
         })
     }
+    */
 }

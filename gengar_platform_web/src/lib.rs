@@ -10,7 +10,8 @@
 
 use game::{game_init, game_loop};
 use gengar_engine::{
-    analytics::*, input::*, platform_api::PlatformApi, state::State as EngineState, vectors::*,
+    analytics::*, error::Error, input::*, platform_api::PlatformApi, state::State as EngineState,
+    vectors::*,
 };
 use js_sys::Math;
 use std::{
@@ -133,10 +134,24 @@ async fn send_event_async(event: AnalyticsEvent) {
     log(&format!("Sent {:?} -> {}", event, resp.status()));
 }
 
+fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
+    // call upload data to write to supabase
+    todo!("save_game")
+}
+
+fn get_save_game_data() -> Result<Vec<u8>, Error> {
+    // download the data from supabase
+    todo!("load_game");
+    let ret: Vec<u8> = vec![];
+    Ok(ret)
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: rand,
         send_event: send_event,
+        write_save_game_data: write_save_game_data,
+        get_save_game_data: get_save_game_data,
     }
 }
 

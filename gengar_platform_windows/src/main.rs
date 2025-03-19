@@ -24,6 +24,9 @@ use gengar_engine::{
 use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
+    fs::{File, OpenOptions},
+    io::{Read, Write},
+    path::Path,
     sync::{LazyLock, Mutex},
     thread,
     time::{Duration, SystemTime},
@@ -48,6 +51,8 @@ compile_error!("Cannot use hotreloading and tracking allocator at the same time"
 
 const FRAME_TARGET_FPS: f64 = 60.0;
 const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u64);
+
+const SAVE_FILE_NAME: &str = "save_file.gsf";
 
 static mut GAME_DLL_PATH: PCWSTR = w!("");
 static mut GAME_DLL_CURRENT_PATH: PCWSTR = w!("");
@@ -94,10 +99,31 @@ fn send_event(event: AnalyticsEvent) {
     println!("AnalyticsEvent: {:?}", event);
 }
 
+fn write_save_game_data(data: Vec<u8>) -> std::result::Result<(), EngineError> {
+    let file_dir = Path::new(SAVE_FILE_NAME);
+
+    let mut file = File::create(file_dir)?;
+    file.write(&data)?;
+
+    Ok(())
+}
+
+fn get_save_game_data() -> std::result::Result<Vec<u8>, EngineError> {
+    let file_path = Path::new(SAVE_FILE_NAME);
+    let mut file = OpenOptions::new().read(true).open(file_path)?;
+
+    let mut buffer: Vec<u8> = vec![];
+    file.read_to_end(&mut buffer)?;
+
+    Ok(buffer)
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: random,
         send_event: send_event,
+        write_save_game_data: write_save_game_data,
+        get_save_game_data: get_save_game_data,
     }
 }
 

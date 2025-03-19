@@ -1,6 +1,7 @@
 #[derive(Debug)]
 pub enum Error {
     IOError(std::io::Error),
+    EngineError(String),
 
     NegativeItemCount,
     InvalidTilePosition,

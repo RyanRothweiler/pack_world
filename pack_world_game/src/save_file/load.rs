@@ -4,10 +4,10 @@ use std::{
     io::{Read, Seek},
 };
 
-pub fn read_u64(file: &mut File) -> Result<u64, Error> {
+pub fn read_u64<W: Read>(reader: &mut W) -> Result<u64, Error> {
     let mut buf: [u8; 8] = [0; 8];
 
-    file.read(&mut buf)?;
+    reader.read(&mut buf)?;
 
     let val: u64 = u64::from_le_bytes(buf);
     Ok(val)

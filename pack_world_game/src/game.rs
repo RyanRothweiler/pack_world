@@ -240,25 +240,12 @@ pub fn game_loop(
     // save game
     {
         if input.get_key(KeyCode::Q).on_press {
-            match save_game(&gs.world) {
-                Err(error) => {
-                    eprintln!("Error writing save file \n {:?}", error);
-                }
-                Ok(()) => {
-                    println!("Game successfully saved");
-                }
-            }
+            save_game(&gs.world, platform_api).expect("Error saving game.");
         }
 
         if input.get_key(KeyCode::L).on_press {
-            match load_game(&mut gs.world) {
-                Err(error) => {
-                    eprintln!("Error loading save file \n {:?}", error);
-                }
-                Ok(()) => {
-                    println!("Game successfully loaded");
-                }
-            }
+            let data = (platform_api.get_save_game_data)().expect("Error getting save game data.");
+            load_game(data).expect("Error loading save game data");
         }
     }
 
