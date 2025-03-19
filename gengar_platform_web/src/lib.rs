@@ -98,24 +98,19 @@ async fn upload_data(data: Vec<u8>) {
     log("Save upload successful");
 }
 
+static SAVE_DATA: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec![]));
+
 async fn download_data() {
     let opts = RequestInit::new();
     opts.set_method("GET");
 
-    /*
-    let headers = Headers::new().unwrap();
-    headers.set("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTc1MTUsImV4cCI6MjA1Nzg5MzUxNX0.wYCDHY5jXVIex2E6ZmzU16DQC5GtqMiPV974N7TQKUM").unwrap();
-    headers
-    .set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjMxNzUxNSwiZXhwIjoyMDU3ODkzNTE1fQ.uNXhoOMoAKyjcN2A2Iss1AIwCns46V9abIaGC_luQBk")
-    .unwrap();
-    headers.set("x-upsert", "true").unwrap();
-
-    opts.set_headers(&headers);
-    */
+    // generate random string to force invalidate the cache
+    let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
 
     let url = format!(
-        "https://qqibqjlgvkhzyrjaabvg.supabase.co/storage/v1/object/saves-public//{}.gsf",
+        "https://qqibqjlgvkhzyrjaabvg.supabase.co/storage/v1/object/saves-public//{}.gsf?bust={}",
         USER_ID.lock().unwrap(),
+        cache_buster
     );
 
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
@@ -135,46 +130,9 @@ async fn download_data() {
     let mut body = vec![0; typebuf.length() as usize];
     typebuf.copy_to(&mut body[..]);
 
-    log(&format!("body {:?}", body));
-
-    /*
-        let array_buffer: JsValue = array_buffer_promise
-        .await
-        .expect("Could not get ArrayBuffer from file");
-    */
-
-    // let array_buffer_promise: JsFuture = resp.array_buffer().into();
-
-    /*
-
-    let array_buffer: JsValue = array_buffer_promise
-        .await
-        .expect("Could not get ArrayBuffer from file");
-    */
-
-    /*
-    {
-        let resp: Response = resp_value.dyn_into().unwrap();
-        let buf_promise = resp.array_buffer().unwrap();
-
-        JsFuture::from(buf_promise).map(|buf_val| {
-            assert!(buf_val.is_instance_of::<ArrayBuffer>());
-
-            let typebuf: js_sys::Uint8Array = js_sys::Uint8Array::new(&buf_val);
-
-            let mut body = vec![0; typebuf.length() as usize];
-            typebuf.copy_to(&mut body[..]);
-
-            // let mut body: Vec<u8> = Vec::with_capacity(typebuf.length() as usize);
-            // typebuf.copy_to(&mut body);
-
-            log(&format!("body {:?}", body));
-        })
-    }
-    */
-
-    // let vec: Vec<u8> = js_sys::Uint8Array::new(&resp.blob().unwrap()).to_vec();
-    // log(&format!("download {:?} {:?}", resp, vec));
+    let mut data_dest = SAVE_DATA.lock().unwrap();
+    data_dest.clear();
+    data_dest.append(&mut body);
 
     log("download successful ");
 }
@@ -212,7 +170,7 @@ async fn send_event_async(event: AnalyticsEvent) {
     assert!(resp_value.is_instance_of::<Response>());
     let resp: Response = resp_value.dyn_into().unwrap();
 
-    log(&format!("Sent {:?} -> {}", event, resp.status()));
+    log(&format!("Sent Event {:?} -> {}", event, resp.status()));
 }
 
 fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
