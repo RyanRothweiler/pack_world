@@ -244,8 +244,8 @@ pub fn game_loop(
         }
 
         if input.get_key(KeyCode::L).on_press {
-            let data = (platform_api.get_save_game_data)().expect("Error getting save game data.");
-            load_game(data).expect("Error loading save game data");
+            (platform_api.get_save_game_data)(Box::new(load_game));
+            // load_game(data).expect("Error loading save game data");
         }
     }
 

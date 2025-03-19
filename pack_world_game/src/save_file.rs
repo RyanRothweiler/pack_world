@@ -55,10 +55,8 @@ pub fn save_game(world: &World, platform_api: &PlatformApi) -> Result<(), Error>
     Ok(())
 }
 
-pub fn load_game(data: Vec<u8>) -> Result<(), Error> {
+pub fn load_game(data: Vec<u8>) {
     let mut cursor = Cursor::new(data);
 
-    load_game_cursor(&mut cursor).map_err(|e| Error::EngineError(format!("{:?}", e)))?;
-
-    Ok(())
+    load_game_cursor(&mut cursor).unwrap();
 }

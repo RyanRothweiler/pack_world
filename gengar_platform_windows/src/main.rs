@@ -108,14 +108,15 @@ fn write_save_game_data(data: Vec<u8>) -> std::result::Result<(), EngineError> {
     Ok(())
 }
 
-fn get_save_game_data() -> std::result::Result<Vec<u8>, EngineError> {
+fn get_save_game_data(callback: Box<dyn Fn(Vec<u8>)>) {
     let file_path = Path::new(SAVE_FILE_NAME);
-    let mut file = OpenOptions::new().read(true).open(file_path)?;
+    let mut file = OpenOptions::new().read(true).open(file_path).unwrap();
 
     let mut buffer: Vec<u8> = vec![];
-    file.read_to_end(&mut buffer)?;
+    file.read_to_end(&mut buffer).unwrap();
 
-    Ok(buffer)
+    (callback)(buffer);
+    // Ok(buffer)
 }
 
 pub fn get_platform_api() -> PlatformApi {

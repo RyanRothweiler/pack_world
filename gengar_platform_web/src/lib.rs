@@ -98,7 +98,7 @@ async fn upload_data(data: Vec<u8>) {
     log("Save upload successful");
 }
 
-static SAVE_DATA: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec![]));
+static mut LOADED_CALLBACK: Option<Box<dyn Fn(Vec<u8>)>> = None;
 
 async fn download_data() {
     let opts = RequestInit::new();
@@ -130,9 +130,9 @@ async fn download_data() {
     let mut body = vec![0; typebuf.length() as usize];
     typebuf.copy_to(&mut body[..]);
 
-    let mut data_dest = SAVE_DATA.lock().unwrap();
-    data_dest.clear();
-    data_dest.append(&mut body);
+    unsafe {
+        (LOADED_CALLBACK.as_ref().unwrap())(body);
+    }
 
     log("download successful ");
 }
@@ -178,12 +178,11 @@ fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
     Ok(())
 }
 
-fn get_save_game_data() -> Result<Vec<u8>, Error> {
-    // download the data from supabase
-    todo!("load_game");
-
-    let ret: Vec<u8> = vec![];
-    Ok(ret)
+fn get_save_game_data(callback: Box<dyn Fn(Vec<u8>)>) {
+    unsafe {
+        LOADED_CALLBACK = Some(callback);
+    }
+    wasm_bindgen_futures::spawn_local(download_data());
 }
 
 pub fn get_platform_api() -> PlatformApi {
@@ -216,8 +215,6 @@ pub fn start() {
         log(&format!("user_id {}", user_id));
         *USER_ID.lock().unwrap() = user_id;
     }
-
-    wasm_bindgen_futures::spawn_local(download_data());
 
     let platform_api = get_platform_api();
     console_error_panic_hook::set_once();
