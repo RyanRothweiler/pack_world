@@ -55,6 +55,8 @@ features = [
   "RequestInit",
   "RequestMode", 
   "Response",
+  "Crypto",
+  "Storage",
 ]
 
 [lints.rust]

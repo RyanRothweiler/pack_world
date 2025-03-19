@@ -40,6 +40,9 @@ static mut MOUSE_POS: VecTwo = VecTwo { x: 0.0, y: 0.0 };
 static mut MOUSE_LEFT_DOWN: bool = false;
 static mut MOUSE_RIGHT_DOWN: bool = false;
 
+static USER_ID: LazyLock<Mutex<String>> = LazyLock::new(|| Mutex::new("".into()));
+const USER_ID_KEY: &str = "USER_ID_KEY";
+
 #[wasm_bindgen]
 extern "C" {
     fn alert(s: &str);
@@ -55,6 +58,43 @@ fn rand() -> f64 {
 
 fn send_event(event: AnalyticsEvent) {
     wasm_bindgen_futures::spawn_local(send_event_async(event));
+}
+
+// supabase storage api info
+// https://stackoverflow.com/questions/75540112/how-to-upload-to-supabase-storage-using-curl
+async fn upload_data(data: Vec<u8>) {
+    let opts = RequestInit::new();
+    opts.set_method("POST");
+
+    opts.set_body(&JsValue::from_str(unsafe {
+        std::str::from_utf8_unchecked(&data)
+    }));
+
+    let headers = Headers::new().unwrap();
+    headers.set("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTc1MTUsImV4cCI6MjA1Nzg5MzUxNX0.wYCDHY5jXVIex2E6ZmzU16DQC5GtqMiPV974N7TQKUM").unwrap();
+    headers
+    .set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjMxNzUxNSwiZXhwIjoyMDU3ODkzNTE1fQ.uNXhoOMoAKyjcN2A2Iss1AIwCns46V9abIaGC_luQBk")
+    .unwrap();
+    headers.set("x-upsert", "true").unwrap();
+
+    opts.set_headers(&headers);
+
+    let url = format!(
+        "https://qqibqjlgvkhzyrjaabvg.supabase.co/storage/v1/object/saves-public/{}.gsf",
+        USER_ID.lock().unwrap(),
+    );
+
+    let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request))
+        .await
+        .unwrap();
+
+    assert!(resp_value.is_instance_of::<Response>());
+    let resp: Response = resp_value.dyn_into().unwrap();
+
+    log("Save upload successful");
 }
 
 async fn send_event_async(event: AnalyticsEvent) {
@@ -102,8 +142,30 @@ pub fn get_platform_api() -> PlatformApi {
 
 #[wasm_bindgen(start)]
 pub fn start() {
+    let window = web_sys::window().unwrap();
+
+    // get / setup userid
+    {
+        let ls = window.local_storage().unwrap().unwrap();
+        let user_id: String = match ls.get_item(USER_ID_KEY).unwrap() {
+            Some(key) => key,
+            None => {
+                let uuid: String = window.crypto().unwrap().random_uuid();
+                ls.set_item(USER_ID_KEY, &uuid).unwrap();
+                log("Generated new user_id");
+
+                uuid
+            }
+        };
+
+        log(&format!("user_id {}", user_id));
+        *USER_ID.lock().unwrap() = user_id;
+    }
+
     let platform_api = get_platform_api();
     console_error_panic_hook::set_once();
+
+    wasm_bindgen_futures::spawn_local(upload_test(vec![10, 9, 10, 9]));
 
     let gl_state = webgl::webgl_render_api::WebGLState {
         programs: HashMap::new(),
@@ -119,7 +181,6 @@ pub fn start() {
         next_buffer_id: 0,
     };
 
-    let window = web_sys::window().unwrap();
     let performance = window
         .performance()
         .expect("performance should be available");
