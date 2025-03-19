@@ -135,8 +135,8 @@ async fn send_event_async(event: AnalyticsEvent) {
 }
 
 fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
-    // call upload data to write to supabase
-    todo!("save_game")
+    wasm_bindgen_futures::spawn_local(upload_data(data));
+    Ok(())
 }
 
 fn get_save_game_data() -> Result<Vec<u8>, Error> {
@@ -179,8 +179,6 @@ pub fn start() {
 
     let platform_api = get_platform_api();
     console_error_panic_hook::set_once();
-
-    // wasm_bindgen_futures::spawn_local(upload_test(vec![10, 9, 10, 9]));
 
     let gl_state = webgl::webgl_render_api::WebGLState {
         programs: HashMap::new(),
