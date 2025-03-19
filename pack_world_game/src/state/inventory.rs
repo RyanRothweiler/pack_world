@@ -96,7 +96,15 @@ mod test {
         assert_eq!(inv.has_atleast(ItemType::DirtClod, 10), true);
 
         let ret = inv.give_item(ItemType::DirtClod, -11);
-        assert_eq!(ret, Err(Error::NegativeItemCount));
+        match ret {
+            Err(e) => match e {
+                Error::NegativeItemCount => {}
+                _ => {
+                    panic!("Incorrect error type")
+                }
+            },
+            _ => {}
+        }
 
         inv.give_item(ItemType::DirtClod, 20).unwrap();
         inv.give_item(ItemType::DirtClod, 20).unwrap();
