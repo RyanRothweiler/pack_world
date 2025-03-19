@@ -98,6 +98,87 @@ async fn upload_data(data: Vec<u8>) {
     log("Save upload successful");
 }
 
+async fn download_data() {
+    let opts = RequestInit::new();
+    opts.set_method("GET");
+
+    /*
+    let headers = Headers::new().unwrap();
+    headers.set("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTc1MTUsImV4cCI6MjA1Nzg5MzUxNX0.wYCDHY5jXVIex2E6ZmzU16DQC5GtqMiPV974N7TQKUM").unwrap();
+    headers
+    .set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjMxNzUxNSwiZXhwIjoyMDU3ODkzNTE1fQ.uNXhoOMoAKyjcN2A2Iss1AIwCns46V9abIaGC_luQBk")
+    .unwrap();
+    headers.set("x-upsert", "true").unwrap();
+
+    opts.set_headers(&headers);
+    */
+
+    let url = format!(
+        "https://qqibqjlgvkhzyrjaabvg.supabase.co/storage/v1/object/saves-public//{}.gsf",
+        USER_ID.lock().unwrap(),
+    );
+
+    let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request))
+        .await
+        .unwrap();
+
+    assert!(resp_value.is_instance_of::<Response>());
+    let resp: Response = resp_value.dyn_into().unwrap();
+
+    let buf_val = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
+
+    let typebuf: js_sys::Uint8Array = js_sys::Uint8Array::new(&buf_val);
+
+    let mut body = vec![0; typebuf.length() as usize];
+    typebuf.copy_to(&mut body[..]);
+
+    log(&format!("body {:?}", body));
+
+    /*
+        let array_buffer: JsValue = array_buffer_promise
+        .await
+        .expect("Could not get ArrayBuffer from file");
+    */
+
+    // let array_buffer_promise: JsFuture = resp.array_buffer().into();
+
+    /*
+
+    let array_buffer: JsValue = array_buffer_promise
+        .await
+        .expect("Could not get ArrayBuffer from file");
+    */
+
+    /*
+    {
+        let resp: Response = resp_value.dyn_into().unwrap();
+        let buf_promise = resp.array_buffer().unwrap();
+
+        JsFuture::from(buf_promise).map(|buf_val| {
+            assert!(buf_val.is_instance_of::<ArrayBuffer>());
+
+            let typebuf: js_sys::Uint8Array = js_sys::Uint8Array::new(&buf_val);
+
+            let mut body = vec![0; typebuf.length() as usize];
+            typebuf.copy_to(&mut body[..]);
+
+            // let mut body: Vec<u8> = Vec::with_capacity(typebuf.length() as usize);
+            // typebuf.copy_to(&mut body);
+
+            log(&format!("body {:?}", body));
+        })
+    }
+    */
+
+    // let vec: Vec<u8> = js_sys::Uint8Array::new(&resp.blob().unwrap()).to_vec();
+    // log(&format!("download {:?} {:?}", resp, vec));
+
+    log("download successful ");
+}
+
 async fn send_event_async(event: AnalyticsEvent) {
     log(&format!("Analytics Sending {:?}", event));
 
@@ -142,6 +223,7 @@ fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
 fn get_save_game_data() -> Result<Vec<u8>, Error> {
     // download the data from supabase
     todo!("load_game");
+
     let ret: Vec<u8> = vec![];
     Ok(ret)
 }
@@ -176,6 +258,8 @@ pub fn start() {
         log(&format!("user_id {}", user_id));
         *USER_ID.lock().unwrap() = user_id;
     }
+
+    wasm_bindgen_futures::spawn_local(download_data());
 
     let platform_api = get_platform_api();
     console_error_panic_hook::set_once();
