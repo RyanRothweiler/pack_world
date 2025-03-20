@@ -13,7 +13,7 @@ fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
     unimplemented!()
 }
 
-fn get_save_game_data(callback: Box<dyn Fn(Vec<u8>)>) {
+fn get_save_game_data() {
     unimplemented!()
 }
 
@@ -22,7 +22,8 @@ pub fn windows_plaform_api() -> PlatformApi {
     PlatformApi {
         rand: rand,
         send_event: send_event,
+
         write_save_game_data: write_save_game_data,
-        get_save_game_data: get_save_game_data,
+        fetch_game_save: get_save_game_data,
     }
 }
