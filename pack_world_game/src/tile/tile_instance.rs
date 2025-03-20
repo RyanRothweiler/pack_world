@@ -8,7 +8,10 @@ use crate::{
     world::*,
 };
 use gengar_engine::platform_api::*;
-use std::{fs::File, io::Write};
+use std::{
+    fs::File,
+    io::{Read, Write},
+};
 
 // TODO make these private?
 pub struct TileInstance {
@@ -67,22 +70,22 @@ impl TileInstance {
         vec![]
     }
 
-    pub fn write(&self, file: &mut File) -> Result<(), Error> {
-        file.write(&self.tile_type.to_index().to_le_bytes())?;
+    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+        writer.write(&self.tile_type.to_index().to_le_bytes())?;
 
-        file.write(&self.grid_pos.x.to_le_bytes())?;
-        file.write(&self.grid_pos.y.to_le_bytes())?;
+        writer.write(&self.grid_pos.x.to_le_bytes())?;
+        writer.write(&self.grid_pos.y.to_le_bytes())?;
 
         Ok(())
     }
 
-    pub fn read(file: &mut File) -> Result<(), Error> {
-        let idx = load::read_i32(file)?;
+    pub fn read<W: Read>(reader: &mut W) -> Result<(), Error> {
+        let idx = load::read_i32(reader)?;
         let tile_type: TileType = TileType::from_index(idx)?;
 
         let mut grid_pos = GridPos::new(0, 0);
-        grid_pos.x = load::read_i32(file)?;
-        grid_pos.y = load::read_i32(file)?;
+        grid_pos.x = load::read_i32(reader)?;
+        grid_pos.y = load::read_i32(reader)?;
 
         println!("tile type {:?} {:?}", tile_type, grid_pos);
         Ok(())

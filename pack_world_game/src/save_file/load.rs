@@ -13,7 +13,7 @@ pub fn read_u64<W: Read>(reader: &mut W) -> Result<u64, Error> {
     Ok(val)
 }
 
-pub fn read_i32(file: &mut File) -> Result<i32, Error> {
+pub fn read_i32<W: Read>(file: &mut W) -> Result<i32, Error> {
     let mut buf: [u8; 4] = [0; 4];
 
     file.read(&mut buf)?;

@@ -11,16 +11,14 @@ pub struct EntityID {
 }
 
 impl EntityID {
-    pub fn write(&self, file: &mut File) -> Result<(), Error> {
-        file.write(&self.id.to_le_bytes())?;
+    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+        writer.write(&self.id.to_le_bytes())?;
         Ok(())
     }
 
-    /*
-    pub fn read<W: Read, Seek>(reader: &mut W) -> Result<EntityID, Error> {
+    pub fn read<W: Read>(reader: &mut W) -> Result<EntityID, Error> {
         Ok(EntityID {
             id: load::read_u64(reader)?,
         })
     }
-    */
 }

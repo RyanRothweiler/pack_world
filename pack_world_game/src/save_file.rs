@@ -9,16 +9,14 @@ fn save_game_cursor<W: Write + Seek>(world: &World, writer: &mut W) -> Result<()
     let el: u64 = world.entities.len() as u64;
     writer.write(&el.to_le_bytes())?;
 
-    /*
     // tile instances
     for t in &world.entities {
         // entity id
-        t.0.write(&mut file)?;
+        t.0.write(writer)?;
 
         // tile instance
-        t.1.write(&mut file)?;
+        t.1.write(writer)?;
     }
-    */
 
     Ok(())
 }
@@ -26,15 +24,11 @@ fn save_game_cursor<W: Write + Seek>(world: &World, writer: &mut W) -> Result<()
 fn load_game_cursor<W: Read>(reader: &mut W) -> Result<(), Error> {
     let tiles_count = load::read_u64(reader)?;
 
-    println!("tiles count {}", tiles_count);
-
-    /*
     for i in 0..tiles_count {
-        let eid = EntityID::read(&mut file)?;
+        let eid = EntityID::read(reader)?;
 
-        TileInstance::read(&mut file)?;
+        TileInstance::read(reader)?;
     }
-    */
 
     Ok(())
 }
