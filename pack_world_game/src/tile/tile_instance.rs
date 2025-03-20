@@ -94,3 +94,34 @@ impl TileInstance {
         Ok(TileInstance::new(tile_type, grid_pos, tile_methods))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::tile::tiles::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn save_load() {
+        let original_inst = TileInstance::new(
+            TileType::Grass,
+            GridPos::new(10, -5),
+            TileDirt::new_methods(),
+        );
+
+        let mut data: Vec<u8> = vec![];
+        let mut cursor = Cursor::new(data);
+
+        // write into buffer
+        original_inst.write(&mut cursor).unwrap();
+
+        let save_file: Vec<u8> = cursor.get_ref().to_vec();
+
+        // load from buffer
+        let loaded_inst: TileInstance = TileInstance::read(&mut Cursor::new(save_file)).unwrap();
+
+        assert_eq!(original_inst.grid_pos, loaded_inst.grid_pos);
+        assert_eq!(original_inst.tile_type, loaded_inst.tile_type);
+        // test loading methods
+    }
+}

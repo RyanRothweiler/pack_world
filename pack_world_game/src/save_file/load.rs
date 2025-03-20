@@ -13,6 +13,15 @@ pub fn read_u64<W: Read>(reader: &mut W) -> Result<u64, Error> {
     Ok(val)
 }
 
+pub fn read_f64<W: Read>(reader: &mut W) -> Result<f64, Error> {
+    let mut buf: [u8; 8] = [0; 8];
+
+    reader.read(&mut buf)?;
+
+    let val: f64 = f64::from_le_bytes(buf);
+    Ok(val)
+}
+
 pub fn read_i32<W: Read>(file: &mut W) -> Result<i32, Error> {
     let mut buf: [u8; 4] = [0; 4];
 

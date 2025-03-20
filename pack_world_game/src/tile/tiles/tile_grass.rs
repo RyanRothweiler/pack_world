@@ -124,4 +124,8 @@ impl TileGrass {
             assets,
         );
     }
+
+    pub fn write<W: Write>(&self, writer: W) -> Result<(), Error> {
+        Ok(())
+    }
 }

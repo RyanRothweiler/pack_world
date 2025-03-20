@@ -1,4 +1,4 @@
-use crate::{error::Error, tile::TileInstance, world::*};
+use crate::{error::Error, tile::tile_instance::TileInstance, world::*};
 use gengar_engine::platform_api::*;
 use std::io::{Cursor, Read, Seek, Write};
 
