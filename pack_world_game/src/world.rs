@@ -117,13 +117,33 @@ impl World {
             self.valids.insert(GridPos::new(pos.x, pos.y + 1), true);
             self.valids.insert(GridPos::new(pos.x, pos.y - 1), true);
 
-            // .push(inst_id)
             let mut world_cell: &mut WorldCell =
                 self.entity_map.entry(pos).or_insert(WorldCell::new());
             world_cell.layers.insert(tile_layer, new_entity_id);
         }
 
         ret
+    }
+
+    /// Clear all state
+    pub fn clear(&mut self) {
+        self.entity_map.clear();
+        self.entities.clear();
+        self.valids.clear();
+        self.next_entity_id = 0;
+    }
+
+    /// Used for loading. Just insert the tile without running any global or local state updates
+    pub fn raw_insert_entity(&mut self, entity_id: EntityID, tile_instance: TileInstance) {
+        let tile_layer = tile_instance.tile_type.get_layer();
+
+        let mut world_cell: &mut WorldCell = self
+            .entity_map
+            .entry(tile_instance.grid_pos)
+            .or_insert(WorldCell::new());
+        world_cell.layers.insert(tile_layer, entity_id);
+
+        self.entities.insert(entity_id, tile_instance);
     }
 
     /// Returns list of tile types removed.

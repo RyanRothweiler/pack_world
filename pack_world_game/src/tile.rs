@@ -1,19 +1,24 @@
 use crate::{
     drop_table::*,
+    error::*,
     grid::*,
+    save_file::load,
     state::{assets::*, *},
     update_signal::*,
     world::*,
 };
 use gengar_engine::{
     color::*,
-    error::*,
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     vectors::*,
 };
-use std::{collections::HashMap, fs::File, io::Write};
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::{Read, Write},
+};
 
 pub mod harvest_timer;
 pub mod tile_instance;
@@ -175,6 +180,31 @@ impl TileMethods {
         match self {
             TileMethods::BirdNest(state) => state.tile_placed(current_tiles),
             _ => {}
+        }
+    }
+
+    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+        match self {
+            TileMethods::Dirt(state) => {
+                let id: i32 = 1;
+
+                writer.write(&id.to_le_bytes())?;
+            }
+            _ => {
+                todo!("unimplmented tile write ");
+            }
+        }
+        Ok(())
+    }
+
+    pub fn read<W: Read>(reader: &mut W) -> Result<Self, Error> {
+        let id = load::read_i32(reader)?;
+
+        match id {
+            1 => Ok(TileDirt::new_methods()),
+            _ => {
+                return Err(Error::UnknownTileMethodID(id));
+            }
         }
     }
 }

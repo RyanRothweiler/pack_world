@@ -244,8 +244,15 @@ pub fn game_loop(
         }
 
         if input.get_key(KeyCode::L).on_press {
-            (platform_api.get_save_game_data)(Box::new(load_game));
-            // load_game(data).expect("Error loading save game data");
+            (platform_api.fetch_game_save)();
+        }
+
+        // check for data to load
+        {
+            if !es.game_to_load.is_empty() {
+                load_game(&mut gs.world, &es.game_to_load);
+                es.game_to_load.clear();
+            }
         }
     }
 

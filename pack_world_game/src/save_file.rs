@@ -21,18 +21,6 @@ fn save_game_cursor<W: Write + Seek>(world: &World, writer: &mut W) -> Result<()
     Ok(())
 }
 
-fn load_game_cursor<W: Read>(reader: &mut W) -> Result<(), Error> {
-    let tiles_count = load::read_u64(reader)?;
-
-    for i in 0..tiles_count {
-        let eid = EntityID::read(reader)?;
-
-        TileInstance::read(reader)?;
-    }
-
-    Ok(())
-}
-
 pub fn get_save_data(world: &World) -> Result<Vec<u8>, Error> {
     let mut buf: Vec<u8> = vec![];
     let mut cursor = Cursor::new(buf);
@@ -49,8 +37,33 @@ pub fn save_game(world: &World, platform_api: &PlatformApi) -> Result<(), Error>
     Ok(())
 }
 
-pub fn load_game(data: Vec<u8>) {
-    let mut cursor = Cursor::new(data);
+fn load_game_cursor<W: Read>(world: &mut World, reader: &mut W) -> Result<(), Error> {
+    let tiles_count = load::read_u64(reader)?;
 
-    load_game_cursor(&mut cursor).unwrap();
+    for i in 0..tiles_count {
+        let eid = EntityID::read(reader)?;
+        let tile_inst = TileInstance::read(reader)?;
+
+        world.raw_insert_entity(eid, tile_inst);
+    }
+
+    Ok(())
 }
+
+pub fn load_game(world: &mut World, data: &Vec<u8>) {
+    world.clear();
+
+    let mut cursor = Cursor::new(data);
+    load_game_cursor(world, &mut cursor).unwrap();
+}
+
+/*
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn save_load() {
+        let save_state = get_save_data();
+    }
+}
+*/

@@ -5,5 +5,5 @@ pub struct PlatformApi {
     pub send_event: fn(AnalyticsEvent),
 
     pub write_save_game_data: fn(data: Vec<u8>) -> Result<(), Error>,
-    pub get_save_game_data: fn(loaded_callback: Box<dyn Fn(Vec<u8>)>),
+    pub fetch_game_save: fn(),
 }

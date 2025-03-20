@@ -76,10 +76,12 @@ impl TileInstance {
         writer.write(&self.grid_pos.x.to_le_bytes())?;
         writer.write(&self.grid_pos.y.to_le_bytes())?;
 
+        self.methods.write(writer)?;
+
         Ok(())
     }
 
-    pub fn read<W: Read>(reader: &mut W) -> Result<(), Error> {
+    pub fn read<W: Read>(reader: &mut W) -> Result<Self, Error> {
         let idx = load::read_i32(reader)?;
         let tile_type: TileType = TileType::from_index(idx)?;
 
@@ -87,7 +89,8 @@ impl TileInstance {
         grid_pos.x = load::read_i32(reader)?;
         grid_pos.y = load::read_i32(reader)?;
 
-        println!("tile type {:?} {:?}", tile_type, grid_pos);
-        Ok(())
+        let tile_methods = TileMethods::read(reader)?;
+
+        Ok(TileInstance::new(tile_type, grid_pos, tile_methods))
     }
 }

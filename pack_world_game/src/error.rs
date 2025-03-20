@@ -3,6 +3,9 @@ pub enum Error {
     IOError(std::io::Error),
     EngineError(String),
 
+    // loading
+    UnknownTileMethodID(i32),
+
     NegativeItemCount,
     InvalidTilePosition,
     HitBankLimit,

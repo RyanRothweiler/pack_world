@@ -8,6 +8,7 @@ use crate::{
             tile_dirt::TileDirt, tile_grass::TileGrass, tile_oak_tree::TileOakTree,
             tile_shrub::TileShrub, *,
         },
+        TileMethods,
     },
     world::*,
 };
@@ -80,8 +81,8 @@ impl TileType {
         return true;
     }
 
-    pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
-        let methods = match self {
+    pub fn to_methods(&self) -> TileMethods {
+        match self {
             TileType::Dirt => TileDirt::new_methods(),
             TileType::Grass => TileGrass::new_methods(),
             TileType::Boulder => TileBoulder::new_methods(),
@@ -89,9 +90,11 @@ impl TileType {
             TileType::BirdNest => TileBirdNest::new_methods(),
             TileType::Cave => TileCave::new_methods(),
             TileType::Shrub => TileShrub::new_methods(),
-        };
+        }
+    }
 
-        TileInstance::new(*self, grid_pos, methods)
+    pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
+        TileInstance::new(*self, grid_pos, self.to_methods())
     }
 
     pub fn get_tile_footprint(&self) -> Vec<GridPos> {

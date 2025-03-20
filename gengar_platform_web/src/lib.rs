@@ -98,8 +98,6 @@ async fn upload_data(data: Vec<u8>) {
     log("Save upload successful");
 }
 
-static mut LOADED_CALLBACK: Option<Box<dyn Fn(Vec<u8>)>> = None;
-
 async fn download_data() {
     let opts = RequestInit::new();
     opts.set_method("GET");
@@ -130,9 +128,7 @@ async fn download_data() {
     let mut body = vec![0; typebuf.length() as usize];
     typebuf.copy_to(&mut body[..]);
 
-    unsafe {
-        (LOADED_CALLBACK.as_ref().unwrap())(body);
-    }
+    todo!("put the save in the global vec and then in engine_state.game_to_laod");
 
     log("download successful ");
 }
@@ -178,11 +174,9 @@ fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
     Ok(())
 }
 
-fn get_save_game_data(callback: Box<dyn Fn(Vec<u8>)>) {
-    unsafe {
-        LOADED_CALLBACK = Some(callback);
-    }
+fn fetch_game_save() {
     wasm_bindgen_futures::spawn_local(download_data());
+    todo!("just put the vec in the game_to_load bro");
 }
 
 pub fn get_platform_api() -> PlatformApi {
@@ -190,7 +184,7 @@ pub fn get_platform_api() -> PlatformApi {
         rand: rand,
         send_event: send_event,
         write_save_game_data: write_save_game_data,
-        get_save_game_data: get_save_game_data,
+        fetch_game_save: fetch_game_save,
     }
 }
 

@@ -36,6 +36,8 @@ pub struct State {
     pub transforms: Vec<Transform>,
 
     pub roboto_typeface: Typeface,
+
+    pub game_to_load: Vec<u8>,
 }
 
 impl State {
@@ -59,6 +61,9 @@ impl State {
             model_plane: Model::new(),
 
             roboto_typeface: Typeface::new(),
+
+            // if this is not empty then load the game data from this
+            game_to_load: vec![],
 
             frame: 0,
         };

@@ -66,8 +66,10 @@ static mut RUNNING: bool = true;
 
 static mut MOUSE_LEFT_DOWN: bool = false;
 static mut MOUSE_RIGHT_DOWN: bool = false;
-static mut KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
+static KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
+
+static GAME_TO_LOAD: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec![]));
 
 type FuncGameInit = fn(
     &mut game::state::State,
@@ -108,15 +110,14 @@ fn write_save_game_data(data: Vec<u8>) -> std::result::Result<(), EngineError> {
     Ok(())
 }
 
-fn get_save_game_data(callback: Box<dyn Fn(Vec<u8>)>) {
+fn fetch_game_save() {
     let file_path = Path::new(SAVE_FILE_NAME);
     let mut file = OpenOptions::new().read(true).open(file_path).unwrap();
 
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
 
-    (callback)(buffer);
-    // Ok(buffer)
+    GAME_TO_LOAD.lock().unwrap().append(&mut buffer);
 }
 
 pub fn get_platform_api() -> PlatformApi {
@@ -124,7 +125,7 @@ pub fn get_platform_api() -> PlatformApi {
         rand: random,
         send_event: send_event,
         write_save_game_data: write_save_game_data,
-        get_save_game_data: get_save_game_data,
+        fetch_game_save: fetch_game_save,
     }
 }
 
@@ -356,6 +357,15 @@ fn main() {
 
             if PeekMessageA(&mut message, None, 0, 0, PM_REMOVE).into() {
                 DispatchMessageA(&message);
+            }
+
+            // update save data to load
+            {
+                let mut game_to_load = GAME_TO_LOAD.lock().unwrap();
+                if game_to_load.len() != 0 {
+                    engine_state.game_to_load = game_to_load.clone();
+                    game_to_load.clear();
+                }
             }
 
             // check hot relaod game dll

@@ -13,7 +13,7 @@ fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
     unimplemented!()
 }
 
-fn get_save_game_data() -> Result<Vec<u8>, Error> {
+fn get_save_game_data(callback: Box<dyn Fn(Vec<u8>)>) {
     unimplemented!()
 }
 
