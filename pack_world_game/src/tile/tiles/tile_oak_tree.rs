@@ -1,6 +1,7 @@
 use crate::{
     drop_table::*,
     grid::*,
+    save_file::*,
     state::{inventory::*, *},
     tile::{harvest_timer::*, *},
 };
@@ -18,7 +19,7 @@ const HARVEST_SECONDS: f64 = 360.0;
 
 #[derive(Debug)]
 pub struct TileOakTree {
-    // TODO remove has_nest and just use the next_id option
+    // TODO remove has_nest and just use the nest_id option
     pub has_nest: bool,
     pub nest_id: Option<EntityID>,
 
@@ -123,6 +124,73 @@ impl TileOakTree {
             render_pack
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
+        }
+    }
+
+    pub fn save_file_write(
+        &self,
+        key_parent: String,
+        save_file: &mut SaveFile,
+    ) -> Result<(), Error> {
+        let timer_key = format!("{}.h", key_parent);
+        let has_nest_key = format!("{}.hn", key_parent);
+        let nest_entity_id = format!("{}.hne", key_parent);
+
+        self.harvest_timer.save_file_write(timer_key, save_file)?;
+
+        save_file.save_bool(&has_nest_key, self.has_nest);
+        if self.has_nest {
+            save_file.save_u64(&nest_entity_id, self.nest_id.unwrap().id);
+        }
+
+        Ok(())
+    }
+
+    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+        let timer_key = format!("{}.h", key_parent);
+        let has_nest_key = format!("{}.hn", key_parent);
+        let nest_entity_id = format!("{}.hne", key_parent);
+
+        let harvest_timer = HarvestTimer::save_file_load(timer_key, save_file)?;
+        let has_nest: bool = save_file.load_bool(&has_nest_key).unwrap();
+        let mut nest_entity: Option<EntityID> = None;
+        if has_nest {
+            let eid = save_file.load_u64(&nest_entity_id).unwrap();
+            nest_entity = Some(EntityID { id: eid });
+        }
+
+        let tm = TileMethods::OakTree(TileOakTree {
+            has_nest: has_nest,
+            nest_id: nest_entity,
+            harvest_timer: harvest_timer,
+        });
+
+        Ok(tm)
+    }
+}
+
+mod test {
+    use super::*;
+    use crate::save_file::*;
+
+    #[test]
+    fn save_load() {
+        let mut save_file = SaveFile::new();
+
+        let orig = TileOakTree {
+            has_nest: true,
+            nest_id: Some(EntityID { id: 100 }),
+            harvest_timer: HarvestTimer::new(0.0, FixedTableID::Boulder),
+        };
+
+        orig.save_file_write("tree".into(), &mut save_file).unwrap();
+
+        match TileOakTree::save_file_load("tree".into(), &save_file).unwrap() {
+            TileMethods::OakTree(state) => {
+                assert_eq!(state.has_nest, true);
+                assert_eq!(state.nest_id, Some(EntityID { id: 100 }));
+            }
+            _ => panic!("Incorrect"),
         }
     }
 }

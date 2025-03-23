@@ -158,6 +158,21 @@ impl SaveFile {
         self.entries.insert(key.into(), d);
     }
 
+    pub fn save_bool(&mut self, key: &str, data: bool) {
+        if self.entries.contains_key(key) {
+            panic!("Key already exists {}", key);
+        }
+
+        let mut d = [0; 8];
+        if data {
+            d[0] = 1;
+        } else {
+            d[0] = 0;
+        }
+
+        self.entries.insert(key.into(), d);
+    }
+
     pub fn load_f64(&self, key: &str) -> Option<f64> {
         if !self.entries.contains_key(key) {
             return None;
@@ -228,9 +243,21 @@ impl SaveFile {
         let val = u32::from_le_bytes(d);
         Some(val)
     }
+
+    pub fn load_bool(&self, key: &str) -> Option<bool> {
+        if !self.entries.contains_key(key) {
+            return None;
+        }
+
+        let data = *self.entries.get(key).unwrap();
+        if data[0] == 1 {
+            Some(true)
+        } else {
+            Some(false)
+        }
+    }
 }
 
-// #[cfg(test)]
 mod test {
     use super::*;
     use std::io::Cursor;
@@ -254,6 +281,16 @@ mod test {
     }
 
     #[test]
+    fn read_write_bool() {
+        let mut file = SaveFile::new();
+        file.save_bool("true", true);
+        file.save_bool("false", false);
+
+        assert_eq!(file.load_bool("true").unwrap(), true);
+        assert_eq!(file.load_bool("false").unwrap(), false);
+    }
+
+    #[test]
     fn read_write_safe() {
         let mut orig_file = SaveFile::new();
         orig_file.save_f32("key", 123.45);
@@ -266,8 +303,6 @@ mod test {
         let mut read_cursor = Cursor::new(read_data);
 
         let read_save_file = SaveFile::read_file(&mut read_cursor).unwrap();
-
-        println!("{:?}", read_save_file.entries);
 
         assert_eq!(read_save_file.load_f32("key").unwrap(), 123.45);
     }

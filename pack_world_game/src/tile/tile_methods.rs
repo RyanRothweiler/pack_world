@@ -185,8 +185,35 @@ impl TileMethods {
                 save_file.save_i32(&type_key, id);
                 state.save_file_write(state_key, save_file)?;
             }
-            _ => {
-                todo!("unimplmented tile write ");
+            TileMethods::Boulder(state) => {
+                let id: i32 = 3;
+
+                save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
+            }
+            TileMethods::OakTree(state) => {
+                let id: i32 = 4;
+
+                save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
+            }
+            TileMethods::BirdNest(state) => {
+                let id: i32 = 5;
+
+                save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
+            }
+            TileMethods::Cave(state) => {
+                let id: i32 = 6;
+
+                save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
+            }
+            TileMethods::Shrub(state) => {
+                let id: i32 = 7;
+
+                save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
             }
         }
 
@@ -201,9 +228,76 @@ impl TileMethods {
         match id {
             1 => Ok(TileDirt::new_methods()),
             2 => Ok(TileGrass::save_file_load(state_key, save_file)?),
+            3 => Ok(TileBoulder::save_file_load(state_key, save_file)?),
+            4 => Ok(TileOakTree::save_file_load(state_key, save_file)?),
+            5 => Ok(TileBirdNest::save_file_load(state_key, save_file)?),
+            6 => Ok(TileCave::save_file_load(state_key, save_file)?),
+            7 => Ok(TileShrub::save_file_load(state_key, save_file)?),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::save_file::*;
+
+    #[test]
+    fn save_load() {
+        let mut save_file = SaveFile::new();
+
+        TileDirt::new_methods()
+            .save_file_write("dirt".into(), &mut save_file)
+            .unwrap();
+        TileGrass::new_methods()
+            .save_file_write("grass".into(), &mut save_file)
+            .unwrap();
+        TileBoulder::new_methods()
+            .save_file_write("boulder".into(), &mut save_file)
+            .unwrap();
+        TileOakTree::new_methods()
+            .save_file_write("oak tree".into(), &mut save_file)
+            .unwrap();
+        TileBirdNest::new_methods()
+            .save_file_write("bird nest".into(), &mut save_file)
+            .unwrap();
+        TileCave::new_methods()
+            .save_file_write("cave".into(), &mut save_file)
+            .unwrap();
+        TileShrub::new_methods()
+            .save_file_write("shrub".into(), &mut save_file)
+            .unwrap();
+
+        match TileMethods::save_file_load("dirt".into(), &save_file).unwrap() {
+            TileMethods::Dirt(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("grass".into(), &save_file).unwrap() {
+            TileMethods::Grass(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("boulder".into(), &save_file).unwrap() {
+            TileMethods::Boulder(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("oak tree".into(), &save_file).unwrap() {
+            TileMethods::OakTree(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("bird nest".into(), &save_file).unwrap() {
+            TileMethods::BirdNest(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("cave".into(), &save_file).unwrap() {
+            TileMethods::Cave(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("shrub".into(), &save_file).unwrap() {
+            TileMethods::Shrub(state) => {}
+            _ => panic!("Incorrect"),
         }
     }
 }

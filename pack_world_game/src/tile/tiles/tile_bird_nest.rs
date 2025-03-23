@@ -1,6 +1,7 @@
 use crate::{
     drop_table::*,
     grid::*,
+    save_file::*,
     state::{inventory::*, *},
     tile::{harvest_timer::*, *},
 };
@@ -107,6 +108,58 @@ impl TileBirdNest {
             render_pack
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
+        }
+    }
+
+    pub fn save_file_write(
+        &self,
+        key_parent: String,
+        save_file: &mut SaveFile,
+    ) -> Result<(), Error> {
+        let x_key = format!("{}.x", key_parent);
+        let y_key = format!("{}.y", key_parent);
+
+        save_file.save_i32(&x_key, self.tree_origin.x);
+        save_file.save_i32(&y_key, self.tree_origin.y);
+
+        Ok(())
+    }
+
+    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+        let x_key = format!("{}.x", key_parent);
+        let y_key = format!("{}.y", key_parent);
+
+        let tm = TileMethods::BirdNest(TileBirdNest {
+            tree_origin: GridPos::new(
+                save_file.load_i32(&x_key).unwrap(),
+                save_file.load_i32(&y_key).unwrap(),
+            ),
+        });
+
+        Ok(tm)
+    }
+}
+
+mod test {
+    use super::*;
+    use crate::save_file::*;
+
+    #[test]
+    fn save_load() {
+        let mut save_file = SaveFile::new();
+
+        let orig = TileBirdNest {
+            tree_origin: GridPos::new(10, 20),
+        };
+
+        orig.save_file_write("nest".into(), &mut save_file).unwrap();
+
+        match TileBirdNest::save_file_load("nest".into(), &save_file).unwrap() {
+            TileMethods::BirdNest(state) => {
+                assert_eq!(state.tree_origin.x, 10);
+                assert_eq!(state.tree_origin.y, 20);
+            }
+            _ => panic!("Incorrect"),
         }
     }
 }

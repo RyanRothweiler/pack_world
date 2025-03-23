@@ -75,13 +75,14 @@ impl TileGrass {
             }
         }
 
-        let mut drop_table = self.harvest_timer.table.clone();
+        let mut drop_table_instance = DropTableInstance::new_fixed(self.harvest_timer.table);
         if nest_adj {
-            drop_table = drop_table.add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
+            drop_table_instance =
+                drop_table_instance.add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
         }
 
         self.harvest_timer.reset();
-        return drop_table.get_drop(platform_api);
+        return drop_table_instance.get_drop(platform_api);
     }
 
     pub fn render_hover_info(

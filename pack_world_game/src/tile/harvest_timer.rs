@@ -13,14 +13,14 @@ pub struct HarvestTimer {
     length: f64,
     time: f64,
 
-    pub table: DropTableInstance,
+    pub table: FixedTableID,
 }
 
 impl HarvestTimer {
     pub fn new(length: f64, table_id: FixedTableID) -> Self {
         Self {
             length,
-            table: DropTableInstance::new_fixed(table_id),
+            table: table_id,
             time: 0.0,
         }
     }
@@ -42,13 +42,9 @@ impl HarvestTimer {
         self.time = 0.0;
     }
 
-    pub fn add_entry(&mut self, input: (EntryOutput, f64)) {
-        self.table = self.table.add_entry(input);
-    }
-
     pub fn harvest(&mut self, platform_api: &PlatformApi) -> Drop {
         self.reset();
-        return self.table.get_drop(platform_api);
+        return get_drop(self.table, platform_api);
     }
 
     pub fn save_file_write(
