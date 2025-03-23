@@ -17,9 +17,9 @@ pub struct World {
     pub entities: HashMap<EntityID, TileInstance>,
 
     // valid positions, and all adjacent valid positions
-    valids: HashMap<GridPos, bool>,
+    pub valids: HashMap<GridPos, bool>,
 
-    next_entity_id: u64,
+    pub next_entity_id: u64,
 }
 
 impl World {

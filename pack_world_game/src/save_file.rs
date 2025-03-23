@@ -1,4 +1,4 @@
-use crate::{error::Error, tile::tile_instance::TileInstance, world::*};
+use crate::{error::Error, grid::*, tile::tile_instance::TileInstance, world::*};
 use gengar_engine::platform_api::*;
 use std::io::{Cursor, Read, Seek, Write};
 
@@ -8,43 +8,29 @@ pub mod load;
 pub use kvp_file::SaveFile;
 
 pub const TILE_INSTANCE_ID_CHAR: char = 'E';
-
-/*
-fn save_game_cursor<W: Write + Seek>(world: &World, writer: &mut W) -> Result<(), Error> {
-    // tile instances count
-    let el: u64 = world.entities.len() as u64;
-    writer.write(&el.to_le_bytes())?;
-
-    // tile instances
-    for t in &world.entities {
-        // entity id
-        t.0.write(writer)?;
-
-        // tile instance
-        t.1.write(writer)?;
-    }
-
-    Ok(())
-}
-*/
+pub const VALID_ADJ_ID_CHAR: char = 'V';
 
 pub fn build_save_file(world: &World) -> Result<SaveFile, Error> {
     let mut save_file = SaveFile::new();
 
-    // save_file.save_i32("e_count", world.entities.len() as i32);
-
+    // write tile instances
     for t in &world.entities {
         let key = format!("{}.{}", TILE_INSTANCE_ID_CHAR, t.0.id);
         save_file.save_u64(&key, t.0.id);
 
         t.1.save_file_write(format!("{}", t.0.id), &mut save_file)?;
-
-        // entity id
-        // t.0.save_file_write(&mut save_file)?;
-
-        // tile instance
-        // t.1.write(writer)?;
     }
+
+    // write valid adjacent positions
+    for (i, (key, value)) in world.valids.iter().enumerate() {
+        let id_key = format!("{}.{}", VALID_ADJ_ID_CHAR, i);
+        save_file.save_i32(&id_key, i as i32);
+
+        save_file.save_i32(&format!("valid_x.{}", i as i32), key.x);
+        save_file.save_i32(&format!("valid_y.{}", i as i32), key.y);
+    }
+
+    save_file.save_u64("next_entity_id", world.next_entity_id);
 
     Ok(save_file)
 }
@@ -61,31 +47,19 @@ pub fn save_game(world: &World, platform_api: &PlatformApi) -> Result<(), Error>
     Ok(())
 }
 
-/*
-fn load_game_cursor<W: Read>(world: &mut World, reader: &mut W) -> Result<(), Error> {
-    let tiles_count = load::read_u64(reader)?;
-
-    for i in 0..tiles_count {
-        let eid = EntityID::read(reader)?;
-        let tile_inst = TileInstance::read(reader)?;
-
-        world.raw_insert_entity(eid, tile_inst);
-    }
-
-    Ok(())
-}
-*/
-
 pub fn load_game(world: &mut World, data: &Vec<u8>) {
     world.clear();
 
     let mut cursor = Cursor::new(data);
     let save_file = SaveFile::read_file(&mut cursor).unwrap();
 
+    world.next_entity_id = save_file.load_u64("next_entity_id").unwrap();
+
     for (key, value) in &save_file.entries {
         // check if is tile
         let parts: Vec<&str> = key.split('.').collect();
 
+        // tile instance
         if parts[0].starts_with(TILE_INSTANCE_ID_CHAR) {
             let eid = EntityID {
                 id: save_file.load_u64(key).unwrap(),
@@ -95,10 +69,18 @@ pub fn load_game(world: &mut World, data: &Vec<u8>) {
                 TileInstance::save_file_load(format!("{}", eid.id), &save_file).unwrap();
 
             world.raw_insert_entity(eid, tile_instance);
-            // println!("loaded tile {} {:?}", eid.id, tile_instance.tile_type);
+        } else if parts[0].starts_with(VALID_ADJ_ID_CHAR) {
+            let i = save_file.load_i32(key).unwrap();
+
+            let key_x = &format!("valid_x.{}", i as i32);
+            let key_y = &format!("valid_y.{}", i as i32);
+
+            let grid_pos = GridPos::new(
+                save_file.load_i32(&key_x).unwrap(),
+                save_file.load_i32(&key_y).unwrap(),
+            );
+
+            world.valids.insert(grid_pos, true);
         }
     }
-
-    // let mut cursor = Cursor::new(data);
-    // load_game_cursor(world, &mut cursor).unwrap();
 }
