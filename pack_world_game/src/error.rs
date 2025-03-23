@@ -5,6 +5,9 @@ pub enum Error {
 
     // saveing / loading
     UnknownTileMethodID(i32),
+    UnknownDropTableInstanceID(i32),
+    UnknownPackID(i32),
+    UnknownFixedTableID(i32),
     KeyTooLong(String),
     StringUTF8Error(std::string::FromUtf8Error),
 

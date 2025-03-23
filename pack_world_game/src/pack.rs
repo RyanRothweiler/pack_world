@@ -1,15 +1,13 @@
-use crate::{drop_table::*, item::*, state::inventory::*, tile::*};
+use crate::{drop_table::*, error::*, item::*, save_file::*, state::inventory::*, tile::*};
 use gengar_engine::platform_api::*;
 use std::{
     collections::HashMap,
     sync::{LazyLock, OnceLock},
 };
 
-#[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
-pub enum PackID {
-    Starter,
-    Stick,
-}
+mod pack_id;
+
+pub use pack_id::PackID;
 
 #[derive(Debug)]
 pub struct Pack {
