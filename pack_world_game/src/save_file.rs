@@ -4,6 +4,8 @@ use std::io::{Cursor, Read, Seek, Write};
 
 pub mod load;
 
+pub mod kvp_file;
+
 fn save_game_cursor<W: Write + Seek>(world: &World, writer: &mut W) -> Result<(), Error> {
     // tile instances count
     let el: u64 = world.entities.len() as u64;
