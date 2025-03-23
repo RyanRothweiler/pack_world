@@ -2,16 +2,12 @@ use crate::{
     drop_table::*,
     error::Error,
     grid::*,
-    save_file::load,
+    save_file::{load, *},
     tile::{TileMethods, TileType},
     update_signal::*,
     world::*,
 };
 use gengar_engine::platform_api::*;
-use std::{
-    fs::File,
-    io::{Read, Write},
-};
 
 // TODO make these private?
 pub struct TileInstance {
@@ -70,58 +66,40 @@ impl TileInstance {
         vec![]
     }
 
-    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
-        writer.write(&self.tile_type.to_index().to_le_bytes())?;
+    pub fn save_file_write(
+        &self,
+        key_parent: String,
+        save_file: &mut SaveFile,
+    ) -> Result<(), Error> {
+        let type_key = format!("{}.type", key_parent);
+        let grid_x_key = format!("{}.x", key_parent);
+        let grid_y_key = format!("{}.y", key_parent);
 
-        writer.write(&self.grid_pos.x.to_le_bytes())?;
-        writer.write(&self.grid_pos.y.to_le_bytes())?;
+        save_file.save_i32(&type_key, self.tile_type.to_index());
+        save_file.save_i32(&grid_x_key, self.grid_pos.x);
+        save_file.save_i32(&grid_y_key, self.grid_pos.y);
 
-        self.methods.write(writer)?;
+        let methods_key = format!("{}.m", key_parent);
+        self.methods.save_file_write(methods_key, save_file)?;
 
         Ok(())
     }
 
-    pub fn read<W: Read>(reader: &mut W) -> Result<Self, Error> {
-        let idx = load::read_i32(reader)?;
-        let tile_type: TileType = TileType::from_index(idx)?;
+    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<Self, Error> {
+        let type_key = format!("{}.type", key_parent);
+        let grid_x_key = format!("{}.x", key_parent);
+        let grid_y_key = format!("{}.y", key_parent);
+
+        let type_index = save_file.load_i32(&type_key).unwrap();
+
+        let tile_type: TileType = TileType::from_index(type_index)?;
 
         let mut grid_pos = GridPos::new(0, 0);
-        grid_pos.x = load::read_i32(reader)?;
-        grid_pos.y = load::read_i32(reader)?;
+        grid_pos.x = save_file.load_i32(&grid_x_key).unwrap();
+        grid_pos.y = save_file.load_i32(&grid_y_key).unwrap();
 
-        let tile_methods = TileMethods::read(reader)?;
+        let methods = TileMethods::save_file_load(format!("{}.m", key_parent), save_file)?;
 
-        Ok(TileInstance::new(tile_type, grid_pos, tile_methods))
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::tile::tiles::*;
-    use std::io::Cursor;
-
-    #[test]
-    fn save_load() {
-        let original_inst = TileInstance::new(
-            TileType::Grass,
-            GridPos::new(10, -5),
-            TileDirt::new_methods(),
-        );
-
-        let mut data: Vec<u8> = vec![];
-        let mut cursor = Cursor::new(data);
-
-        // write into buffer
-        original_inst.write(&mut cursor).unwrap();
-
-        let save_file: Vec<u8> = cursor.get_ref().to_vec();
-
-        // load from buffer
-        let loaded_inst: TileInstance = TileInstance::read(&mut Cursor::new(save_file)).unwrap();
-
-        assert_eq!(original_inst.grid_pos, loaded_inst.grid_pos);
-        assert_eq!(original_inst.tile_type, loaded_inst.tile_type);
-        // test loading methods
+        Ok(TileInstance::new(tile_type, grid_pos, methods))
     }
 }

@@ -1,8 +1,8 @@
-use crate::{error::*, save_file::load};
-use std::{
-    fs::File,
-    io::{Read, Seek, Write},
+use crate::{
+    error::*,
+    save_file::{load, *},
 };
+use std::fs::File;
 
 #[derive(Clone, Copy, Hash, Debug, Eq, PartialEq)]
 pub struct EntityID {
@@ -10,15 +10,18 @@ pub struct EntityID {
     pub id: u64,
 }
 
+/*
 impl EntityID {
-    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
-        writer.write(&self.id.to_le_bytes())?;
+    pub fn save_file_write(&self, save_file: &mut SaveFile) -> Result<(), Error> {
+        // file.save
+        // writer.write(&self.id.to_le_bytes())?;
         Ok(())
     }
 
-    pub fn read<W: Read>(reader: &mut W) -> Result<EntityID, Error> {
+    pub fn save_file_load(save_file: &SaveFile) -> Result<EntityID, Error> {
         Ok(EntityID {
             id: load::read_u64(reader)?,
         })
     }
 }
+*/

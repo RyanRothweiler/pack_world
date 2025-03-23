@@ -21,7 +21,7 @@ impl WrittenEntry {
 
 #[derive(Debug)]
 pub struct SaveFile {
-    entries: HashMap<String, [u8; 8]>,
+    pub entries: HashMap<String, [u8; 8]>,
 }
 
 impl SaveFile {
@@ -94,7 +94,7 @@ impl SaveFile {
         }
     }
 
-    pub fn save_f64(&mut self, data: f64, key: &str) {
+    pub fn save_f64(&mut self, key: &str, data: f64) {
         if self.entries.contains_key(key) {
             panic!("Key already exists {}", key);
         }
@@ -102,7 +102,15 @@ impl SaveFile {
         self.entries.insert(key.into(), data.to_le_bytes());
     }
 
-    pub fn save_f32(&mut self, data: f32, key: &str) {
+    pub fn save_u64(&mut self, key: &str, data: u64) {
+        if self.entries.contains_key(key) {
+            panic!("Key already exists {}", key);
+        }
+
+        self.entries.insert(key.into(), data.to_le_bytes());
+    }
+
+    pub fn save_f32(&mut self, key: &str, data: f32) {
         if self.entries.contains_key(key) {
             panic!("Key already exists {}", key);
         }
@@ -118,13 +126,55 @@ impl SaveFile {
         self.entries.insert(key.into(), d);
     }
 
-    pub fn load_f64(&mut self, key: &str) -> Option<f64> {
+    pub fn save_i32(&mut self, key: &str, data: i32) {
+        if self.entries.contains_key(key) {
+            panic!("Key already exists {}", key);
+        }
+
+        let b = data.to_le_bytes();
+
+        let mut d = [0; 8];
+        d[0] = b[0];
+        d[1] = b[1];
+        d[2] = b[2];
+        d[3] = b[3];
+
+        self.entries.insert(key.into(), d);
+    }
+
+    pub fn save_u32(&mut self, key: &str, data: u32) {
+        if self.entries.contains_key(key) {
+            panic!("Key already exists {}", key);
+        }
+
+        let b = data.to_le_bytes();
+
+        let mut d = [0; 8];
+        d[0] = b[0];
+        d[1] = b[1];
+        d[2] = b[2];
+        d[3] = b[3];
+
+        self.entries.insert(key.into(), d);
+    }
+
+    pub fn load_f64(&self, key: &str) -> Option<f64> {
         if !self.entries.contains_key(key) {
             return None;
         }
 
         let data = *self.entries.get(key).unwrap();
         let val = f64::from_le_bytes(data);
+        Some(val)
+    }
+
+    pub fn load_u64(&self, key: &str) -> Option<u64> {
+        if !self.entries.contains_key(key) {
+            return None;
+        }
+
+        let data = *self.entries.get(key).unwrap();
+        let val = u64::from_le_bytes(data);
         Some(val)
     }
 
@@ -144,6 +194,40 @@ impl SaveFile {
         let val = f32::from_le_bytes(d);
         Some(val)
     }
+
+    pub fn load_i32(&self, key: &str) -> Option<i32> {
+        if !self.entries.contains_key(key) {
+            return None;
+        }
+
+        let data = *self.entries.get(key).unwrap();
+
+        let mut d = [0; 4];
+        d[0] = data[0];
+        d[1] = data[1];
+        d[2] = data[2];
+        d[3] = data[3];
+
+        let val = i32::from_le_bytes(d);
+        Some(val)
+    }
+
+    pub fn load_u32(&self, key: &str) -> Option<u32> {
+        if !self.entries.contains_key(key) {
+            return None;
+        }
+
+        let data = *self.entries.get(key).unwrap();
+
+        let mut d = [0; 4];
+        d[0] = data[0];
+        d[1] = data[1];
+        d[2] = data[2];
+        d[3] = data[3];
+
+        let val = u32::from_le_bytes(d);
+        Some(val)
+    }
 }
 
 // #[cfg(test)]
@@ -154,7 +238,7 @@ mod test {
     #[test]
     fn read_write_f64() {
         let mut file = SaveFile::new();
-        file.save_f64(123.45, "key");
+        file.save_f64("key", 123.45);
         let val = file.load_f64("key").unwrap();
 
         assert_eq!(val, 123.45);
@@ -163,7 +247,7 @@ mod test {
     #[test]
     fn read_write_f32() {
         let mut file = SaveFile::new();
-        file.save_f32(123.45, "key");
+        file.save_f32("key", 123.45);
         let val = file.load_f32("key").unwrap();
 
         assert_eq!(val, 123.45);
@@ -172,7 +256,7 @@ mod test {
     #[test]
     fn read_write_safe() {
         let mut orig_file = SaveFile::new();
-        orig_file.save_f32(123.45, "key");
+        orig_file.save_f32("key", 123.45);
 
         let mut write_data: Vec<u8> = vec![];
         let mut write_cursor = Cursor::new(write_data);

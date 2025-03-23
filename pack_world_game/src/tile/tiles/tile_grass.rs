@@ -4,6 +4,7 @@ use crate::{
     drop_table::*,
     grid::*,
     item::*,
+    save_file::*,
     state::{inventory::*, *},
     tile::{harvest_timer::*, *},
     world::*,
@@ -125,7 +126,23 @@ impl TileGrass {
         );
     }
 
-    pub fn write<W: Write>(&self, writer: W) -> Result<(), Error> {
+    pub fn save_file_write(
+        &self,
+        key_parent: String,
+        save_file: &mut SaveFile,
+    ) -> Result<(), Error> {
+        let key = format!("{}.h", key_parent);
+        self.harvest_timer.save_file_write(key, save_file)?;
+
         Ok(())
+    }
+
+    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+        let key = format!("{}.h", key_parent);
+        let tm = TileMethods::Grass(TileGrass {
+            harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
+        });
+
+        Ok(tm)
     }
 }

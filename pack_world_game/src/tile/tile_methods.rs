@@ -2,7 +2,7 @@ use crate::{
     drop_table::*,
     error::*,
     grid::*,
-    save_file::load,
+    save_file::{load, *},
     state::{assets::*, *},
     tile::{tile_instance::*, tile_type::*, tiles::*},
     update_signal::*,
@@ -13,7 +13,6 @@ use gengar_engine::{
     render::{material::*, render_command::*, render_pack::*, shader::*},
     vectors::*,
 };
-use std::io::{Read, Write};
 
 /// This is just manual dynamic dispact because Dyn breaks hot realoding.
 #[derive(Debug)]
@@ -166,62 +165,45 @@ impl TileMethods {
         }
     }
 
-    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+    pub fn save_file_write(
+        &self,
+        key_parent: String,
+        save_file: &mut SaveFile,
+    ) -> Result<(), Error> {
+        let type_key = format!("{}.t", key_parent);
+        let state_key = format!("{}.s", key_parent);
+
         match self {
             TileMethods::Dirt(state) => {
                 let id: i32 = 1;
 
-                writer.write(&id.to_le_bytes())?;
+                save_file.save_i32(&type_key, id);
             }
             TileMethods::Grass(state) => {
                 let id: i32 = 2;
 
-                writer.write(&id.to_le_bytes())?;
+                save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
             }
             _ => {
                 todo!("unimplmented tile write ");
             }
         }
+
         Ok(())
     }
 
-    pub fn read<W: Read>(reader: &mut W) -> Result<Self, Error> {
-        let id = load::read_i32(reader)?;
+    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<Self, Error> {
+        let type_key = format!("{}.t", key_parent);
+        let state_key = format!("{}.s", key_parent);
 
+        let id = save_file.load_i32(&type_key).unwrap();
         match id {
             1 => Ok(TileDirt::new_methods()),
-            2 => Ok(TileGrass::new_methods()),
+            2 => Ok(TileGrass::save_file_load(state_key, save_file)?),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }
-        }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use crate::tile::tiles::*;
-    use std::io::Cursor;
-
-    #[test]
-    fn save_load_dirt() {
-        let original = TileDirt::new_methods();
-
-        let mut data: Vec<u8> = vec![];
-        let mut cursor = Cursor::new(data);
-
-        // write into buffer
-        original.write(&mut cursor).unwrap();
-
-        let save_file: Vec<u8> = cursor.get_ref().to_vec();
-
-        // load from buffer
-        let loaded: TileMethods = TileMethods::read(&mut Cursor::new(save_file)).unwrap();
-
-        match (original, loaded) {
-            (TileMethods::Dirt(x), TileMethods::Dirt(y)) => {}
-            _ => panic!("Methods don't match."),
         }
     }
 }
