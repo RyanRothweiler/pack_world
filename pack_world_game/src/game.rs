@@ -250,8 +250,15 @@ pub fn game_loop(
         // check for data to load
         {
             if !es.game_to_load.is_empty() {
-                load_game(&mut gs.world, &mut gs.inventory, &es.game_to_load);
+                let ms_to_sim = load_game(
+                    &mut gs.world,
+                    &mut gs.inventory,
+                    &es.game_to_load,
+                    platform_api,
+                );
                 es.game_to_load.clear();
+
+                println!("need to sim {}ms", ms_to_sim);
             }
         }
     }

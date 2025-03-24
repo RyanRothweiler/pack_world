@@ -12,7 +12,11 @@ pub use kvp_file::SaveFile;
 pub const TILE_INSTANCE_ID_CHAR: char = 'E';
 pub const VALID_ADJ_ID_CHAR: char = 'V';
 
-pub fn build_save_file(world: &World, inventory: &Inventory) -> Result<SaveFile, Error> {
+pub fn build_save_file(
+    world: &World,
+    inventory: &Inventory,
+    platform_api: &PlatformApi,
+) -> Result<SaveFile, Error> {
     let mut save_file = SaveFile::new();
 
     // world stuff. This should probably move into world struct
@@ -39,6 +43,8 @@ pub fn build_save_file(world: &World, inventory: &Inventory) -> Result<SaveFile,
 
     inventory.save_file_write("".into(), &mut save_file)?;
 
+    save_file.save_f64("unix_time_saved", (platform_api.epoch_time_ms)());
+
     Ok(save_file)
 }
 
@@ -47,7 +53,7 @@ pub fn save_game(
     inventory: &Inventory,
     platform_api: &PlatformApi,
 ) -> Result<(), Error> {
-    let save_file = build_save_file(world, inventory)?;
+    let save_file = build_save_file(world, inventory, platform_api)?;
 
     let mut write_data: Vec<u8> = vec![];
     let mut write_cursor = Cursor::new(write_data);
@@ -58,7 +64,13 @@ pub fn save_game(
     Ok(())
 }
 
-pub fn load_game(world: &mut World, inventory: &mut Inventory, data: &Vec<u8>) {
+/// returns the ms that is needed to forward simulate
+pub fn load_game(
+    world: &mut World,
+    inventory: &mut Inventory,
+    data: &Vec<u8>,
+    platform_api: &PlatformApi,
+) -> f64 {
     world.clear();
     inventory.clear();
 
@@ -104,4 +116,10 @@ pub fn load_game(world: &mut World, inventory: &mut Inventory, data: &Vec<u8>) {
     inventory.items = inv.items;
     inventory.gold = inv.gold;
     inventory.limit = inv.limit;
+
+    let time_now = (platform_api.epoch_time_ms)();
+    let time_saved = save_file.load_f64("unix_time_saved").unwrap();
+
+    // limit to 24h of simulation
+    return (time_now - time_saved).clamp(0, 86_400_000);
 }
