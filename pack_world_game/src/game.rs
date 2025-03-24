@@ -68,6 +68,9 @@ use world::*;
 // Used for windows platform loading dlls
 pub const PACKAGE_NAME: &str = "pack_world_game";
 
+/// maximum ms to forwad sim when loading ame
+const MAX_SIM_MS: f64 = 500.0;
+
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
 pub fn game_init_ogl(
@@ -180,6 +183,14 @@ pub fn game_init(
     }
 }
 
+fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
+    let mut update_signals: Vec<UpdateSignal> = vec![];
+    for (eid, entity) in &mut gs.world.entities {
+        update_signals.append(&mut entity.methods.update(ms));
+    }
+    handle_signals(update_signals, gs, platform_api);
+}
+
 // Prev delta time is in seconds. So for 60 fps 0.016666.
 #[no_mangle]
 pub fn game_loop(
@@ -250,7 +261,7 @@ pub fn game_loop(
         // check for data to load
         {
             if !es.game_to_load.is_empty() {
-                let ms_to_sim = load_game(
+                let mut ms_to_sim = load_game(
                     &mut gs.world,
                     &mut gs.inventory,
                     &es.game_to_load,
@@ -258,7 +269,12 @@ pub fn game_loop(
                 );
                 es.game_to_load.clear();
 
-                println!("need to sim {}ms", ms_to_sim);
+                while ms_to_sim > 0.0 {
+                    println!("Forward Simulating {}ms remaining", ms_to_sim);
+                    let ms_step = ms_to_sim.clamp(0.0, MAX_SIM_MS);
+                    sim_world(gs, ms_step / 1000.0, platform_api);
+                    ms_to_sim -= ms_step;
+                }
             }
         }
     }
@@ -328,11 +344,7 @@ pub fn game_loop(
             frame_delta = 100.0;
         }
 
-        let mut update_signals: Vec<UpdateSignal> = vec![];
-        for (eid, entity) in &mut gs.world.entities {
-            update_signals.append(&mut entity.methods.update(frame_delta));
-        }
-        handle_signals(update_signals, gs, platform_api);
+        sim_world(gs, frame_delta, platform_api);
     }
 
     // camera controls
