@@ -1,4 +1,4 @@
-use crate::tile::*;
+use crate::{error::*, save_file::*, tile::*};
 
 mod item_data;
 
@@ -45,5 +45,153 @@ impl ItemType {
             ItemType::Tile(_) => true,
             _ => false,
         }
+    }
+
+    pub fn save_file_write(
+        &self,
+        key_parent: String,
+        save_file: &mut SaveFile,
+    ) -> Result<(), Error> {
+        let id_key = format!("{}.t", key_parent);
+
+        match self {
+            Self::DirtClod => {
+                save_file.save_i32(&id_key, 0);
+            }
+            Self::Acorn => {
+                save_file.save_i32(&id_key, 1);
+            }
+            Self::Stick => {
+                save_file.save_i32(&id_key, 2);
+            }
+            Self::Rock => {
+                save_file.save_i32(&id_key, 3);
+            }
+            Self::OakLog => {
+                save_file.save_i32(&id_key, 4);
+            }
+            Self::DragonEgg => {
+                save_file.save_i32(&id_key, 5);
+            }
+            Self::Baby => {
+                save_file.save_i32(&id_key, 6);
+            }
+            Self::Berry => {
+                save_file.save_i32(&id_key, 7);
+            }
+            Self::Tile(tile_type) => {
+                save_file.save_i32(&id_key, 8);
+
+                let tile_type_key = format!("{}.t", id_key);
+                save_file.save_i32(&tile_type_key, tile_type.to_index());
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<Self, Error> {
+        let id_key = format!("{}.t", key_parent);
+        let id = save_file.load_i32(&id_key).unwrap();
+
+        match id {
+            0 => Ok(Self::DirtClod),
+            1 => Ok(Self::Acorn),
+            2 => Ok(Self::Stick),
+            3 => Ok(Self::Rock),
+            4 => Ok(Self::OakLog),
+            5 => Ok(Self::DragonEgg),
+            6 => Ok(Self::Baby),
+            7 => Ok(Self::Berry),
+            8 => {
+                let tile_type_key = format!("{}.t", id_key);
+                let tile_id = save_file.load_i32(&tile_type_key).unwrap();
+
+                return Ok(Self::Tile(TileType::from_index(tile_id)?));
+            }
+            _ => panic!("Invalid item id"),
+        }
+    }
+}
+
+mod test {
+    use super::*;
+    use crate::save_file::*;
+
+    #[test]
+    fn save_load() {
+        let mut save_file = SaveFile::new();
+
+        ItemType::DirtClod
+            .save_file_write("dirt".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("dirt".into(), &save_file).unwrap(),
+            ItemType::DirtClod
+        );
+
+        ItemType::Acorn
+            .save_file_write("acorn".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("acorn".into(), &save_file).unwrap(),
+            ItemType::Acorn
+        );
+
+        ItemType::Stick
+            .save_file_write("stick".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("stick".into(), &save_file).unwrap(),
+            ItemType::Stick
+        );
+
+        ItemType::Rock
+            .save_file_write("rock".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("rock".into(), &save_file).unwrap(),
+            ItemType::Rock
+        );
+
+        ItemType::OakLog
+            .save_file_write("oaklog".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("oaklog".into(), &save_file).unwrap(),
+            ItemType::OakLog
+        );
+
+        ItemType::DragonEgg
+            .save_file_write("dragonegg".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("dragonegg".into(), &save_file).unwrap(),
+            ItemType::DragonEgg
+        );
+
+        ItemType::Baby
+            .save_file_write("baby".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("baby".into(), &save_file).unwrap(),
+            ItemType::Baby
+        );
+
+        ItemType::Berry
+            .save_file_write("berry".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("berry".into(), &save_file).unwrap(),
+            ItemType::Berry
+        );
+
+        ItemType::Tile(TileType::Boulder)
+            .save_file_write("boulder".into(), &mut save_file)
+            .unwrap();
+        assert_eq!(
+            ItemType::save_file_load("boulder".into(), &save_file).unwrap(),
+            ItemType::Tile(TileType::Boulder)
+        );
     }
 }

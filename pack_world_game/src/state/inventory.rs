@@ -1,4 +1,4 @@
-use crate::{constants::*, drop_table::*, error::*, item::*, tile::*};
+use crate::{constants::*, drop_table::*, error::*, item::*, save_file::*, tile::*};
 use std::collections::HashMap;
 
 pub struct Inventory {
@@ -16,6 +16,13 @@ impl Inventory {
             limit: BANK_LIMIT_START,
             gold: 0,
         }
+    }
+
+    pub fn clear(&mut self) {
+        self.gold = 0;
+        self.limit = BANK_LIMIT_START;
+        self.items_seen.clear();
+        self.items.clear();
     }
 
     pub fn drop_seen(&self, drop: &Drop) -> bool {
@@ -82,6 +89,57 @@ impl Inventory {
         let next: f64 = (self.limit - BANK_LIMIT_START) as f64;
         BANK_LIMIT_COST_BASE + next.powf(BANK_LIMIT_EXPO_PRICE) as i64
     }
+
+    pub fn save_file_write(
+        &self,
+        key_parent: String,
+        save_file: &mut SaveFile,
+    ) -> Result<(), Error> {
+        let gold_key = format!("{}.g", key_parent);
+        let limit_key = format!("{}.l", key_parent);
+
+        save_file.save_i64(&gold_key, self.gold);
+        save_file.save_i64(&limit_key, self.limit as i64);
+
+        for (i, (key, value)) in self.items.iter().enumerate() {
+            let index_id = format!("item_index.{}", i);
+            let id = format!("item.{}.id", i);
+            let count_key = format!("{}.item_count", i);
+
+            save_file.save_i64(&index_id, i as i64);
+            key.save_file_write(id, save_file).unwrap();
+            save_file.save_i64(&count_key, *value);
+        }
+
+        Ok(())
+    }
+
+    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<Self, Error> {
+        let gold_key = format!("{}.g", key_parent);
+        let limit_key = format!("{}.l", key_parent);
+
+        let mut inv = Self::new();
+        inv.gold = save_file.load_i64(&gold_key).unwrap();
+        inv.limit = save_file.load_i64(&limit_key).unwrap() as usize;
+
+        for (key, value) in &save_file.entries {
+            // check if is tile
+            let parts: Vec<&str> = key.split('.').collect();
+            if parts[0].starts_with("item_index") {
+                let index = save_file.load_i64(key).unwrap();
+
+                let id = format!("item.{}.id", index);
+                let count_key = format!("{}.item_count", index);
+
+                let item = ItemType::save_file_load(id, save_file)?;
+                let count = save_file.load_i64(&count_key).unwrap();
+
+                inv.give_item(item, count).unwrap();
+            }
+        }
+
+        Ok(inv)
+    }
 }
 
 mod test {
@@ -135,5 +193,27 @@ mod test {
         let _ = inv.give_item(ItemType::Rock, 10).is_err();
 
         let _ = inv.give_item(ItemType::OakLog, 10).is_ok();
+    }
+
+    #[test]
+    fn save_load() {
+        let mut save_file = SaveFile::new();
+
+        let mut orig = Inventory::new();
+        orig.gold = 100;
+        orig.limit = 7;
+        orig.give_item(ItemType::Acorn, 123).unwrap();
+        orig.give_item(ItemType::Tile(TileType::Grass), 55).unwrap();
+
+        orig.save_file_write("inv".into(), &mut save_file).unwrap();
+
+        let new = Inventory::save_file_load("inv".into(), &save_file).unwrap();
+        assert_eq!(new.gold, orig.gold);
+        assert_eq!(new.limit, orig.limit);
+        assert_eq!(*new.items.get(&ItemType::Acorn).unwrap(), 123);
+        assert_eq!(
+            *new.items.get(&ItemType::Tile(TileType::Grass)).unwrap(),
+            55
+        );
     }
 }

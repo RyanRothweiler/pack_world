@@ -240,7 +240,7 @@ pub fn game_loop(
     // save game
     {
         if input.get_key(KeyCode::Q).on_press {
-            save_game(&gs.world, platform_api).expect("Error saving game.");
+            save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
         }
 
         if input.get_key(KeyCode::L).on_press {
@@ -250,7 +250,7 @@ pub fn game_loop(
         // check for data to load
         {
             if !es.game_to_load.is_empty() {
-                load_game(&mut gs.world, &es.game_to_load);
+                load_game(&mut gs.world, &mut gs.inventory, &es.game_to_load);
                 es.game_to_load.clear();
             }
         }

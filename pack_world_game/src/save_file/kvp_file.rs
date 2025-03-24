@@ -110,6 +110,14 @@ impl SaveFile {
         self.entries.insert(key.into(), data.to_le_bytes());
     }
 
+    pub fn save_i64(&mut self, key: &str, data: i64) {
+        if self.entries.contains_key(key) {
+            panic!("Key already exists {}", key);
+        }
+
+        self.entries.insert(key.into(), data.to_le_bytes());
+    }
+
     pub fn save_f32(&mut self, key: &str, data: f32) {
         if self.entries.contains_key(key) {
             panic!("Key already exists {}", key);
@@ -180,6 +188,16 @@ impl SaveFile {
 
         let data = *self.entries.get(key).unwrap();
         let val = f64::from_le_bytes(data);
+        Some(val)
+    }
+
+    pub fn load_i64(&self, key: &str) -> Option<i64> {
+        if !self.entries.contains_key(key) {
+            return None;
+        }
+
+        let data = *self.entries.get(key).unwrap();
+        let val = i64::from_le_bytes(data);
         Some(val)
     }
 
