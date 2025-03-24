@@ -1,8 +1,16 @@
 use gengar_engine::{analytics::*, error::Error, platform_api::*};
 use rand::prelude::*;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 fn rand() -> f64 {
     rand::random_range(0.0..1.0)
+}
+
+fn epoch_time_ms() -> f64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as f64
 }
 
 fn send_event(vent: AnalyticsEvent) {
@@ -25,5 +33,6 @@ pub fn windows_plaform_api() -> PlatformApi {
 
         write_save_game_data: write_save_game_data,
         fetch_game_save: get_save_game_data,
+        epoch_time_ms: epoch_time_ms,
     }
 }

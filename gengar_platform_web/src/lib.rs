@@ -13,7 +13,7 @@ use gengar_engine::{
     analytics::*, error::Error, input::*, platform_api::PlatformApi, state::State as EngineState,
     vectors::*,
 };
-use js_sys::Math;
+use js_sys::{Date, Math};
 use std::{
     collections::HashMap,
     sync::{LazyLock, Mutex},
@@ -179,12 +179,17 @@ fn fetch_game_save() {
     todo!("just put the vec in the game_to_load bro");
 }
 
+fn epoch_time_ms() -> f64 {
+    Date::now()
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: rand,
         send_event: send_event,
         write_save_game_data: write_save_game_data,
         fetch_game_save: fetch_game_save,
+        epoch_time_ms: epoch_time_ms,
     }
 }
 

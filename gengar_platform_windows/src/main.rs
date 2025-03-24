@@ -29,7 +29,7 @@ use std::{
     path::Path,
     sync::{LazyLock, Mutex},
     thread,
-    time::{Duration, SystemTime},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use windows::{
     core::*,
@@ -120,12 +120,20 @@ fn fetch_game_save() {
     GAME_TO_LOAD.lock().unwrap().append(&mut buffer);
 }
 
+fn epoch_time_ms() -> f64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as f64
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: random,
         send_event: send_event,
         write_save_game_data: write_save_game_data,
         fetch_game_save: fetch_game_save,
+        epoch_time_ms: epoch_time_ms,
     }
 }
 
