@@ -43,6 +43,7 @@ features = [
   "WebGlShader",
   "KeyboardEvent",
   "MouseEvent",
+  "BeforeUnloadEvent",
   "WebGlUniformLocation",
   "Window",
   "console",

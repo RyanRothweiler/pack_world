@@ -13,7 +13,7 @@ use gengar_engine::{
     analytics::*, error::Error, input::*, platform_api::PlatformApi, state::State as EngineState,
     vectors::*,
 };
-use js_sys::{Date, Math};
+use js_sys::{Date, Math, Object, Reflect};
 use std::{
     collections::HashMap,
     sync::{LazyLock, Mutex},
@@ -21,7 +21,7 @@ use std::{
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
-    console, Headers, KeyboardEvent, MouseEvent, Request, RequestInit, Response,
+    console, BeforeUnloadEvent, Headers, KeyboardEvent, MouseEvent, Request, RequestInit, Response,
     WebGl2RenderingContext,
 };
 
@@ -64,6 +64,7 @@ fn send_event(event: AnalyticsEvent) {
 // supabase storage api info
 // https://stackoverflow.com/questions/75540112/how-to-upload-to-supabase-storage-using-curl
 async fn upload_data(data: Vec<u8>) {
+    /*
     let opts = RequestInit::new();
     opts.set_method("POST");
 
@@ -79,13 +80,44 @@ async fn upload_data(data: Vec<u8>) {
     headers.set("x-upsert", "true").unwrap();
 
     opts.set_headers(&headers);
+    */
+
+    // Create a new JavaScript object for RequestInit
+    let request_init = Object::new();
+    Reflect::set(
+        &request_init,
+        &JsValue::from_str("method"),
+        &JsValue::from_str("POST"),
+    )
+    .unwrap();
+    Reflect::set(
+        &request_init,
+        &JsValue::from_str("keepalive"),
+        &JsValue::from(js_sys::Boolean::from(true)),
+    )
+    .unwrap();
+
+    // Create and set headers
+    let headers = Headers::new().unwrap();
+    headers.set("apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTc1MTUsImV4cCI6MjA1Nzg5MzUxNX0.wYCDHY5jXVIex2E6ZmzU16DQC5GtqMiPV974N7TQKUM").unwrap();
+    headers
+    .set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjMxNzUxNSwiZXhwIjoyMDU3ODkzNTE1fQ.uNXhoOMoAKyjcN2A2Iss1AIwCns46V9abIaGC_luQBk")
+    .unwrap();
+    headers.set("x-upsert", "true").unwrap();
+
+    Reflect::set(
+        &request_init,
+        &JsValue::from_str("headers"),
+        &headers.into(),
+    )
+    .unwrap();
 
     let url = format!(
         "https://qqibqjlgvkhzyrjaabvg.supabase.co/storage/v1/object/saves-public/{}.gsf",
         USER_ID.lock().unwrap(),
     );
 
-    let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+    let request = Request::new_with_str_and_init(&url, &request_init.unchecked_into()).unwrap();
 
     let window = web_sys::window().unwrap();
     let resp_value = JsFuture::from(window.fetch_with_request(&request))
@@ -323,6 +355,11 @@ pub fn mouse_move(vent: MouseEvent) {
         MOUSE_POS.x = vent.client_x() as f64;
         MOUSE_POS.y = vent.client_y() as f64;
     };
+}
+
+#[wasm_bindgen]
+pub fn on_before_unload(vent: BeforeUnloadEvent) {
+    log("before unload triggered");
 }
 
 static mut PREV_TIME: f64 = 0.0;
