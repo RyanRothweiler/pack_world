@@ -14,6 +14,7 @@ mod drop_table_mud_pit;
 mod drop_table_oak_tree;
 mod drop_table_shrub;
 mod drop_table_small_gold;
+mod drop_table_tall_grass;
 
 use drop_table_boulder::*;
 use drop_table_cave::*;
@@ -22,6 +23,7 @@ use drop_table_mud_pit::*;
 use drop_table_oak_tree::*;
 use drop_table_shrub::*;
 use drop_table_small_gold::*;
+use drop_table_tall_grass::*;
 
 // packs
 mod drop_table_pack_starter;
@@ -40,6 +42,7 @@ pub enum FixedTableID {
     Cave,
     Shrub,
     MudPit,
+    TallGrass,
 
     Pack(PackID),
 
@@ -81,15 +84,19 @@ impl FixedTableID {
             FixedTableID::Shrub => {
                 save_file.save_i32(&type_key, 5);
             }
-            FixedTableID::MudPit => {
-                save_file.save_i32(&type_key, 6);
-            }
 
             FixedTableID::Pack(pack_id) => {
                 save_file.save_i32(&type_key, 6);
 
                 let pack_type_key = format!("{}.t.p", key_parent);
                 save_file.save_i32(&pack_type_key, pack_id.to_index());
+            }
+
+            FixedTableID::MudPit => {
+                save_file.save_i32(&type_key, 7);
+            }
+            FixedTableID::TallGrass => {
+                save_file.save_i32(&type_key, 8);
             }
 
             #[cfg(feature = "dev")]
@@ -121,6 +128,8 @@ impl FixedTableID {
 
                 FixedTableID::Pack(PackID::from_index(pack_type))
             }
+            7 => FixedTableID::MudPit,
+            8 => FixedTableID::TallGrass,
 
             _ => return Err(Error::UnknownFixedTableID(ty)),
         };
@@ -152,6 +161,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
         FixedTableID::Cave => &CAVE,
         FixedTableID::Shrub => &SHRUB,
         FixedTableID::MudPit => &MUD_PIT,
+        FixedTableID::TallGrass => &TALL_GRASS,
 
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,
@@ -203,6 +213,14 @@ mod tests {
             .save_file_write("7".into(), &mut file)
             .unwrap();
 
+        FixedTableID::MudPit
+            .save_file_write("mud_pit".into(), &mut file)
+            .unwrap();
+
+        FixedTableID::TallGrass
+            .save_file_write("tall_grass".into(), &mut file)
+            .unwrap();
+
         let loaded = FixedTableID::save_file_load("0".into(), &mut file).unwrap();
         assert_eq!(loaded, FixedTableID::Grass);
 
@@ -226,5 +244,11 @@ mod tests {
 
         let loaded = FixedTableID::save_file_load("7".into(), &mut file).unwrap();
         assert_eq!(loaded, FixedTableID::Pack(PackID::Stick));
+
+        let loaded = FixedTableID::save_file_load("mud_pit".into(), &mut file).unwrap();
+        assert_eq!(loaded, FixedTableID::MudPit);
+
+        let loaded = FixedTableID::save_file_load("tall_grass".into(), &mut file).unwrap();
+        assert_eq!(loaded, FixedTableID::TallGrass);
     }
 }

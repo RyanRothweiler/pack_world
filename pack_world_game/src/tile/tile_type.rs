@@ -6,7 +6,7 @@ use crate::{
         tiles::{
             tile_bird_nest::TileBirdNest, tile_boulder::TileBoulder, tile_cave::TileCave,
             tile_dirt::TileDirt, tile_grass::TileGrass, tile_mud_pit::TileMudPit,
-            tile_oak_tree::TileOakTree, tile_shrub::TileShrub, *,
+            tile_oak_tree::TileOakTree, tile_shrub::TileShrub, tile_tall_grass::TileTallGrass, *,
         },
         TileMethods,
     },
@@ -23,6 +23,7 @@ pub enum TileType {
     Cave,
     Shrub,
     MudPit,
+    TallGrass,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
@@ -37,6 +38,7 @@ impl TileType {
             TileType::Cave => tile_cave::TITLE,
             TileType::Shrub => tile_shrub::TITLE,
             TileType::MudPit => tile_mud_pit::TITLE,
+            TileType::TallGrass => tile_tall_grass::TITLE,
         }
     }
 
@@ -55,6 +57,7 @@ impl TileType {
             | TileType::OakTree
             | TileType::Cave
             | TileType::Shrub
+            | TileType::TallGrass
             | TileType::MudPit
             | TileType::Grass => WorldLayer::Floor,
         }
@@ -75,6 +78,7 @@ impl TileType {
                 TileType::Shrub => TileShrub::can_place(pos, world),
                 TileType::BirdNest => TileBirdNest::can_place(pos, world),
                 TileType::MudPit => TileMudPit::can_place(pos, world),
+                TileType::TallGrass => TileTallGrass::can_place(pos, world),
             };
 
             if !val {
@@ -95,6 +99,7 @@ impl TileType {
             TileType::Cave => TileCave::new_methods(),
             TileType::Shrub => TileShrub::new_methods(),
             TileType::MudPit => TileMudPit::new_methods(),
+            TileType::TallGrass => TileTallGrass::new_methods(),
         }
     }
 
@@ -107,6 +112,7 @@ impl TileType {
             TileType::Dirt
             | TileType::Grass
             | TileType::Boulder
+            | TileType::TallGrass
             | TileType::Shrub
             | TileType::MudPit
             | TileType::BirdNest
@@ -132,6 +138,7 @@ impl TileType {
             Self::Cave => 5,
             Self::OakTree => 6,
             Self::MudPit => 7,
+            Self::TallGrass => 8,
         }
     }
 
@@ -145,6 +152,7 @@ impl TileType {
             5 => Ok(Self::Cave),
             6 => Ok(Self::OakTree),
             7 => Ok(Self::MudPit),
+            8 => Ok(Self::TallGrass),
             _ => Err(Error::InvalidTileTypeIndex(idx)),
         }
     }

@@ -25,6 +25,7 @@ pub enum TileMethods {
     Cave(TileCave),
     Shrub(TileShrub),
     MudPit(TileMudPit),
+    TallGrass(TileTallGrass),
 }
 
 impl TileMethods {
@@ -38,6 +39,7 @@ impl TileMethods {
             TileMethods::Cave(state) => state.update(time_step),
             TileMethods::Shrub(state) => state.update(time_step),
             TileMethods::MudPit(state) => state.update(time_step),
+            TileMethods::TallGrass(state) => state.update(time_step),
         }
     }
 
@@ -74,6 +76,9 @@ impl TileMethods {
             TileMethods::MudPit(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
+            TileMethods::TallGrass(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
         }
     }
 
@@ -87,6 +92,7 @@ impl TileMethods {
             TileMethods::Cave(state) => state.can_harvest(),
             TileMethods::Shrub(state) => state.can_harvest(),
             TileMethods::MudPit(state) => state.can_harvest(),
+            TileMethods::TallGrass(state) => state.can_harvest(),
         }
     }
 
@@ -105,6 +111,7 @@ impl TileMethods {
             TileMethods::Cave(state) => Some(state.harvest(grid_pos, platform_api)),
             TileMethods::Shrub(state) => Some(state.harvest(grid_pos, platform_api)),
             TileMethods::MudPit(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::TallGrass(state) => Some(state.harvest(grid_pos, platform_api)),
 
             // these ones don't harvest
             TileMethods::Dirt(state) => None,
@@ -139,6 +146,9 @@ impl TileMethods {
             TileMethods::MudPit(state) => {
                 state.render_hover_info(y_offset, shader_color, render_pack)
             }
+            TileMethods::TallGrass(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
         }
     }
 
@@ -155,6 +165,7 @@ impl TileMethods {
             TileMethods::Cave(state) => TileSnapshot::Cave,
             TileMethods::Shrub(state) => TileSnapshot::Shrub,
             TileMethods::MudPit(state) => TileSnapshot::MudPit,
+            TileMethods::TallGrass(state) => TileSnapshot::TallGrass,
         }
     }
 
@@ -232,6 +243,12 @@ impl TileMethods {
                 save_file.save_i32(&type_key, id);
                 state.save_file_write(state_key, save_file)?;
             }
+            TileMethods::TallGrass(state) => {
+                let id: i32 = 9;
+
+                save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
+            }
         }
 
         Ok(())
@@ -251,6 +268,7 @@ impl TileMethods {
             6 => Ok(TileCave::save_file_load(state_key, save_file)?),
             7 => Ok(TileShrub::save_file_load(state_key, save_file)?),
             8 => Ok(TileMudPit::save_file_load(state_key, save_file)?),
+            9 => Ok(TileTallGrass::save_file_load(state_key, save_file)?),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }

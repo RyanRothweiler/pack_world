@@ -137,6 +137,8 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/question_mark.png"), render_api).unwrap();
     gs.assets.image_mud_pit =
         load_image_cursor(include_bytes!("../resources/mud_pit.png"), render_api).unwrap();
+    gs.assets.image_tall_grass =
+        load_image_cursor(include_bytes!("../resources/tall_grass.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

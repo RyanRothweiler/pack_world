@@ -29,7 +29,7 @@ impl DebugPanel {
             ItemType::Tile(TileType::MudPit),
             ItemType::Tile(TileType::BirdNest),
             ItemType::Tile(TileType::OakTree),
-            ItemType::Tile(TileType::Cave),
+            ItemType::Tile(TileType::TallGrass),
             ItemType::Tile(TileType::Shrub),
             ItemType::Berry,
             ItemType::OakLog,
