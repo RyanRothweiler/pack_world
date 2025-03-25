@@ -25,12 +25,11 @@ use web_sys::{
     WebGl2RenderingContext,
 };
 
-use rexie::TransactionMode;
-use wasm_bindgen::JsValue;
-
+mod idb;
 mod supabase;
 mod webgl;
 
+use idb::*;
 use webgl::{webgl_render::*, webgl_render_api::*};
 
 static mut ENGINE_STATE: Option<EngineState> = None;
@@ -63,42 +62,6 @@ fn rand() -> f64 {
 
 fn send_event(event: AnalyticsEvent) {
     wasm_bindgen_futures::spawn_local(send_event_async(event));
-}
-
-async fn db_save(data: Vec<u8>) {
-    // Create a new database
-    let rexie = rexie::Rexie::builder("packworld")
-        // Set the version of the database to 1.0
-        .version(1)
-        // Add an object store named `employees`
-        .add_object_store(
-            rexie::ObjectStore::new("saves")
-                // Set the key path to `id`
-                .key_path("files")
-                .auto_increment(true),
-        )
-        // Build the database
-        .build()
-        .await
-        .expect("Error opening idb");
-
-    // Convert Vec<u8> to Uint8Array
-    let uint8_array = js_sys::Uint8Array::from(&data[..]);
-
-    // Start a transaction
-    let tx = rexie
-        .transaction(&["saves"], TransactionMode::ReadWrite)
-        .unwrap();
-    let store = tx.store("saves").unwrap();
-
-    // Create an entry with an ID
-    let obj = js_sys::Object::new();
-    js_sys::Reflect::set(&obj, &JsValue::from_str("files"), &JsValue::from_f64(1.0)).unwrap();
-    js_sys::Reflect::set(&obj, &JsValue::from_str("data"), &uint8_array).unwrap();
-
-    store.put(&obj, None).await.unwrap();
-
-    tx.commit().await.unwrap();
 }
 
 async fn send_event_async(event: AnalyticsEvent) {
@@ -138,14 +101,12 @@ async fn send_event_async(event: AnalyticsEvent) {
 }
 
 fn write_save_game_data(data: Vec<u8>) -> Result<(), Error> {
-    // wasm_bindgen_futures::spawn_local(upload_data(data));
     wasm_bindgen_futures::spawn_local(db_save(data));
     Ok(())
 }
 
 fn fetch_game_save() {
-    // wasm_bindgen_futures::spawn_local(download_data());
-    todo!("just put the vec in the game_to_load bro");
+    wasm_bindgen_futures::spawn_local(db_load());
 }
 
 fn epoch_time_ms() -> f64 {
@@ -183,6 +144,9 @@ pub fn start() {
         log(&format!("user_id {}", user_id));
         *USER_ID.lock().unwrap() = user_id;
     }
+
+    // load game save
+    fetch_game_save();
 
     let platform_api = get_platform_api();
     console_error_panic_hook::set_once();
@@ -356,6 +320,16 @@ pub fn main_loop() {
                     .entry(*key)
                     .or_insert(ButtonState::new())
                     .update(*value);
+            }
+        }
+
+        // check for game load
+        {
+            let mut loaded_data = idb::LOADED_DATA.lock().unwrap();
+            if !loaded_data.is_empty() {
+                ENGINE_STATE.as_mut().unwrap().game_to_load = loaded_data.clone();
+                loaded_data.clear();
+                log("Laoded game data");
             }
         }
 
