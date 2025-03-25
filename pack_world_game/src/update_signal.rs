@@ -3,6 +3,7 @@ use crate::{
     harvest_drop::*,
     item::*,
     pack::*,
+    save_file::*,
     state::{inventory::*, *},
     tile::*,
     ui_panels::{home_panel::*, *},
@@ -13,6 +14,7 @@ use gengar_engine::{platform_api::*, vectors::*};
 // with state for the type of purchase
 
 // state update signals
+#[derive(Debug)]
 pub enum UpdateSignal {
     /// set the active_page var
     SetActivePage(CreatePanelData),
@@ -41,6 +43,9 @@ pub enum UpdateSignal {
 
     /// Setup a harvest drop
     AddHarvestDrop { drop: Drop, origin: VecTwo },
+
+    /// Trigger a game save
+    SaveGame,
 }
 
 pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_api: &PlatformApi) {
@@ -52,6 +57,8 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
 
         // handle current signals
         for us in &curr_signals {
+            println!("UpdateSignal: {:?}", us);
+
             let mut sigs: Vec<UpdateSignal> = match us {
                 UpdateSignal::SetActivePage(new_panel_data) => {
                     let panel = new_panel_data.create_panel();
@@ -64,11 +71,11 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                 }
                 UpdateSignal::GiveItem { item_type, count } => {
                     gs.inventory.give_item(*item_type, *count).unwrap();
-                    vec![]
+                    vec![UpdateSignal::SaveGame]
                 }
                 UpdateSignal::GiveDrop(drop) => {
                     gs.inventory.give_drop(*drop).unwrap();
-                    vec![]
+                    vec![UpdateSignal::SaveGame]
                 }
                 UpdateSignal::AddHarvestDrop { drop, origin } => {
                     gs.harvest_drops
@@ -86,7 +93,10 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                     pack_info.spend(&mut gs.inventory);
 
                     let new_panel_data = CreatePanelData::OpenPack { pack_id: *pack_id };
-                    vec![UpdateSignal::SetActivePage(new_panel_data)]
+                    vec![
+                        UpdateSignal::SetActivePage(new_panel_data),
+                        UpdateSignal::SaveGame,
+                    ]
                 }
                 UpdateSignal::HomePanelTabChange(_) => {
                     panic!("Home panel needs to consume this");
@@ -97,10 +107,15 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                         gs.inventory.gold -= gs.inventory.next_slot_cost();
                         gs.inventory.limit += 1;
                     }
-                    vec![]
+                    vec![UpdateSignal::SaveGame]
                 }
                 UpdateSignal::GiveGold { amount } => {
                     let _ = gs.inventory.give_gold(*amount);
+                    vec![UpdateSignal::SaveGame]
+                }
+                UpdateSignal::SaveGame => {
+                    save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
+                    println!("Game saved");
                     vec![]
                 }
             };

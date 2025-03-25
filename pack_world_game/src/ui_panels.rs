@@ -64,7 +64,7 @@ impl UIPanel {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum PanelID {
     NavTabs,
     TileLibrary,
@@ -75,7 +75,7 @@ pub enum PanelID {
     PackDetails,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum CreatePanelData {
     NavTabs,
     TileLibrary,

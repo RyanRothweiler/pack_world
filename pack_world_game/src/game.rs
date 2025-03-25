@@ -250,12 +250,16 @@ pub fn game_loop(
 
     // save game
     {
-        if input.get_key(KeyCode::Q).on_press {
-            save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
-        }
+        // manual save for testing
+        #[cfg(feature = "dev")]
+        {
+            if input.get_key(KeyCode::S).on_press {
+                save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
+            }
 
-        if input.get_key(KeyCode::L).on_press {
-            (platform_api.fetch_game_save)();
+            if input.get_key(KeyCode::L).on_press {
+                (platform_api.fetch_game_save)();
+            }
         }
 
         // check for data to load
@@ -454,6 +458,8 @@ pub fn game_loop(
 
     // update harvest drops
     {
+        let mut sigs: Vec<UpdateSignal> = vec![];
+
         for h in &mut gs.harvest_drops {
             h.update_and_draw(
                 0.001,
@@ -463,12 +469,14 @@ pub fn game_loop(
             );
 
             if h.is_finished() {
-                gs.inventory.give_drop(h.drop).unwrap();
+                sigs.push(UpdateSignal::GiveDrop(h.drop));
             }
         }
 
         // remove fnished
         gs.harvest_drops.retain(|h| !h.is_finished());
+
+        handle_signals(sigs, gs, platform_api);
     }
 
     let mouse_grid: GridPos = {

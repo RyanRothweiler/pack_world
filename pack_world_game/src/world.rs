@@ -58,7 +58,7 @@ impl World {
     /// Returns updates signals, because this might need to give new tiles
     #[must_use]
     pub fn force_insert_tile(&mut self, grid_pos: GridPos, tile: TileType) -> Vec<UpdateSignal> {
-        let mut ret: Vec<UpdateSignal> = vec![];
+        let mut ret: Vec<UpdateSignal> = vec![UpdateSignal::SaveGame];
 
         let tile_layer = tile.get_layer();
         let new_entity_id = self.get_next_entity_id();
