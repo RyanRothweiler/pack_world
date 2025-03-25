@@ -334,7 +334,7 @@ mod tests {
         let ret = world
             .try_place_tile(GridPos::new(1, 0), TileType::Grass)
             .unwrap();
-        assert_eq!(ret.len(), 1);
+        assert_eq!(ret.len(), 2);
         assert!(signal_contains_drop(
             &ret,
             DropType::Item {
@@ -397,7 +397,7 @@ mod tests {
             .try_place_tile(GridPos::new(1, 0), TileType::Grass)
             .unwrap();
 
-        assert_eq!(update_sigs.len(), 1);
+        assert_eq!(update_sigs.len(), 2);
         assert!(signal_contains_drop(
             &update_sigs,
             DropType::Item {
@@ -430,7 +430,7 @@ mod tests {
             .try_place_tile(GridPos::new(1, 0), TileType::Grass)
             .unwrap();
 
-        assert_eq!(update_sigs.len(), 2);
+        assert_eq!(update_sigs.len(), 3);
         assert!(signal_contains_drop(
             &update_sigs,
             DropType::Item {
