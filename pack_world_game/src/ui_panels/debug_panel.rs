@@ -26,7 +26,7 @@ impl DebugPanel {
             ItemType::Stick,
             ItemType::Tile(TileType::Dirt),
             ItemType::Tile(TileType::Grass),
-            ItemType::Tile(TileType::Boulder),
+            ItemType::Tile(TileType::MudPit),
             ItemType::Tile(TileType::BirdNest),
             ItemType::Tile(TileType::OakTree),
             ItemType::Tile(TileType::Cave),

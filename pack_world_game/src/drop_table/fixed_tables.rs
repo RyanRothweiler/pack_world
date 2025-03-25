@@ -10,6 +10,7 @@ pub use test_tables::*;
 mod drop_table_boulder;
 mod drop_table_cave;
 mod drop_table_grass;
+mod drop_table_mud_pit;
 mod drop_table_oak_tree;
 mod drop_table_shrub;
 mod drop_table_small_gold;
@@ -17,6 +18,7 @@ mod drop_table_small_gold;
 use drop_table_boulder::*;
 use drop_table_cave::*;
 use drop_table_grass::*;
+use drop_table_mud_pit::*;
 use drop_table_oak_tree::*;
 use drop_table_shrub::*;
 use drop_table_small_gold::*;
@@ -37,6 +39,7 @@ pub enum FixedTableID {
     SmallGold,
     Cave,
     Shrub,
+    MudPit,
 
     Pack(PackID),
 
@@ -77,6 +80,9 @@ impl FixedTableID {
             }
             FixedTableID::Shrub => {
                 save_file.save_i32(&type_key, 5);
+            }
+            FixedTableID::MudPit => {
+                save_file.save_i32(&type_key, 6);
             }
 
             FixedTableID::Pack(pack_id) => {
@@ -145,6 +151,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
         FixedTableID::SmallGold => &SMALL_GOLD,
         FixedTableID::Cave => &CAVE,
         FixedTableID::Shrub => &SHRUB,
+        FixedTableID::MudPit => &MUD_PIT,
 
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,

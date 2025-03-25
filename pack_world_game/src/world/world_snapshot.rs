@@ -10,6 +10,7 @@ pub enum TileSnapshot {
     BirdNest,
     Cave,
     Shrub,
+    MudPit,
 }
 
 /// Snapshot of world state.
