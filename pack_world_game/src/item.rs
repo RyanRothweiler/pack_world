@@ -12,6 +12,7 @@ pub enum ItemType {
     DragonEgg,
     Baby,
     Berry,
+    MudBaby,
 
     Tile(TileType),
 }
@@ -27,6 +28,8 @@ impl ItemType {
             ItemType::DragonEgg => item_data::dragon_egg::TITLE,
             ItemType::Baby => item_data::baby::TITLE,
             ItemType::Berry => item_data::berry::TITLE,
+            ItemType::MudBaby => item_data::mud_baby::TITLE,
+
             ItemType::Tile(tile_type) => tile_type.user_title(),
         }
     }
@@ -85,6 +88,10 @@ impl ItemType {
                 let tile_type_key = format!("{}.t", id_key);
                 save_file.save_i32(&tile_type_key, tile_type.to_index());
             }
+
+            Self::MudBaby => {
+                save_file.save_i32(&id_key, 9);
+            }
         }
 
         Ok(())
@@ -109,6 +116,7 @@ impl ItemType {
 
                 return Ok(Self::Tile(TileType::from_index(tile_id)?));
             }
+            9 => Ok(Self::MudBaby),
             _ => panic!("Invalid item id"),
         }
     }

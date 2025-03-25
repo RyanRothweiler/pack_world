@@ -31,7 +31,7 @@ impl DebugPanel {
             ItemType::Tile(TileType::OakTree),
             ItemType::Tile(TileType::TallGrass),
             ItemType::Tile(TileType::Shrub),
-            ItemType::Berry,
+            ItemType::MudBaby,
             ItemType::OakLog,
             ItemType::Baby,
             ItemType::DragonEgg,

@@ -21,6 +21,7 @@ pub struct Assets {
     pub image_question_mark: Image,
     pub image_mud_pit: Image,
     pub image_tall_grass: Image,
+    pub image_mud_baby: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -48,6 +49,7 @@ impl Assets {
             image_question_mark: Image::new(),
             image_mud_pit: Image::new(),
             image_tall_grass: Image::new(),
+            image_mud_baby: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
@@ -93,6 +95,8 @@ impl Assets {
             ItemType::DragonEgg => return self.image_dragon_egg.gl_id,
             ItemType::Baby => return self.image_baby.gl_id,
             ItemType::Berry => return self.image_berry.gl_id,
+            ItemType::MudBaby => return self.image_mud_baby.gl_id,
+
             ItemType::Tile(tile_type) => return self.get_tile_image_opt(tile_type),
         };
     }

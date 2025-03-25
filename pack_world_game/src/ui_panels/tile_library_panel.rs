@@ -269,6 +269,7 @@ impl TileLibraryPanel {
             }
             ItemType::DirtClod
             | ItemType::Stick
+            | ItemType::MudBaby
             | ItemType::Rock
             | ItemType::Berry
             | ItemType::OakLog
