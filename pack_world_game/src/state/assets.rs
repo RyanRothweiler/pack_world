@@ -22,6 +22,7 @@ pub struct Assets {
     pub image_mud_pit: Image,
     pub image_tall_grass: Image,
     pub image_mud_baby: Image,
+    pub image_frog: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -50,6 +51,7 @@ impl Assets {
             image_mud_pit: Image::new(),
             image_tall_grass: Image::new(),
             image_mud_baby: Image::new(),
+            image_frog: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
@@ -112,6 +114,7 @@ impl Assets {
             TileType::Shrub => return self.image_shrub.gl_id,
             TileType::MudPit => return self.image_mud_pit.gl_id,
             TileType::TallGrass => return self.image_tall_grass.gl_id,
+            TileType::Frog => return self.image_frog.gl_id,
         };
     }
 }

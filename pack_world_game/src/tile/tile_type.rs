@@ -1,15 +1,7 @@
 use crate::{
     error::*,
     grid::GridPos,
-    tile::{
-        tile_instance::*,
-        tiles::{
-            tile_bird_nest::TileBirdNest, tile_boulder::TileBoulder, tile_cave::TileCave,
-            tile_dirt::TileDirt, tile_grass::TileGrass, tile_mud_pit::TileMudPit,
-            tile_oak_tree::TileOakTree, tile_shrub::TileShrub, tile_tall_grass::TileTallGrass, *,
-        },
-        TileMethods,
-    },
+    tile::{tile_instance::*, tiles::*, TileMethods},
     world::*,
 };
 
@@ -24,6 +16,7 @@ pub enum TileType {
     Shrub,
     MudPit,
     TallGrass,
+    Frog,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
@@ -39,6 +32,7 @@ impl TileType {
             TileType::Shrub => tile_shrub::TITLE,
             TileType::MudPit => tile_mud_pit::TITLE,
             TileType::TallGrass => tile_tall_grass::TITLE,
+            TileType::Frog => tile_frog::TITLE,
         }
     }
 
@@ -57,6 +51,7 @@ impl TileType {
             | TileType::OakTree
             | TileType::Cave
             | TileType::Shrub
+            | TileType::Frog
             | TileType::TallGrass
             | TileType::MudPit
             | TileType::Grass => WorldLayer::Floor,
@@ -79,6 +74,7 @@ impl TileType {
                 TileType::BirdNest => TileBirdNest::can_place(pos, world),
                 TileType::MudPit => TileMudPit::can_place(pos, world),
                 TileType::TallGrass => TileTallGrass::can_place(pos, world),
+                TileType::Frog => TileFrog::can_place(pos, world),
             };
 
             if !val {
@@ -100,6 +96,7 @@ impl TileType {
             TileType::Shrub => TileShrub::new_methods(),
             TileType::MudPit => TileMudPit::new_methods(),
             TileType::TallGrass => TileTallGrass::new_methods(),
+            TileType::Frog => TileFrog::new_methods(),
         }
     }
 
@@ -113,6 +110,7 @@ impl TileType {
             | TileType::Grass
             | TileType::Boulder
             | TileType::TallGrass
+            | TileType::Frog
             | TileType::Shrub
             | TileType::MudPit
             | TileType::BirdNest
@@ -139,6 +137,7 @@ impl TileType {
             Self::OakTree => 6,
             Self::MudPit => 7,
             Self::TallGrass => 8,
+            Self::Frog => 9,
         }
     }
 
@@ -153,6 +152,7 @@ impl TileType {
             6 => Ok(Self::OakTree),
             7 => Ok(Self::MudPit),
             8 => Ok(Self::TallGrass),
+            9 => Ok(Self::Frog),
             _ => Err(Error::InvalidTileTypeIndex(idx)),
         }
     }
