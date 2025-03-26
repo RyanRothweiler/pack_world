@@ -110,13 +110,13 @@ impl TileType {
             | TileType::Grass
             | TileType::Boulder
             | TileType::TallGrass
-            | TileType::Frog
             | TileType::Shrub
             | TileType::MudPit
             | TileType::BirdNest
             | TileType::Cave => {
                 vec![GridPos::new(0, 0)]
             }
+            TileType::Frog => vec![GridPos::new(0, 0)],
             TileType::OakTree => vec![
                 GridPos::new(0, 0),
                 GridPos::new(1, 1),
