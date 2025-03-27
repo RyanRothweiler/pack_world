@@ -194,7 +194,7 @@ pub fn game_init(
 fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
     let mut update_signals: Vec<UpdateSignal> = vec![];
     for (eid, entity) in &mut gs.world.entities {
-        update_signals.append(&mut entity.methods.update(ms));
+        update_signals.append(&mut entity.methods.update(entity.grid_pos, ms, platform_api));
     }
     handle_signals(update_signals, gs, platform_api);
 }
@@ -450,6 +450,24 @@ pub fn game_loop(
                 let entity = &gs.world.get_entity(&eid);
                 match layer {
                     WorldLayer::TreeAttachment => {
+                        entity.methods.render(
+                            gs.rotate_time,
+                            &entity.grid_pos,
+                            es.color_texture_shader,
+                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &gs.assets,
+                        );
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        for (grid_pos, world_cell) in &gs.world.entity_map {
+            for (layer, eid) in &world_cell.layers {
+                let entity = &gs.world.get_entity(&eid);
+                match layer {
+                    WorldLayer::Walker => {
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,

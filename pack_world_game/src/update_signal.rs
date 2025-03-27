@@ -114,8 +114,11 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                     vec![UpdateSignal::SaveGame]
                 }
                 UpdateSignal::SaveGame => {
-                    save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
-                    println!("Game saved");
+                    match save_game(&gs.world, &gs.inventory, platform_api) {
+                        Ok(()) => println!("Game saved successfully"),
+                        Err(error) => println!("Error saving game {:?}", error),
+                    }
+
                     vec![]
                 }
             };

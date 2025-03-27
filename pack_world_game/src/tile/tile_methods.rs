@@ -30,7 +30,12 @@ pub enum TileMethods {
 }
 
 impl TileMethods {
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+    pub fn update(
+        &mut self,
+        origin: GridPos,
+        time_step: f64,
+        platform_api: &PlatformApi,
+    ) -> Vec<UpdateSignal> {
         match self {
             TileMethods::Dirt(state) => state.update(time_step),
             TileMethods::Grass(state) => state.update(time_step),
@@ -41,7 +46,7 @@ impl TileMethods {
             TileMethods::Shrub(state) => state.update(time_step),
             TileMethods::MudPit(state) => state.update(time_step),
             TileMethods::TallGrass(state) => state.update(time_step),
-            TileMethods::Frog(state) => state.update(time_step),
+            TileMethods::Frog(state) => state.update(origin, time_step, platform_api),
         }
     }
 
@@ -271,7 +276,11 @@ impl TileMethods {
         Ok(())
     }
 
-    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<Self, Error> {
+    pub fn save_file_load(
+        key_parent: String,
+        grid_pos: GridPos,
+        save_file: &SaveFile,
+    ) -> Result<Self, Error> {
         let type_key = format!("{}.t", key_parent);
         let state_key = format!("{}.s", key_parent);
 
@@ -286,7 +295,7 @@ impl TileMethods {
             7 => Ok(TileShrub::save_file_load(state_key, save_file)?),
             8 => Ok(TileMudPit::save_file_load(state_key, save_file)?),
             9 => Ok(TileTallGrass::save_file_load(state_key, save_file)?),
-            10 => Ok(TileFrog::save_file_load(state_key, save_file)?),
+            10 => Ok(TileFrog::save_file_load(state_key, grid_pos, save_file)?),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }
@@ -294,7 +303,6 @@ impl TileMethods {
     }
 }
 
-#[cfg(test)]
 mod tests {
     use super::*;
     use crate::save_file::*;
@@ -328,35 +336,41 @@ mod tests {
             .save_file_write("mudpit".into(), &mut save_file)
             .unwrap();
 
-        match TileMethods::save_file_load("dirt".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("dirt".into(), GridPos::new(0, 0), &save_file).unwrap() {
             TileMethods::Dirt(state) => {}
             _ => panic!("Incorrect"),
         }
-        match TileMethods::save_file_load("grass".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("grass".into(), GridPos::new(0, 0), &save_file).unwrap() {
             TileMethods::Grass(state) => {}
             _ => panic!("Incorrect"),
         }
-        match TileMethods::save_file_load("boulder".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("boulder".into(), GridPos::new(0, 0), &save_file).unwrap()
+        {
             TileMethods::Boulder(state) => {}
             _ => panic!("Incorrect"),
         }
-        match TileMethods::save_file_load("oak tree".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("oak tree".into(), GridPos::new(0, 0), &save_file)
+            .unwrap()
+        {
             TileMethods::OakTree(state) => {}
             _ => panic!("Incorrect"),
         }
-        match TileMethods::save_file_load("bird nest".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("bird nest".into(), GridPos::new(0, 0), &save_file)
+            .unwrap()
+        {
             TileMethods::BirdNest(state) => {}
             _ => panic!("Incorrect"),
         }
-        match TileMethods::save_file_load("cave".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("cave".into(), GridPos::new(0, 0), &save_file).unwrap() {
             TileMethods::Cave(state) => {}
             _ => panic!("Incorrect"),
         }
-        match TileMethods::save_file_load("shrub".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("shrub".into(), GridPos::new(0, 0), &save_file).unwrap() {
             TileMethods::Shrub(state) => {}
             _ => panic!("Incorrect"),
         }
-        match TileMethods::save_file_load("mudpit".into(), &save_file).unwrap() {
+        match TileMethods::save_file_load("mudpit".into(), GridPos::new(0, 0), &save_file).unwrap()
+        {
             TileMethods::MudPit(state) => {}
             _ => panic!("Incorrect"),
         }

@@ -36,9 +36,28 @@ pub fn draw_tile(
     render_pack: &mut RenderPack,
     assets: &Assets,
 ) {
+    let world_pos = grid_to_world(pos);
+    draw_tile_world_pos(
+        tile_type,
+        rotation,
+        &world_pos,
+        shader_color,
+        render_pack,
+        assets,
+    );
+}
+
+pub fn draw_tile_world_pos(
+    tile_type: TileType,
+    rotation: f64,
+    pos: &VecTwo,
+    shader_color: Shader,
+    render_pack: &mut RenderPack,
+    assets: &Assets,
+) {
     let mut r = Rect::new_square(GRID_SIZE);
 
-    r.set_center(grid_to_world(pos));
+    r.set_center(*pos);
 
     let mut mat = Material::new();
     mat.shader = Some(shader_color);

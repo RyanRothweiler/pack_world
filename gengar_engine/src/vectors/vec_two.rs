@@ -19,6 +19,15 @@ impl VecTwo {
     pub fn dist_from(&self, a: VecTwo) -> f64 {
         ((self.x - a.x).powf(2.0) + (self.y - a.y).powf(2.0)).sqrt()
     }
+
+    pub fn length(&self) -> f64 {
+        ((self.x * self.x) + (self.y * self.y)).sqrt()
+    }
+    pub fn normalize(&mut self) {
+        let len = self.length();
+        self.x = self.x / len;
+        self.y = self.y / len;
+    }
 }
 
 impl Mul<f64> for VecTwo {

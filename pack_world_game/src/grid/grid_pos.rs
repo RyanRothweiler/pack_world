@@ -22,6 +22,7 @@ impl GridPos {
         GridPosAdjacentsIter { pos: *self, i: 0 }
     }
 
+    /// Iterator through positions with self as top lefts in a rectangle of Width and Height
     pub fn to_rect_iter(&self, w: i32, h: i32) -> GridPosRectIter {
         GridPosRectIter::new(*self, w, h)
     }

@@ -98,7 +98,8 @@ impl TileInstance {
         grid_pos.x = save_file.load_i32(&grid_x_key).unwrap();
         grid_pos.y = save_file.load_i32(&grid_y_key).unwrap();
 
-        let methods = TileMethods::save_file_load(format!("{}.m", key_parent), save_file)?;
+        let methods =
+            TileMethods::save_file_load(format!("{}.m", key_parent), grid_pos, save_file)?;
 
         Ok(TileInstance::new(tile_type, grid_pos, methods))
     }

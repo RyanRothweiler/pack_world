@@ -11,21 +11,28 @@ use gengar_engine::{
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     ui::*,
+    vectors::*,
 };
 
 pub const TITLE: &str = "Frog";
 
 const HARVEST_SECONDS: f64 = 10800.0;
+const MOVE_SPEED: f64 = 0.5;
 
 #[derive(Debug)]
 pub struct TileFrog {
     harvest_timer: HarvestTimer,
+
+    curr_world_pos: VecTwo,
+    target_grid_offset: GridPos,
 }
 
 impl TileFrog {
-    pub fn new_methods() -> TileMethods {
+    pub fn new_methods(pos: GridPos) -> TileMethods {
         TileMethods::Frog(TileFrog {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
+            target_grid_offset: GridPos::new(1, 1),
+            curr_world_pos: grid_to_world(&pos),
         })
     }
 
@@ -34,15 +41,35 @@ impl TileFrog {
             return false;
         }
 
-        if !world.cell_contains_type(pos, TileType::Dirt) {
+        if !world.cell_contains_type(pos, TileType::Grass) {
             return false;
         }
 
         true
     }
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+    pub fn update(
+        &mut self,
+        origin: GridPos,
+        time_step: f64,
+        platform_api: &PlatformApi,
+    ) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
+
+        // move frog around
+        {
+            let target_world = grid_to_world(&(origin + self.target_grid_offset));
+            let mut dir = target_world - self.curr_world_pos;
+            dir.normalize();
+
+            self.curr_world_pos = self.curr_world_pos + (dir * MOVE_SPEED);
+
+            if self.curr_world_pos.dist_from(target_world) < 1.0 {
+                self.target_grid_offset.x = ((platform_api.rand)() * 4.0) as i32;
+                self.target_grid_offset.y = ((platform_api.rand)() * 4.0) as i32;
+            }
+        }
+
         vec![]
     }
 
@@ -84,10 +111,10 @@ impl TileFrog {
             rotation = f64::sin(rot_time) * 7.0;
         }
 
-        draw_tile(
+        draw_tile_world_pos(
             TileType::Frog,
             rotation,
-            pos,
+            &self.curr_world_pos,
             shader_color,
             render_pack,
             assets,
@@ -105,10 +132,16 @@ impl TileFrog {
         Ok(())
     }
 
-    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+    pub fn save_file_load(
+        key_parent: String,
+        grid_pos: GridPos,
+        save_file: &SaveFile,
+    ) -> Result<TileMethods, Error> {
         let key = format!("{}.h", key_parent);
         let tm = TileMethods::Frog(TileFrog {
             harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
+            target_grid_offset: GridPos::new(1, 1),
+            curr_world_pos: grid_to_world(&grid_pos),
         });
 
         Ok(tm)

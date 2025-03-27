@@ -47,11 +47,11 @@ impl TileType {
         match self {
             TileType::Dirt => WorldLayer::Ground,
             TileType::BirdNest => WorldLayer::TreeAttachment,
+            TileType::Frog => WorldLayer::Walker,
             TileType::Boulder
             | TileType::OakTree
             | TileType::Cave
             | TileType::Shrub
-            | TileType::Frog
             | TileType::TallGrass
             | TileType::MudPit
             | TileType::Grass => WorldLayer::Floor,
@@ -85,7 +85,7 @@ impl TileType {
         return true;
     }
 
-    pub fn to_methods(&self) -> TileMethods {
+    pub fn to_methods(&self, origin: GridPos) -> TileMethods {
         match self {
             TileType::Dirt => TileDirt::new_methods(),
             TileType::Grass => TileGrass::new_methods(),
@@ -96,12 +96,12 @@ impl TileType {
             TileType::Shrub => TileShrub::new_methods(),
             TileType::MudPit => TileMudPit::new_methods(),
             TileType::TallGrass => TileTallGrass::new_methods(),
-            TileType::Frog => TileFrog::new_methods(),
+            TileType::Frog => TileFrog::new_methods(origin),
         }
     }
 
     pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
-        TileInstance::new(*self, grid_pos, self.to_methods())
+        TileInstance::new(*self, grid_pos, self.to_methods(grid_pos))
     }
 
     pub fn get_tile_footprint(&self) -> Vec<GridPos> {
@@ -116,13 +116,8 @@ impl TileType {
             | TileType::Cave => {
                 vec![GridPos::new(0, 0)]
             }
-            TileType::Frog => vec![GridPos::new(0, 0)],
-            TileType::OakTree => vec![
-                GridPos::new(0, 0),
-                GridPos::new(1, 1),
-                GridPos::new(0, 1),
-                GridPos::new(1, 0),
-            ],
+            TileType::Frog => GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
+            TileType::OakTree => GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
         }
     }
 
