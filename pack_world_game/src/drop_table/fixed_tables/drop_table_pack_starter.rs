@@ -8,6 +8,7 @@ pub static PACK_STARTER: LazyLock<DropTable> = LazyLock::new(|| {
         (EntryOutput::new_tile(TileType::Boulder, 1), 5.0),
         (EntryOutput::new_tile(TileType::MudPit, 1), 5.0),
         (EntryOutput::new_tile(TileType::Frog, 1), 0.5),
+        (EntryOutput::new_tile(TileType::Water, 1), 10.0),
         (EntryOutput::new_gold(20), 0.5),
     ])
 });

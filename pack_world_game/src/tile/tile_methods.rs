@@ -27,6 +27,7 @@ pub enum TileMethods {
     MudPit(TileMudPit),
     TallGrass(TileTallGrass),
     Frog(TileFrog),
+    Water(TileWater),
 }
 
 impl TileMethods {
@@ -38,6 +39,7 @@ impl TileMethods {
     ) -> Vec<UpdateSignal> {
         match self {
             TileMethods::Dirt(state) => state.update(time_step),
+            TileMethods::Water(state) => state.update(time_step),
             TileMethods::Grass(state) => state.update(time_step),
             TileMethods::Boulder(state) => state.update(time_step),
             TileMethods::OakTree(state) => state.update(time_step),
@@ -89,6 +91,9 @@ impl TileMethods {
             TileMethods::Frog(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
+            TileMethods::Water(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
         }
     }
 
@@ -104,6 +109,7 @@ impl TileMethods {
             TileMethods::MudPit(state) => state.can_harvest(),
             TileMethods::TallGrass(state) => state.can_harvest(),
             TileMethods::Frog(state) => state.can_harvest(),
+            TileMethods::Water(state) => state.can_harvest(),
         }
     }
 
@@ -127,6 +133,7 @@ impl TileMethods {
 
             // these ones don't harvest
             TileMethods::Dirt(state) => None,
+            TileMethods::Water(state) => None,
             TileMethods::BirdNest(state) => None,
         }
     }
@@ -139,6 +146,7 @@ impl TileMethods {
     ) {
         match self {
             TileMethods::Dirt(state) => state.render_hover_info(shader_color, render_pack),
+            TileMethods::Water(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::Grass(state) => {
                 state.render_hover_info(y_offset, shader_color, render_pack)
             }
@@ -171,6 +179,7 @@ impl TileMethods {
     pub fn into_snapshot(&self) -> TileSnapshot {
         match self {
             TileMethods::Dirt(state) => TileSnapshot::Dirt,
+            TileMethods::Water(state) => TileSnapshot::Dirt,
             TileMethods::Grass(state) => TileSnapshot::Grass,
             TileMethods::Boulder(state) => TileSnapshot::Boulder,
             TileMethods::OakTree(state) => TileSnapshot::OakTree {
@@ -271,6 +280,11 @@ impl TileMethods {
                 save_file.save_i32(&type_key, id);
                 state.save_file_write(state_key, save_file)?;
             }
+            TileMethods::Water(state) => {
+                let id: i32 = 11;
+
+                save_file.save_i32(&type_key, id);
+            }
         }
 
         Ok(())
@@ -296,6 +310,7 @@ impl TileMethods {
             8 => Ok(TileMudPit::save_file_load(state_key, save_file)?),
             9 => Ok(TileTallGrass::save_file_load(state_key, save_file)?),
             10 => Ok(TileFrog::save_file_load(state_key, grid_pos, save_file)?),
+            11 => Ok(TileWater::new_methods()),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }
