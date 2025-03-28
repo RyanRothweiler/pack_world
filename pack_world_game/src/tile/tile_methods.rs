@@ -28,6 +28,7 @@ pub enum TileMethods {
     TallGrass(TileTallGrass),
     Frog(TileFrog),
     Water(TileWater),
+    Newt(TileNewt),
 }
 
 impl TileMethods {
@@ -49,6 +50,7 @@ impl TileMethods {
             TileMethods::MudPit(state) => state.update(time_step),
             TileMethods::TallGrass(state) => state.update(time_step),
             TileMethods::Frog(state) => state.update(origin, time_step, platform_api),
+            TileMethods::Newt(state) => state.update(origin, time_step, platform_api),
         }
     }
 
@@ -94,6 +96,9 @@ impl TileMethods {
             TileMethods::Water(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
+            TileMethods::Newt(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
         }
     }
 
@@ -110,6 +115,7 @@ impl TileMethods {
             TileMethods::TallGrass(state) => state.can_harvest(),
             TileMethods::Frog(state) => state.can_harvest(),
             TileMethods::Water(state) => state.can_harvest(),
+            TileMethods::Newt(state) => state.can_harvest(),
         }
     }
 
@@ -130,6 +136,7 @@ impl TileMethods {
             TileMethods::MudPit(state) => Some(state.harvest(grid_pos, platform_api)),
             TileMethods::TallGrass(state) => Some(state.harvest(grid_pos, platform_api)),
             TileMethods::Frog(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Newt(state) => Some(state.harvest(grid_pos, platform_api)),
 
             // these ones don't harvest
             TileMethods::Dirt(state) => None,
@@ -172,6 +179,9 @@ impl TileMethods {
             TileMethods::Frog(state) => {
                 state.render_hover_info(y_offset, shader_color, render_pack)
             }
+            TileMethods::Newt(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
         }
     }
 
@@ -191,6 +201,7 @@ impl TileMethods {
             TileMethods::MudPit(state) => TileSnapshot::MudPit,
             TileMethods::TallGrass(state) => TileSnapshot::TallGrass,
             TileMethods::Frog(state) => TileSnapshot::Frog,
+            TileMethods::Newt(state) => TileSnapshot::Newt,
         }
     }
 
@@ -285,6 +296,11 @@ impl TileMethods {
 
                 save_file.save_i32(&type_key, id);
             }
+            TileMethods::Newt(state) => {
+                let id: i32 = 12;
+
+                save_file.save_i32(&type_key, id);
+            }
         }
 
         Ok(())
@@ -311,6 +327,7 @@ impl TileMethods {
             9 => Ok(TileTallGrass::save_file_load(state_key, save_file)?),
             10 => Ok(TileFrog::save_file_load(state_key, grid_pos, save_file)?),
             11 => Ok(TileWater::new_methods()),
+            12 => Ok(TileNewt::save_file_load(state_key, grid_pos, save_file)?),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }

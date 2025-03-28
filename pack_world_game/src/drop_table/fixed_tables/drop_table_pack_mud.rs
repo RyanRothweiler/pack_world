@@ -3,8 +3,9 @@ use std::sync::LazyLock;
 
 pub static PACK_MUD: LazyLock<DropTable> = LazyLock::new(|| {
     DropTable::new(vec![
-        (EntryOutput::new_tile(TileType::Grass, 1), 14.0),
-        (EntryOutput::new_tile(TileType::Grass, 1), 14.0),
+        (EntryOutput::new_tile(TileType::Dirt, 5), 10.0),
+        (EntryOutput::new_tile(TileType::Water, 5), 10.0),
+        (EntryOutput::new_tile(TileType::Newt, 1), 1.0),
     ])
 });
 

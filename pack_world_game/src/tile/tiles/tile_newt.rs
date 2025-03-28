@@ -1,11 +1,9 @@
 use crate::{
     drop_table::*,
     grid::*,
-    item::*,
     save_file::*,
     state::{inventory::*, *},
     tile::{harvest_timer::*, *},
-    world::*,
 };
 use gengar_engine::{
     color::*,
@@ -13,21 +11,28 @@ use gengar_engine::{
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     ui::*,
+    vectors::*,
 };
 
-pub const TITLE: &str = "Mud Pit";
+pub const TITLE: &str = "Newt";
 
-const HARVEST_SECONDS: f64 = 240.0;
+const HARVEST_SECONDS: f64 = 10800.0;
+const MOVE_SPEED: f64 = 0.5;
 
 #[derive(Debug)]
-pub struct TileMudPit {
-    pub harvest_timer: HarvestTimer,
+pub struct TileNewt {
+    harvest_timer: HarvestTimer,
+
+    curr_world_pos: VecTwo,
+    target_grid_offset: GridPos,
 }
 
-impl TileMudPit {
-    pub fn new_methods() -> TileMethods {
-        TileMethods::MudPit(TileMudPit {
-            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::MudPit),
+impl TileNewt {
+    pub fn new_methods(pos: GridPos) -> TileMethods {
+        TileMethods::Newt(TileNewt {
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
+            target_grid_offset: GridPos::new(1, 1),
+            curr_world_pos: grid_to_world(&pos),
         })
     }
 
@@ -36,15 +41,35 @@ impl TileMudPit {
             return false;
         }
 
-        if !world.cell_contains_type(pos, TileType::Dirt) {
+        if !world.cell_contains_type(pos, TileType::Water) {
             return false;
         }
 
         true
     }
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+    pub fn update(
+        &mut self,
+        origin: GridPos,
+        time_step: f64,
+        platform_api: &PlatformApi,
+    ) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
+
+        // move frog around
+        {
+            let target_world = grid_to_world(&(origin + self.target_grid_offset));
+            let mut dir = target_world - self.curr_world_pos;
+            dir.normalize();
+
+            self.curr_world_pos = self.curr_world_pos + (dir * MOVE_SPEED);
+
+            if self.curr_world_pos.dist_from(target_world) < 1.0 {
+                self.target_grid_offset.x = ((platform_api.rand)() * 4.0) as i32;
+                self.target_grid_offset.y = ((platform_api.rand)() * 4.0) as i32;
+            }
+        }
+
         vec![]
     }
 
@@ -81,17 +106,15 @@ impl TileMudPit {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
-        draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
-
         let mut rotation: f64 = 0.0;
         if self.can_harvest() {
             rotation = f64::sin(rot_time) * 7.0;
         }
 
-        draw_tile(
-            TileType::MudPit,
+        draw_tile_world_pos(
+            TileType::Newt,
             rotation,
-            pos,
+            &self.curr_world_pos,
             shader_color,
             render_pack,
             assets,
@@ -109,10 +132,16 @@ impl TileMudPit {
         Ok(())
     }
 
-    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+    pub fn save_file_load(
+        key_parent: String,
+        grid_pos: GridPos,
+        save_file: &SaveFile,
+    ) -> Result<TileMethods, Error> {
         let key = format!("{}.h", key_parent);
-        let tm = TileMethods::MudPit(TileMudPit {
+        let tm = TileMethods::Newt(TileNewt {
             harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
+            target_grid_offset: GridPos::new(1, 1),
+            curr_world_pos: grid_to_world(&grid_pos),
         });
 
         Ok(tm)

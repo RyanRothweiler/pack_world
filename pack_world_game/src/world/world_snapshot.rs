@@ -13,6 +13,7 @@ pub enum TileSnapshot {
     MudPit,
     TallGrass,
     Frog,
+    Newt,
 }
 
 /// Snapshot of world state.

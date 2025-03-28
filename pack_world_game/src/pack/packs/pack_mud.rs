@@ -10,6 +10,6 @@ pub static MUD: LazyLock<Pack> = LazyLock::new(|| {
         "Mud".into(),
         vec![(ItemType::DirtClod, 10), (ItemType::Stick, 10)],
         4,
-        FixedTableID::Pack(PackID::Stick),
+        FixedTableID::Pack(PackID::Mud),
     )
 });

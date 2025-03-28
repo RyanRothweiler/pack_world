@@ -18,6 +18,7 @@ pub enum TileType {
     TallGrass,
     Frog,
     Water,
+    Newt,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
@@ -35,6 +36,7 @@ impl TileType {
             TileType::TallGrass => tile_tall_grass::TITLE,
             TileType::Frog => tile_frog::TITLE,
             TileType::Water => tile_water::TITLE,
+            TileType::Newt => tile_newt::TITLE,
         }
     }
 
@@ -49,8 +51,11 @@ impl TileType {
     pub fn get_layer(&self) -> WorldLayer {
         match self {
             TileType::Dirt | TileType::Water => WorldLayer::Ground,
+
             TileType::BirdNest => WorldLayer::TreeAttachment,
-            TileType::Frog => WorldLayer::Walker,
+
+            TileType::Frog | TileType::Newt => WorldLayer::Walker,
+
             TileType::Boulder
             | TileType::OakTree
             | TileType::Cave
@@ -79,6 +84,7 @@ impl TileType {
                 TileType::TallGrass => TileTallGrass::can_place(pos, world),
                 TileType::Frog => TileFrog::can_place(pos, world),
                 TileType::Water => TileWater::can_place(pos, world),
+                TileType::Newt => TileNewt::can_place(pos, world),
             };
 
             if !val {
@@ -102,6 +108,7 @@ impl TileType {
             TileType::TallGrass => TileTallGrass::new_methods(),
             TileType::Frog => TileFrog::new_methods(origin),
             TileType::Water => TileWater::new_methods(),
+            TileType::Newt => TileNewt::new_methods(origin),
         }
     }
 
@@ -123,6 +130,7 @@ impl TileType {
                 vec![GridPos::new(0, 0)]
             }
             TileType::Frog => GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
+            TileType::Newt => GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
             TileType::OakTree => GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
         }
     }
@@ -140,6 +148,7 @@ impl TileType {
             Self::TallGrass => 8,
             Self::Frog => 9,
             Self::Water => 10,
+            Self::Newt => 11,
         }
     }
 
@@ -156,6 +165,7 @@ impl TileType {
             8 => Ok(Self::TallGrass),
             9 => Ok(Self::Frog),
             10 => Ok(Self::Water),
+            11 => Ok(Self::Newt),
             _ => Err(Error::InvalidTileTypeIndex(idx)),
         }
     }

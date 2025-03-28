@@ -27,7 +27,7 @@ impl DebugPanel {
             ItemType::Tile(TileType::Dirt),
             ItemType::Tile(TileType::Grass),
             ItemType::Tile(TileType::Water),
-            ItemType::Tile(TileType::Frog),
+            ItemType::Tile(TileType::Newt),
             ItemType::Tile(TileType::OakTree),
             ItemType::Tile(TileType::TallGrass),
             ItemType::Tile(TileType::Shrub),
