@@ -26,7 +26,7 @@ pub struct OpenPackPanel {
 
 impl OpenPackPanel {
     pub fn new(pack_id: PackID) -> Self {
-        let pack_info: &Pack = get_pack_info(pack_id);
+        let pack_info: &Pack = pack_id.get_pack_info();
 
         Self {
             pack_id,
@@ -51,7 +51,7 @@ impl OpenPackPanel {
 
         begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
 
-        let pack_info: &Pack = get_pack_info(self.pack_id);
+        let pack_info: &Pack = self.pack_id.get_pack_info();
 
         let pack_image_size = VecTwo::new(448.0, 604.0) * 0.35;
 

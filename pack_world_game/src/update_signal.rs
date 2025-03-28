@@ -83,7 +83,7 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                     vec![]
                 }
                 UpdateSignal::OpenPack(pack_id) => {
-                    let pack_info: &Pack = get_pack_info(*pack_id);
+                    let pack_info: &Pack = pack_id.get_pack_info();
 
                     if !pack_info.can_afford(&gs.inventory) {
                         println!("Cannot afford that pack.");

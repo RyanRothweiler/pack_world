@@ -1,0 +1,15 @@
+use crate::{
+    drop_table::FixedTableID,
+    item::ItemType,
+    pack::{pack_id::PackID, Pack},
+};
+use std::sync::LazyLock;
+
+pub static STARTER: LazyLock<Pack> = LazyLock::new(|| {
+    Pack::new(
+        "Starter".into(),
+        vec![(ItemType::DirtClod, 5)],
+        4,
+        FixedTableID::Pack(PackID::Starter),
+    )
+});

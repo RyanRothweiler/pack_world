@@ -27,6 +27,7 @@ pub struct Assets {
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
+    pub image_pack_mud: Image,
 }
 
 impl Assets {
@@ -57,6 +58,7 @@ impl Assets {
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
+            image_pack_mud: Image::new(),
         }
     }
 
@@ -86,6 +88,7 @@ impl Assets {
         match pack {
             PackID::Starter => return self.image_pack_starter.gl_id,
             PackID::Stick => return self.image_pack_stick.gl_id,
+            PackID::Mud => return self.image_pack_mud.gl_id,
         };
     }
 

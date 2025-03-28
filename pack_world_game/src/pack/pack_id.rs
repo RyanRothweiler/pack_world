@@ -1,9 +1,14 @@
-use crate::{error::*, save_file::*};
+use crate::{
+    error::*,
+    pack::{packs::*, Pack},
+    save_file::*,
+};
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 pub enum PackID {
     Starter,
     Stick,
+    Mud,
 }
 
 impl PackID {
@@ -11,6 +16,7 @@ impl PackID {
         match self {
             Self::Starter => 0,
             Self::Stick => 1,
+            Self::Mud => 2,
         }
     }
 
@@ -18,7 +24,16 @@ impl PackID {
         match index {
             0 => Self::Starter,
             1 => Self::Stick,
+            2 => Self::Mud,
             _ => panic!("Invalid PackID index"),
+        }
+    }
+
+    pub fn get_pack_info(&self) -> &'static Pack {
+        match self {
+            PackID::Starter => &STARTER,
+            PackID::Stick => &STICK,
+            PackID::Mud => &MUD,
         }
     }
 }
@@ -38,10 +53,14 @@ mod tests {
                 PackID::Stick => {
                     assert_eq!(PackID::from_index(PackID::Stick.to_index()), PackID::Stick)
                 }
+                PackID::Mud => {
+                    assert_eq!(PackID::from_index(PackID::Mud.to_index()), PackID::Mud)
+                }
             };
         }
 
         validate(PackID::Starter);
         validate(PackID::Stick);
+        validate(PackID::Mud);
     }
 }

@@ -145,6 +145,8 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/frog.png"), render_api).unwrap();
     gs.assets.image_water =
         load_image_cursor(include_bytes!("../resources/water.png"), render_api).unwrap();
+    gs.assets.image_pack_mud =
+        load_image_cursor(include_bytes!("../resources/pack_mud.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

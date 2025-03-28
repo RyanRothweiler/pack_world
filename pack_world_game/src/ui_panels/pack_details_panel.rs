@@ -34,7 +34,7 @@ impl PackDetailsData {
 
         begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
 
-        let pack_info: &Pack = get_pack_info(self.pack_id);
+        let pack_info: &Pack = self.pack_id.get_pack_info();
 
         let pack_image_size = VecTwo::new(448.0, 604.0) * 0.35;
 

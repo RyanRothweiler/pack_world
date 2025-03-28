@@ -26,13 +26,13 @@ impl ShopPanel {
             ui_context,
         );
 
-        let packs: Vec<PackID> = vec![PackID::Starter, PackID::Stick];
+        let packs: Vec<PackID> = vec![PackID::Starter, PackID::Stick, PackID::Mud];
 
         let y_offset: f64 = 80.0;
         let mut cursor_y: f64 = 50.0;
 
         for (i, pack_id) in packs.iter().enumerate() {
-            let pack_info: &Pack = get_pack_info(*pack_id);
+            let pack_info: &Pack = pack_id.get_pack_info();
 
             let origin = VecTwo::new(10.0, cursor_y);
 

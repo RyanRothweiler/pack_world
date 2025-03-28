@@ -1,13 +1,11 @@
 use crate::{drop_table::*, error::*, item::*, save_file::*, state::inventory::*, tile::*};
 use gengar_engine::platform_api::*;
-use std::{
-    collections::HashMap,
-    sync::{LazyLock, OnceLock},
-};
 
 mod pack_id;
+mod packs;
 
 pub use pack_id::PackID;
+pub use packs::*;
 
 #[derive(Debug)]
 pub struct Pack {
@@ -58,30 +56,5 @@ impl Pack {
     // Assumes you can afford the pack
     pub fn pull(&self, platform_api: &PlatformApi) -> Drop {
         get_drop(self.table_id, platform_api)
-    }
-}
-
-static STARTER: LazyLock<Pack> = LazyLock::new(|| {
-    Pack::new(
-        "Starter".into(),
-        vec![(ItemType::DirtClod, 5)],
-        4,
-        FixedTableID::Pack(PackID::Starter),
-    )
-});
-
-static STICK: LazyLock<Pack> = LazyLock::new(|| {
-    Pack::new(
-        "Stick".into(),
-        vec![(ItemType::DirtClod, 50), (ItemType::Stick, 50)],
-        4,
-        FixedTableID::Pack(PackID::Stick),
-    )
-});
-
-pub fn get_pack_info(pack_id: PackID) -> &'static Pack {
-    match pack_id {
-        PackID::Starter => &STARTER,
-        PackID::Stick => &STICK,
     }
 }

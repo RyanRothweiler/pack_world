@@ -26,9 +26,11 @@ use drop_table_small_gold::*;
 use drop_table_tall_grass::*;
 
 // packs
+mod drop_table_pack_mud;
 mod drop_table_pack_starter;
 mod drop_table_pack_stick;
 
+use drop_table_pack_mud::*;
 use drop_table_pack_starter::*;
 use drop_table_pack_stick::*;
 
@@ -166,6 +168,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,
             PackID::Stick => &PACK_STICK,
+            PackID::Mud => &PACK_MUD,
         },
 
         #[cfg(feature = "dev")]
