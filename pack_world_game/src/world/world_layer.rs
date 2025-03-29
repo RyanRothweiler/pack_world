@@ -6,6 +6,9 @@ pub enum WorldLayer {
     /// Stuff on the floor. Trees, grass.
     Floor,
 
+    /// Things planted in the soil.
+    Planted,
+
     /// Stuff that walks on the ground, like an animal
     Walker,
 
@@ -20,6 +23,7 @@ impl WorldLayer {
             WorldLayer::Floor => 1,
             WorldLayer::TreeAttachment => 2,
             WorldLayer::Walker => 3,
+            WorldLayer::Planted => 4,
         }
     }
 }

@@ -25,6 +25,7 @@ pub struct Assets {
     pub image_frog: Image,
     pub image_water: Image,
     pub image_newt: Image,
+    pub image_reed: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -57,6 +58,7 @@ impl Assets {
             image_frog: Image::new(),
             image_water: Image::new(),
             image_newt: Image::new(),
+            image_reed: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
@@ -124,6 +126,7 @@ impl Assets {
             TileType::Frog => return self.image_frog.gl_id,
             TileType::Water => return self.image_water.gl_id,
             TileType::Newt => return self.image_newt.gl_id,
+            TileType::Reed => return self.image_reed.gl_id,
         };
     }
 }

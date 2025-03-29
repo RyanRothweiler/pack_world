@@ -149,6 +149,8 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/pack_mud.png"), render_api).unwrap();
     gs.assets.image_newt =
         load_image_cursor(include_bytes!("../resources/newt.png"), render_api).unwrap();
+    gs.assets.image_reed =
+        load_image_cursor(include_bytes!("../resources/reed.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
@@ -474,6 +476,24 @@ pub fn game_loop(
                 let entity = &gs.world.get_entity(&eid);
                 match layer {
                     WorldLayer::Walker => {
+                        entity.methods.render(
+                            gs.rotate_time,
+                            &entity.grid_pos,
+                            es.color_texture_shader,
+                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            &gs.assets,
+                        );
+                    }
+                    _ => {}
+                }
+            }
+        }
+
+        for (grid_pos, world_cell) in &gs.world.entity_map {
+            for (layer, eid) in &world_cell.layers {
+                let entity = &gs.world.get_entity(&eid);
+                match layer {
+                    WorldLayer::Planted => {
                         entity.methods.render(
                             gs.rotate_time,
                             &entity.grid_pos,

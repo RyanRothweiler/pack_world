@@ -19,6 +19,7 @@ pub enum TileType {
     Frog,
     Water,
     Newt,
+    Reed,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
@@ -37,6 +38,7 @@ impl TileType {
             TileType::Frog => tile_frog::TITLE,
             TileType::Water => tile_water::TITLE,
             TileType::Newt => tile_newt::TITLE,
+            TileType::Reed => tile_reed::TITLE,
         }
     }
 
@@ -52,10 +54,6 @@ impl TileType {
         match self {
             TileType::Dirt | TileType::Water => WorldLayer::Ground,
 
-            TileType::BirdNest => WorldLayer::TreeAttachment,
-
-            TileType::Frog | TileType::Newt => WorldLayer::Walker,
-
             TileType::Boulder
             | TileType::OakTree
             | TileType::Cave
@@ -63,6 +61,12 @@ impl TileType {
             | TileType::TallGrass
             | TileType::MudPit
             | TileType::Grass => WorldLayer::Floor,
+
+            TileType::Reed => WorldLayer::Planted,
+
+            TileType::Frog | TileType::Newt => WorldLayer::Walker,
+
+            TileType::BirdNest => WorldLayer::TreeAttachment,
         }
     }
 
@@ -85,6 +89,7 @@ impl TileType {
                 TileType::Frog => TileFrog::can_place(pos, world),
                 TileType::Water => TileWater::can_place(pos, world),
                 TileType::Newt => TileNewt::can_place(pos, world),
+                TileType::Reed => TileReed::can_place(pos, world),
             };
 
             if !val {
@@ -109,6 +114,7 @@ impl TileType {
             TileType::Frog => TileFrog::new_methods(origin),
             TileType::Water => TileWater::new_methods(),
             TileType::Newt => TileNewt::new_methods(origin),
+            TileType::Reed => TileReed::new_methods(),
         }
     }
 
@@ -125,6 +131,7 @@ impl TileType {
             | TileType::TallGrass
             | TileType::Shrub
             | TileType::MudPit
+            | TileType::Reed
             | TileType::BirdNest
             | TileType::Cave => {
                 vec![GridPos::new(0, 0)]
@@ -149,6 +156,7 @@ impl TileType {
             Self::Frog => 9,
             Self::Water => 10,
             Self::Newt => 11,
+            Self::Reed => 12,
         }
     }
 
@@ -166,6 +174,7 @@ impl TileType {
             9 => Ok(Self::Frog),
             10 => Ok(Self::Water),
             11 => Ok(Self::Newt),
+            12 => Ok(Self::Reed),
             _ => Err(Error::InvalidTileTypeIndex(idx)),
         }
     }
