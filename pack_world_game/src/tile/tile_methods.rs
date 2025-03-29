@@ -130,25 +130,26 @@ impl TileMethods {
         grid_pos: GridPos,
         world_snapshot: &WorldSnapshot,
         platform_api: &PlatformApi,
-    ) -> Option<Drop> {
+    ) -> (Option<Drop>, Vec<UpdateSignal>) {
         match self {
-            TileMethods::Grass(state) => {
-                Some(state.harvest(grid_pos, world_snapshot, platform_api))
-            }
-            TileMethods::Boulder(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::OakTree(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Cave(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Shrub(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::MudPit(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::TallGrass(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Frog(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Newt(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Reed(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Grass(state) => (
+                Some(state.harvest(grid_pos, world_snapshot, platform_api)),
+                vec![],
+            ),
+            TileMethods::Boulder(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::OakTree(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::Cave(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::Shrub(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::MudPit(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::TallGrass(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::Frog(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::Newt(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::Reed(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
 
             // these ones don't harvest
-            TileMethods::Dirt(state) => None,
-            TileMethods::Water(state) => None,
-            TileMethods::BirdNest(state) => None,
+            TileMethods::Dirt(state) => (None, vec![]),
+            TileMethods::Water(state) => (None, vec![]),
+            TileMethods::BirdNest(state) => (None, vec![]),
         }
     }
 

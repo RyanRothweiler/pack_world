@@ -6,6 +6,7 @@ pub static PACK_MUD: LazyLock<DropTable> = LazyLock::new(|| {
         (EntryOutput::new_tile(TileType::Dirt, 5), 10.0),
         (EntryOutput::new_tile(TileType::Water, 5), 10.0),
         (EntryOutput::new_tile(TileType::Newt, 1), 1.0),
+        (EntryOutput::new_tile(TileType::Reed, 1), 5.0),
     ])
 });
 

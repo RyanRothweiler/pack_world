@@ -173,6 +173,11 @@ impl World {
         types_removing
     }
 
+    /// Remove a tile and ignore the the update signal to add to inventory
+    pub fn destroy_tile(&mut self, pos: GridPos, layer: WorldLayer) {
+        let _ = self.remove_tile(pos, layer);
+    }
+
     pub fn remove_entity(&mut self, eid: EntityID, layer_removing: WorldLayer) -> Vec<TileType> {
         let mut types_removing: Vec<TileType> = vec![];
 

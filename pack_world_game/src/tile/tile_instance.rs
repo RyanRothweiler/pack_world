@@ -18,6 +18,7 @@ pub struct TileInstance {
     // for giving offset drops
     pub drop_timer: f64,
     pub drops_queue: Vec<Drop>,
+    pub destroy_after_drops: bool,
 }
 
 impl TileInstance {
@@ -26,19 +27,32 @@ impl TileInstance {
             tile_type,
             grid_pos,
             methods,
+
             drop_timer: 0.0,
             drops_queue: vec![],
+            destroy_after_drops: false,
         }
     }
 
-    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
-        let mut new_drop = self
+    pub fn harvest(
+        &mut self,
+        world_snapshot: &WorldSnapshot,
+        platform_api: &PlatformApi,
+    ) -> Vec<UpdateSignal> {
+        let mut harvest_data = self
             .methods
             .harvest(self.grid_pos, world_snapshot, platform_api);
 
-        match new_drop {
+        match harvest_data.0 {
             Some(drop) => {
                 self.drops_queue.append(&mut drop.to_individual());
+
+                match self.tile_type {
+                    TileType::Reed => {
+                        self.destroy_after_drops = true;
+                    }
+                    _ => {}
+                }
             }
             None => {
                 println!("Attempted to harvest something which isn't harvestable.");
@@ -47,9 +61,13 @@ impl TileInstance {
                 );
             }
         }
+
+        harvest_data.1
     }
 
     pub fn update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
+        let mut ret: Vec<UpdateSignal> = vec![];
+
         if self.drops_queue.len() > 0 {
             self.drop_timer += delta_time;
 
@@ -61,9 +79,16 @@ impl TileInstance {
                     origin: grid_to_world(&self.grid_pos),
                 }];
             }
+        } else {
+            if self.destroy_after_drops {
+                ret.push(UpdateSignal::DestroyTile {
+                    pos: self.grid_pos,
+                    layer: self.tile_type.get_layer(),
+                });
+            }
         }
 
-        vec![]
+        ret
     }
 
     pub fn save_file_write(

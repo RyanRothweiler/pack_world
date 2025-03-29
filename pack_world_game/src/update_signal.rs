@@ -1,5 +1,6 @@
 use crate::{
     drop_table::*,
+    grid::*,
     harvest_drop::*,
     item::*,
     pack::*,
@@ -7,6 +8,7 @@ use crate::{
     state::{inventory::*, *},
     tile::*,
     ui_panels::{home_panel::*, *},
+    world::world_layer::*,
 };
 use gengar_engine::{platform_api::*, vectors::*};
 
@@ -43,6 +45,9 @@ pub enum UpdateSignal {
 
     /// Setup a harvest drop
     AddHarvestDrop { drop: Drop, origin: VecTwo },
+
+    /// Destroy a tile
+    DestroyTile { pos: GridPos, layer: WorldLayer },
 
     /// Trigger a game save
     SaveGame,
@@ -120,6 +125,10 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                     }
 
                     vec![]
+                }
+                UpdateSignal::DestroyTile { pos, layer } => {
+                    gs.world.destroy_tile(*pos, *layer);
+                    vec![UpdateSignal::SaveGame]
                 }
             };
 

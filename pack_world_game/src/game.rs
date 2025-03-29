@@ -589,6 +589,7 @@ pub fn game_loop(
 
     // tile hovering
     {
+        let mut update_signals: Vec<UpdateSignal> = vec![];
         let world_snapshot = gs.world.get_world_snapshot();
 
         if gs.tile_placing.is_none() {
@@ -607,7 +608,8 @@ pub fn game_loop(
 
                 // Harvesting
                 if input.mouse.button_left.pressing && tile.methods.can_harvest() {
-                    tile.harvest(&world_snapshot, platform_api);
+                    update_signals.append(&mut tile.harvest(&world_snapshot, platform_api));
+                    println!("harvest sigs {:?}", update_signals);
                 }
 
                 // render hover rect
@@ -651,6 +653,8 @@ pub fn game_loop(
                 }
             }
         }
+
+        handle_signals(update_signals, gs, platform_api);
     }
 
     es.render_packs
