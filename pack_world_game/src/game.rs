@@ -151,6 +151,8 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/newt.png"), render_api).unwrap();
     gs.assets.image_reed =
         load_image_cursor(include_bytes!("../resources/reed.png"), render_api).unwrap();
+    gs.assets.image_clam =
+        load_image_cursor(include_bytes!("../resources/clam.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

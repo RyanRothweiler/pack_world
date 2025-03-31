@@ -26,6 +26,7 @@ pub struct Assets {
     pub image_water: Image,
     pub image_newt: Image,
     pub image_reed: Image,
+    pub image_clam: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -59,6 +60,7 @@ impl Assets {
             image_water: Image::new(),
             image_newt: Image::new(),
             image_reed: Image::new(),
+            image_clam: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
@@ -127,6 +129,7 @@ impl Assets {
             TileType::Water => return self.image_water.gl_id,
             TileType::Newt => return self.image_newt.gl_id,
             TileType::Reed => return self.image_reed.gl_id,
+            TileType::Clam => return self.image_clam.gl_id,
         };
     }
 }

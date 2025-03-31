@@ -20,6 +20,7 @@ pub enum TileType {
     Water,
     Newt,
     Reed,
+    Clam,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
@@ -39,6 +40,7 @@ impl TileType {
             TileType::Water => tile_water::TITLE,
             TileType::Newt => tile_newt::TITLE,
             TileType::Reed => tile_reed::TITLE,
+            TileType::Clam => tile_clam::TITLE,
         }
     }
 
@@ -57,6 +59,7 @@ impl TileType {
             TileType::Boulder
             | TileType::OakTree
             | TileType::Cave
+            | TileType::Clam
             | TileType::Shrub
             | TileType::TallGrass
             | TileType::MudPit
@@ -90,6 +93,7 @@ impl TileType {
                 TileType::Water => TileWater::can_place(pos, world),
                 TileType::Newt => TileNewt::can_place(pos, world),
                 TileType::Reed => TileReed::can_place(pos, world),
+                TileType::Clam => TileClam::can_place(pos, world),
             };
 
             if !val {
@@ -115,6 +119,7 @@ impl TileType {
             TileType::Water => TileWater::new_methods(),
             TileType::Newt => TileNewt::new_methods(origin),
             TileType::Reed => TileReed::new_methods(),
+            TileType::Clam => TileClam::new_methods(),
         }
     }
 
@@ -130,6 +135,7 @@ impl TileType {
             | TileType::Boulder
             | TileType::TallGrass
             | TileType::Shrub
+            | TileType::Clam
             | TileType::MudPit
             | TileType::Reed
             | TileType::BirdNest
@@ -157,6 +163,7 @@ impl TileType {
             Self::Water => 10,
             Self::Newt => 11,
             Self::Reed => 12,
+            Self::Clam => 13,
         }
     }
 
@@ -175,6 +182,7 @@ impl TileType {
             10 => Ok(Self::Water),
             11 => Ok(Self::Newt),
             12 => Ok(Self::Reed),
+            13 => Ok(Self::Clam),
             _ => Err(Error::InvalidTileTypeIndex(idx)),
         }
     }

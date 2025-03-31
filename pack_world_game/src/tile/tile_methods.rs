@@ -30,6 +30,7 @@ pub enum TileMethods {
     Water(TileWater),
     Newt(TileNewt),
     Reed(TileReed),
+    Clam(TileClam),
 }
 
 impl TileMethods {
@@ -53,6 +54,7 @@ impl TileMethods {
             TileMethods::Reed(state) => state.update(time_step),
             TileMethods::Frog(state) => state.update(origin, time_step, platform_api),
             TileMethods::Newt(state) => state.update(origin, time_step, platform_api),
+            TileMethods::Clam(state) => state.update(time_step),
         }
     }
 
@@ -64,6 +66,7 @@ impl TileMethods {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
+        // println!("{:?}", self);
         match self {
             TileMethods::Dirt(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
@@ -104,6 +107,9 @@ impl TileMethods {
             TileMethods::Reed(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
+            TileMethods::Clam(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
         }
     }
 
@@ -122,6 +128,7 @@ impl TileMethods {
             TileMethods::Water(state) => state.can_harvest(),
             TileMethods::Newt(state) => state.can_harvest(),
             TileMethods::Reed(state) => state.can_harvest(),
+            TileMethods::Clam(state) => state.can_harvest(),
         }
     }
 
@@ -145,6 +152,7 @@ impl TileMethods {
             TileMethods::Frog(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
             TileMethods::Newt(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
             TileMethods::Reed(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::Clam(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
 
             // these ones don't harvest
             TileMethods::Dirt(state) => (None, vec![]),
@@ -193,6 +201,9 @@ impl TileMethods {
             TileMethods::Reed(state) => {
                 state.render_hover_info(y_offset, shader_color, render_pack)
             }
+            TileMethods::Clam(state) => {
+                state.render_hover_info(y_offset, shader_color, render_pack)
+            }
         }
     }
 
@@ -214,6 +225,7 @@ impl TileMethods {
             TileMethods::Frog(state) => TileSnapshot::Frog,
             TileMethods::Newt(state) => TileSnapshot::Newt,
             TileMethods::Reed(state) => TileSnapshot::Reed,
+            TileMethods::Clam(state) => TileSnapshot::Clam,
         }
     }
 
@@ -318,6 +330,11 @@ impl TileMethods {
 
                 save_file.save_i32(&type_key, id);
             }
+            TileMethods::Clam(state) => {
+                let id: i32 = 14;
+
+                save_file.save_i32(&type_key, id);
+            }
         }
 
         Ok(())
@@ -346,6 +363,7 @@ impl TileMethods {
             11 => Ok(TileWater::new_methods()),
             12 => Ok(TileNewt::save_file_load(state_key, grid_pos, save_file)?),
             13 => Ok(TileReed::save_file_load(state_key, save_file)?),
+            14 => Ok(TileClam::save_file_load(state_key, save_file)?),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }
