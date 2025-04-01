@@ -9,6 +9,7 @@ pub enum PackID {
     Starter,
     Stick,
     Mud,
+    Water,
 }
 
 impl PackID {
@@ -17,6 +18,7 @@ impl PackID {
             Self::Starter => 0,
             Self::Stick => 1,
             Self::Mud => 2,
+            Self::Water => 3,
         }
     }
 
@@ -25,6 +27,7 @@ impl PackID {
             0 => Self::Starter,
             1 => Self::Stick,
             2 => Self::Mud,
+            3 => Self::Water,
             _ => panic!("Invalid PackID index"),
         }
     }
@@ -34,6 +37,7 @@ impl PackID {
             PackID::Starter => &STARTER,
             PackID::Stick => &STICK,
             PackID::Mud => &MUD,
+            PackID::Water => &WATER,
         }
     }
 }

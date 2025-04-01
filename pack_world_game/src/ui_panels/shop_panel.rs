@@ -26,7 +26,7 @@ impl ShopPanel {
             ui_context,
         );
 
-        let packs: Vec<PackID> = vec![PackID::Starter, PackID::Stick, PackID::Mud];
+        let packs: Vec<PackID> = vec![PackID::Starter, PackID::Stick, PackID::Mud, PackID::Water];
 
         let y_offset: f64 = 80.0;
         let mut cursor_y: f64 = 50.0;

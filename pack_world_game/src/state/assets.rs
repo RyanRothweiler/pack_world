@@ -36,6 +36,7 @@ pub struct Assets {
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
     pub image_pack_mud: Image,
+    pub image_pack_water: Image,
 }
 
 impl Assets {
@@ -75,6 +76,7 @@ impl Assets {
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
             image_pack_mud: Image::new(),
+            image_pack_water: Image::new(),
         }
     }
 
@@ -105,6 +107,7 @@ impl Assets {
             PackID::Starter => return self.image_pack_starter.gl_id,
             PackID::Stick => return self.image_pack_stick.gl_id,
             PackID::Mud => return self.image_pack_mud.gl_id,
+            PackID::Water => return self.image_pack_water.gl_id,
         };
     }
 
