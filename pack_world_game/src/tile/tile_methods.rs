@@ -324,16 +324,19 @@ impl TileMethods {
                 let id: i32 = 12;
 
                 save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
             }
             TileMethods::Reed(state) => {
                 let id: i32 = 13;
 
                 save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
             }
             TileMethods::Clam(state) => {
                 let id: i32 = 14;
 
                 save_file.save_i32(&type_key, id);
+                state.save_file_write(state_key, save_file)?;
             }
         }
 
@@ -403,6 +406,24 @@ mod tests {
         TileMudPit::new_methods()
             .save_file_write("mudpit".into(), &mut save_file)
             .unwrap();
+        TileTallGrass::new_methods()
+            .save_file_write("tall_grass".into(), &mut save_file)
+            .unwrap();
+        TileFrog::new_methods(GridPos::new(5, 5))
+            .save_file_write("frog".into(), &mut save_file)
+            .unwrap();
+        TileWater::new_methods()
+            .save_file_write("water".into(), &mut save_file)
+            .unwrap();
+        TileNewt::new_methods(GridPos::new(5, 5))
+            .save_file_write("newt".into(), &mut save_file)
+            .unwrap();
+        TileReed::new_methods()
+            .save_file_write("reed".into(), &mut save_file)
+            .unwrap();
+        TileClam::new_methods()
+            .save_file_write("clam".into(), &mut save_file)
+            .unwrap();
 
         match TileMethods::save_file_load("dirt".into(), GridPos::new(0, 0), &save_file).unwrap() {
             TileMethods::Dirt(state) => {}
@@ -440,6 +461,32 @@ mod tests {
         match TileMethods::save_file_load("mudpit".into(), GridPos::new(0, 0), &save_file).unwrap()
         {
             TileMethods::MudPit(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("tall_grass".into(), GridPos::new(0, 0), &save_file)
+            .unwrap()
+        {
+            TileMethods::TallGrass(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("frog".into(), GridPos::new(0, 0), &save_file).unwrap() {
+            TileMethods::Frog(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("water".into(), GridPos::new(0, 0), &save_file).unwrap() {
+            TileMethods::Water(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("newt".into(), GridPos::new(0, 0), &save_file).unwrap() {
+            TileMethods::Newt(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("reed".into(), GridPos::new(0, 0), &save_file).unwrap() {
+            TileMethods::Reed(state) => {}
+            _ => panic!("Incorrect"),
+        }
+        match TileMethods::save_file_load("clam".into(), GridPos::new(0, 0), &save_file).unwrap() {
+            TileMethods::Clam(state) => {}
             _ => panic!("Incorrect"),
         }
     }

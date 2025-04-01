@@ -329,7 +329,7 @@ pub fn main_loop() {
             if !loaded_data.is_empty() {
                 ENGINE_STATE.as_mut().unwrap().game_to_load = loaded_data.clone();
                 loaded_data.clear();
-                log("Laoded game data");
+                log("Loaded game data from idb");
             }
         }
 

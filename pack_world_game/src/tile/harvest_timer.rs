@@ -65,8 +65,12 @@ impl HarvestTimer {
         let length_key = format!("{}.l", key_parent);
         let time_key = format!("{}.t", key_parent);
 
-        let length = save_file.load_f64(&length_key).unwrap();
-        let time = save_file.load_f64(&time_key).unwrap();
+        let length = save_file
+            .load_f64(&length_key)
+            .expect(&format!("Misisng key {length_key}"));
+        let time = save_file
+            .load_f64(&time_key)
+            .expect(&format!("Misisng key {length_key}"));
 
         let mut timer = Self::new(length, FixedTableID::Grass);
         timer.time = time;
