@@ -13,6 +13,11 @@ pub enum ItemType {
     Baby,
     Berry,
     MudBaby,
+    Pearl,
+    OldBoot,
+    Seaweed,
+    TrashBag,
+    OldHat,
 
     Tile(TileType),
 }
@@ -29,6 +34,11 @@ impl ItemType {
             ItemType::Baby => item_data::baby::TITLE,
             ItemType::Berry => item_data::berry::TITLE,
             ItemType::MudBaby => item_data::mud_baby::TITLE,
+            ItemType::Pearl => item_data::pearl::TITLE,
+            ItemType::OldBoot => "Old Boot",
+            ItemType::Seaweed => "Seaweed",
+            ItemType::TrashBag => "Trash Bat",
+            ItemType::OldHat => "Old Hat",
 
             ItemType::Tile(tile_type) => tile_type.user_title(),
         }
@@ -92,6 +102,21 @@ impl ItemType {
             Self::MudBaby => {
                 save_file.save_i32(&id_key, 9);
             }
+            Self::Pearl => {
+                save_file.save_i32(&id_key, 10);
+            }
+            Self::OldBoot => {
+                save_file.save_i32(&id_key, 11);
+            }
+            Self::Seaweed => {
+                save_file.save_i32(&id_key, 12);
+            }
+            Self::TrashBag => {
+                save_file.save_i32(&id_key, 13);
+            }
+            Self::OldHat => {
+                save_file.save_i32(&id_key, 14);
+            }
         }
 
         Ok(())
@@ -117,6 +142,11 @@ impl ItemType {
                 return Ok(Self::Tile(TileType::from_index(tile_id)?));
             }
             9 => Ok(Self::MudBaby),
+            10 => Ok(Self::Pearl),
+            11 => Ok(Self::OldBoot),
+            12 => Ok(Self::Seaweed),
+            13 => Ok(Self::TrashBag),
+            14 => Ok(Self::OldHat),
             _ => panic!("Invalid item id"),
         }
     }

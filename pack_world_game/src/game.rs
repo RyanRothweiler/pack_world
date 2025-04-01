@@ -153,6 +153,16 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/reed.png"), render_api).unwrap();
     gs.assets.image_clam =
         load_image_cursor(include_bytes!("../resources/clam.png"), render_api).unwrap();
+    gs.assets.image_pearl =
+        load_image_cursor(include_bytes!("../resources/pearl.png"), render_api).unwrap();
+    gs.assets.image_old_boot =
+        load_image_cursor(include_bytes!("../resources/old_boot.png"), render_api).unwrap();
+    gs.assets.image_seaweed =
+        load_image_cursor(include_bytes!("../resources/seaweed.png"), render_api).unwrap();
+    gs.assets.image_trash_bag =
+        load_image_cursor(include_bytes!("../resources/trash_bag.png"), render_api).unwrap();
+    gs.assets.image_old_hat =
+        load_image_cursor(include_bytes!("../resources/old_hat.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 

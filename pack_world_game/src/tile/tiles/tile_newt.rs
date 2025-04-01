@@ -30,7 +30,7 @@ pub struct TileNewt {
 impl TileNewt {
     pub fn new_methods(pos: GridPos) -> TileMethods {
         TileMethods::Newt(TileNewt {
-            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::SmallGold),
             target_grid_offset: GridPos::new(1, 1),
             curr_world_pos: grid_to_world(&pos),
         })

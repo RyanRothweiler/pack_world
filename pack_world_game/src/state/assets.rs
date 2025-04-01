@@ -27,6 +27,11 @@ pub struct Assets {
     pub image_newt: Image,
     pub image_reed: Image,
     pub image_clam: Image,
+    pub image_pearl: Image,
+    pub image_old_boot: Image,
+    pub image_seaweed: Image,
+    pub image_trash_bag: Image,
+    pub image_old_hat: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -61,6 +66,11 @@ impl Assets {
             image_newt: Image::new(),
             image_reed: Image::new(),
             image_clam: Image::new(),
+            image_pearl: Image::new(),
+            image_old_boot: Image::new(),
+            image_seaweed: Image::new(),
+            image_trash_bag: Image::new(),
+            image_old_hat: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
@@ -109,6 +119,11 @@ impl Assets {
             ItemType::Baby => return self.image_baby.gl_id,
             ItemType::Berry => return self.image_berry.gl_id,
             ItemType::MudBaby => return self.image_mud_baby.gl_id,
+            ItemType::Pearl => return self.image_pearl.gl_id,
+            ItemType::OldBoot => return self.image_old_boot.gl_id,
+            ItemType::Seaweed => return self.image_seaweed.gl_id,
+            ItemType::TrashBag => return self.image_trash_bag.gl_id,
+            ItemType::OldHat => return self.image_old_hat.gl_id,
 
             ItemType::Tile(tile_type) => return self.get_tile_image_opt(tile_type),
         };

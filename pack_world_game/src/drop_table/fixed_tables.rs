@@ -9,6 +9,8 @@ pub use test_tables::*;
 // item
 mod drop_table_boulder;
 mod drop_table_cave;
+mod drop_table_clam;
+mod drop_table_frog;
 mod drop_table_grass;
 mod drop_table_mud_pit;
 mod drop_table_oak_tree;
@@ -18,6 +20,8 @@ mod drop_table_tall_grass;
 
 use drop_table_boulder::*;
 use drop_table_cave::*;
+use drop_table_clam::*;
+use drop_table_frog::*;
 use drop_table_grass::*;
 use drop_table_mud_pit::*;
 use drop_table_oak_tree::*;
@@ -45,6 +49,8 @@ pub enum FixedTableID {
     Shrub,
     MudPit,
     TallGrass,
+    Frog,
+    Clam,
 
     Pack(PackID),
 
@@ -100,6 +106,12 @@ impl FixedTableID {
             FixedTableID::TallGrass => {
                 save_file.save_i32(&type_key, 8);
             }
+            FixedTableID::Frog => {
+                save_file.save_i32(&type_key, 9);
+            }
+            FixedTableID::Clam => {
+                save_file.save_i32(&type_key, 10);
+            }
 
             #[cfg(feature = "dev")]
             FixedTableID::TestTable
@@ -132,6 +144,8 @@ impl FixedTableID {
             }
             7 => FixedTableID::MudPit,
             8 => FixedTableID::TallGrass,
+            9 => FixedTableID::Frog,
+            10 => FixedTableID::Clam,
 
             _ => return Err(Error::UnknownFixedTableID(ty)),
         };
@@ -164,6 +178,8 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
         FixedTableID::Shrub => &SHRUB,
         FixedTableID::MudPit => &MUD_PIT,
         FixedTableID::TallGrass => &TALL_GRASS,
+        FixedTableID::Frog => &FROG,
+        FixedTableID::Clam => &CLAM,
 
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,

@@ -30,7 +30,7 @@ pub struct TileFrog {
 impl TileFrog {
     pub fn new_methods(pos: GridPos) -> TileMethods {
         TileMethods::Frog(TileFrog {
-            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
             target_grid_offset: GridPos::new(1, 1),
             curr_world_pos: grid_to_world(&pos),
         })

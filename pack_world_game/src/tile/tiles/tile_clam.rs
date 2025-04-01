@@ -30,7 +30,7 @@ impl TileClam {
     pub fn new_methods() -> TileMethods {
         println!("clam methods!");
         TileMethods::Clam(TileClam {
-            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Clam),
         })
     }
 

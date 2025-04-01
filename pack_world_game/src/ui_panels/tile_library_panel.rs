@@ -272,7 +272,12 @@ impl TileLibraryPanel {
             | ItemType::MudBaby
             | ItemType::Rock
             | ItemType::Berry
+            | ItemType::Pearl
             | ItemType::OakLog
+            | ItemType::OldBoot
+            | ItemType::Seaweed
+            | ItemType::TrashBag
+            | ItemType::OldHat
             | ItemType::DragonEgg
             | ItemType::Baby
             | ItemType::Acorn => {

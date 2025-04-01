@@ -29,7 +29,7 @@ pub struct TileReed {
 impl TileReed {
     pub fn new_methods() -> TileMethods {
         TileMethods::Reed(TileReed {
-            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
+            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::SmallGold),
         })
     }
 
