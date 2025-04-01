@@ -3,8 +3,7 @@ use std::sync::LazyLock;
 
 pub static TALL_GRASS: LazyLock<DropTable> = LazyLock::new(|| {
     DropTable::new(vec![
-        // (EntryOutput::new_table(FixedTableID::SmallGold, 3), 25.0),
-        // (EntryOutput::new_item(ItemType::DragonEgg, 1), 0.1),
+        (EntryOutput::new_table(FixedTableID::SmallGold, 3), 25.0),
         // (EntryOutput::new_item(ItemType::Baby, 1), 15.0),
     ])
 });

@@ -45,7 +45,8 @@ impl Inventory {
 
         // Will we be above the limit?
         if !self.items.contains_key(&item_type) && self.items.len() >= self.limit {
-            return Err(Error::HitBankLimit);
+            // Don't enforce bank limit for now.
+            // return Err(Error::HitBankLimit);
         }
 
         // Add item

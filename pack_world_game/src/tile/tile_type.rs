@@ -48,7 +48,22 @@ impl TileType {
         match self {
             TileType::Dirt => Some(tile_dirt::DESC),
             TileType::Water => Some(tile_water::DESC),
-            _ => None,
+
+            TileType::Grass => Some("Drops basic resources."),
+            TileType::Boulder => Some("Drops basic resources."),
+            TileType::OakTree => Some("Drops construction resources."),
+            TileType::BirdNest => {
+                Some("Must be placed in a tree. Adds acorn drops to adjacent grass.")
+            }
+            TileType::Cave => Some("Drops babies and eggs."),
+            TileType::Shrub => Some("Drops basic food."),
+            TileType::MudPit => Some("Drops mud babies and ground tiles."),
+            TileType::Frog => Some("Must be placed in tall grass. Drops potion resourcs."),
+            TileType::Newt => Some("Must be placed in water. Drops potion resources."),
+            TileType::Reed => Some("Must be placed in mud. Drops potion resources"),
+            TileType::Clam => Some("Drops trash and occasionally pearls."),
+
+            TileType::TallGrass => None,
         }
     }
 

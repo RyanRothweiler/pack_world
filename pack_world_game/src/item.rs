@@ -49,7 +49,22 @@ impl ItemType {
     pub fn user_description(&self) -> Option<&str> {
         let mut ret = match self {
             ItemType::Tile(tile_type) => tile_type.user_description(),
-            _ => None,
+
+            ItemType::Acorn => Some("An acrod"),
+            ItemType::DirtClod => Some("Basic introductory resource"),
+            ItemType::Stick => Some("Basic introductory resource"),
+            ItemType::Rock => Some("Basic introductory resource"),
+            ItemType::OakLog => Some("Basic introductory resource"),
+            ItemType::DragonEgg => Some("Hatches into a dragon in the right environment!"),
+            ItemType::Baby => Some("Grows up to be a big boy one day."),
+            ItemType::Berry => Some("Basic food resource"),
+            ItemType::MudBaby => Some("Grows up to be a big mud boy one day."),
+            ItemType::Pearl => Some("Contains life."),
+            ItemType::OldBoot => Some("Just some trash."),
+            ItemType::Seaweed => Some("Just some trash."),
+            ItemType::TrashBag => Some("Just some trash."),
+            ItemType::OldHat => Some("Just some trash."),
+            ItemType::Dew => Some("Just some trash."),
         };
 
         ret
