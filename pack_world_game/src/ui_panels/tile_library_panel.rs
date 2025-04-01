@@ -35,7 +35,7 @@ impl TileLibraryPanel {
         let base_rect = Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y);
         begin_panel(base_rect, BG_COLOR, &mut ui_state, ui_context);
         {
-            let mut item_hovering: Option<(f64, ItemType)> = None;
+            let mut item_hovering: Option<(Rect, ItemType)> = None;
 
             let col_count = 5;
             // generate a bunch more than we need
@@ -130,15 +130,12 @@ impl TileLibraryPanel {
             let grey_color = Color::new(grey, grey, grey, 1.0);
 
             // draw hover
-            if let Some((y_pos, item_type)) = item_hovering {
+            if let Some((button_rect, item_type)) = item_hovering {
                 // let y: f64 = 50.0 + (Y_OFFSET * index as f64);
-                let button_rect = Rect::new_top_size(VecTwo::new(10.0, y_pos), 50.0, 50.0);
-
-                // render hover detials
-                let mut rect_offset = button_rect;
+                // let button_rect = Rect::new_top_size(VecTwo::new(10.0, y_pos), 50.0, 50.0);
 
                 let mut details_rect = Rect::new_size(100.0, 50.0);
-                details_rect.set_center(rect_offset.get_center() + VecTwo::new(110.0, 0.0));
+                details_rect.set_center(button_rect.get_center() + VecTwo::new(110.0, 0.0));
 
                 draw_rect(details_rect, grey_color, ui_state, ui_context);
 
@@ -237,7 +234,7 @@ impl TileLibraryPanel {
         i: i32,
         item_type: &ItemType,
         count: &i64,
-        mut item_hovering: &mut Option<(f64, ItemType)>,
+        mut item_hovering: &mut Option<(Rect, ItemType)>,
         mut y_cursor: &mut f64,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
@@ -303,7 +300,7 @@ impl TileLibraryPanel {
             let mut rect_offset = button_rect;
             rect_offset.translate(ui_state.get_origin());
             if rect_offset.contains(ui_context.mouse.pos) {
-                *item_hovering = Some((*y_cursor, *item_type));
+                *item_hovering = Some((button_rect, *item_type));
             }
         }
 
