@@ -65,12 +65,17 @@ impl ShopPanel {
                     let icon = assets.get_item_icon(&cost.0);
                     let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
 
-                    draw_image(r, icon, COLOR_WHITE, ui_state, ui_context);
+                    let mut color = COLOR_WHITE;
+                    if !inventory.has_atleast(cost.0, cost.1) {
+                        color = COLOR_RED;
+                    }
+
+                    draw_image(r, icon, color, ui_state, ui_context);
 
                     draw_text(
                         &format!("{}", cost.1),
                         cost_origin + VecTwo::new(40.0, 30.0),
-                        COLOR_WHITE,
+                        color,
                         &ui_context.font_body.clone(),
                         ui_state,
                         ui_context,

@@ -17,7 +17,7 @@ use gengar_engine::{
 
 pub const TITLE: &str = "Shrub";
 
-const HARVEST_SECONDS: f64 = 60.0;
+const HARVEST_SECONDS: f64 = 40.0;
 
 #[derive(Debug)]
 pub struct TileShrub {

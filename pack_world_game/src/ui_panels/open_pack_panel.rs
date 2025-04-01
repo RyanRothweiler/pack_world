@@ -55,14 +55,8 @@ impl OpenPackPanel {
 
         let pack_image_size = VecTwo::new(448.0, 604.0) * 0.35;
 
-        let button_rect = Rect::new_center(
-            panel_r.get_center() + VecTwo::new(-250.0, 100.0),
-            pack_image_size,
-        );
-        let close_rect = Rect::new_center(
-            panel_r.get_center() + VecTwo::new(-250.0, 250.0),
-            VecTwo::new(100.0, 30.0),
-        );
+        let button_rect = Rect::new_center(VecTwo::new(100.0, 150.0), pack_image_size);
+        let close_rect = Rect::new_center(VecTwo::new(100.0, 150.0), VecTwo::new(100.0, 30.0));
 
         if self.items_remaining > 0 {
             if draw_button(
