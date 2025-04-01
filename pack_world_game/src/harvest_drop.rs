@@ -18,7 +18,7 @@ pub static GROUND_LEN: f64 = 0.035;
 pub static INVENTORY_LEN: f64 = 0.02;
 
 pub static DROP_RADIUS: f64 = 55.0;
-pub static ICON_SIZE: f64 = 30.0;
+pub static ICON_SIZE: f64 = 35.0;
 pub static SIN_HEIGHT: f64 = 50.0;
 
 pub struct HarvestDrop {
@@ -38,9 +38,6 @@ impl HarvestDrop {
         // not a uniform randomness here
         let x: f64 = ((platform_api.rand)() * DROP_RADIUS * 2.0) - DROP_RADIUS;
         let y: f64 = ((platform_api.rand)() * DROP_RADIUS * 2.0) - DROP_RADIUS;
-
-        // let x: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
-        // let y: f64 = rand::random_range(-DROP_RADIUS..DROP_RADIUS);
 
         Self {
             drop,
@@ -88,6 +85,24 @@ impl HarvestDrop {
             let mut t: f64 = (t_step / INVENTORY_LEN).clamp(0.0, 1.0);
 
             self.pos = VecTwo::lerp(self.ground_pos, VecTwo::new(0.0, 0.0), t);
+        }
+
+        // draw glow
+        {
+            let s = 2.5;
+            let mut rect = Rect::new_size(ICON_SIZE * s, ICON_SIZE * s);
+            rect.shrink(lerp(ICON_SIZE * 0.5, 0.0, self.time / CIRCLE_LEN));
+
+            rect.set_center(self.pos);
+
+            let mut mat = Material::new();
+            mat.shader = Some(shader);
+            mat.set_image(assets.image_glow.gl_id.unwrap());
+            mat.set_color(Color::new(1.0, 1.0, 1.0, 0.4));
+
+            render_pack
+                .commands
+                .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
         }
 
         // draw

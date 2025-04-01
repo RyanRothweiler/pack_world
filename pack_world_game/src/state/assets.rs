@@ -33,6 +33,7 @@ pub struct Assets {
     pub image_trash_bag: Image,
     pub image_old_hat: Image,
     pub image_dew: Image,
+    pub image_glow: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -74,6 +75,7 @@ impl Assets {
             image_trash_bag: Image::new(),
             image_old_hat: Image::new(),
             image_dew: Image::new(),
+            image_glow: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),

@@ -167,6 +167,8 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/pack_water.png"), render_api).unwrap();
     gs.assets.image_dew =
         load_image_cursor(include_bytes!("../resources/dew.png"), render_api).unwrap();
+    gs.assets.image_glow =
+        load_image_cursor(include_bytes!("../resources/glow.png"), render_api).unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
