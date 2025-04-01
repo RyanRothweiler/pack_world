@@ -8,8 +8,8 @@ use std::sync::LazyLock;
 pub static WATER: LazyLock<Pack> = LazyLock::new(|| {
     Pack::new(
         "Water".into(),
-        vec![(ItemType::DirtClod, 5)],
+        vec![(ItemType::Dew, 10)],
         4,
-        FixedTableID::Pack(PackID::Starter),
+        FixedTableID::Pack(PackID::Water),
     )
 });

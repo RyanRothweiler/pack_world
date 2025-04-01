@@ -60,11 +60,15 @@ mod tests {
                 PackID::Mud => {
                     assert_eq!(PackID::from_index(PackID::Mud.to_index()), PackID::Mud)
                 }
+                PackID::Water => {
+                    assert_eq!(PackID::from_index(PackID::Water.to_index()), PackID::Water)
+                }
             };
         }
 
         validate(PackID::Starter);
         validate(PackID::Stick);
         validate(PackID::Mud);
+        validate(PackID::Water);
     }
 }

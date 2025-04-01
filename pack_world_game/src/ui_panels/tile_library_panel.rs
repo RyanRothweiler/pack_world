@@ -276,6 +276,7 @@ impl TileLibraryPanel {
             | ItemType::OakLog
             | ItemType::OldBoot
             | ItemType::Seaweed
+            | ItemType::Dew
             | ItemType::TrashBag
             | ItemType::OldHat
             | ItemType::DragonEgg

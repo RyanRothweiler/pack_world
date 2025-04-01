@@ -10,12 +10,13 @@ use gengar_engine::{
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    time::*,
     ui::*,
 };
 
 pub const TITLE: &str = "Cave";
 
-const HARVEST_SECONDS: f64 = 10800.0;
+const HARVEST_SECONDS: f64 = days_to_seconds(1.5);
 
 #[derive(Debug)]
 pub struct TileCave {

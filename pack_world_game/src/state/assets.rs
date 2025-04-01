@@ -32,6 +32,7 @@ pub struct Assets {
     pub image_seaweed: Image,
     pub image_trash_bag: Image,
     pub image_old_hat: Image,
+    pub image_dew: Image,
 
     pub image_pack_starter: Image,
     pub image_pack_stick: Image,
@@ -72,6 +73,7 @@ impl Assets {
             image_seaweed: Image::new(),
             image_trash_bag: Image::new(),
             image_old_hat: Image::new(),
+            image_dew: Image::new(),
 
             image_pack_starter: Image::new(),
             image_pack_stick: Image::new(),
@@ -127,6 +129,7 @@ impl Assets {
             ItemType::Seaweed => return self.image_seaweed.gl_id,
             ItemType::TrashBag => return self.image_trash_bag.gl_id,
             ItemType::OldHat => return self.image_old_hat.gl_id,
+            ItemType::Dew => return self.image_dew.gl_id,
 
             ItemType::Tile(tile_type) => return self.get_tile_image_opt(tile_type),
         };

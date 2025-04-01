@@ -18,6 +18,7 @@ pub enum ItemType {
     Seaweed,
     TrashBag,
     OldHat,
+    Dew,
 
     Tile(TileType),
 }
@@ -37,8 +38,9 @@ impl ItemType {
             ItemType::Pearl => item_data::pearl::TITLE,
             ItemType::OldBoot => "Old Boot",
             ItemType::Seaweed => "Seaweed",
-            ItemType::TrashBag => "Trash Bat",
+            ItemType::TrashBag => "Trash Bag",
             ItemType::OldHat => "Old Hat",
+            ItemType::Dew => "Dew",
 
             ItemType::Tile(tile_type) => tile_type.user_title(),
         }
@@ -117,6 +119,9 @@ impl ItemType {
             Self::OldHat => {
                 save_file.save_i32(&id_key, 14);
             }
+            Self::Dew => {
+                save_file.save_i32(&id_key, 15);
+            }
         }
 
         Ok(())
@@ -147,6 +152,7 @@ impl ItemType {
             12 => Ok(Self::Seaweed),
             13 => Ok(Self::TrashBag),
             14 => Ok(Self::OldHat),
+            15 => Ok(Self::Dew),
             _ => panic!("Invalid item id"),
         }
     }

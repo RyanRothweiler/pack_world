@@ -12,12 +12,13 @@ use gengar_engine::{
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    time::*,
     ui::*,
 };
 
 pub const TITLE: &str = "Mud Pit";
 
-const HARVEST_SECONDS: f64 = 240.0;
+const HARVEST_SECONDS: f64 = minutes_to_seconds(4.0);
 
 #[derive(Debug)]
 pub struct TileMudPit {

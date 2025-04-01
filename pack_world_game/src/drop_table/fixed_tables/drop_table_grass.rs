@@ -5,6 +5,7 @@ pub static GRASS: LazyLock<DropTable> = LazyLock::new(|| {
     DropTable::new(vec![
         (EntryOutput::new_item(ItemType::DirtClod, 1), 10.0),
         (EntryOutput::new_item(ItemType::Stick, 1), 4.0),
+        (EntryOutput::new_item(ItemType::Dew, 1), 4.0),
     ])
 });
 

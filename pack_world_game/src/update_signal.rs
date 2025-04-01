@@ -10,7 +10,7 @@ use crate::{
     ui_panels::{home_panel::*, *},
     world::world_layer::*,
 };
-use gengar_engine::{platform_api::*, vectors::*};
+use gengar_engine::{analytics::*, platform_api::*, vectors::*};
 
 // TODO maybe consolidate shot purchases into one enum.
 // with state for the type of purchase
@@ -95,6 +95,7 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                         continue;
                     }
 
+                    (platform_api.send_event)(AnalyticsEvent::PackOpen(format!("{:?}", pack_id)));
                     pack_info.spend(&mut gs.inventory);
 
                     let new_panel_data = CreatePanelData::OpenPack { pack_id: *pack_id };

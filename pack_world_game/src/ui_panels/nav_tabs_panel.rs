@@ -19,12 +19,13 @@ impl NavTabsPanel {
 
         let y_offset: f64 = 80.0;
 
-        let inv_disp = format!("Bank ({}/{})", inventory.items.len(), inventory.limit);
+        // let inv_disp = format!("Bank ({}/{})", inventory.items.len(), inventory.limit);
+        let inv_disp = "Inventory";
 
         if draw_button(
             &inv_disp,
             ButtonStyleData::new_outline(None),
-            &Rect::new_top_size(VecTwo::new(10.0, 50.0), 50.0, 50.0),
+            &Rect::new_top_size(VecTwo::new(10.0, 50.0), 120.0, 50.0),
             ui_state,
             std::line!(),
             ui_context,
@@ -36,7 +37,7 @@ impl NavTabsPanel {
         if draw_button(
             "Shop",
             ButtonStyleData::new_outline(None),
-            &Rect::new_top_size(VecTwo::new(200.0, 50.0), 50.0, 50.0),
+            &Rect::new_top_size(VecTwo::new(200.0, 50.0), 120.0, 50.0),
             ui_state,
             std::line!(),
             ui_context,

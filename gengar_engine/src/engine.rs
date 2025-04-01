@@ -22,6 +22,7 @@ pub mod platform_api;
 pub mod rect;
 pub mod render;
 pub mod state;
+pub mod time;
 pub mod transform;
 pub mod typeface;
 pub mod ui;

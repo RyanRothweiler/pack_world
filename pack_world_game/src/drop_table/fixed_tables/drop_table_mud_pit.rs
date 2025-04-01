@@ -7,7 +7,7 @@ pub static MUD_PIT: LazyLock<DropTable> = LazyLock::new(|| {
         (EntryOutput::new_tile(TileType::Dirt, 4), 5.0),
         (EntryOutput::new_tile(TileType::Dirt, 10), 1.0),
         (EntryOutput::new_tile(TileType::Dirt, 25), 0.1),
-        (EntryOutput::new_item(ItemType::MudBaby, 1), 0.8),
+        (EntryOutput::new_item(ItemType::MudBaby, 1), 0.5),
     ])
 });
 
