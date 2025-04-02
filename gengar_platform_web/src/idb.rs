@@ -23,8 +23,6 @@ async fn get_db() -> rexie::Rexie {
 }
 
 pub async fn db_save(data: Vec<u8>) {
-    // super::log(&format!("bytes writing: {:?}", data));
-
     let rexie = get_db().await;
 
     // Convert Vec<u8> to Uint8Array
@@ -44,7 +42,8 @@ pub async fn db_save(data: Vec<u8>) {
     store.put(&obj, None).await.unwrap();
 
     tx.commit().await.unwrap();
-    super::log("Write save file to idb");
+
+    super::log("Wrote save file to idb");
 }
 
 pub async fn db_load() {
@@ -55,8 +54,24 @@ pub async fn db_load() {
         .unwrap();
     let store = tx.store("saves").unwrap();
 
+    // unwrap().unwrap();
     // Retrieve the stored entry using the ID (1)
-    let result = store.get(JsValue::from_f64(1.0)).await.unwrap().unwrap();
+    let result_first = match store.get(JsValue::from_f64(1.0)).await {
+        Ok(v) => v,
+
+        Err(error) => {
+            super::log("Error getting save file.");
+            return;
+        }
+    };
+
+    let result = match result_first {
+        Some(v) => v,
+        None => {
+            super::log("Couldn't find save file.");
+            return;
+        }
+    };
 
     // Check if the result is valid
     if let Some(obj) = result.dyn_into::<js_sys::Object>().ok() {
@@ -67,7 +82,14 @@ pub async fn db_load() {
         {
             let rust_bytes = data.to_vec();
             super::log("Retrieved save file from idb");
-            *LOADED_DATA.lock().unwrap() = rust_bytes;
+            match LOADED_DATA.lock() {
+                Ok(mut v) => {
+                    *v = rust_bytes;
+                }
+                Err(e) => {
+                    super::log("Loaded data locked. Probably Already loading.");
+                }
+            }
         } else {
             super::log(&format!("Failed to retrieve 'data' field."));
         }

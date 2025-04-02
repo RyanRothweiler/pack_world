@@ -3,7 +3,7 @@ use std::sync::LazyLock;
 
 pub static PACK_STARTER: LazyLock<DropTable> = LazyLock::new(|| {
     DropTable::new(vec![
-        (EntryOutput::new_tile(TileType::Grass, 1), 14.0),
+        (EntryOutput::new_tile(TileType::Grass, 1), 16.0),
         (EntryOutput::new_tile(TileType::Dirt, 1), 25.0),
         (EntryOutput::new_tile(TileType::Shrub, 1), 5.0),
         (EntryOutput::new_tile(TileType::Boulder, 1), 5.0),

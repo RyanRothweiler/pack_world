@@ -30,8 +30,8 @@
     init().then(() => {
 
       const renderLoop = () => {
-        main_loop();
         requestAnimationFrame(renderLoop);
+        main_loop();
       };
 
       requestAnimationFrame(renderLoop);
@@ -69,6 +69,7 @@
         on_before_unload(event);
       });
 
+      console.log("Html render loop setup finished.");
     });
   </script>
 </body>

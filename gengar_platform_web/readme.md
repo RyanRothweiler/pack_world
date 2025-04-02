@@ -7,6 +7,10 @@ The web platform implementation for the Ghostly game
 # Run server
 "python3 -m http.server"
 
-# Deploy to firebase
+# Firebase
+First setup new project with 
+firebase init
+
+To Deploy
 - Copy index file and pkg folder into firebase_hosting/public
-- Run "firebase deploy"
+- Run "firebase deploy" from firebase_hosting folder

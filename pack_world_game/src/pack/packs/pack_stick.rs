@@ -8,7 +8,7 @@ use std::sync::LazyLock;
 pub static STICK: LazyLock<Pack> = LazyLock::new(|| {
     Pack::new(
         "Stick".into(),
-        vec![(ItemType::DirtClod, 20), (ItemType::Stick, 20)],
+        vec![(ItemType::Stick, 20)],
         4,
         FixedTableID::Pack(PackID::Stick),
     )

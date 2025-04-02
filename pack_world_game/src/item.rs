@@ -64,7 +64,7 @@ impl ItemType {
             ItemType::Seaweed => Some("Just some trash."),
             ItemType::TrashBag => Some("Just some trash."),
             ItemType::OldHat => Some("Just some trash."),
-            ItemType::Dew => Some("Just some trash."),
+            ItemType::Dew => Some("Morning dew. Get enough and open a water pack."),
         };
 
         ret

@@ -61,7 +61,7 @@ fn rand() -> f64 {
 }
 
 fn send_event(event: AnalyticsEvent) {
-    wasm_bindgen_futures::spawn_local(send_event_async(event));
+    // wasm_bindgen_futures::spawn_local(send_event_async(event));
 }
 
 async fn send_event_async(event: AnalyticsEvent) {
