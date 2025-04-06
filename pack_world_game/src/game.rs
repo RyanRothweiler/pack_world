@@ -183,6 +183,11 @@ pub fn game_init(
             size: 4.0,
             typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
         };
+
+        gs.font_style_nav = FontStyle {
+            size: 3.0,
+            typeface: es.roboto_typeface.get_weight(TypeWeight::Bold),
+        };
     }
 
     // setup initial UI
@@ -252,6 +257,7 @@ pub fn game_loop(
 
             font_body: gs.font_style_body.clone(),
             font_header: gs.font_style_header.clone(),
+            font_nav: gs.font_style_nav.clone(),
 
             render_commands: vec![],
             button_state: HashMap::new(),

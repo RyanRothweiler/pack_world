@@ -156,6 +156,23 @@ impl FontStyle {
 
         ret
     }
+
+    pub fn get_word_height(&self, word: &str) -> f64 {
+        let mut height_max: f64 = 0.0;
+
+        for c in word.chars() {
+            let glyph: &Glyph = self.typeface.glyphs.get(&c).unwrap();
+            let acc_h = glyph.plane.height() * EM_SCALE * self.size;
+            if acc_h > height_max {
+                height_max = acc_h;
+            }
+            // if glyph
+
+            // ret += glyph.advance * EM_SCALE * KERNING_ADJ * self.size;
+        }
+
+        height_max
+    }
 }
 
 #[derive(Clone, Default)]

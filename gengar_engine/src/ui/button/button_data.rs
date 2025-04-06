@@ -12,6 +12,10 @@ pub struct ButtonData {
     pub on_down: bool,
 
     pub image_shrink: f64,
+    pub y_current: f64,
+
+    /// For hover animations
+    pub hover_time: f64,
 }
 
 impl ButtonData {
@@ -19,6 +23,8 @@ impl ButtonData {
         Self {
             state: ButtonState::Idle,
             image_shrink: 0.0,
+            hover_time: 0.0,
+            y_current: 0.0,
             on_down: false,
         }
     }
@@ -34,6 +40,10 @@ impl ButtonData {
             }
         } else {
             self.state = ButtonState::Idle;
+        }
+
+        if self.state == ButtonState::Hovering {
+            self.hover_time = (self.hover_time + delta_time).clamp(0.0, 1.0);
         }
     }
 }

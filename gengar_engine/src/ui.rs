@@ -23,6 +23,7 @@ pub struct UIContext {
 
     pub font_body: FontStyle,
     pub font_header: FontStyle,
+    pub font_nav: FontStyle,
 
     pub delta_time: f64,
 }
@@ -72,6 +73,28 @@ pub fn draw_image(
     context
         .render_commands
         .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
+}
+
+pub fn text_bounding_box(
+    display: &str,
+    pos: VecTwo,
+    style: &FontStyle,
+    ui_state: &mut UIFrameState,
+) -> Rect {
+    let origin = ui_state.get_origin();
+
+    let w = style.get_word_width(display);
+    let h = style.get_word_height(display) * 0.9;
+
+    let mut r = Rect::new_zero();
+    r.top_left = pos;
+    r.top_left.y -= h;
+    r.bottom_right = pos + VecTwo::new(w, 0.0);
+
+    // grow the box slightly
+    r.shrink(-5.0);
+
+    return r;
 }
 
 pub fn draw_text(

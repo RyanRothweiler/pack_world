@@ -37,6 +37,7 @@ pub struct State {
 
     pub font_style_body: FontStyle,
     pub font_style_header: FontStyle,
+    pub font_style_nav: FontStyle,
 
     pub active_ui_panels: Vec<UIPanel>,
     pub active_page: Option<UIPanel>,
@@ -74,6 +75,7 @@ impl State {
 
             font_style_body: Default::default(),
             font_style_header: Default::default(),
+            font_style_nav: Default::default(),
 
             active_page: None,
 

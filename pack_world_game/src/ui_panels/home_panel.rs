@@ -5,7 +5,12 @@ use crate::{
     UpdateSignal,
 };
 use gengar_engine::{
-    platform_api::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
+    platform_api::*,
+    rect::*,
+    render::{material::*, render_command::*},
+    typeface::*,
+    ui::*,
+    vectors::*,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -33,13 +38,7 @@ impl HomePanel {
     ) -> Vec<UpdateSignal> {
         let mut update_signals: Vec<UpdateSignal> = vec![];
 
-        begin_panel(
-            Rect::new_top_size(VecTwo::new(0.0, 0.0), 400.0, 200.0),
-            BG_COLOR,
-            &mut ui_state,
-            ui_context,
-        );
-
+        /*
         // draw gold
         {
             let mut gold_rect = Rect::new(VecTwo::new(0.0, 0.0), VecTwo::new(50.0, 50.0));
@@ -61,6 +60,7 @@ impl HomePanel {
                 ui_context,
             );
         }
+        */
 
         update_signals.append(&mut self.ui_nav_tabs.update(
             ui_state,
@@ -95,8 +95,6 @@ impl HomePanel {
             }
             _ => true,
         });
-
-        end_panel(&mut ui_state, ui_context);
 
         update_signals
     }
