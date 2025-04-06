@@ -20,6 +20,7 @@ impl NavTabsPanel {
         inventory: &Inventory,
         assets: &Assets,
         ui_context: &mut UIContext,
+        current_tab: Tab,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
@@ -27,6 +28,7 @@ impl NavTabsPanel {
             "Inventory",
             VecTwo::new(20.0, 80.0),
             &ui_context.font_nav.clone(),
+            current_tab == Tab::Inventory,
             ui_state,
             std::line!(),
             ui_context,
@@ -38,6 +40,7 @@ impl NavTabsPanel {
             "Shop",
             VecTwo::new(175.0, 80.0),
             &ui_context.font_nav.clone(),
+            current_tab == Tab::Shop,
             ui_state,
             std::line!(),
             ui_context,

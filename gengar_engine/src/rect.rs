@@ -216,6 +216,17 @@ impl Rect {
 
         return r;
     }
+
+    /// Underlines inner
+    pub fn underline(&self, height: f64) -> Rect {
+        let mut r = Rect::new_zero();
+        r.bottom_right = self.bottom_right;
+
+        r.top_left.x = self.top_left.x;
+        r.top_left.y = self.bottom_right.y - height;
+
+        r
+    }
 }
 
 impl Mul<f64> for Rect {

@@ -41,6 +41,7 @@ pub fn draw_text_button(
     display: &str,
     pos: VecTwo,
     style: &FontStyle,
+    underline: bool,
     ui_state: &mut UIFrameState,
     line: u32,
     context: &mut UIContext,
@@ -85,6 +86,18 @@ pub fn draw_text_button(
         context
             .render_commands
             .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
+    }
+
+    if underline {
+        let mut mat = Material::new();
+        mat.shader = Some(context.color_shader);
+        mat.set_color(Color::new(0.0, 0.51, 0.75, 0.5));
+        context.render_commands.push(RenderCommand::new_rect(
+            &bounding.underline(2.0),
+            -1.0,
+            0.0,
+            &mat,
+        ));
     }
 
     draw_text(display, pos, COLOR_WHITE, style, ui_state, context);

@@ -13,7 +13,7 @@ use gengar_engine::{
     vectors::*,
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Tab {
     Shop,
     Inventory,
@@ -62,13 +62,15 @@ impl HomePanel {
         }
         */
 
-        update_signals.append(&mut self.ui_nav_tabs.update(
-            ui_state,
-            inventory,
-            assets,
-            ui_context,
-            platform_api,
-        ));
+        let mut nav_update_sigs = match self.ui_nav_tabs.as_mut() {
+            UIPanel::NavTabs(state) => {
+                state.update(ui_state, inventory, assets, ui_context, self.tab)
+            }
+            _ => {
+                panic!("Only nav tab panel shoul be here");
+            }
+        };
+        update_signals.append(&mut nav_update_sigs);
 
         match self.tab {
             Tab::Shop => update_signals.append(&mut self.ui_shop.update(

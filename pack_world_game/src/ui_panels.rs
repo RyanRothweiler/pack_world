@@ -49,7 +49,9 @@ impl UIPanel {
         platform_api: &PlatformApi,
     ) -> Vec<UpdateSignal> {
         match self {
-            UIPanel::NavTabs(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::NavTabs(state) => {
+                panic!("Nav tabs need to be updated manually");
+            }
             UIPanel::TileLibrary(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::Shop(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::Home(state) => {
