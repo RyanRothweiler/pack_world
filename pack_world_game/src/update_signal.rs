@@ -51,6 +51,9 @@ pub enum UpdateSignal {
 
     /// Trigger a game save
     SaveGame,
+
+    /// Open url
+    OpenURL { url: String },
 }
 
 pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_api: &PlatformApi) {
@@ -130,6 +133,11 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                 UpdateSignal::DestroyTile { pos, layer } => {
                     gs.world.destroy_tile(*pos, *layer);
                     vec![UpdateSignal::SaveGame]
+                }
+                UpdateSignal::OpenURL { url } => {
+                    (platform_api.open_url)(url.clone());
+
+                    vec![]
                 }
             };
 

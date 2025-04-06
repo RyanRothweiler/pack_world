@@ -176,6 +176,16 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/dew.png"), render_api).unwrap();
     gs.assets.image_glow =
         load_image_cursor(include_bytes!("../resources/glow.png"), render_api).unwrap();
+    gs.assets.image_twitter = load_image_cursor(
+        include_bytes!("../resources/social_icons/twitter.png"),
+        render_api,
+    )
+    .unwrap();
+    gs.assets.image_bluesky = load_image_cursor(
+        include_bytes!("../resources/social_icons/bluesky.png"),
+        render_api,
+    )
+    .unwrap();
 
     gs.light_trans = Some(es.new_transform());
 
@@ -281,14 +291,14 @@ pub fn game_loop(
     #[cfg(feature = "dev")]
     {
         let fps = 1.0 / prev_delta_time;
-        let g = 0.4;
+        let g = 0.3;
         draw_text(
             &format!(
                 "{:?}fps {:?}ms",
                 fps as i32,
                 (prev_delta_time * 1000.0) as i32
             ),
-            VecTwo::new(es.window_resolution.x - 200.0, 75.0),
+            VecTwo::new(es.window_resolution.x - 150.0, es.window_resolution.y - 5.0),
             Color::new(g, g, g, 1.0),
             &gs.font_style_body,
             &mut ui_frame_state,

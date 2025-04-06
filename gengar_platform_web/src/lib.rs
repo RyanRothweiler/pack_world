@@ -113,6 +113,10 @@ fn epoch_time_ms() -> f64 {
     Date::now()
 }
 
+fn open_url(url: String) {
+    let _ = web_sys::window().unwrap().open_with_url(&url);
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: rand,
@@ -120,6 +124,7 @@ pub fn get_platform_api() -> PlatformApi {
         write_save_game_data: write_save_game_data,
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
+        open_url: open_url,
     }
 }
 

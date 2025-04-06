@@ -51,6 +51,55 @@ impl NavTabsPanel {
             ret.push(UpdateSignal::SetPlacingTile(None));
         }
 
+        {
+            let twitter =
+                Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 60.0, 55.0), 25.0, 25.0);
+            let bluesky =
+                Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 100.0, 55.0), 25.0, 25.0);
+
+            if draw_button_id(
+                0,
+                "",
+                ButtonStyleData::new_shrink(Some(assets.image_twitter.gl_id.unwrap()), 0.2),
+                &twitter,
+                ui_state,
+                std::line!(),
+                ui_context,
+            ) {
+                ret.push(UpdateSignal::OpenURL {
+                    url: "https://x.com/RyanRothweiler".into(),
+                })
+            }
+            if draw_button_id(
+                1,
+                "",
+                ButtonStyleData::new_shrink(Some(assets.image_bluesky.gl_id.unwrap()), 0.2),
+                &bluesky,
+                ui_state,
+                std::line!(),
+                ui_context,
+            ) {
+                ret.push(UpdateSignal::OpenURL {
+                    url: "https://bsky.app/profile/ryanrothweiler.bsky.social".into(),
+                })
+            }
+
+            if draw_text_button(
+                "Join Email List",
+                VecTwo::new(ui_state.resolution.x - 250.0, 75.0),
+                &ui_context.font_body.clone(),
+                false,
+                Some(crate::BUTTON_BG),
+                ui_state,
+                std::line!(),
+                ui_context,
+            ) {
+                ret.push(UpdateSignal::OpenURL {
+                    url: "https://mailchi.mp/932d23a45465/packworld".into(),
+                })
+            }
+        }
+
         // underline separator
         {
             let mut r = Rect::new_zero();

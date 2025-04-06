@@ -25,6 +25,10 @@ fn get_save_game_data() {
     unimplemented!()
 }
 
+fn open_url(url: String) {
+    unimplemented!()
+}
+
 //For testing use the windows platform api. Tests don't run on any other platform.s
 pub fn windows_plaform_api() -> PlatformApi {
     PlatformApi {
@@ -34,5 +38,6 @@ pub fn windows_plaform_api() -> PlatformApi {
         write_save_game_data: write_save_game_data,
         fetch_game_save: get_save_game_data,
         epoch_time_ms: epoch_time_ms,
+        open_url: open_url,
     }
 }
