@@ -13,6 +13,7 @@ pub struct ButtonData {
 
     pub image_shrink: f64,
     pub y_current: f64,
+    pub shrink_current: f64,
 
     /// For hover animations
     pub hover_time: f64,
@@ -22,10 +23,12 @@ impl ButtonData {
     pub fn new() -> Self {
         Self {
             state: ButtonState::Idle,
+            on_down: false,
+
             image_shrink: 0.0,
             hover_time: 0.0,
             y_current: 0.0,
-            on_down: false,
+            shrink_current: 0.0,
         }
     }
 

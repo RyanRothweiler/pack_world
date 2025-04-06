@@ -85,8 +85,8 @@ impl NavTabsPanel {
             }
 
             if draw_text_button(
-                "Join Email List",
-                VecTwo::new(ui_state.resolution.x - 250.0, 35.0),
+                "Join Mailing List",
+                VecTwo::new(ui_state.resolution.x - 265.0, 35.0),
                 &ui_context.font_body.clone(),
                 false,
                 Some(crate::BUTTON_BG),

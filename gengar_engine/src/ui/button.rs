@@ -104,13 +104,25 @@ pub fn draw_text_button_id(
         r.top_left.y -= 0.0;
 
         let mut y_target = r.top_left.y;
+        let mut shrink_target = 0.0;
 
         if button_state.state == ButtonState::Hovering || button_state.state == ButtonState::Down {
             y_target = r.bottom_right.y;
         }
 
+        if button_state.state == ButtonState::Down {
+            shrink_target = 5.0;
+        }
+
         button_state.y_current = lerp(button_state.y_current, y_target, context.delta_time * 35.0);
         r.bottom_right.y = button_state.y_current;
+
+        button_state.shrink_current = lerp(
+            button_state.shrink_current,
+            shrink_target,
+            context.delta_time * 35.0,
+        );
+        r.shrink(button_state.shrink_current);
 
         let mut mat = Material::new();
         mat.shader = Some(context.color_shader);
