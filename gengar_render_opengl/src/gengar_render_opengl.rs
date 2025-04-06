@@ -364,9 +364,16 @@ pub fn render(
     resolution: &VecTwo,
     render_api: &OglRenderApi,
 ) {
-    render_api
-        .platform_api
-        .viewport(0, 0, resolution.x as i32, resolution.y as i32);
+    // Adjust the viewport to take into account the windows titlebar area.
+    // Really not a great solution and obviously will break on other platforms.
+    let windows_title_bar_adj = 40;
+
+    render_api.platform_api.viewport(
+        0,
+        -windows_title_bar_adj,
+        resolution.x as i32,
+        resolution.y as i32,
+    );
 
     render_api.platform_api.enable(GL_DEPTH_TEST);
     render_api.platform_api.enable(GL_BLEND);

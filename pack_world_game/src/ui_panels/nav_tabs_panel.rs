@@ -26,7 +26,7 @@ impl NavTabsPanel {
 
         if draw_text_button(
             "Inventory",
-            VecTwo::new(20.0, 80.0),
+            VecTwo::new(20.0, 40.0),
             &ui_context.font_nav.clone(),
             current_tab == Tab::Inventory,
             None,
@@ -39,7 +39,7 @@ impl NavTabsPanel {
         }
         if draw_text_button(
             "Shop",
-            VecTwo::new(175.0, 80.0),
+            VecTwo::new(175.0, 40.0),
             &ui_context.font_nav.clone(),
             current_tab == Tab::Shop,
             None,
@@ -53,9 +53,9 @@ impl NavTabsPanel {
 
         {
             let twitter =
-                Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 60.0, 55.0), 25.0, 25.0);
+                Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 60.0, 15.0), 25.0, 25.0);
             let bluesky =
-                Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 100.0, 55.0), 25.0, 25.0);
+                Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 100.0, 15.0), 25.0, 25.0);
 
             if draw_button_id(
                 0,
@@ -86,7 +86,7 @@ impl NavTabsPanel {
 
             if draw_text_button(
                 "Join Email List",
-                VecTwo::new(ui_state.resolution.x - 250.0, 75.0),
+                VecTwo::new(ui_state.resolution.x - 250.0, 35.0),
                 &ui_context.font_body.clone(),
                 false,
                 Some(crate::BUTTON_BG),
@@ -103,7 +103,7 @@ impl NavTabsPanel {
         // underline separator
         {
             let mut r = Rect::new_zero();
-            r.top_left = VecTwo::new(0.0, 95.0);
+            r.top_left = VecTwo::new(0.0, 55.0);
             r.bottom_right = VecTwo::new(20000.0, r.top_left.y + 2.0);
 
             let mut mat = Material::new();

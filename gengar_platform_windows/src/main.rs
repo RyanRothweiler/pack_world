@@ -404,7 +404,7 @@ fn main() {
                 ScreenToClient(main_window_handle, &mut cursor_info);
 
                 // Some windows api could be used to get this dynamically.
-                let title_bar_height: f64 = 40.0;
+                let title_bar_height: f64 = 0.0;
 
                 let prev_pos = input.mouse.pos;
                 input.mouse.pos = VecTwo::new(

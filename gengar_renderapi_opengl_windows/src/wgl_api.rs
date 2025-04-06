@@ -354,7 +354,6 @@ pub fn get_ogl_render_api() -> OglRenderApi {
             glDeleteVertexArrays: wgl_get_proc_address!(s!("glDeleteVertexArrays")),
             glDeleteBuffers: wgl_get_proc_address!(s!("glDeleteBuffers")),
 
-            // glViewport: wgl_get_proc_address!(s!("glViewport")),
             glGetUniformLocation: wgl_get_proc_address!(s!("glGetUniformLocation")),
             glUniform1f: wgl_get_proc_address!(s!("glUniform1f")),
             glUniform1i: wgl_get_proc_address!(s!("glUniform1i")),
