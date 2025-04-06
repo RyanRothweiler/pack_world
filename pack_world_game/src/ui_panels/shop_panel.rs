@@ -83,11 +83,13 @@ impl ShopPanel {
                 }
             }
 
-            if draw_button_id(
+            if draw_text_button_id(
                 i as i32,
                 "Show Drop List",
-                ButtonStyleData::new_outline(None),
-                &Rect::new_top_size(desc_origin + VecTwo::new(0.0, 100.0), 150.0, 30.0),
+                desc_origin + VecTwo::new(10.0, 110.0),
+                &ui_context.font_body.clone(),
+                false,
+                Some(crate::BUTTON_BG),
                 ui_state,
                 std::line!(),
                 ui_context,
@@ -109,7 +111,7 @@ impl ShopPanel {
                 if draw_button_id(
                     i as i32,
                     "",
-                    ButtonStyleData::new_shrink(Some(assets.get_pack_icon(&pack_id))),
+                    ButtonStyleData::new_shrink(Some(assets.get_pack_icon(&pack_id)), 1.0),
                     &button_rect,
                     ui_state,
                     std::line!(),

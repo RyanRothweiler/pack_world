@@ -71,6 +71,13 @@ pub const PACKAGE_NAME: &str = "pack_world_game";
 /// maximum ms to forwad sim when loading ame
 const MAX_SIM_MS: f64 = 500.0;
 
+const BUTTON_BG: Color = Color {
+    r: 0.0,
+    g: 0.51,
+    b: 0.75,
+    a: 0.2,
+};
+
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
 pub fn game_init_ogl(

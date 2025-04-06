@@ -13,7 +13,7 @@ pub use button_data::*;
 
 pub enum ButtonStyle {
     OutlineColor,
-    Shrink,
+    Shrink { amount: f64 },
 }
 
 pub struct ButtonStyleData {
@@ -29,9 +29,9 @@ impl ButtonStyleData {
         }
     }
 
-    pub fn new_shrink(image: Option<u32>) -> Self {
+    pub fn new_shrink(image: Option<u32>, amount: f64) -> Self {
         Self {
-            style: ButtonStyle::Shrink,
+            style: ButtonStyle::Shrink { amount: amount },
             image,
         }
     }
@@ -42,16 +42,36 @@ pub fn draw_text_button(
     pos: VecTwo,
     style: &FontStyle,
     underline: bool,
+    background: Option<Color>,
     ui_state: &mut UIFrameState,
     line: u32,
     context: &mut UIContext,
 ) -> bool {
-    let bounding = text_bounding_box(display, pos, style, ui_state);
+    draw_text_button_id(
+        0, display, pos, style, underline, background, ui_state, line, context,
+    )
+}
+
+pub fn draw_text_button_id(
+    id: i32,
+    display: &str,
+    pos: VecTwo,
+    style: &FontStyle,
+    underline: bool,
+    background: Option<Color>,
+    ui_state: &mut UIFrameState,
+    line: u32,
+    context: &mut UIContext,
+) -> bool {
+    let origin = ui_state.get_origin();
+
+    let mut bounding = text_bounding_box(display, pos, style, ui_state);
+    bounding.translate(origin);
 
     let button_on_down;
 
     // handle state
-    let id = format!("{}{}", display, line);
+    let id = format!("{}{}{}", display, line, id);
     let button_state = context
         .button_state
         .entry(id.clone())
@@ -65,19 +85,31 @@ pub fn draw_text_button(
         ui_state.mouse_left = false;
     }
 
+    if let Some(bg_color) = background {
+        let mut r = bounding;
+        r.shrink(-5.0);
+
+        let mut mat = Material::new();
+        mat.shader = Some(context.color_shader);
+        mat.set_color(bg_color);
+        context
+            .render_commands
+            .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
+    }
+
     // draw hover
     {
         let mut r = bounding;
         r.shrink(-5.0);
-        r.top_left.y -= 10.0;
+        r.top_left.y -= 0.0;
 
         let mut y_target = r.top_left.y;
 
         if button_state.state == ButtonState::Hovering || button_state.state == ButtonState::Down {
-            y_target = r.bottom_right.y + 5.0;
+            y_target = r.bottom_right.y;
         }
 
-        button_state.y_current = lerp(button_state.y_current, y_target, context.delta_time * 25.0);
+        button_state.y_current = lerp(button_state.y_current, y_target, context.delta_time * 35.0);
         r.bottom_right.y = button_state.y_current;
 
         let mut mat = Material::new();
@@ -163,12 +195,12 @@ pub fn draw_button_id(
                     .push(RenderCommand::new_rect_outline(&rect, -1.0, 1.0, &mat));
             }
         }
-        ButtonStyle::Shrink => {
+        ButtonStyle::Shrink { amount } => {
             if button_state.state == ButtonState::Hovering {
-                image_shrink_target = -12.0;
+                image_shrink_target = -12.0 * amount;
             }
             if button_state.state == ButtonState::Down {
-                image_shrink_target = 5.0;
+                image_shrink_target = 5.0 * amount;
             }
         }
     }
