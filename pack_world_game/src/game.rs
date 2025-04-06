@@ -298,7 +298,10 @@ pub fn game_loop(
                 fps as i32,
                 (prev_delta_time * 1000.0) as i32
             ),
-            VecTwo::new(es.window_resolution.x - 150.0, es.window_resolution.y - 5.0),
+            VecTwo::new(
+                es.window_resolution.x - 140.0,
+                es.window_resolution.y - 60.0,
+            ),
             Color::new(g, g, g, 1.0),
             &gs.font_style_body,
             &mut ui_frame_state,
