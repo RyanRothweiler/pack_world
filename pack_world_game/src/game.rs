@@ -281,14 +281,15 @@ pub fn game_loop(
     #[cfg(feature = "dev")]
     {
         let fps = 1.0 / prev_delta_time;
+        let g = 0.4;
         draw_text(
             &format!(
                 "{:?}fps {:?}ms",
                 fps as i32,
                 (prev_delta_time * 1000.0) as i32
             ),
-            VecTwo::new(es.window_resolution.x - 200.0, 60.0),
-            COLOR_WHITE,
+            VecTwo::new(es.window_resolution.x - 200.0, 75.0),
+            Color::new(g, g, g, 1.0),
             &gs.font_style_body,
             &mut ui_frame_state,
             &mut gs.ui_context.as_mut().unwrap(),
