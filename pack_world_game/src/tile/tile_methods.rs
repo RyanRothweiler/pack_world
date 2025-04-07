@@ -66,7 +66,6 @@ impl TileMethods {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
-        // println!("{:?}", self);
         match self {
             TileMethods::Dirt(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
@@ -211,7 +210,7 @@ impl TileMethods {
     pub fn into_snapshot(&self) -> TileSnapshot {
         match self {
             TileMethods::Dirt(state) => TileSnapshot::Dirt,
-            TileMethods::Water(state) => TileSnapshot::Dirt,
+            TileMethods::Water(state) => TileSnapshot::Water,
             TileMethods::Grass(state) => TileSnapshot::Grass,
             TileMethods::Boulder(state) => TileSnapshot::Boulder,
             TileMethods::OakTree(state) => TileSnapshot::OakTree {
@@ -243,6 +242,13 @@ impl TileMethods {
     pub fn tile_placed(&mut self, current_tiles: Vec<&TileInstance>) {
         match self {
             TileMethods::BirdNest(state) => state.tile_placed(current_tiles),
+            _ => {}
+        }
+    }
+
+    pub fn update_world_conditions(&mut self, grid_pos: GridPos, snapshot: &WorldSnapshot) {
+        match self {
+            TileMethods::Grass(state) => state.update_world_conditions(grid_pos, snapshot),
             _ => {}
         }
     }

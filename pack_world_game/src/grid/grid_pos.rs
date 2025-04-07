@@ -2,9 +2,11 @@ use gengar_engine::vectors::*;
 use std::ops::{Add, Mul, Sub};
 
 mod adjacents_iter;
+mod radius_iter;
 mod rect_iter;
 
 pub use adjacents_iter::*;
+pub use radius_iter::*;
 pub use rect_iter::*;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Default, Hash)]
@@ -25,6 +27,10 @@ impl GridPos {
     /// Iterator through positions with self as top lefts in a rectangle of Width and Height
     pub fn to_rect_iter(&self, w: i32, h: i32) -> GridPosRectIter {
         GridPosRectIter::new(*self, w, h)
+    }
+
+    pub fn to_radius_iter(&self, radius: i32) -> GridPosRadiusIter {
+        GridPosRadiusIter::new(*self, radius)
     }
 }
 

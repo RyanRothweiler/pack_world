@@ -219,7 +219,7 @@ pub fn game_init(
             // GridPos::new(21, 11),
         ];
         for p in init_dirt {
-            let _ = gs.world.force_insert_tile(p, TileType::Dirt);
+            let _ = gs.world.insert_tile(p, TileType::Dirt);
         }
     }
 

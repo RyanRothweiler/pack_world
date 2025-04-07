@@ -1,9 +1,10 @@
 use crate::{grid::*, tile::*, world::*};
 use std::collections::HashMap;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum TileSnapshot {
     Dirt,
+    Water,
     Grass,
     Boulder,
     OakTree { has_nest: bool },
@@ -20,6 +21,7 @@ pub enum TileSnapshot {
 
 /// Snapshot of world state.
 /// Allows world entities to interact with eachother without needing references to eachother.
+#[derive(Debug)]
 pub struct WorldSnapshot {
     pub entity_map: HashMap<GridPos, WorldCell>,
     pub entities: HashMap<EntityID, TileSnapshot>,

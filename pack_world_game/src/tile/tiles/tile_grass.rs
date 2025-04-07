@@ -24,12 +24,14 @@ const HARVEST_SECONDS: f64 = 18.0;
 #[derive(Debug)]
 pub struct TileGrass {
     pub harvest_timer: HarvestTimer,
+    pub water_adj: WorldConditionState,
 }
 
 impl TileGrass {
     pub fn new_methods() -> TileMethods {
         TileMethods::Grass(TileGrass {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
+            water_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water)),
         })
     }
 
@@ -48,6 +50,11 @@ impl TileGrass {
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
         vec![]
+    }
+
+    pub fn update_world_conditions(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) {
+        self.water_adj.update(grid_pos, world_snapshot);
+        println!("upating world ocnd {:?}", world_snapshot);
     }
 
     pub fn can_harvest(&self) -> bool {
@@ -142,6 +149,7 @@ impl TileGrass {
         let key = format!("{}.h", key_parent);
         let tm = TileMethods::Grass(TileGrass {
             harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
+            water_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water)),
         });
 
         Ok(tm)

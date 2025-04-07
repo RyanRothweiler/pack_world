@@ -4,10 +4,15 @@ use std::{collections::HashMap, fs::File, io::Write};
 
 pub mod entity_id;
 pub mod world_cell;
+pub mod world_condition;
 pub mod world_layer;
 pub mod world_snapshot;
 
-pub use {entity_id::*, world_cell::*, world_layer::*, world_snapshot::*};
+pub use {entity_id::*, world_cell::*, world_condition::*, world_layer::*, world_snapshot::*};
+
+/// When placing a tile update all world conditions within this range.
+/// Effectively a limit on adjacency ranges
+const CONDITIONS_UPDATE_RANGE: i32 = 5;
 
 pub struct World {
     /// Get a WorldCell from grid pos.
@@ -32,7 +37,7 @@ impl World {
         }
     }
 
-    // Won't place tile if not valid.
+    /// Won't place tile if not valid.
     #[must_use]
     pub fn try_place_tile(
         &mut self,
@@ -43,7 +48,7 @@ impl World {
             return Err(Error::InvalidTilePosition);
         }
 
-        Ok(self.force_insert_tile(grid_pos, tile))
+        Ok(self.insert_tile(grid_pos, tile))
     }
 
     pub fn get_next_entity_id(&mut self) -> EntityID {
@@ -57,7 +62,7 @@ impl World {
     /// Insert tile
     /// Returns updates signals, because this might need to give new tiles
     #[must_use]
-    pub fn force_insert_tile(&mut self, grid_pos: GridPos, tile: TileType) -> Vec<UpdateSignal> {
+    pub fn insert_tile(&mut self, grid_pos: GridPos, tile: TileType) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![UpdateSignal::SaveGame];
 
         let tile_layer = tile.get_layer();
@@ -122,6 +127,10 @@ impl World {
             world_cell.layers.insert(tile_layer, new_entity_id);
         }
 
+        // Update world conditions of tiles within range.
+        // After insrting the new tile
+        self.update_conditions(grid_pos);
+
         ret
     }
 
@@ -131,6 +140,20 @@ impl World {
         self.entities.clear();
         self.valids.clear();
         self.next_entity_id = 0;
+    }
+
+    /// Update all tile world conditions within the radius
+    pub fn update_conditions(&mut self, grid_pos: GridPos) {
+        let snapshot = self.get_world_snapshot();
+        println!("{:?} \n \n", snapshot);
+
+        for pos in grid_pos.to_radius_iter(CONDITIONS_UPDATE_RANGE) {
+            let world_cell: WorldCell = self.get_entities(pos);
+            for (layer, eid) in world_cell.layers {
+                let tile_world = &mut self.entities.get_mut(&eid).unwrap();
+                tile_world.methods.update_world_conditions(pos, &snapshot);
+            }
+        }
     }
 
     /// Used for loading. Just insert the tile without running any global or local state updates
@@ -169,6 +192,9 @@ impl World {
         for eid in eids_removing {
             types_removing.append(&mut self.remove_entity(eid, layer_removing));
         }
+
+        // Update world conditions
+        self.update_conditions(pos_removing);
 
         types_removing
     }
@@ -323,7 +349,7 @@ mod tests {
         let mut world = World::new();
 
         // insert tiles
-        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
         let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Dirt);
         assert!(ret.is_ok());
 
@@ -372,10 +398,10 @@ mod tests {
     pub fn tree_invalid_placement() {
         let mut world = World::new();
 
-        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(1, 1), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(1, 1), TileType::Dirt);
 
         // test invalid placement
         world
@@ -389,10 +415,10 @@ mod tests {
     pub fn overwrite_tree() {
         let mut world = World::new();
 
-        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(1, 1), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(1, 1), TileType::Dirt);
 
         world
             .try_place_tile(GridPos::new(0, 0), TileType::OakTree)
@@ -418,10 +444,10 @@ mod tests {
     pub fn overwrite_tree_with_nest() {
         let mut world = World::new();
 
-        let _ = world.force_insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.force_insert_tile(GridPos::new(1, 1), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(1, 1), TileType::Dirt);
 
         world
             .try_place_tile(GridPos::new(0, 0), TileType::OakTree)
@@ -450,5 +476,72 @@ mod tests {
         ));
 
         validate_grid(&world);
+    }
+
+    #[test]
+    pub fn test_adjacency_condition() {
+        let mut world = World::new();
+
+        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Grass);
+
+        let geid = EntityID { id: 0 };
+
+        {
+            let grass_inst = world.get_entity(&geid);
+            match &grass_inst.methods {
+                TileMethods::Grass(state) => {
+                    assert_eq!(state.water_adj.is_affirm(), false);
+                }
+                _ => panic!("Invalid tile type"),
+            }
+        }
+
+        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Dirt);
+
+        {
+            let grass_inst = world.get_entity(&geid);
+            match &grass_inst.methods {
+                TileMethods::Grass(state) => {
+                    assert_eq!(state.water_adj.is_affirm(), false);
+                }
+                _ => panic!("Invalid tile type"),
+            }
+        }
+
+        let _ = world.insert_tile(GridPos::new(4, 4), TileType::Water);
+
+        {
+            let grass_inst = world.get_entity(&geid);
+            match &grass_inst.methods {
+                TileMethods::Grass(state) => {
+                    assert_eq!(state.water_adj.is_affirm(), false);
+                }
+                _ => panic!("Invalid tile type"),
+            }
+        }
+
+        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Water);
+
+        {
+            let grass_inst = world.get_entity(&geid);
+            match &grass_inst.methods {
+                TileMethods::Grass(state) => {
+                    assert_eq!(state.water_adj.is_affirm(), true);
+                }
+                _ => panic!("Invalid tile type"),
+            }
+        }
+
+        let _ = world.remove_tile(GridPos::new(1, 0), WorldLayer::Ground);
+
+        {
+            let grass_inst = world.get_entity(&geid);
+            match &grass_inst.methods {
+                TileMethods::Grass(state) => {
+                    assert_eq!(state.water_adj.is_affirm(), false);
+                }
+                _ => panic!("Invalid tile type"),
+            }
+        }
     }
 }
