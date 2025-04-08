@@ -20,6 +20,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops babies and eggs.".into(),
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+    build_methods: TileCave::new_methods,
 });
 
 const HARVEST_SECONDS: f64 = days_to_seconds(1.5);
@@ -30,7 +31,7 @@ pub struct TileCave {
 }
 
 impl TileCave {
-    pub fn new_methods() -> TileMethods {
+    pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::Cave(TileCave {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
         })

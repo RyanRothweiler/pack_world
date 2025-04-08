@@ -12,13 +12,14 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Placed on empty space. Creates ground for other tiles.".into(),
     world_layer: WorldLayer::Ground,
     footprint: vec![GridPos::new(0, 0)],
+    build_methods: TileDirt::new_methods,
 });
 
 #[derive(Debug)]
 pub struct TileDirt {}
 
 impl TileDirt {
-    pub fn new_methods() -> TileMethods {
+    pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::Dirt(TileDirt {})
     }
 

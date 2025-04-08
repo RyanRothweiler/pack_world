@@ -23,6 +23,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops trash and occasionally pearls.".into(),
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+    build_methods: TileClam::new_methods,
 });
 
 const HARVEST_SECONDS: f64 = 20.0;
@@ -33,8 +34,7 @@ pub struct TileClam {
 }
 
 impl TileClam {
-    pub fn new_methods() -> TileMethods {
-        println!("clam methods!");
+    pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::Clam(TileClam {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Clam),
         })

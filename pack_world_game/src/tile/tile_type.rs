@@ -29,6 +29,8 @@ pub struct TileDefinition {
     pub description: String,
     pub world_layer: WorldLayer,
     pub footprint: Vec<GridPos>,
+
+    pub build_methods: fn(origin: GridPos) -> TileMethods,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
@@ -64,27 +66,12 @@ impl TileType {
         return true;
     }
 
-    pub fn to_methods(&self, origin: GridPos) -> TileMethods {
-        match self {
-            TileType::Dirt => TileDirt::new_methods(),
-            TileType::Grass => TileGrass::new_methods(),
-            TileType::Boulder => TileBoulder::new_methods(),
-            TileType::OakTree => TileOakTree::new_methods(),
-            TileType::BirdNest => TileBirdNest::new_methods(),
-            TileType::Cave => TileCave::new_methods(),
-            TileType::Shrub => TileShrub::new_methods(),
-            TileType::MudPit => TileMudPit::new_methods(),
-            TileType::TallGrass => TileTallGrass::new_methods(),
-            TileType::Frog => TileFrog::new_methods(origin),
-            TileType::Water => TileWater::new_methods(),
-            TileType::Newt => TileNewt::new_methods(origin),
-            TileType::Reed => TileReed::new_methods(),
-            TileType::Clam => TileClam::new_methods(),
-        }
-    }
-
     pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
-        TileInstance::new(*self, grid_pos, self.to_methods(grid_pos))
+        TileInstance::new(
+            *self,
+            grid_pos,
+            (self.get_definition().build_methods)(grid_pos),
+        )
     }
 
     pub fn get_definition(&self) -> &'static TileDefinition {

@@ -23,6 +23,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Must be placed in mud. Drops potion resources".into(),
     world_layer: WorldLayer::Planted,
     footprint: vec![GridPos::new(0, 0)],
+    build_methods: TileReed::new_methods,
 });
 
 const HARVEST_SECONDS: f64 = 20.0;
@@ -33,7 +34,7 @@ pub struct TileReed {
 }
 
 impl TileReed {
-    pub fn new_methods() -> TileMethods {
+    pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::Reed(TileReed {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::SmallGold),
         })

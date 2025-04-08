@@ -19,6 +19,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops basic resources.".into(),
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+    build_methods: TileBoulder::new_methods,
 });
 
 const HARVEST_SECONDS: f64 = 120.0;
@@ -29,7 +30,7 @@ pub struct TileBoulder {
 }
 
 impl TileBoulder {
-    pub fn new_methods() -> TileMethods {
+    pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::Boulder(TileBoulder {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Boulder),
         })

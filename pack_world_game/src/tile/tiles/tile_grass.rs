@@ -23,6 +23,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops basic resources. Reduce cooldown by 10% if adjacent to water.".into(),
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+    build_methods: TileGrass::new_methods,
 });
 
 const HARVEST_SECONDS: f64 = 18.0;
@@ -36,7 +37,7 @@ pub struct TileGrass {
 }
 
 impl TileGrass {
-    pub fn new_methods() -> TileMethods {
+    pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::Grass(TileGrass {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
             water_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water)),

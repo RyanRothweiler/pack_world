@@ -359,7 +359,7 @@ impl TileMethods {
 
         let id = save_file.load_i32(&type_key).unwrap();
         match id {
-            1 => Ok(TileDirt::new_methods()),
+            1 => Ok(TileDirt::new_methods(GridPos::new(0, 0))),
             2 => Ok(TileGrass::save_file_load(state_key, save_file)?),
             3 => Ok(TileBoulder::save_file_load(state_key, save_file)?),
             4 => Ok(TileOakTree::save_file_load(state_key, save_file)?),
@@ -369,7 +369,7 @@ impl TileMethods {
             8 => Ok(TileMudPit::save_file_load(state_key, save_file)?),
             9 => Ok(TileTallGrass::save_file_load(state_key, save_file)?),
             10 => Ok(TileFrog::save_file_load(state_key, grid_pos, save_file)?),
-            11 => Ok(TileWater::new_methods()),
+            11 => Ok(TileWater::new_methods(GridPos::new(0, 0))),
             12 => Ok(TileNewt::save_file_load(state_key, grid_pos, save_file)?),
             13 => Ok(TileReed::save_file_load(state_key, save_file)?),
             14 => Ok(TileClam::save_file_load(state_key, save_file)?),
@@ -388,46 +388,46 @@ mod tests {
     fn save_load() {
         let mut save_file = SaveFile::new();
 
-        TileDirt::new_methods()
+        TileDirt::new_methods(GridPos::new(0, 0))
             .save_file_write("dirt".into(), &mut save_file)
             .unwrap();
-        TileGrass::new_methods()
+        TileGrass::new_methods(GridPos::new(0, 0))
             .save_file_write("grass".into(), &mut save_file)
             .unwrap();
-        TileBoulder::new_methods()
+        TileBoulder::new_methods(GridPos::new(0, 0))
             .save_file_write("boulder".into(), &mut save_file)
             .unwrap();
-        TileOakTree::new_methods()
+        TileOakTree::new_methods(GridPos::new(0, 0))
             .save_file_write("oak tree".into(), &mut save_file)
             .unwrap();
-        TileBirdNest::new_methods()
+        TileBirdNest::new_methods(GridPos::new(0, 0))
             .save_file_write("bird nest".into(), &mut save_file)
             .unwrap();
-        TileCave::new_methods()
+        TileCave::new_methods(GridPos::new(0, 0))
             .save_file_write("cave".into(), &mut save_file)
             .unwrap();
-        TileShrub::new_methods()
+        TileShrub::new_methods(GridPos::new(0, 0))
             .save_file_write("shrub".into(), &mut save_file)
             .unwrap();
-        TileMudPit::new_methods()
+        TileMudPit::new_methods(GridPos::new(0, 0))
             .save_file_write("mudpit".into(), &mut save_file)
             .unwrap();
-        TileTallGrass::new_methods()
+        TileTallGrass::new_methods(GridPos::new(0, 0))
             .save_file_write("tall_grass".into(), &mut save_file)
             .unwrap();
         TileFrog::new_methods(GridPos::new(5, 5))
             .save_file_write("frog".into(), &mut save_file)
             .unwrap();
-        TileWater::new_methods()
+        TileWater::new_methods(GridPos::new(0, 0))
             .save_file_write("water".into(), &mut save_file)
             .unwrap();
         TileNewt::new_methods(GridPos::new(5, 5))
             .save_file_write("newt".into(), &mut save_file)
             .unwrap();
-        TileReed::new_methods()
+        TileReed::new_methods(GridPos::new(0, 0))
             .save_file_write("reed".into(), &mut save_file)
             .unwrap();
-        TileClam::new_methods()
+        TileClam::new_methods(GridPos::new(0, 0))
             .save_file_write("clam".into(), &mut save_file)
             .unwrap();
 

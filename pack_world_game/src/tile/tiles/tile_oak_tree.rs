@@ -19,6 +19,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops construction resources.".into(),
     world_layer: WorldLayer::Floor,
     footprint: GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
+    build_methods: TileOakTree::new_methods,
 });
 
 const HARVEST_SECONDS: f64 = 360.0;
@@ -33,7 +34,7 @@ pub struct TileOakTree {
 }
 
 impl TileOakTree {
-    pub fn new_methods() -> TileMethods {
+    pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::OakTree(TileOakTree {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
             has_nest: false,
