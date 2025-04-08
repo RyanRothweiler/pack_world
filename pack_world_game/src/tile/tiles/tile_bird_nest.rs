@@ -14,8 +14,8 @@ use gengar_engine::{
 use std::sync::LazyLock;
 
 pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
-    title: "Bird Nest".into(),
-    description: "Must be placed in a tree. Adds acorn drops to adjacent grass.".into(),
+    title: "Bird Nest",
+    description: "Must be placed in a tree. Adds acorn drops to adjacent grass.",
     world_layer: WorldLayer::TreeAttachment,
     footprint: vec![GridPos::new(0, 0)],
 

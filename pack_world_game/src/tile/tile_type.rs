@@ -25,8 +25,8 @@ pub enum TileType {
 
 /// Static tile info
 pub struct TileDefinition {
-    pub title: String,
-    pub description: String,
+    pub title: &'static str,
+    pub description: &'static str,
     pub world_layer: WorldLayer,
     pub footprint: Vec<GridPos>,
 
@@ -34,7 +34,6 @@ pub struct TileDefinition {
     pub can_place: fn(origin: GridPos, world: &World) -> bool,
 }
 
-// TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
 impl TileType {
     /// Can you place the tile here
     pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
