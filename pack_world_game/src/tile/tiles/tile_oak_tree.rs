@@ -19,7 +19,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops construction resources.".into(),
     world_layer: WorldLayer::Floor,
     footprint: GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
+
     build_methods: TileOakTree::new_methods,
+    can_place: TileOakTree::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 360.0;

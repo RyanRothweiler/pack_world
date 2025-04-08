@@ -31,6 +31,7 @@ pub struct TileDefinition {
     pub footprint: Vec<GridPos>,
 
     pub build_methods: fn(origin: GridPos) -> TileMethods,
+    pub can_place: fn(origin: GridPos, world: &World) -> bool,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
@@ -41,24 +42,7 @@ impl TileType {
         for p in footprint {
             let pos = origin + *p;
 
-            let val = match self {
-                TileType::Dirt => TileDirt::can_place(pos, world),
-                TileType::Grass => TileGrass::can_place(pos, world),
-                TileType::Boulder => TileBoulder::can_place(pos, world),
-                TileType::OakTree => TileOakTree::can_place(pos, world),
-                TileType::Cave => TileCave::can_place(pos, world),
-                TileType::Shrub => TileShrub::can_place(pos, world),
-                TileType::BirdNest => TileBirdNest::can_place(pos, world),
-                TileType::MudPit => TileMudPit::can_place(pos, world),
-                TileType::TallGrass => TileTallGrass::can_place(pos, world),
-                TileType::Frog => TileFrog::can_place(pos, world),
-                TileType::Water => TileWater::can_place(pos, world),
-                TileType::Newt => TileNewt::can_place(pos, world),
-                TileType::Reed => TileReed::can_place(pos, world),
-                TileType::Clam => TileClam::can_place(pos, world),
-            };
-
-            if !val {
+            if !(self.get_definition().can_place)(pos, world) {
                 return false;
             }
         }

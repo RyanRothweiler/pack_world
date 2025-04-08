@@ -22,7 +22,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops mud babies and ground tiles.".into(),
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+
     build_methods: TileMudPit::new_methods,
+    can_place: TileMudPit::can_place,
 });
 
 const HARVEST_SECONDS: f64 = minutes_to_seconds(4.0);

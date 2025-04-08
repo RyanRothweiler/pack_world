@@ -23,7 +23,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Must be placed in mud. Drops potion resources".into(),
     world_layer: WorldLayer::Planted,
     footprint: vec![GridPos::new(0, 0)],
+
     build_methods: TileReed::new_methods,
+    can_place: TileReed::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 20.0;

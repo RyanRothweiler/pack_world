@@ -20,6 +20,8 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
     build_methods: TileBoulder::new_methods,
+
+    can_place: TileBoulder::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 120.0;

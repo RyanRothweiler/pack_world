@@ -18,7 +18,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Must be placed in a tree. Adds acorn drops to adjacent grass.".into(),
     world_layer: WorldLayer::TreeAttachment,
     footprint: vec![GridPos::new(0, 0)],
+
     build_methods: TileBirdNest::new_methods,
+    can_place: TileBirdNest::can_place,
 });
 
 #[derive(Debug)]

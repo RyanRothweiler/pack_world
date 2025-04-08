@@ -20,7 +20,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Must be placed in water. Drops potion resources.".into(),
     world_layer: WorldLayer::Walker,
     footprint: GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
+
     build_methods: TileNewt::new_methods,
+    can_place: TileNewt::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 10800.0;

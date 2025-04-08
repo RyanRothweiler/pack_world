@@ -21,7 +21,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Tall Grass".into(),
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+
     build_methods: TileTallGrass::new_methods,
+    can_place: TileTallGrass::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 60.0;

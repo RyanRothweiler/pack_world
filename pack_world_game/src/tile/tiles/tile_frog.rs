@@ -20,7 +20,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Must be placed in tall grass. Drops potion resourcs.".into(),
     world_layer: WorldLayer::Walker,
     footprint: GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
+
     build_methods: TileFrog::new_methods,
+    can_place: TileFrog::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 10800.0;

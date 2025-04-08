@@ -20,7 +20,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops babies and eggs.".into(),
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+
     build_methods: TileCave::new_methods,
+    can_place: TileCave::can_place,
 });
 
 const HARVEST_SECONDS: f64 = days_to_seconds(1.5);
