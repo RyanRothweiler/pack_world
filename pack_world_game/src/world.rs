@@ -145,7 +145,6 @@ impl World {
     /// Update all tile world conditions within the radius
     pub fn update_conditions(&mut self, grid_pos: GridPos) {
         let snapshot = self.get_world_snapshot();
-        println!("{:?} \n \n", snapshot);
 
         for pos in grid_pos.to_radius_iter(CONDITIONS_UPDATE_RANGE) {
             let world_cell: WorldCell = self.get_entities(pos);

@@ -24,7 +24,9 @@ const HARVEST_SECONDS: f64 = 18.0;
 #[derive(Debug)]
 pub struct TileGrass {
     pub harvest_timer: HarvestTimer,
+
     pub water_adj: WorldConditionState,
+    pub nest_adj: WorldConditionState,
 }
 
 impl TileGrass {
@@ -32,6 +34,9 @@ impl TileGrass {
         TileMethods::Grass(TileGrass {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
             water_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water)),
+            nest_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::OakTree {
+                has_nest: true,
+            })),
         })
     }
 
@@ -48,13 +53,19 @@ impl TileGrass {
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
+        if self.water_adj.is_affirm() {
+            self.harvest_timer.set_length_mod(0.9);
+        } else {
+            self.harvest_timer.reset_length_mod();
+        }
+
         self.harvest_timer.inc(time_step);
         vec![]
     }
 
     pub fn update_world_conditions(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) {
         self.water_adj.update(grid_pos, world_snapshot);
-        println!("upating world ocnd {:?}", world_snapshot);
+        self.nest_adj.update(grid_pos, world_snapshot);
     }
 
     pub fn can_harvest(&self) -> bool {
@@ -67,23 +78,8 @@ impl TileGrass {
         world_snapshot: &WorldSnapshot,
         platform_api: &PlatformApi,
     ) -> Drop {
-        let mut nest_adj = false;
-
-        for adj_pos in grid_pos.to_adjacents_iter() {
-            for t in world_snapshot.get_pos_snapshot(adj_pos) {
-                match t {
-                    TileSnapshot::OakTree { has_nest } => {
-                        if has_nest {
-                            nest_adj = true;
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-
         let mut drop_table_instance = DropTableInstance::new_fixed(self.harvest_timer.table);
-        if nest_adj {
+        if self.nest_adj.is_affirm() {
             drop_table_instance =
                 drop_table_instance.add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
         }
@@ -150,8 +146,38 @@ impl TileGrass {
         let tm = TileMethods::Grass(TileGrass {
             harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
             water_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water)),
+            nest_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::OakTree {
+                has_nest: true,
+            })),
         });
 
         Ok(tm)
+    }
+}
+
+mod test {
+    use super::*;
+
+    #[test]
+    fn adj_water() {
+        let mut world = World::new();
+
+        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Grass);
+        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Water);
+
+        let geid = EntityID { id: 0 };
+
+        {
+            let mut grass_inst = world.get_entity_mut(&geid);
+
+            match &mut grass_inst.methods {
+                TileMethods::Grass(state) => {
+                    state.update(10.0);
+
+                    assert_eq!(state.harvest_timer.get_length_mod(), 0.9);
+                }
+                _ => panic!("Invalid tile type"),
+            }
+        }
     }
 }

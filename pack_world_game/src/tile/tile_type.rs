@@ -49,7 +49,9 @@ impl TileType {
             TileType::Dirt => Some(tile_dirt::DESC),
             TileType::Water => Some(tile_water::DESC),
 
-            TileType::Grass => Some("Drops basic resources."),
+            TileType::Grass => {
+                Some("Drops basic resources. Reduce cooldown by 10% if adjacent to water.")
+            }
             TileType::Boulder => Some("Drops basic resources."),
             TileType::OakTree => Some("Drops construction resources."),
             TileType::BirdNest => {
