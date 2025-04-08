@@ -13,12 +13,14 @@ use gengar_engine::{
     time::*,
     ui::*,
 };
+use std::sync::LazyLock;
 
-pub const DEF: TileDefinition<'static> = TileDefinition {
-    title: "Cave",
-    description: "Drops babies and eggs.",
+pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
+    title: "Cave".into(),
+    description: "Drops babies and eggs.".into(),
     world_layer: WorldLayer::Floor,
-};
+    footprint: vec![GridPos::new(0, 0)],
+});
 
 const HARVEST_SECONDS: f64 = days_to_seconds(1.5);
 

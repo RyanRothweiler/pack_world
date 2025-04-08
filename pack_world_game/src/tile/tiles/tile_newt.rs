@@ -13,12 +13,14 @@ use gengar_engine::{
     ui::*,
     vectors::*,
 };
+use std::sync::LazyLock;
 
-pub const DEF: TileDefinition<'static> = TileDefinition {
-    title: "Newt",
-    description: "Must be placed in water. Drops potion resources.",
+pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
+    title: "Newt".into(),
+    description: "Must be placed in water. Drops potion resources.".into(),
     world_layer: WorldLayer::Walker,
-};
+    footprint: GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
+});
 
 const HARVEST_SECONDS: f64 = 10800.0;
 const MOVE_SPEED: f64 = 0.5;

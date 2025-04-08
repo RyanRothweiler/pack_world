@@ -23,20 +23,21 @@ pub enum TileType {
     Clam,
 }
 
-/// Static tile info. Things like layer type, title, description
-pub struct TileDefinition<'a> {
-    pub title: &'a str,
-    pub description: &'a str,
+/// Static tile info
+pub struct TileDefinition {
+    pub title: String,
+    pub description: String,
     pub world_layer: WorldLayer,
+    pub footprint: Vec<GridPos>,
 }
 
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
 impl TileType {
     /// Can you place the tile here
     pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
-        let footprint = self.get_tile_footprint();
+        let footprint = &self.get_definition().footprint;
         for p in footprint {
-            let pos = origin + p;
+            let pos = origin + *p;
 
             let val = match self {
                 TileType::Dirt => TileDirt::can_place(pos, world),
@@ -86,28 +87,7 @@ impl TileType {
         TileInstance::new(*self, grid_pos, self.to_methods(grid_pos))
     }
 
-    pub fn get_tile_footprint(&self) -> Vec<GridPos> {
-        match self {
-            TileType::Dirt
-            | TileType::Grass
-            | TileType::Water
-            | TileType::Boulder
-            | TileType::TallGrass
-            | TileType::Shrub
-            | TileType::Clam
-            | TileType::MudPit
-            | TileType::Reed
-            | TileType::BirdNest
-            | TileType::Cave => {
-                vec![GridPos::new(0, 0)]
-            }
-            TileType::Frog => GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
-            TileType::Newt => GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
-            TileType::OakTree => GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
-        }
-    }
-
-    pub fn get_definition(&self) -> &'static TileDefinition<'static> {
+    pub fn get_definition(&self) -> &'static TileDefinition {
         match self {
             TileType::Grass => &tile_grass::DEF,
             TileType::Water => &tile_water::DEF,

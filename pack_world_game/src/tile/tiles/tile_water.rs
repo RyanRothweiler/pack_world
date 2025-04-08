@@ -5,12 +5,14 @@ use gengar_engine::{
     render::{material::*, render_command::*},
     vectors::*,
 };
+use std::sync::LazyLock;
 
-pub const DEF: TileDefinition<'static> = TileDefinition {
-    title: "Water",
-    description: "Placed on empty space. Creates water for other tiles.",
+pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
+    title: "Water".into(),
+    description: "Placed on empty space. Creates water for other tiles.".into(),
     world_layer: WorldLayer::Ground,
-};
+    footprint: vec![GridPos::new(0, 0)],
+});
 
 #[derive(Debug)]
 pub struct TileWater {}

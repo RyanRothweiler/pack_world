@@ -16,12 +16,14 @@ use gengar_engine::{
     render::{material::*, render_command::*, render_pack::*, shader::*},
     ui::*,
 };
+use std::sync::LazyLock;
 
-pub const DEF: TileDefinition<'static> = TileDefinition {
-    title: "Grass",
-    description: "Drops basic resources. Reduce cooldown by 10% if adjacent to water.",
-    world_layer: WorldLayer::Ground,
-};
+pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
+    title: "Grass".into(),
+    description: "Drops basic resources. Reduce cooldown by 10% if adjacent to water.".into(),
+    world_layer: WorldLayer::Floor,
+    footprint: vec![GridPos::new(0, 0)],
+});
 
 const HARVEST_SECONDS: f64 = 18.0;
 

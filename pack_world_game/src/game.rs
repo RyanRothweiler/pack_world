@@ -594,10 +594,10 @@ pub fn game_loop(
         let can_place = tile.can_place_here(mouse_grid, &gs.world);
 
         // render tile placing
-        let footprint = tile.get_tile_footprint();
+        let footprint = &tile.get_definition().footprint;
 
         for p in footprint {
-            let pos = mouse_grid + p;
+            let pos = mouse_grid + *p;
 
             let mut r = Rect::new_square(GRID_SIZE * 0.5);
             r.set_center(grid_to_world(&pos));

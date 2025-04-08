@@ -95,8 +95,8 @@ impl World {
 
         // Find tiles that are going to be overwritten, so that we can give them back to the player
         {
-            for p in tile.get_tile_footprint() {
-                let pos = grid_pos + p;
+            for p in &tile.get_definition().footprint {
+                let pos = grid_pos + *p;
 
                 let types_removed = self.remove_tile(pos, tile_layer);
                 for t in types_removed {
@@ -112,8 +112,8 @@ impl World {
         self.entities.insert(new_entity_id, inst);
 
         // Add tile to grid map
-        for p in tile.get_tile_footprint() {
-            let pos = grid_pos + p;
+        for p in &tile.get_definition().footprint {
+            let pos = grid_pos + *p;
 
             // update adjacents
             self.valids.insert(pos, true);
@@ -208,8 +208,8 @@ impl World {
 
         if let Some(tile_inst_removed) = self.entities.remove(&eid) {
             // remove the tile references from the grid map
-            for p in tile_inst_removed.tile_type.get_tile_footprint() {
-                let pos = tile_inst_removed.grid_pos + p;
+            for p in &tile_inst_removed.tile_type.get_definition().footprint {
+                let pos = tile_inst_removed.grid_pos + *p;
 
                 let mut world_cell: &mut WorldCell =
                     self.entity_map.entry(pos).or_insert(WorldCell::new());

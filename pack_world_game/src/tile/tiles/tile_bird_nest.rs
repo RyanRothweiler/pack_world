@@ -11,12 +11,14 @@ use gengar_engine::{
     render::{material::*, render_command::*, render_pack::*, shader::*},
     ui::*,
 };
+use std::sync::LazyLock;
 
-pub const DEF: TileDefinition<'static> = TileDefinition {
-    title: "Bird Nest",
-    description: "Must be placed in a tree. Adds acorn drops to adjacent grass.",
+pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
+    title: "Bird Nest".into(),
+    description: "Must be placed in a tree. Adds acorn drops to adjacent grass.".into(),
     world_layer: WorldLayer::TreeAttachment,
-};
+    footprint: vec![GridPos::new(0, 0)],
+});
 
 #[derive(Debug)]
 pub struct TileBirdNest {
