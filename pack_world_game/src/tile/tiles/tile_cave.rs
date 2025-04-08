@@ -14,7 +14,11 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Cave";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Cave",
+    description: "Drops babies and eggs.",
+    world_layer: WorldLayer::Floor,
+};
 
 const HARVEST_SECONDS: f64 = days_to_seconds(1.5);
 

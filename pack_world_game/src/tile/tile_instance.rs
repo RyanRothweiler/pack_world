@@ -83,7 +83,7 @@ impl TileInstance {
             if self.destroy_after_drops {
                 ret.push(UpdateSignal::DestroyTile {
                     pos: self.grid_pos,
-                    layer: self.tile_type.get_layer(),
+                    layer: self.tile_type.get_definition().world_layer,
                 });
             }
         }

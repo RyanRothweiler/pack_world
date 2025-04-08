@@ -13,7 +13,11 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Boulder";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Boulder",
+    description: "Drops basic resources.",
+    world_layer: WorldLayer::Floor,
+};
 
 const HARVEST_SECONDS: f64 = 120.0;
 

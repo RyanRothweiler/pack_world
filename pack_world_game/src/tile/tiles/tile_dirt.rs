@@ -6,8 +6,11 @@ use gengar_engine::{
     vectors::*,
 };
 
-pub const TITLE: &str = "Dirt";
-pub const DESC: &str = "Placed on empty space. Creates ground for other tiles.";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Dirt",
+    description: "Placed on empty space. Creates ground for other tiles.",
+    world_layer: WorldLayer::Ground,
+};
 
 #[derive(Debug)]
 pub struct TileDirt {}

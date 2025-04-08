@@ -12,7 +12,11 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Bird Nest";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Bird Nest",
+    description: "Must be placed in a tree. Adds acorn drops to adjacent grass.",
+    world_layer: WorldLayer::TreeAttachment,
+};
 
 #[derive(Debug)]
 pub struct TileBirdNest {

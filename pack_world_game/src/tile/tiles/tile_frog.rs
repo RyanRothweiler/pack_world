@@ -14,7 +14,11 @@ use gengar_engine::{
     vectors::*,
 };
 
-pub const TITLE: &str = "Frog";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Frog",
+    description: "Must be placed in tall grass. Drops potion resourcs.",
+    world_layer: WorldLayer::Walker,
+};
 
 const HARVEST_SECONDS: f64 = 10800.0;
 const MOVE_SPEED: f64 = 0.5;

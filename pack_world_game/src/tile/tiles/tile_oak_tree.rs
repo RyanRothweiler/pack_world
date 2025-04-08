@@ -13,7 +13,11 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Oak Tree";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Oak Tree",
+    description: "Drops construction resources.",
+    world_layer: WorldLayer::Floor,
+};
 
 const HARVEST_SECONDS: f64 = 360.0;
 

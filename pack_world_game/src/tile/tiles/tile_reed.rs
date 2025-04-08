@@ -17,7 +17,11 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Reed";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Reed",
+    description: "Must be placed in mud. Drops potion resources",
+    world_layer: WorldLayer::Planted,
+};
 
 const HARVEST_SECONDS: f64 = 20.0;
 

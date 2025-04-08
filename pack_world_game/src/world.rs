@@ -65,7 +65,7 @@ impl World {
     pub fn insert_tile(&mut self, grid_pos: GridPos, tile: TileType) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![UpdateSignal::SaveGame];
 
-        let tile_layer = tile.get_layer();
+        let tile_layer = tile.get_definition().world_layer;
         let new_entity_id = self.get_next_entity_id();
         let mut inst = tile.create_instance(grid_pos);
 
@@ -157,7 +157,7 @@ impl World {
 
     /// Used for loading. Just insert the tile without running any global or local state updates
     pub fn raw_insert_entity(&mut self, entity_id: EntityID, tile_instance: TileInstance) {
-        let tile_layer = tile_instance.tile_type.get_layer();
+        let tile_layer = tile_instance.tile_type.get_definition().world_layer;
 
         let mut world_cell: &mut WorldCell = self
             .entity_map

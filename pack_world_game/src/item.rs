@@ -42,15 +42,15 @@ impl ItemType {
             ItemType::OldHat => "Old Hat",
             ItemType::Dew => "Dew",
 
-            ItemType::Tile(tile_type) => tile_type.user_title(),
+            ItemType::Tile(tile_type) => tile_type.get_definition().title,
         }
     }
 
     pub fn user_description(&self) -> Option<&str> {
         let mut ret = match self {
-            ItemType::Tile(tile_type) => tile_type.user_description(),
+            ItemType::Tile(tile_type) => Some(tile_type.get_definition().description),
 
-            ItemType::Acorn => Some("An acrod"),
+            ItemType::Acorn => Some("An acorn"),
             ItemType::DirtClod => Some("Basic introductory resource"),
             ItemType::Stick => Some("Basic introductory resource"),
             ItemType::Rock => Some("Basic introductory resource"),

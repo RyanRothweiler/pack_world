@@ -23,73 +23,15 @@ pub enum TileType {
     Clam,
 }
 
+/// Static tile info. Things like layer type, title, description
+pub struct TileDefinition<'a> {
+    pub title: &'a str,
+    pub description: &'a str,
+    pub world_layer: WorldLayer,
+}
+
 // TOOD create a tile definition. and one method to return that definition instead of individual methods for each field.
 impl TileType {
-    pub fn user_title(&self) -> &str {
-        match self {
-            TileType::Dirt => tile_dirt::TITLE,
-            TileType::Grass => tile_grass::TITLE,
-            TileType::Boulder => tile_boulder::TITLE,
-            TileType::OakTree => tile_oak_tree::TITLE,
-            TileType::BirdNest => tile_bird_nest::TITLE,
-            TileType::Cave => tile_cave::TITLE,
-            TileType::Shrub => tile_shrub::TITLE,
-            TileType::MudPit => tile_mud_pit::TITLE,
-            TileType::TallGrass => tile_tall_grass::TITLE,
-            TileType::Frog => tile_frog::TITLE,
-            TileType::Water => tile_water::TITLE,
-            TileType::Newt => tile_newt::TITLE,
-            TileType::Reed => tile_reed::TITLE,
-            TileType::Clam => tile_clam::TITLE,
-        }
-    }
-
-    pub fn user_description(&self) -> Option<&str> {
-        match self {
-            TileType::Dirt => Some(tile_dirt::DESC),
-            TileType::Water => Some(tile_water::DESC),
-
-            TileType::Grass => {
-                Some("Drops basic resources. Reduce cooldown by 10% if adjacent to water.")
-            }
-            TileType::Boulder => Some("Drops basic resources."),
-            TileType::OakTree => Some("Drops construction resources."),
-            TileType::BirdNest => {
-                Some("Must be placed in a tree. Adds acorn drops to adjacent grass.")
-            }
-            TileType::Cave => Some("Drops babies and eggs."),
-            TileType::Shrub => Some("Drops basic food."),
-            TileType::MudPit => Some("Drops mud babies and ground tiles."),
-            TileType::Frog => Some("Must be placed in tall grass. Drops potion resourcs."),
-            TileType::Newt => Some("Must be placed in water. Drops potion resources."),
-            TileType::Reed => Some("Must be placed in mud. Drops potion resources"),
-            TileType::Clam => Some("Drops trash and occasionally pearls."),
-
-            TileType::TallGrass => None,
-        }
-    }
-
-    pub fn get_layer(&self) -> WorldLayer {
-        match self {
-            TileType::Dirt | TileType::Water => WorldLayer::Ground,
-
-            TileType::Boulder
-            | TileType::OakTree
-            | TileType::Cave
-            | TileType::Clam
-            | TileType::Shrub
-            | TileType::TallGrass
-            | TileType::MudPit
-            | TileType::Grass => WorldLayer::Floor,
-
-            TileType::Reed => WorldLayer::Planted,
-
-            TileType::Frog | TileType::Newt => WorldLayer::Walker,
-
-            TileType::BirdNest => WorldLayer::TreeAttachment,
-        }
-    }
-
     /// Can you place the tile here
     pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
         let footprint = self.get_tile_footprint();
@@ -162,6 +104,25 @@ impl TileType {
             TileType::Frog => GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
             TileType::Newt => GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
             TileType::OakTree => GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
+        }
+    }
+
+    pub fn get_definition(&self) -> &'static TileDefinition<'static> {
+        match self {
+            TileType::Grass => &tile_grass::DEF,
+            TileType::Water => &tile_water::DEF,
+            TileType::Dirt => &tile_dirt::DEF,
+            TileType::Boulder => &tile_boulder::DEF,
+            TileType::TallGrass => &tile_tall_grass::DEF,
+            TileType::Shrub => &tile_shrub::DEF,
+            TileType::Clam => &tile_clam::DEF,
+            TileType::MudPit => &tile_mud_pit::DEF,
+            TileType::Reed => &tile_reed::DEF,
+            TileType::BirdNest => &tile_bird_nest::DEF,
+            TileType::Cave => &tile_cave::DEF,
+            TileType::Frog => &tile_frog::DEF,
+            TileType::Newt => &tile_newt::DEF,
+            TileType::OakTree => &tile_oak_tree::DEF,
         }
     }
 

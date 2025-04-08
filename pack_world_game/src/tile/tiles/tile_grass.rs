@@ -17,7 +17,11 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Grass";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Grass",
+    description: "Drops basic resources. Reduce cooldown by 10% if adjacent to water.",
+    world_layer: WorldLayer::Ground,
+};
 
 const HARVEST_SECONDS: f64 = 18.0;
 

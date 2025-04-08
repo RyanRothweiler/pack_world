@@ -16,7 +16,11 @@ use gengar_engine::{
     ui::*,
 };
 
-pub const TITLE: &str = "Mud Pit";
+pub const DEF: TileDefinition<'static> = TileDefinition {
+    title: "Mud Pit",
+    description: "Drops mud babies and ground tiles.",
+    world_layer: WorldLayer::Floor,
+};
 
 const HARVEST_SECONDS: f64 = minutes_to_seconds(4.0);
 
