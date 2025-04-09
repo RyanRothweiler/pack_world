@@ -24,8 +24,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
 
+    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Water)],
+
     build_methods: TileClam::new_methods,
-    can_place: TileClam::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 20.0;
@@ -40,18 +41,6 @@ impl TileClam {
         TileMethods::Clam(TileClam {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Clam),
         })
-    }
-
-    pub fn can_place(pos: GridPos, world: &World) -> bool {
-        if !world.pos_valid(pos) {
-            return false;
-        }
-
-        if !world.cell_contains_type(pos, TileType::Water) {
-            return false;
-        }
-
-        true
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {

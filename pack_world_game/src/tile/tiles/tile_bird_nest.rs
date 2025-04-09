@@ -19,8 +19,11 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::TreeAttachment,
     footprint: vec![GridPos::new(0, 0)],
 
+    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::OakTree {
+        has_nest: false,
+    })],
+
     build_methods: TileBirdNest::new_methods,
-    can_place: TileBirdNest::can_place,
 });
 
 #[derive(Debug)]
@@ -33,35 +36,6 @@ impl TileBirdNest {
         TileMethods::BirdNest(TileBirdNest {
             tree_origin: GridPos::new(0, 0),
         })
-    }
-
-    pub fn can_place(pos: GridPos, world: &World) -> bool {
-        if !world.pos_valid(pos) {
-            return false;
-        }
-
-        if !world.cell_contains_type(pos, TileType::OakTree) {
-            return false;
-        }
-
-        // verify there is no nest in that tree already
-        let world_cell: WorldCell = world.get_entities(pos);
-        for (layer, eid) in world_cell.layers {
-            let tile = &world.entities.get(&eid).unwrap();
-
-            if tile.tile_type == TileType::OakTree {
-                match &tile.methods {
-                    TileMethods::OakTree(state) => {
-                        if state.has_nest {
-                            return false;
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        true
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {

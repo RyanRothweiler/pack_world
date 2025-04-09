@@ -29,20 +29,24 @@ pub struct TileDefinition {
     pub description: &'static str,
     pub world_layer: WorldLayer,
     pub footprint: Vec<GridPos>,
+    pub placement_constraints: Vec<WorldCondition>,
 
     pub build_methods: fn(origin: GridPos) -> TileMethods,
-    pub can_place: fn(origin: GridPos, world: &World) -> bool,
 }
 
 impl TileType {
     /// Can you place the tile here
     pub fn can_place_here(&self, origin: GridPos, world: &World) -> bool {
-        let footprint = &self.get_definition().footprint;
-        for p in footprint {
+        let definition = self.get_definition();
+        let world_snapshot = world.get_world_snapshot();
+
+        for p in &definition.footprint {
             let pos = origin + *p;
 
-            if !(self.get_definition().can_place)(pos, world) {
-                return false;
+            for cond in &definition.placement_constraints {
+                if !cond.valid(pos, &world_snapshot) {
+                    return false;
+                }
             }
         }
 

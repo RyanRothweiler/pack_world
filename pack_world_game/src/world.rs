@@ -5,10 +5,14 @@ use std::{collections::HashMap, fs::File, io::Write};
 pub mod entity_id;
 pub mod world_cell;
 pub mod world_condition;
+pub mod world_condition_state;
 pub mod world_layer;
 pub mod world_snapshot;
 
-pub use {entity_id::*, world_cell::*, world_condition::*, world_layer::*, world_snapshot::*};
+pub use {
+    entity_id::*, world_cell::*, world_condition::*, world_condition_state::*, world_layer::*,
+    world_snapshot::*,
+};
 
 /// When placing a tile update all world conditions within this range.
 /// Effectively a limit on adjacency ranges
@@ -229,6 +233,7 @@ impl World {
         let mut ret = WorldSnapshot {
             entity_map: HashMap::new(),
             entities: HashMap::new(),
+            valids: self.valids.clone(),
         };
 
         ret.entity_map = self.entity_map.clone();
@@ -236,8 +241,10 @@ impl World {
         for (grid_pos, world_layer) in &self.entity_map {
             // for eid in value {
             for (layer_key, eid) in &world_layer.layers {
-                let inst: &TileInstance = self.get_entity(eid);
-                ret.entities.insert(*eid, inst.methods.into_snapshot());
+                // let inst: &TileInstance = self.entities.get(eid)
+                if let Some(tile_inst) = self.entities.get(eid) {
+                    ret.entities.insert(*eid, tile_inst.methods.into_snapshot());
+                }
             }
         }
 

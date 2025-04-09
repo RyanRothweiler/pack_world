@@ -21,8 +21,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
 
+    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
+
     build_methods: TileCave::new_methods,
-    can_place: TileCave::can_place,
 });
 
 const HARVEST_SECONDS: f64 = days_to_seconds(1.5);
@@ -37,18 +38,6 @@ impl TileCave {
         TileMethods::Cave(TileCave {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
         })
-    }
-
-    pub fn can_place(pos: GridPos, world: &World) -> bool {
-        if !world.pos_valid(pos) {
-            return false;
-        }
-
-        if !world.cell_contains_type(pos, TileType::Dirt) {
-            return false;
-        }
-
-        true
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {

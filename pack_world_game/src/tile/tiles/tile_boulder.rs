@@ -19,9 +19,10 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops basic resources.",
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
-    build_methods: TileBoulder::new_methods,
 
-    can_place: TileBoulder::can_place,
+    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
+
+    build_methods: TileBoulder::new_methods,
 });
 
 const HARVEST_SECONDS: f64 = 120.0;
@@ -36,18 +37,6 @@ impl TileBoulder {
         TileMethods::Boulder(TileBoulder {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Boulder),
         })
-    }
-
-    pub fn can_place(pos: GridPos, world: &World) -> bool {
-        if !world.pos_valid(pos) {
-            return false;
-        }
-
-        if !world.cell_contains_type(pos, TileType::Dirt) {
-            return false;
-        }
-
-        true
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {

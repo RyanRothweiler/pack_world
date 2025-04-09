@@ -21,8 +21,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::Walker,
     footprint: GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
 
+    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Water)],
+
     build_methods: TileNewt::new_methods,
-    can_place: TileNewt::can_place,
 });
 
 const HARVEST_SECONDS: f64 = 10800.0;
@@ -43,18 +44,6 @@ impl TileNewt {
             target_grid_offset: GridPos::new(1, 1),
             curr_world_pos: grid_to_world(&origin),
         })
-    }
-
-    pub fn can_place(pos: GridPos, world: &World) -> bool {
-        if !world.pos_valid(pos) {
-            return false;
-        }
-
-        if !world.cell_contains_type(pos, TileType::Water) {
-            return false;
-        }
-
-        true
     }
 
     pub fn update(

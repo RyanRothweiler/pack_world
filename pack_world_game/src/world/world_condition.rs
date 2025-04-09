@@ -1,45 +1,59 @@
-use crate::{grid::*, tile_type::TileType, world::*};
+use crate::{tile_type::TileType, world::*};
 
-#[derive(Debug)]
-pub struct WorldConditionState {
-    affirm: bool,
-    pub condition: WorldCondition,
-}
+/// A 'world query'.
+/// Used to check if something is true about the world.
 
 #[derive(Debug)]
 pub enum WorldCondition {
+    /// Adjacent to a specific tile type
+    /// False if origin is the tile type. Origin does not count as adjacent to
     AdjacentTo(TileSnapshot),
+
+    /// Checks if the origin world cell contains a tile type
+    OriginContains(TileSnapshot),
+
+    /// Check the valids hashmap. For adjacency
+    ValidPosition(),
 }
 
-impl WorldConditionState {
-    pub fn new(condition: WorldCondition) -> Self {
-        Self {
-            affirm: false,
-            condition,
-        }
-    }
-
-    pub fn is_affirm(&self) -> bool {
-        self.affirm
-    }
-
-    pub fn update(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) {
-        self.affirm = false;
-
-        match self.condition {
-            WorldCondition::AdjacentTo(ty) => {
-                for adj_pos in grid_pos.to_adjacents_iter() {
+impl WorldCondition {
+    pub fn valid(&self, origin: GridPos, world_snapshot: &WorldSnapshot) -> bool {
+        match self {
+            Self::AdjacentTo(ty) => {
+                for adj_pos in origin.to_adjacents_iter() {
                     if let Some(world_cell) = world_snapshot.entity_map.get(&adj_pos) {
                         for (layer, eid) in &world_cell.layers {
                             let tile = world_snapshot.entities.get(&eid).unwrap();
-                            if *tile == ty {
-                                self.affirm = true;
+                            if *tile == *ty {
+                                return true;
                             }
                         }
                     }
                 }
             }
+
+            Self::OriginContains(ty) => {
+                if let Some(world_cell) = world_snapshot.entity_map.get(&origin) {
+                    for (layer, eid) in &world_cell.layers {
+                        let tile = world_snapshot.entities.get(&eid).unwrap();
+                        if *tile == *ty {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            Self::ValidPosition() => {
+                if !world_snapshot.entity_map.contains_key(&origin) {
+                    if !world_snapshot.valids.contains_key(&origin) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
+
+        return false;
     }
 }
 
@@ -56,19 +70,64 @@ mod test {
 
         let snapshot = world.get_world_snapshot();
 
-        let mut cond = WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water));
-        assert_eq!(cond.affirm, false);
+        assert_eq!(
+            WorldCondition::AdjacentTo(TileSnapshot::Water).valid(GridPos::new(0, 0), &snapshot),
+            true
+        );
 
-        cond.update(GridPos::new(0, 0), &snapshot);
-        assert_eq!(cond.affirm, true);
+        assert_eq!(
+            WorldCondition::AdjacentTo(TileSnapshot::Water).valid(GridPos::new(10, 10), &snapshot),
+            false
+        );
 
-        cond.update(GridPos::new(0, 1), &snapshot);
-        assert_eq!(cond.affirm, false);
+        assert_eq!(
+            WorldCondition::AdjacentTo(TileSnapshot::Water).valid(GridPos::new(0, 1), &snapshot),
+            false
+        );
 
-        cond.update(GridPos::new(10, 0), &snapshot);
-        assert_eq!(cond.affirm, false);
+        assert_eq!(
+            WorldCondition::AdjacentTo(TileSnapshot::Water).valid(GridPos::new(0, 2), &snapshot),
+            true
+        );
 
-        cond.update(GridPos::new(10, 10), &snapshot);
-        assert_eq!(cond.affirm, false);
+        assert_eq!(
+            WorldCondition::AdjacentTo(TileSnapshot::Water).valid(GridPos::new(-1, 1), &snapshot),
+            true
+        );
+    }
+
+    #[test]
+    fn origin_contains() {
+        let mut world = World::new();
+
+        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Water);
+        let _ = world.insert_tile(GridPos::new(10, 10), TileType::Grass);
+
+        let snapshot = world.get_world_snapshot();
+
+        assert_eq!(
+            WorldCondition::OriginContains(TileSnapshot::Water)
+                .valid(GridPos::new(0, 0), &snapshot),
+            false
+        );
+
+        assert_eq!(
+            WorldCondition::OriginContains(TileSnapshot::Water)
+                .valid(GridPos::new(0, 1), &snapshot),
+            true
+        );
+
+        assert_eq!(
+            WorldCondition::OriginContains(TileSnapshot::Grass)
+                .valid(GridPos::new(5, 5), &snapshot),
+            false
+        );
+
+        assert_eq!(
+            WorldCondition::OriginContains(TileSnapshot::Grass)
+                .valid(GridPos::new(10, 10), &snapshot),
+            true
+        );
     }
 }

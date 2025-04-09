@@ -13,8 +13,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::Ground,
     footprint: vec![GridPos::new(0, 0)],
 
+    placement_constraints: vec![WorldCondition::ValidPosition()],
+
     build_methods: TileWater::new_methods,
-    can_place: TileWater::can_place,
 });
 
 #[derive(Debug)]
@@ -23,14 +24,6 @@ pub struct TileWater {}
 impl TileWater {
     pub fn new_methods(origin: GridPos) -> TileMethods {
         TileMethods::Water(TileWater {})
-    }
-
-    pub fn can_place(pos: GridPos, world: &World) -> bool {
-        if !world.pos_valid(pos) {
-            return false;
-        }
-
-        true
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {

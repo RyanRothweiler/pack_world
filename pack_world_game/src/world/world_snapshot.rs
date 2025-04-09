@@ -25,6 +25,7 @@ pub enum TileSnapshot {
 pub struct WorldSnapshot {
     pub entity_map: HashMap<GridPos, WorldCell>,
     pub entities: HashMap<EntityID, TileSnapshot>,
+    pub valids: HashMap<GridPos, bool>,
 }
 
 impl WorldSnapshot {
