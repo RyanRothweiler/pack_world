@@ -17,6 +17,9 @@ pub struct HarvestTimer {
     // modifies the length
     length_condition: Vec<LengthCondition>,
 
+    // Adds drops
+    drop_conditions: Vec<DropCondition>,
+
     pub table: FixedTableID,
 }
 
@@ -27,13 +30,12 @@ struct LengthCondition {
     condition: WorldConditionState,
 }
 
-/*
 /// Add a drop based on conditino
 #[derive(Debug)]
 struct DropCondition {
-    // entry: (EntryOutput, f64)
+    entry: (EntryOutput, f64),
+    condition: WorldConditionState,
 }
-*/
 
 impl HarvestTimer {
     pub fn new(length: f64, table_id: FixedTableID) -> Self {
@@ -42,6 +44,7 @@ impl HarvestTimer {
             table: table_id,
             time: 0.0,
             length_condition: vec![],
+            drop_conditions: vec![],
         }
     }
 
@@ -52,10 +55,22 @@ impl HarvestTimer {
         });
     }
 
+    pub fn add_drop_condition(&mut self, entry: (EntryOutput, f64), condition: WorldCondition) {
+        self.drop_conditions.push(DropCondition {
+            entry,
+            condition: WorldConditionState::new(condition),
+        })
+    }
+
     pub fn update_world_conditions(&mut self, pos: GridPos, world_snapshot: &WorldSnapshot) {
         // length conditions
         for lc in &mut self.length_condition {
             lc.condition.update(pos, world_snapshot);
+        }
+
+        // drop conditions
+        for dc in &mut self.drop_conditions {
+            dc.condition.update(pos, world_snapshot);
         }
     }
 
@@ -77,8 +92,15 @@ impl HarvestTimer {
     }
 
     pub fn harvest(&mut self, platform_api: &PlatformApi) -> Drop {
+        let mut drop_table_instance = DropTableInstance::new_fixed(self.table);
+        for dc in &self.drop_conditions {
+            if dc.condition.is_affirm() {
+                drop_table_instance = drop_table_instance.add_entry(dc.entry.clone());
+            }
+        }
+
         self.reset();
-        return get_drop(self.table, platform_api);
+        return drop_table_instance.get_drop(platform_api);
     }
 
     pub fn length(&self) -> f64 {

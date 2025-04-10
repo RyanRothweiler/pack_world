@@ -87,6 +87,7 @@ impl EntryOutput {
     }
 }
 
+// todo rename this to EntryState
 #[derive(Debug, Clone)]
 struct Entry {
     // original input chance value

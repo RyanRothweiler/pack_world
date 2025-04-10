@@ -36,21 +36,18 @@ const HARVEST_SECONDS: f64 = 18.0;
 #[derive(Debug)]
 pub struct TileGrass {
     pub harvest_timer: HarvestTimer,
-
-    pub nest_adj: WorldConditionState,
 }
 
 impl TileGrass {
     pub fn new_methods(origin: GridPos) -> TileMethods {
         let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
         ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
+        ht.add_drop_condition(
+            (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
+            WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
+        );
 
-        TileMethods::Grass(TileGrass {
-            harvest_timer: ht,
-            nest_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::OakTree {
-                has_nest: true,
-            })),
-        })
+        TileMethods::Grass(TileGrass { harvest_timer: ht })
     }
 
     pub fn build_instance(origin: GridPos) -> TileInstance {
@@ -66,8 +63,6 @@ impl TileGrass {
     }
 
     pub fn update_world_conditions(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) {
-        self.nest_adj.update(grid_pos, world_snapshot);
-
         self.harvest_timer
             .update_world_conditions(grid_pos, world_snapshot);
     }
@@ -82,14 +77,7 @@ impl TileGrass {
         world_snapshot: &WorldSnapshot,
         platform_api: &PlatformApi,
     ) -> Drop {
-        let mut drop_table_instance = DropTableInstance::new_fixed(self.harvest_timer.table);
-        if self.nest_adj.is_affirm() {
-            drop_table_instance =
-                drop_table_instance.add_entry((EntryOutput::new_item(ItemType::Acorn, 1), 2.0));
-        }
-
-        self.harvest_timer.reset();
-        return drop_table_instance.get_drop(platform_api);
+        return self.harvest_timer.harvest(platform_api);
     }
 
     pub fn render_hover_info(
@@ -149,9 +137,6 @@ impl TileGrass {
         let key = format!("{}.h", key_parent);
         let tm = TileMethods::Grass(TileGrass {
             harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
-            nest_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::OakTree {
-                has_nest: true,
-            })),
         });
 
         Ok(tm)
