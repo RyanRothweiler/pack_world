@@ -24,8 +24,6 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     })],
 
     build_methods: TileBirdNest::new_methods,
-
-    components: vec![],
 });
 
 #[derive(Debug)]

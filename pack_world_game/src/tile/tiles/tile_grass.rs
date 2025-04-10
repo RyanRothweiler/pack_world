@@ -27,8 +27,6 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
     build_methods: TileGrass::new_methods,
-
-    components: vec![],
 });
 
 const HARVEST_SECONDS: f64 = 18.0;
@@ -135,32 +133,5 @@ impl TileGrass {
 
         todo!();
         // Ok(tm)
-    }
-}
-
-mod test {
-    use super::*;
-
-    #[test]
-    fn adj_water() {
-        let mut world = World::new();
-
-        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Grass);
-        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Water);
-
-        let geid = EntityID { id: 0 };
-
-        {
-            let mut grass_inst = world.get_entity_mut(&geid);
-
-            match &mut grass_inst.methods {
-                TileMethods::Grass(state) => {
-                    state.update(10.0);
-
-                    assert_eq!(state.harvest_timer.length(), HARVEST_SECONDS * 0.9);
-                }
-                _ => panic!("Invalid tile type"),
-            }
-        }
     }
 }

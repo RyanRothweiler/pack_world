@@ -23,8 +23,6 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
     build_methods: TileOakTree::new_methods,
-
-    components: vec![],
 });
 
 const HARVEST_SECONDS: f64 = 360.0;

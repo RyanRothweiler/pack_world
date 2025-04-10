@@ -7,7 +7,6 @@ pub struct TileDefinition {
     pub world_layer: WorldLayer,
     pub footprint: Vec<GridPos>,
     pub placement_constraints: Vec<WorldCondition>,
-    pub components: Vec<TileComponent>,
 
     pub build_methods: fn(origin: GridPos) -> TileMethods,
 }
