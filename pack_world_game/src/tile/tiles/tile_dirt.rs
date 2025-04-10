@@ -16,6 +16,8 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placement_constraints: vec![WorldCondition::ValidPosition()],
 
     build_methods: TileDirt::new_methods,
+
+    components: vec![],
 });
 
 #[derive(Debug)]

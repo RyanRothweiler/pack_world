@@ -14,7 +14,11 @@ use gengar_engine::{
     vectors::*,
 };
 
-/// This is just manual dynamic dispact because Dyn breaks hot realoding.
+pub mod tile_component;
+
+pub use tile_component::*;
+
+/// This is just manual dynamic dispatch because Dyn breaks hot realoding.
 #[derive(Debug)]
 pub enum TileMethods {
     Dirt(TileDirt),

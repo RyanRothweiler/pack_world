@@ -27,6 +27,8 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
     build_methods: TileGrass::new_methods,
+
+    components: vec![],
 });
 
 const HARVEST_SECONDS: f64 = 18.0;
@@ -35,35 +37,39 @@ const HARVEST_SECONDS: f64 = 18.0;
 pub struct TileGrass {
     pub harvest_timer: HarvestTimer,
 
-    pub water_adj: WorldConditionState,
     pub nest_adj: WorldConditionState,
 }
 
 impl TileGrass {
     pub fn new_methods(origin: GridPos) -> TileMethods {
+        let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
+        ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
+
         TileMethods::Grass(TileGrass {
-            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass),
-            water_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water)),
+            harvest_timer: ht,
             nest_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::OakTree {
                 has_nest: true,
             })),
         })
     }
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        if self.water_adj.is_affirm() {
-            self.harvest_timer.set_length_mod(0.9);
-        } else {
-            self.harvest_timer.reset_length_mod();
-        }
+    pub fn build_instance(origin: GridPos) -> TileInstance {
+        let methods = (DEF.build_methods)(origin);
+        let mut inst = TileInstance::new(TileType::Grass, origin, methods);
 
+        inst
+    }
+
+    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
         vec![]
     }
 
     pub fn update_world_conditions(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) {
-        self.water_adj.update(grid_pos, world_snapshot);
         self.nest_adj.update(grid_pos, world_snapshot);
+
+        self.harvest_timer
+            .update_world_conditions(grid_pos, world_snapshot);
     }
 
     pub fn can_harvest(&self) -> bool {
@@ -143,7 +149,6 @@ impl TileGrass {
         let key = format!("{}.h", key_parent);
         let tm = TileMethods::Grass(TileGrass {
             harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
-            water_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::Water)),
             nest_adj: WorldConditionState::new(WorldCondition::AdjacentTo(TileSnapshot::OakTree {
                 has_nest: true,
             })),
@@ -172,7 +177,7 @@ mod test {
                 TileMethods::Grass(state) => {
                     state.update(10.0);
 
-                    assert_eq!(state.harvest_timer.get_length_mod(), 0.9);
+                    assert_eq!(state.harvest_timer.length(), HARVEST_SECONDS * 0.9);
                 }
                 _ => panic!("Invalid tile type"),
             }

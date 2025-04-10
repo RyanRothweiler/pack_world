@@ -21,12 +21,13 @@ use std::{
 };
 
 pub mod harvest_timer;
+pub mod tile_definition;
 pub mod tile_instance;
 pub mod tile_methods;
 pub mod tile_type;
 pub mod tiles;
 
-pub use {tile_instance::*, tile_methods::*, tile_type::*};
+pub use {tile_definition::*, tile_instance::*, tile_methods::*, tile_type::*};
 
 pub fn draw_tile(
     tile_type: TileType,

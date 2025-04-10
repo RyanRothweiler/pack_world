@@ -1,7 +1,7 @@
 use crate::{
     error::*,
     grid::GridPos,
-    tile::{tile_instance::*, tiles::*, TileMethods},
+    tile::{tile_definition::*, tile_instance::*, tiles::*, TileMethods},
     world::*,
 };
 
@@ -21,17 +21,6 @@ pub enum TileType {
     Newt,
     Reed,
     Clam,
-}
-
-/// Static tile info
-pub struct TileDefinition {
-    pub title: &'static str,
-    pub description: &'static str,
-    pub world_layer: WorldLayer,
-    pub footprint: Vec<GridPos>,
-    pub placement_constraints: Vec<WorldCondition>,
-
-    pub build_methods: fn(origin: GridPos) -> TileMethods,
 }
 
 impl TileType {
@@ -54,11 +43,14 @@ impl TileType {
     }
 
     pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
-        TileInstance::new(
-            *self,
-            grid_pos,
-            (self.get_definition().build_methods)(grid_pos),
-        )
+        match self {
+            // TileType::Grass => {}
+            _ => TileInstance::new(
+                *self,
+                grid_pos,
+                (self.get_definition().build_methods)(grid_pos),
+            ),
+        }
     }
 
     pub fn get_definition(&self) -> &'static TileDefinition {

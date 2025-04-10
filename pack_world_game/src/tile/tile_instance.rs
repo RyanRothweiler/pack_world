@@ -3,7 +3,7 @@ use crate::{
     error::Error,
     grid::*,
     save_file::{load, *},
-    tile::{TileMethods, TileType},
+    tile::{tile_component::*, TileMethods, TileType},
     update_signal::*,
     world::*,
 };
@@ -14,6 +14,8 @@ pub struct TileInstance {
     pub tile_type: TileType,
     pub grid_pos: GridPos,
     pub methods: TileMethods,
+
+    pub components: Vec<TileComponent>,
 
     // for giving offset drops
     pub drop_timer: f64,
@@ -27,6 +29,8 @@ impl TileInstance {
             tile_type,
             grid_pos,
             methods,
+
+            components: vec![],
 
             drop_timer: 0.0,
             drops_queue: vec![],
@@ -63,6 +67,12 @@ impl TileInstance {
         }
 
         harvest_data.1
+    }
+
+    pub fn sim_update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
+        // let def =
+
+        vec![]
     }
 
     pub fn update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
