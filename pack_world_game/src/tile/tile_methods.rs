@@ -2,6 +2,7 @@ use crate::{
     drop_table::*,
     error::*,
     grid::*,
+    harvest_timer::*,
     save_file::{load, *},
     state::{assets::*, *},
     tile::{tile_instance::*, tile_type::*, tiles::*},
@@ -64,6 +65,7 @@ impl TileMethods {
 
     pub fn render(
         &self,
+        harvestable: Option<&HarvestTimer>,
         rot_time: f64,
         pos: &GridPos,
         shader_color: Shader,
@@ -74,9 +76,14 @@ impl TileMethods {
             TileMethods::Dirt(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
-            TileMethods::Grass(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
+            TileMethods::Grass(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
             TileMethods::Boulder(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
@@ -116,6 +123,7 @@ impl TileMethods {
         }
     }
 
+    /*
     pub fn can_harvest(&self) -> bool {
         match self {
             TileMethods::Dirt(state) => state.can_harvest(),
@@ -134,38 +142,40 @@ impl TileMethods {
             TileMethods::Clam(state) => state.can_harvest(),
         }
     }
+    */
 
     pub fn harvest(
         &mut self,
         grid_pos: GridPos,
         world_snapshot: &WorldSnapshot,
         platform_api: &PlatformApi,
-    ) -> (Option<Drop>, Vec<UpdateSignal>) {
+    ) -> Option<Drop> {
         match self {
-            TileMethods::Grass(state) => (
-                Some(state.harvest(grid_pos, world_snapshot, platform_api)),
-                vec![],
-            ),
-            TileMethods::Boulder(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::OakTree(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::Cave(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::Shrub(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::MudPit(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::TallGrass(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::Frog(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::Newt(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::Reed(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
-            TileMethods::Clam(state) => (Some(state.harvest(grid_pos, platform_api)), vec![]),
+            TileMethods::Grass(state) => {
+                None
+                //Some(state.harvest(grid_pos, world_snapshot, platform_api))
+            }
+            TileMethods::Boulder(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::OakTree(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Cave(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Shrub(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::MudPit(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::TallGrass(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Frog(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Newt(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Reed(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Clam(state) => Some(state.harvest(grid_pos, platform_api)),
 
             // these ones don't harvest
-            TileMethods::Dirt(state) => (None, vec![]),
-            TileMethods::Water(state) => (None, vec![]),
-            TileMethods::BirdNest(state) => (None, vec![]),
+            TileMethods::Dirt(state) => None,
+            TileMethods::Water(state) => None,
+            TileMethods::BirdNest(state) => None,
         }
     }
 
     pub fn render_hover_info(
         &self,
+        harvestable: Option<&HarvestTimer>,
         y_offset: f64,
         shader_color: Shader,
         render_pack: &mut RenderPack,
@@ -174,7 +184,7 @@ impl TileMethods {
             TileMethods::Dirt(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::Water(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::Grass(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::Boulder(state) => {
                 state.render_hover_info(y_offset, shader_color, render_pack)

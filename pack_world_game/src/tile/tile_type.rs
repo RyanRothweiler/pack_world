@@ -44,7 +44,7 @@ impl TileType {
 
     pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
         match self {
-            // TileType::Grass => {}
+            TileType::Grass => TileGrass::build_instance(grid_pos),
             _ => TileInstance::new(
                 *self,
                 grid_pos,

@@ -57,6 +57,7 @@ pub mod testing_infra;
 pub use constants::*;
 use grid::*;
 use harvest_drop::*;
+use harvest_timer::*;
 use item::*;
 use save_file::*;
 use state::inventory::*;
@@ -243,6 +244,7 @@ fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
     let mut update_signals: Vec<UpdateSignal> = vec![];
     for (eid, entity) in &mut gs.world.entities {
         update_signals.append(&mut entity.methods.update(entity.grid_pos, ms, platform_api));
+        update_signals.append(&mut entity.sim_update(ms));
     }
     handle_signals(update_signals, gs, platform_api);
 }
@@ -465,9 +467,11 @@ pub fn game_loop(
         for (grid_pos, world_cell) in &gs.world.entity_map {
             for (layer, eid) in &world_cell.layers {
                 let entity = &gs.world.get_entity(&eid);
+
                 match layer {
                     WorldLayer::Ground => {
                         entity.methods.render(
+                            None,
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
@@ -483,9 +487,11 @@ pub fn game_loop(
         for (grid_pos, world_cell) in &gs.world.entity_map {
             for (layer, eid) in &world_cell.layers {
                 let entity = &gs.world.get_entity(&eid);
+
                 match layer {
                     WorldLayer::Floor => {
                         entity.methods.render(
+                            entity.get_component_harvestable(),
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
@@ -504,6 +510,7 @@ pub fn game_loop(
                 match layer {
                     WorldLayer::TreeAttachment => {
                         entity.methods.render(
+                            None,
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
@@ -522,6 +529,7 @@ pub fn game_loop(
                 match layer {
                     WorldLayer::Walker => {
                         entity.methods.render(
+                            None,
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
@@ -540,6 +548,7 @@ pub fn game_loop(
                 match layer {
                     WorldLayer::Planted => {
                         entity.methods.render(
+                            None,
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
@@ -652,9 +661,9 @@ pub fn game_loop(
                 let tile = gs.world.get_entity_mut(eid);
 
                 // Harvesting
-                if input.mouse.button_left.pressing && tile.methods.can_harvest() {
-                    update_signals.append(&mut tile.harvest(&world_snapshot, platform_api));
-                    println!("harvest sigs {:?}", update_signals);
+                if input.mouse.button_left.pressing && tile.can_harvest() {
+                    tile.harvest(&world_snapshot, platform_api);
+                    // println!("harvest sigs {:?}", update_signals);
                 }
 
                 // render hover rect
@@ -691,6 +700,7 @@ pub fn game_loop(
                     );
 
                     tile.methods.render_hover_info(
+                        tile.get_component_harvestable(),
                         y,
                         es.shader_color.clone(),
                         es.render_packs.get_mut(&RenderPackID::UI).unwrap(),

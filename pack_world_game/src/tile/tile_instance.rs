@@ -3,7 +3,7 @@ use crate::{
     error::Error,
     grid::*,
     save_file::{load, *},
-    tile::{tile_component::*, TileMethods, TileType},
+    tile::{harvest_timer::*, tile_component::*, TileMethods, TileType},
     update_signal::*,
     world::*,
 };
@@ -38,39 +38,33 @@ impl TileInstance {
         }
     }
 
-    pub fn harvest(
-        &mut self,
-        world_snapshot: &WorldSnapshot,
-        platform_api: &PlatformApi,
-    ) -> Vec<UpdateSignal> {
-        let mut harvest_data = self
-            .methods
-            .harvest(self.grid_pos, world_snapshot, platform_api);
+    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
+        if let Some(timer) = self.get_component_harvestable_mut() {
+            let drop = timer.harvest(platform_api);
 
-        match harvest_data.0 {
-            Some(drop) => {
-                self.drops_queue.append(&mut drop.to_individual());
+            self.drops_queue.append(&mut drop.to_individual());
 
-                match self.tile_type {
-                    TileType::Reed => {
-                        self.destroy_after_drops = true;
-                    }
-                    _ => {}
+            match self.tile_type {
+                TileType::Reed => {
+                    self.destroy_after_drops = true;
                 }
-            }
-            None => {
-                println!("Attempted to harvest something which isn't harvestable.");
-                println!(
-                    "This is fine. Nothing will break. But this indicates an issue somewhere."
-                );
+                _ => {}
             }
         }
+    }
 
-        harvest_data.1
+    pub fn can_harvest(&self) -> bool {
+        if let Some(timer) = self.get_component_harvestable() {
+            return timer.can_harvest();
+        }
+
+        return false;
     }
 
     pub fn sim_update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
-        // let def =
+        if let Some(timer) = self.get_component_harvestable_mut() {
+            timer.inc(delta_time);
+        }
 
         vec![]
     }
@@ -99,6 +93,30 @@ impl TileInstance {
         }
 
         ret
+    }
+
+    pub fn get_component_harvestable(&self) -> Option<&HarvestTimer> {
+        for c in &self.components {
+            match c {
+                TileComponent::Harvestable { timer } => {
+                    return Some(timer);
+                }
+            }
+        }
+
+        None
+    }
+
+    pub fn get_component_harvestable_mut(&mut self) -> Option<&mut HarvestTimer> {
+        for c in &mut self.components {
+            match c {
+                TileComponent::Harvestable { timer } => {
+                    return Some(timer);
+                }
+            }
+        }
+
+        None
     }
 
     pub fn save_file_write(
