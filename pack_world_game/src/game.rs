@@ -460,36 +460,17 @@ pub fn game_loop(
 
     // render tiles. Render each layer separately.
     // Kinda fucked but whatver. Maybe could setup a new data structure to handle this.
+    // This is what enforces the render layer ordering
     {
         // TODO chagne this to use delta_time
         gs.rotate_time += 0.08;
 
-        for (grid_pos, world_cell) in &gs.world.entity_map {
-            for (layer, eid) in &world_cell.layers {
-                let entity = &gs.world.get_entity(&eid);
+        fn render_layer(target_layer: WorldLayer, gs: &mut State, es: &mut EngineState) {
+            for (grid_pos, world_cell) in &gs.world.entity_map {
+                for (layer, eid) in &world_cell.layers {
+                    if *layer == target_layer {
+                        let entity = &gs.world.get_entity(&eid);
 
-                match layer {
-                    WorldLayer::Ground => {
-                        entity.methods.render(
-                            None,
-                            gs.rotate_time,
-                            &entity.grid_pos,
-                            es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
-                            &gs.assets,
-                        );
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        for (grid_pos, world_cell) in &gs.world.entity_map {
-            for (layer, eid) in &world_cell.layers {
-                let entity = &gs.world.get_entity(&eid);
-
-                match layer {
-                    WorldLayer::Floor => {
                         entity.methods.render(
                             entity.get_component_harvestable(),
                             gs.rotate_time,
@@ -499,67 +480,15 @@ pub fn game_loop(
                             &gs.assets,
                         );
                     }
-                    _ => {}
                 }
             }
         }
 
-        for (grid_pos, world_cell) in &gs.world.entity_map {
-            for (layer, eid) in &world_cell.layers {
-                let entity = &gs.world.get_entity(&eid);
-                match layer {
-                    WorldLayer::TreeAttachment => {
-                        entity.methods.render(
-                            None,
-                            gs.rotate_time,
-                            &entity.grid_pos,
-                            es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
-                            &gs.assets,
-                        );
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        for (grid_pos, world_cell) in &gs.world.entity_map {
-            for (layer, eid) in &world_cell.layers {
-                let entity = &gs.world.get_entity(&eid);
-                match layer {
-                    WorldLayer::Walker => {
-                        entity.methods.render(
-                            None,
-                            gs.rotate_time,
-                            &entity.grid_pos,
-                            es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
-                            &gs.assets,
-                        );
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        for (grid_pos, world_cell) in &gs.world.entity_map {
-            for (layer, eid) in &world_cell.layers {
-                let entity = &gs.world.get_entity(&eid);
-                match layer {
-                    WorldLayer::Planted => {
-                        entity.methods.render(
-                            None,
-                            gs.rotate_time,
-                            &entity.grid_pos,
-                            es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
-                            &gs.assets,
-                        );
-                    }
-                    _ => {}
-                }
-            }
-        }
+        render_layer(WorldLayer::Ground, gs, es);
+        render_layer(WorldLayer::Floor, gs, es);
+        render_layer(WorldLayer::TreeAttachment, gs, es);
+        render_layer(WorldLayer::Walker, gs, es);
+        render_layer(WorldLayer::Planted, gs, es);
     }
 
     // update harvest drops

@@ -46,10 +46,7 @@ impl TileGrass {
         TileMethods::Grass(TileGrass {})
     }
 
-    pub fn build_instance(origin: GridPos) -> TileInstance {
-        let methods = (DEF.build_methods)(origin);
-        let mut inst = TileInstance::new(TileType::Grass, origin, methods);
-
+    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
         let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
         ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
         ht.add_drop_condition(
@@ -59,8 +56,6 @@ impl TileGrass {
 
         inst.components
             .push(TileComponent::Harvestable { timer: ht });
-
-        inst
     }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {

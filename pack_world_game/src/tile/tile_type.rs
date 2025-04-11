@@ -44,13 +44,22 @@ impl TileType {
 
     pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
         match self {
-            TileType::Grass => TileGrass::build_instance(grid_pos),
-            _ => TileInstance::new(
-                *self,
-                grid_pos,
-                (self.get_definition().build_methods)(grid_pos),
-            ),
-        }
+            TileType::Grass => {
+                let methods = (self.get_definition().build_methods)(grid_pos);
+
+                let mut inst = TileInstance::new(*self, grid_pos, methods);
+                TileGrass::add_components(&mut inst, grid_pos);
+
+                return inst;
+            }
+            _ => {
+                return TileInstance::new(
+                    *self,
+                    grid_pos,
+                    (self.get_definition().build_methods)(grid_pos),
+                )
+            }
+        };
     }
 
     pub fn get_definition(&self) -> &'static TileDefinition {
@@ -66,9 +75,9 @@ impl TileType {
             TileType::Reed => &tile_reed::DEF,
             TileType::BirdNest => &tile_bird_nest::DEF,
             TileType::Cave => &tile_cave::DEF,
-            TileType::Frog => &tile_frog::DEF,
             TileType::Newt => &tile_newt::DEF,
             TileType::OakTree => &tile_oak_tree::DEF,
+            TileType::Frog => &tile_frog::DEF,
         }
     }
 
