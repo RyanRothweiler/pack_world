@@ -33,10 +33,6 @@ impl TileDirt {
         vec![]
     }
 
-    pub fn can_harvest(&self) -> bool {
-        false
-    }
-
     pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}
 
     pub fn render(

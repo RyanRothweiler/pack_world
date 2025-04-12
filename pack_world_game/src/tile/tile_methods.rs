@@ -84,45 +84,96 @@ impl TileMethods {
                 render_pack,
                 assets,
             ),
-            TileMethods::Boulder(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::OakTree(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
+            TileMethods::Boulder(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::OakTree(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
             TileMethods::BirdNest(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
-            TileMethods::Cave(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Shrub(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::MudPit(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::TallGrass(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Frog(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
+            TileMethods::Cave(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Shrub(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::MudPit(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::TallGrass(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Frog(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
             TileMethods::Water(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
-            TileMethods::Newt(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Reed(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Clam(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
+            TileMethods::Newt(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Reed(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Clam(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
         }
     }
 
+    /*
     pub fn harvest(
         &mut self,
         grid_pos: GridPos,
@@ -130,11 +181,8 @@ impl TileMethods {
         platform_api: &PlatformApi,
     ) -> Option<Drop> {
         match self {
-            TileMethods::Grass(state) => {
-                None
-                //Some(state.harvest(grid_pos, world_snapshot, platform_api))
-            }
-            TileMethods::Boulder(state) => Some(state.harvest(grid_pos, platform_api)),
+            TileMethods::Grass(state) => None,
+            TileMethods::Boulder(state) => None,
             TileMethods::OakTree(state) => Some(state.harvest(grid_pos, platform_api)),
             TileMethods::Cave(state) => Some(state.harvest(grid_pos, platform_api)),
             TileMethods::Shrub(state) => Some(state.harvest(grid_pos, platform_api)),
@@ -151,6 +199,7 @@ impl TileMethods {
             TileMethods::BirdNest(state) => None,
         }
     }
+    */
 
     pub fn render_hover_info(
         &self,
@@ -166,35 +215,35 @@ impl TileMethods {
                 state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::Boulder(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::OakTree(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::BirdNest(state) => state.render_hover_info(shader_color, render_pack),
             TileMethods::Cave(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::Shrub(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::MudPit(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::TallGrass(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::Frog(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::Newt(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::Reed(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
             TileMethods::Clam(state) => {
-                state.render_hover_info(y_offset, shader_color, render_pack)
+                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
             }
         }
     }

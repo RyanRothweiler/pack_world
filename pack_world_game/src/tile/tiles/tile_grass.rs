@@ -65,10 +65,6 @@ impl TileGrass {
 
     pub fn update_world_conditions(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) {}
 
-    pub fn can_harvest(&self) -> bool {
-        true
-    }
-
     pub fn render_hover_info(
         &self,
         time_comp: &HarvestTimer,

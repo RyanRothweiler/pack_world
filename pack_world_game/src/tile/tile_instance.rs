@@ -145,42 +145,92 @@ impl TileInstance {
                 render_pack,
                 assets,
             ),
-            TileMethods::Boulder(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::OakTree(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
+            TileMethods::Boulder(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::OakTree(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
             TileMethods::BirdNest(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
-            TileMethods::Cave(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Shrub(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::MudPit(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::TallGrass(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Frog(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
+            TileMethods::Cave(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Shrub(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::MudPit(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::TallGrass(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Frog(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
             TileMethods::Water(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets)
             }
-            TileMethods::Newt(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Reed(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Clam(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
+            TileMethods::Newt(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Reed(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Clam(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
         }
     }
 

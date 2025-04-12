@@ -32,34 +32,26 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 const HARVEST_SECONDS: f64 = minutes_to_seconds(4.0);
 
 #[derive(Debug)]
-pub struct TileMudPit {
-    pub harvest_timer: HarvestTimer,
-}
+pub struct TileMudPit {}
 
 impl TileMudPit {
     pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::MudPit(TileMudPit {
-            harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::MudPit),
-        })
+        TileMethods::MudPit(TileMudPit {})
     }
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
+    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
+        inst.components.push(TileComponent::Harvestable {
+            timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
+        });
+    }
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        self.harvest_timer.inc(time_step);
         vec![]
-    }
-
-    pub fn can_harvest(&self) -> bool {
-        self.harvest_timer.can_harvest()
-    }
-
-    pub fn harvest(&mut self, grid_pos: GridPos, platform_api: &PlatformApi) -> Drop {
-        self.harvest_timer.harvest(platform_api)
     }
 
     pub fn render_hover_info(
         &self,
+        time_comp: &HarvestTimer,
         y_offset: f64,
         shader_color: Shader,
         render_pack: &mut RenderPack,
@@ -67,16 +59,12 @@ impl TileMudPit {
         let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
-        draw_progress_bar(
-            self.harvest_timer.percent_done(),
-            &r,
-            shader_color,
-            render_pack,
-        );
+        draw_progress_bar(time_comp.percent_done(), &r, shader_color, render_pack);
     }
 
     pub fn render(
         &self,
+        time_comp: &HarvestTimer,
         rot_time: f64,
         pos: &GridPos,
         shader_color: Shader,
@@ -86,7 +74,7 @@ impl TileMudPit {
         draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
 
         let mut rotation: f64 = 0.0;
-        if self.can_harvest() {
+        if time_comp.can_harvest() {
             rotation = f64::sin(rot_time) * 7.0;
         }
 
@@ -106,7 +94,7 @@ impl TileMudPit {
         save_file: &mut SaveFile,
     ) -> Result<(), Error> {
         let key = format!("{}.h", key_parent);
-        self.harvest_timer.save_file_write(key, save_file)?;
+        // self.harvest_timer.save_file_write(key, save_file)?;
 
         Ok(())
     }
@@ -114,7 +102,7 @@ impl TileMudPit {
     pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
         let key = format!("{}.h", key_parent);
         let tm = TileMethods::MudPit(TileMudPit {
-            harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
+            // harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
         });
 
         Ok(tm)
