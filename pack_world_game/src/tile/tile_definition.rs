@@ -9,4 +9,5 @@ pub struct TileDefinition {
     pub placement_constraints: Vec<WorldCondition>,
 
     pub build_methods: fn(origin: GridPos) -> TileMethods,
+    pub add_components: fn(tile_ints: &mut TileInstance, origin: GridPos),
 }

@@ -1,4 +1,5 @@
 use crate::{
+    assets::*,
     drop_table::*,
     error::Error,
     grid::*,
@@ -7,7 +8,10 @@ use crate::{
     update_signal::*,
     world::*,
 };
-use gengar_engine::platform_api::*;
+use gengar_engine::{
+    platform_api::*,
+    render::{render_pack::*, shader::*},
+};
 
 // TODO make these private?
 pub struct TileInstance {
@@ -117,6 +121,67 @@ impl TileInstance {
         }
 
         None
+    }
+
+    pub fn render(
+        &self,
+        rot_time: f64,
+        pos: &GridPos,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+        assets: &Assets,
+    ) {
+        let harvestable = self.get_component_harvestable();
+
+        match &self.methods {
+            TileMethods::Dirt(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Grass(state) => state.render(
+                harvestable.unwrap(),
+                rot_time,
+                pos,
+                shader_color,
+                render_pack,
+                assets,
+            ),
+            TileMethods::Boulder(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::OakTree(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::BirdNest(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Cave(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Shrub(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::MudPit(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::TallGrass(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Frog(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Water(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Newt(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Reed(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+            TileMethods::Clam(state) => {
+                state.render(rot_time, pos, shader_color, render_pack, assets)
+            }
+        }
     }
 
     pub fn save_file_write(

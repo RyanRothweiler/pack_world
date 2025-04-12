@@ -24,6 +24,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     })],
 
     build_methods: TileBirdNest::new_methods,
+    add_components: TileBirdNest::add_components,
 });
 
 #[derive(Debug)]
@@ -37,6 +38,8 @@ impl TileBirdNest {
             tree_origin: GridPos::new(0, 0),
         })
     }
+
+    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         vec![]

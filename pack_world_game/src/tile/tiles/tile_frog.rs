@@ -24,6 +24,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Grass)],
 
     build_methods: TileFrog::new_methods,
+    add_components: TileFrog::add_components,
 });
 
 const HARVEST_SECONDS: f64 = 10800.0;
@@ -45,6 +46,8 @@ impl TileFrog {
             curr_world_pos: grid_to_world(&origin),
         })
     }
+
+    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
 
     pub fn update(
         &mut self,

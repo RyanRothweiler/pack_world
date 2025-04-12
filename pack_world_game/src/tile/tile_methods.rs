@@ -123,27 +123,6 @@ impl TileMethods {
         }
     }
 
-    /*
-    pub fn can_harvest(&self) -> bool {
-        match self {
-            TileMethods::Dirt(state) => state.can_harvest(),
-            TileMethods::Grass(state) => state.can_harvest(),
-            TileMethods::Boulder(state) => state.can_harvest(),
-            TileMethods::OakTree(state) => state.can_harvest(),
-            TileMethods::BirdNest(state) => state.can_harvest(),
-            TileMethods::Cave(state) => state.can_harvest(),
-            TileMethods::Shrub(state) => state.can_harvest(),
-            TileMethods::MudPit(state) => state.can_harvest(),
-            TileMethods::TallGrass(state) => state.can_harvest(),
-            TileMethods::Frog(state) => state.can_harvest(),
-            TileMethods::Water(state) => state.can_harvest(),
-            TileMethods::Newt(state) => state.can_harvest(),
-            TileMethods::Reed(state) => state.can_harvest(),
-            TileMethods::Clam(state) => state.can_harvest(),
-        }
-    }
-    */
-
     pub fn harvest(
         &mut self,
         grid_pos: GridPos,

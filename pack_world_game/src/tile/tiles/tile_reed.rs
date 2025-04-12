@@ -27,6 +27,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::MudPit)],
 
     build_methods: TileReed::new_methods,
+    add_components: TileReed::add_components,
 });
 
 const HARVEST_SECONDS: f64 = 20.0;
@@ -42,6 +43,8 @@ impl TileReed {
             harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::SmallGold),
         })
     }
+
+    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
 
     pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
         self.harvest_timer.inc(time_step);
