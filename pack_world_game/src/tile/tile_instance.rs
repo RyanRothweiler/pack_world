@@ -4,6 +4,7 @@ use crate::{
     error::Error,
     grid::*,
     save_file::{load, *},
+    tile::*,
     tile::{harvest_timer::*, tile_component::*, TileMethods, TileType},
     update_signal::*,
     world::*,
@@ -123,109 +124,47 @@ impl TileInstance {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
-        let harvestable = self.get_component_harvestable();
-        let wander = self.get_component_wander();
-
         match &self.methods {
-            TileMethods::Dirt(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
-            }
-            TileMethods::Grass(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::Boulder(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::OakTree(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
             TileMethods::BirdNest(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
+                state.render(rot_time, pos, shader_color, render_pack, assets);
             }
-            TileMethods::Cave(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::Shrub(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::MudPit(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::TallGrass(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::Frog(state) => state.render(
-                harvestable.unwrap(),
-                wander.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::Water(state) => {
-                state.render(rot_time, pos, shader_color, render_pack, assets)
+            TileMethods::OakTree(state) => {
+                state.render(
+                    self.get_component_harvestable().unwrap(),
+                    rot_time,
+                    pos,
+                    shader_color,
+                    render_pack,
+                    assets,
+                );
             }
-            TileMethods::Newt(state) => state.render(
-                harvestable.unwrap(),
-                wander.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::Reed(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
-            TileMethods::Clam(state) => state.render(
-                harvestable.unwrap(),
-                rot_time,
-                pos,
-                shader_color,
-                render_pack,
-                assets,
-            ),
+            _ => {
+                let harvestable = self.get_component_harvestable();
+                let wander = self.get_component_wander();
+
+                // harvesting rotation
+                let mut rotation: f64 = 0.0;
+                if let Some(time_comp) = harvestable {
+                    if time_comp.can_harvest() {
+                        rotation = f64::sin(rot_time) * 7.0;
+                    }
+                }
+
+                // wander position
+                let mut render_pos = grid_to_world(pos);
+                if let Some(wander_state) = wander {
+                    render_pos = wander_state.curr_world_pos;
+                }
+
+                draw_tile_world_pos(
+                    self.tile_type,
+                    rotation,
+                    &render_pos,
+                    shader_color,
+                    render_pack,
+                    assets,
+                );
+            }
         }
     }
 

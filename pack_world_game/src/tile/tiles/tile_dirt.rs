@@ -28,15 +28,4 @@ impl TileDirt {
     }
 
     pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
-
-    pub fn render(
-        &self,
-        rot_time: f64,
-        pos: &GridPos,
-        shader_color: Shader,
-        render_pack: &mut RenderPack,
-        assets: &Assets,
-    ) {
-        draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
-    }
 }

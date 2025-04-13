@@ -65,8 +65,6 @@ impl TileOakTree {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
-        draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
-
         let mut rotation: f64 = 0.0;
         if time_comp.can_harvest() {
             rotation = f64::sin(rot_time) * 7.0;

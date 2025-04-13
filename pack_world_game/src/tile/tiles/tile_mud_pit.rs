@@ -45,32 +45,6 @@ impl TileMudPit {
         });
     }
 
-    pub fn render(
-        &self,
-        time_comp: &HarvestTimer,
-        rot_time: f64,
-        pos: &GridPos,
-        shader_color: Shader,
-        render_pack: &mut RenderPack,
-        assets: &Assets,
-    ) {
-        draw_tile(TileType::Dirt, 0.0, pos, shader_color, render_pack, assets);
-
-        let mut rotation: f64 = 0.0;
-        if time_comp.can_harvest() {
-            rotation = f64::sin(rot_time) * 7.0;
-        }
-
-        draw_tile(
-            TileType::MudPit,
-            rotation,
-            pos,
-            shader_color,
-            render_pack,
-            assets,
-        );
-    }
-
     pub fn save_file_write(
         &self,
         key_parent: String,
