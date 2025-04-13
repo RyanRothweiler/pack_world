@@ -37,8 +37,6 @@ impl TileWater {
         false
     }
 
-    pub fn render_hover_info(&self, shader_color: Shader, render_pack: &mut RenderPack) {}
-
     pub fn render(
         &self,
         rot_time: f64,

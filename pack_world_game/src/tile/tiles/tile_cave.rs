@@ -47,19 +47,6 @@ impl TileCave {
         vec![]
     }
 
-    pub fn render_hover_info(
-        &self,
-        time_comp: &HarvestTimer,
-        y_offset: f64,
-        shader_color: Shader,
-        render_pack: &mut RenderPack,
-    ) {
-        let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
-        let r = Rect::new_top_size(base, 200.0, 10.0);
-
-        draw_progress_bar(time_comp.percent_done(), &r, shader_color, render_pack);
-    }
-
     pub fn render(
         &self,
         time_comp: &HarvestTimer,

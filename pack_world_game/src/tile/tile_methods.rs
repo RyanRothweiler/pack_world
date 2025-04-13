@@ -11,7 +11,9 @@ use crate::{
 };
 use gengar_engine::{
     platform_api::*,
+    rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    ui::*,
     vectors::*,
 };
 
@@ -173,34 +175,6 @@ impl TileMethods {
         }
     }
 
-    /*
-    pub fn harvest(
-        &mut self,
-        grid_pos: GridPos,
-        world_snapshot: &WorldSnapshot,
-        platform_api: &PlatformApi,
-    ) -> Option<Drop> {
-        match self {
-            TileMethods::Grass(state) => None,
-            TileMethods::Boulder(state) => None,
-            TileMethods::OakTree(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Cave(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Shrub(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::MudPit(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::TallGrass(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Frog(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Newt(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Reed(state) => Some(state.harvest(grid_pos, platform_api)),
-            TileMethods::Clam(state) => Some(state.harvest(grid_pos, platform_api)),
-
-            // these ones don't harvest
-            TileMethods::Dirt(state) => None,
-            TileMethods::Water(state) => None,
-            TileMethods::BirdNest(state) => None,
-        }
-    }
-    */
-
     pub fn render_hover_info(
         &self,
         harvestable: Option<&HarvestTimer>,
@@ -208,43 +182,11 @@ impl TileMethods {
         shader_color: Shader,
         render_pack: &mut RenderPack,
     ) {
-        match self {
-            TileMethods::Dirt(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::Water(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::Grass(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::Boulder(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::OakTree(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::BirdNest(state) => state.render_hover_info(shader_color, render_pack),
-            TileMethods::Cave(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::Shrub(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::MudPit(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::TallGrass(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::Frog(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::Newt(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::Reed(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
-            TileMethods::Clam(state) => {
-                state.render_hover_info(harvestable.unwrap(), y_offset, shader_color, render_pack)
-            }
+        let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
+        let r = Rect::new_top_size(base, 200.0, 10.0);
+
+        if let Some(time_comp) = harvestable {
+            draw_progress_bar(time_comp.percent_done(), &r, shader_color, render_pack);
         }
     }
 
