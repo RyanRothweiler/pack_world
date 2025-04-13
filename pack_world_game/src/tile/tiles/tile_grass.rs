@@ -59,12 +59,6 @@ impl TileGrass {
             .push(TileComponent::Harvestable { timer: ht });
     }
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        vec![]
-    }
-
-    pub fn update_world_conditions(&mut self, grid_pos: GridPos, world_snapshot: &WorldSnapshot) {}
-
     pub fn render(
         &self,
         time_comp: &HarvestTimer,

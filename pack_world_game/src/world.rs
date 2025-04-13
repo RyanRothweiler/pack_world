@@ -154,7 +154,7 @@ impl World {
             let world_cell: WorldCell = self.get_entities(pos);
             for (layer, eid) in world_cell.layers {
                 let tile_world = &mut self.entities.get_mut(&eid).unwrap();
-                tile_world.methods.update_world_conditions(pos, &snapshot);
+                tile_world.update_world_conditions(&snapshot);
             }
         }
     }

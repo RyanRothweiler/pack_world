@@ -21,62 +21,39 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::Walker,
     footprint: GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
 
-    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Grass)],
+    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::TallGrass)],
 
     build_methods: TileFrog::new_methods,
     add_components: TileFrog::add_components,
 });
 
 const HARVEST_SECONDS: f64 = 10800.0;
-const MOVE_SPEED: f64 = 0.5;
 
 #[derive(Debug)]
-pub struct TileFrog {
-    curr_world_pos: VecTwo,
-    target_grid_offset: GridPos,
-}
+pub struct TileFrog {}
 
 impl TileFrog {
     pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::Frog(TileFrog {
-            // harvest_timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
-            target_grid_offset: GridPos::new(1, 1),
-            curr_world_pos: grid_to_world(&origin),
-        })
+        TileMethods::Frog(TileFrog {})
     }
 
     pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
         inst.components.push(TileComponent::Harvestable {
             timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
         });
-    }
 
-    pub fn update(
-        &mut self,
-        origin: GridPos,
-        time_step: f64,
-        platform_api: &PlatformApi,
-    ) -> Vec<UpdateSignal> {
-        // move frog around
-        {
-            let target_world = grid_to_world(&(origin + self.target_grid_offset));
-            let mut dir = target_world - self.curr_world_pos;
-            dir.normalize();
-
-            self.curr_world_pos = self.curr_world_pos + (dir * MOVE_SPEED);
-
-            if self.curr_world_pos.dist_from(target_world) < 1.0 {
-                self.target_grid_offset.x = ((platform_api.rand)() * 4.0) as i32;
-                self.target_grid_offset.y = ((platform_api.rand)() * 4.0) as i32;
-            }
-        }
-
-        vec![]
+        inst.components.push(TileComponent::Wander {
+            state: WanderState {
+                target_grid_offset: GridPos::new(1, 1),
+                curr_world_pos: grid_to_world(&origin),
+            },
+        });
     }
 
     pub fn render(
         &self,
         time_comp: &HarvestTimer,
+        wander_comp: &WanderState,
         rot_time: f64,
         pos: &GridPos,
         shader_color: Shader,
@@ -91,7 +68,7 @@ impl TileFrog {
         draw_tile_world_pos(
             TileType::Frog,
             rotation,
-            &self.curr_world_pos,
+            &wander_comp.curr_world_pos,
             shader_color,
             render_pack,
             assets,
@@ -117,8 +94,8 @@ impl TileFrog {
         let key = format!("{}.h", key_parent);
         let tm = TileMethods::Frog(TileFrog {
             // harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
-            target_grid_offset: GridPos::new(1, 1),
-            curr_world_pos: grid_to_world(&grid_pos),
+            // target_grid_offset: GridPos::new(1, 1),
+            // curr_world_pos: grid_to_world(&grid_pos),
         });
 
         Ok(tm)

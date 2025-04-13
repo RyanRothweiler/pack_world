@@ -93,7 +93,6 @@ impl HarvestTimer {
 
     #[must_use]
     pub fn harvest(&mut self, platform_api: &PlatformApi) -> Drop {
-
         let mut drop_table_instance = DropTableInstance::new_fixed(self.table);
         for dc in &self.drop_conditions {
             if dc.condition.is_affirm() {

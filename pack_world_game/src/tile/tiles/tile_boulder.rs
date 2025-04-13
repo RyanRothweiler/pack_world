@@ -42,10 +42,6 @@ impl TileBoulder {
         });
     }
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        vec![]
-    }
-
     pub fn render(
         &self,
         time_comp: &HarvestTimer,

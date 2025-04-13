@@ -44,9 +44,7 @@ impl TileShrub {
         });
     }
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        vec![]
-    }
+x
 
     pub fn render(
         &self,

@@ -29,10 +29,6 @@ impl TileDirt {
 
     pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        vec![]
-    }
-
     pub fn render(
         &self,
         rot_time: f64,

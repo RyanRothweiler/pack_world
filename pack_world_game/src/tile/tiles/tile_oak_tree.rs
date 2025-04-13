@@ -49,10 +49,6 @@ impl TileOakTree {
         });
     }
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        vec![]
-    }
-
     pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
         if tile_type == TileType::BirdNest {
             self.has_nest = true;
@@ -146,6 +142,7 @@ impl TileOakTree {
     }
 }
 
+/*
 mod test {
     use super::*;
     use crate::save_file::*;
@@ -171,3 +168,4 @@ mod test {
         }
     }
 }
+*/

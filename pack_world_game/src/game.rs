@@ -243,7 +243,6 @@ pub fn game_init(
 fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
     let mut update_signals: Vec<UpdateSignal> = vec![];
     for (eid, entity) in &mut gs.world.entities {
-        update_signals.append(&mut entity.methods.update(entity.grid_pos, ms, platform_api));
         update_signals.append(&mut entity.sim_update(ms));
     }
     handle_signals(update_signals, gs, platform_api);
@@ -453,7 +452,7 @@ pub fn game_loop(
     {
         let mut update_sigs: Vec<UpdateSignal> = vec![];
         for (eid, tile_inst) in &mut gs.world.entities {
-            update_sigs.append(&mut tile_inst.update(prev_delta_time));
+            update_sigs.append(&mut tile_inst.update(prev_delta_time, platform_api));
         }
         handle_signals(update_sigs, gs, platform_api);
     }
@@ -471,8 +470,7 @@ pub fn game_loop(
                     if *layer == target_layer {
                         let entity = &gs.world.get_entity(&eid);
 
-                        entity.methods.render(
-                            entity.get_component_harvestable(),
+                        entity.render(
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,

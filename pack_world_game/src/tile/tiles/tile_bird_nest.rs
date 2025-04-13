@@ -41,10 +41,6 @@ impl TileBirdNest {
 
     pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        vec![]
-    }
-
     pub fn tile_placed(&mut self, current_tiles: Vec<&TileInstance>) {
         for inst in current_tiles {
             if inst.tile_type == TileType::OakTree {

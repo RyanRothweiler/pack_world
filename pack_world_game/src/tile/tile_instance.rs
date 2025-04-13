@@ -73,54 +73,46 @@ impl TileInstance {
         vec![]
     }
 
-    pub fn update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
+    pub fn update_world_conditions(&mut self, world_snapshot: &WorldSnapshot) {
+        let gp = self.grid_pos;
+        if let Some(timer) = self.get_component_harvestable_mut() {
+            timer.update_world_conditions(gp, world_snapshot);
+        }
+    }
+
+    pub fn update(&mut self, delta_time: f64, platform_api: &PlatformApi) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
+        let grid_pos: GridPos = self.grid_pos;
 
-        if self.drops_queue.len() > 0 {
-            self.drop_timer += delta_time;
+        // Wandering behavior
+        if let Some(wander_state) = self.get_component_wander_mut() {
+            wander_state.update(grid_pos, delta_time, platform_api);
+        }
 
-            if self.drop_timer > 0.06 {
-                self.drop_timer = 0.0;
+        // Update drop displays
+        {
+            if self.drops_queue.len() > 0 {
+                self.drop_timer += delta_time;
 
-                return vec![UpdateSignal::AddHarvestDrop {
-                    drop: self.drops_queue.pop().unwrap(),
-                    origin: grid_to_world(&self.grid_pos),
-                }];
-            }
-        } else {
-            if self.destroy_after_drops {
-                ret.push(UpdateSignal::DestroyTile {
-                    pos: self.grid_pos,
-                    layer: self.tile_type.get_definition().world_layer,
-                });
+                if self.drop_timer > 0.06 {
+                    self.drop_timer = 0.0;
+
+                    return vec![UpdateSignal::AddHarvestDrop {
+                        drop: self.drops_queue.pop().unwrap(),
+                        origin: grid_to_world(&self.grid_pos),
+                    }];
+                }
+            } else {
+                if self.destroy_after_drops {
+                    ret.push(UpdateSignal::DestroyTile {
+                        pos: self.grid_pos,
+                        layer: self.tile_type.get_definition().world_layer,
+                    });
+                }
             }
         }
 
         ret
-    }
-
-    pub fn get_component_harvestable(&self) -> Option<&HarvestTimer> {
-        for c in &self.components {
-            match c {
-                TileComponent::Harvestable { timer } => {
-                    return Some(timer);
-                }
-            }
-        }
-
-        None
-    }
-
-    pub fn get_component_harvestable_mut(&mut self) -> Option<&mut HarvestTimer> {
-        for c in &mut self.components {
-            match c {
-                TileComponent::Harvestable { timer } => {
-                    return Some(timer);
-                }
-            }
-        }
-
-        None
     }
 
     pub fn render(
@@ -132,6 +124,7 @@ impl TileInstance {
         assets: &Assets,
     ) {
         let harvestable = self.get_component_harvestable();
+        let wander = self.get_component_wander();
 
         match &self.methods {
             TileMethods::Dirt(state) => {
@@ -198,6 +191,7 @@ impl TileInstance {
             ),
             TileMethods::Frog(state) => state.render(
                 harvestable.unwrap(),
+                wander.unwrap(),
                 rot_time,
                 pos,
                 shader_color,
@@ -209,6 +203,7 @@ impl TileInstance {
             }
             TileMethods::Newt(state) => state.render(
                 harvestable.unwrap(),
+                wander.unwrap(),
                 rot_time,
                 pos,
                 shader_color,
@@ -232,6 +227,58 @@ impl TileInstance {
                 assets,
             ),
         }
+    }
+
+    pub fn get_component_harvestable(&self) -> Option<&HarvestTimer> {
+        for c in &self.components {
+            match c {
+                TileComponent::Harvestable { timer } => {
+                    return Some(timer);
+                }
+                _ => {}
+            }
+        }
+
+        None
+    }
+
+    pub fn get_component_harvestable_mut(&mut self) -> Option<&mut HarvestTimer> {
+        for c in &mut self.components {
+            match c {
+                TileComponent::Harvestable { timer } => {
+                    return Some(timer);
+                }
+                _ => {}
+            }
+        }
+
+        None
+    }
+
+    pub fn get_component_wander(&self) -> Option<&WanderState> {
+        for c in &self.components {
+            match c {
+                TileComponent::Wander { state } => {
+                    return Some(state);
+                }
+                _ => {}
+            }
+        }
+
+        None
+    }
+
+    pub fn get_component_wander_mut(&mut self) -> Option<&mut WanderState> {
+        for c in &mut self.components {
+            match c {
+                TileComponent::Wander { state } => {
+                    return Some(state);
+                }
+                _ => {}
+            }
+        }
+
+        None
     }
 
     pub fn save_file_write(
