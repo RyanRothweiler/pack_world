@@ -23,45 +23,34 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
-    build_methods: TileCave::new_methods,
-    add_components: TileCave::add_components,
+    build_methods: new_methods,
+    add_components: add_components,
 });
 
 const HARVEST_SECONDS: f64 = days_to_seconds(1.5);
 
-#[derive(Debug)]
-pub struct TileCave {}
+pub fn new_methods(origin: GridPos) -> TileMethods {
+    TileMethods::Cave
+}
 
-impl TileCave {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::Cave(TileCave {})
-    }
+fn add_components(inst: &mut TileInstance, origin: GridPos) {
+    inst.components.push(TileComponent::Harvestable {
+        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
+    });
+}
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
-        inst.components.push(TileComponent::Harvestable {
-            timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
-        });
-    }
+/*
+pub fn save_file_write(&self, key_parent: String, save_file: &mut SaveFile) -> Result<(), Error> {
+    let key = format!("{}.h", key_parent);
+    // self.harvest_timer.save_file_write(key, save_file)?;
 
-    pub fn update(&mut self, time_step: f64) -> Vec<UpdateSignal> {
-        vec![]
-    }
+    Ok(())
+}
+    */
 
-    pub fn save_file_write(
-        &self,
-        key_parent: String,
-        save_file: &mut SaveFile,
-    ) -> Result<(), Error> {
-        let key = format!("{}.h", key_parent);
-        // self.harvest_timer.save_file_write(key, save_file)?;
+pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+    let key = format!("{}.h", key_parent);
+    let tm = TileMethods::Cave;
 
-        Ok(())
-    }
-
-    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
-        let key = format!("{}.h", key_parent);
-        let tm = TileMethods::Cave(TileCave {});
-
-        Ok(tm)
-    }
+    Ok(tm)
 }

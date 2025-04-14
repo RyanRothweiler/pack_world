@@ -26,59 +26,52 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
-    build_methods: TileGrass::new_methods,
-    add_components: TileGrass::add_components,
+    build_methods: new_methods,
+    add_components: add_components,
 });
 
 const HARVEST_SECONDS: f64 = 18.0;
 
-#[derive(Debug)]
-pub struct TileGrass {}
+pub fn new_methods(origin: GridPos) -> TileMethods {
+    let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
+    ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
+    ht.add_drop_condition(
+        (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
+        WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
+    );
 
-impl TileGrass {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
-        let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
-        ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
-        ht.add_drop_condition(
-            (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
-            WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
-        );
+    TileMethods::Grass
+}
 
-        TileMethods::Grass(TileGrass {})
-    }
+fn add_components(inst: &mut TileInstance, origin: GridPos) {
+    let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
+    ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
+    ht.add_drop_condition(
+        (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
+        WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
+    );
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
-        let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
-        ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
-        ht.add_drop_condition(
-            (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
-            WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
-        );
+    inst.components
+        .push(TileComponent::Harvestable { timer: ht });
+}
 
-        inst.components
-            .push(TileComponent::Harvestable { timer: ht });
-    }
+/*
+pub fn save_file_write(&self, key_parent: String, save_file: &mut SaveFile) -> Result<(), Error> {
+    let key = format!("{}.h", key_parent);
+    // self.harvest_timer.save_file_write(key, save_file)?;
 
-    pub fn save_file_write(
-        &self,
-        key_parent: String,
-        save_file: &mut SaveFile,
-    ) -> Result<(), Error> {
-        let key = format!("{}.h", key_parent);
-        // self.harvest_timer.save_file_write(key, save_file)?;
+    Ok(())
+}
+*/
 
-        Ok(())
-    }
+pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+    let key = format!("{}.h", key_parent);
+    /*
+    let tm = TileMethods::Grass(TileGrass {
+        harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
+    });
+    */
 
-    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
-        let key = format!("{}.h", key_parent);
-        /*
-        let tm = TileMethods::Grass(TileGrass {
-            harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
-        });
-        */
-
-        todo!();
-        // Ok(tm)
-    }
+    todo!();
+    // Ok(tm)
 }

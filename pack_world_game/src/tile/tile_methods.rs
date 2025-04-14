@@ -24,20 +24,20 @@ pub use tile_component::*;
 /// This is just manual dynamic dispatch because Dyn breaks hot realoding.
 #[derive(Debug)]
 pub enum TileMethods {
-    Dirt(TileDirt),
-    Grass(TileGrass),
-    Boulder(TileBoulder),
+    Dirt,
+    Grass,
+    Boulder,
     OakTree(TileOakTree),
     BirdNest(TileBirdNest),
-    Cave(TileCave),
-    Shrub(TileShrub),
-    MudPit(TileMudPit),
-    TallGrass(TileTallGrass),
-    Frog(TileFrog),
-    Water(TileWater),
-    Newt(TileNewt),
-    Reed(TileReed),
-    Clam(TileClam),
+    Cave,
+    Shrub,
+    MudPit,
+    TallGrass,
+    Frog,
+    Water,
+    Newt,
+    Reed,
+    Clam,
 }
 
 impl TileMethods {
@@ -59,22 +59,22 @@ impl TileMethods {
     /// Convert the tile into a tilesnapshot
     pub fn into_snapshot(&self) -> TileSnapshot {
         match self {
-            TileMethods::Dirt(state) => TileSnapshot::Dirt,
-            TileMethods::Water(state) => TileSnapshot::Water,
-            TileMethods::Grass(state) => TileSnapshot::Grass,
-            TileMethods::Boulder(state) => TileSnapshot::Boulder,
+            TileMethods::Dirt => TileSnapshot::Dirt,
+            TileMethods::Water => TileSnapshot::Water,
+            TileMethods::Grass => TileSnapshot::Grass,
+            TileMethods::Boulder => TileSnapshot::Boulder,
             TileMethods::OakTree(state) => TileSnapshot::OakTree {
                 has_nest: state.has_nest,
             },
             TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
-            TileMethods::Cave(state) => TileSnapshot::Cave,
-            TileMethods::Shrub(state) => TileSnapshot::Shrub,
-            TileMethods::MudPit(state) => TileSnapshot::MudPit,
-            TileMethods::TallGrass(state) => TileSnapshot::TallGrass,
-            TileMethods::Frog(state) => TileSnapshot::Frog,
-            TileMethods::Newt(state) => TileSnapshot::Newt,
-            TileMethods::Reed(state) => TileSnapshot::Reed,
-            TileMethods::Clam(state) => TileSnapshot::Clam,
+            TileMethods::Cave => TileSnapshot::Cave,
+            TileMethods::Shrub => TileSnapshot::Shrub,
+            TileMethods::MudPit => TileSnapshot::MudPit,
+            TileMethods::TallGrass => TileSnapshot::TallGrass,
+            TileMethods::Frog => TileSnapshot::Frog,
+            TileMethods::Newt => TileSnapshot::Newt,
+            TileMethods::Reed => TileSnapshot::Reed,
+            TileMethods::Clam => TileSnapshot::Clam,
         }
     }
 
@@ -105,22 +105,22 @@ impl TileMethods {
         let state_key = format!("{}.s", key_parent);
 
         match self {
-            TileMethods::Dirt(state) => {
+            TileMethods::Dirt => {
                 let id: i32 = 1;
 
                 save_file.save_i32(&type_key, id);
             }
-            TileMethods::Grass(state) => {
+            TileMethods::Grass => {
                 let id: i32 = 2;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // TileGrass::save_file_write(state_key, save_file)?;
             }
-            TileMethods::Boulder(state) => {
+            TileMethods::Boulder => {
                 let id: i32 = 3;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::OakTree(state) => {
                 let id: i32 = 4;
@@ -134,58 +134,58 @@ impl TileMethods {
                 save_file.save_i32(&type_key, id);
                 state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::Cave(state) => {
+            TileMethods::Cave => {
                 let id: i32 = 6;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::Shrub(state) => {
+            TileMethods::Shrub => {
                 let id: i32 = 7;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::MudPit(state) => {
+            TileMethods::MudPit => {
                 let id: i32 = 8;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::TallGrass(state) => {
+            TileMethods::TallGrass => {
                 let id: i32 = 9;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::Frog(state) => {
+            TileMethods::Frog => {
                 let id: i32 = 10;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::Water(state) => {
+            TileMethods::Water => {
                 let id: i32 = 11;
 
                 save_file.save_i32(&type_key, id);
             }
-            TileMethods::Newt(state) => {
+            TileMethods::Newt => {
                 let id: i32 = 12;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::Reed(state) => {
+            TileMethods::Reed => {
                 let id: i32 = 13;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
-            TileMethods::Clam(state) => {
+            TileMethods::Clam => {
                 let id: i32 = 14;
 
                 save_file.save_i32(&type_key, id);
-                state.save_file_write(state_key, save_file)?;
+                // state.save_file_write(state_key, save_file)?;
             }
         }
 
@@ -202,20 +202,20 @@ impl TileMethods {
 
         let id = save_file.load_i32(&type_key).unwrap();
         match id {
-            1 => Ok(TileDirt::new_methods(GridPos::new(0, 0))),
-            2 => Ok(TileGrass::save_file_load(state_key, save_file)?),
-            3 => Ok(TileBoulder::save_file_load(state_key, save_file)?),
+            1 => Ok(tile_dirt::new_methods(GridPos::new(0, 0))),
+            2 => Ok(tile_grass::save_file_load(state_key, save_file)?),
+            3 => Ok(tile_boulder::save_file_load(state_key, save_file)?),
             4 => Ok(TileOakTree::save_file_load(state_key, save_file)?),
             5 => Ok(TileBirdNest::save_file_load(state_key, save_file)?),
-            6 => Ok(TileCave::save_file_load(state_key, save_file)?),
-            7 => Ok(TileShrub::save_file_load(state_key, save_file)?),
-            8 => Ok(TileMudPit::save_file_load(state_key, save_file)?),
-            9 => Ok(TileTallGrass::save_file_load(state_key, save_file)?),
-            10 => Ok(TileFrog::save_file_load(state_key, grid_pos, save_file)?),
-            11 => Ok(TileWater::new_methods(GridPos::new(0, 0))),
-            12 => Ok(TileNewt::save_file_load(state_key, grid_pos, save_file)?),
-            13 => Ok(TileReed::save_file_load(state_key, save_file)?),
-            14 => Ok(TileClam::save_file_load(state_key, save_file)?),
+            6 => Ok(tile_cave::save_file_load(state_key, save_file)?),
+            7 => Ok(tile_shrub::save_file_load(state_key, save_file)?),
+            8 => Ok(tile_mud_pit::save_file_load(state_key, save_file)?),
+            9 => Ok(tile_tall_grass::save_file_load(state_key, save_file)?),
+            10 => Ok(tile_frog::save_file_load(state_key, grid_pos, save_file)?),
+            11 => Ok(tile_water::new_methods(GridPos::new(0, 0))),
+            12 => Ok(tile_newt::save_file_load(state_key, grid_pos, save_file)?),
+            13 => Ok(tile_reed::save_file_load(state_key, save_file)?),
+            14 => Ok(tile_clam::save_file_load(state_key, save_file)?),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }
@@ -231,13 +231,13 @@ mod tests {
     fn save_load() {
         let mut save_file = SaveFile::new();
 
-        TileDirt::new_methods(GridPos::new(0, 0))
+        tile_dirt::new_methods(GridPos::new(0, 0))
             .save_file_write("dirt".into(), &mut save_file)
             .unwrap();
-        TileGrass::new_methods(GridPos::new(0, 0))
+        tile_grass::new_methods(GridPos::new(0, 0))
             .save_file_write("grass".into(), &mut save_file)
             .unwrap();
-        TileBoulder::new_methods(GridPos::new(0, 0))
+        tile_boulder::new_methods(GridPos::new(0, 0))
             .save_file_write("boulder".into(), &mut save_file)
             .unwrap();
         TileOakTree::new_methods(GridPos::new(0, 0))
@@ -246,45 +246,45 @@ mod tests {
         TileBirdNest::new_methods(GridPos::new(0, 0))
             .save_file_write("bird nest".into(), &mut save_file)
             .unwrap();
-        TileCave::new_methods(GridPos::new(0, 0))
+        tile_cave::new_methods(GridPos::new(0, 0))
             .save_file_write("cave".into(), &mut save_file)
             .unwrap();
-        TileShrub::new_methods(GridPos::new(0, 0))
+        tile_shrub::new_methods(GridPos::new(0, 0))
             .save_file_write("shrub".into(), &mut save_file)
             .unwrap();
-        TileMudPit::new_methods(GridPos::new(0, 0))
+        tile_mud_pit::new_methods(GridPos::new(0, 0))
             .save_file_write("mudpit".into(), &mut save_file)
             .unwrap();
-        TileTallGrass::new_methods(GridPos::new(0, 0))
+        tile_tall_grass::new_methods(GridPos::new(0, 0))
             .save_file_write("tall_grass".into(), &mut save_file)
             .unwrap();
-        TileFrog::new_methods(GridPos::new(5, 5))
+        tile_frog::new_methods(GridPos::new(5, 5))
             .save_file_write("frog".into(), &mut save_file)
             .unwrap();
-        TileWater::new_methods(GridPos::new(0, 0))
+        tile_water::new_methods(GridPos::new(0, 0))
             .save_file_write("water".into(), &mut save_file)
             .unwrap();
-        TileNewt::new_methods(GridPos::new(5, 5))
+        tile_newt::new_methods(GridPos::new(5, 5))
             .save_file_write("newt".into(), &mut save_file)
             .unwrap();
-        TileReed::new_methods(GridPos::new(0, 0))
+        tile_reed::new_methods(GridPos::new(0, 0))
             .save_file_write("reed".into(), &mut save_file)
             .unwrap();
-        TileClam::new_methods(GridPos::new(0, 0))
+        tile_clam::new_methods(GridPos::new(0, 0))
             .save_file_write("clam".into(), &mut save_file)
             .unwrap();
 
         match TileMethods::save_file_load("dirt".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Dirt(state) => {}
+            TileMethods::Dirt => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("grass".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Grass(state) => {}
+            TileMethods::Grass => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("boulder".into(), GridPos::new(0, 0), &save_file).unwrap()
         {
-            TileMethods::Boulder(state) => {}
+            TileMethods::Boulder => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("oak tree".into(), GridPos::new(0, 0), &save_file)
@@ -300,42 +300,42 @@ mod tests {
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("cave".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Cave(state) => {}
+            TileMethods::Cave => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("shrub".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Shrub(state) => {}
+            TileMethods::Shrub => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("mudpit".into(), GridPos::new(0, 0), &save_file).unwrap()
         {
-            TileMethods::MudPit(state) => {}
+            TileMethods::MudPit => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("tall_grass".into(), GridPos::new(0, 0), &save_file)
             .unwrap()
         {
-            TileMethods::TallGrass(state) => {}
+            TileMethods::TallGrass => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("frog".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Frog(state) => {}
+            TileMethods::Frog => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("water".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Water(state) => {}
+            TileMethods::Water => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("newt".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Newt(state) => {}
+            TileMethods::Newt => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("reed".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Reed(state) => {}
+            TileMethods::Reed => {}
             _ => panic!("Incorrect"),
         }
         match TileMethods::save_file_load("clam".into(), GridPos::new(0, 0), &save_file).unwrap() {
-            TileMethods::Clam(state) => {}
+            TileMethods::Clam => {}
             _ => panic!("Incorrect"),
         }
     }

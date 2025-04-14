@@ -15,17 +15,12 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::ValidPosition()],
 
-    build_methods: TileDirt::new_methods,
-    add_components: TileDirt::add_components,
+    build_methods: new_methods,
+    add_components: add_components,
 });
 
-#[derive(Debug)]
-pub struct TileDirt {}
-
-impl TileDirt {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::Dirt(TileDirt {})
-    }
-
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
+pub fn new_methods(origin: GridPos) -> TileMethods {
+    TileMethods::Dirt
 }
+
+fn add_components(inst: &mut TileInstance, origin: GridPos) {}

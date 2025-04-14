@@ -25,43 +25,34 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
-    build_methods: TileMudPit::new_methods,
-    add_components: TileMudPit::add_components,
+    build_methods: new_methods,
+    add_components: add_components,
 });
 
 const HARVEST_SECONDS: f64 = minutes_to_seconds(4.0);
 
-#[derive(Debug)]
-pub struct TileMudPit {}
+pub fn new_methods(origin: GridPos) -> TileMethods {
+    TileMethods::MudPit
+}
 
-impl TileMudPit {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::MudPit(TileMudPit {})
-    }
+pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
+    inst.components.push(TileComponent::Harvestable {
+        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
+    });
+}
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
-        inst.components.push(TileComponent::Harvestable {
-            timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
-        });
-    }
+/*
+pub fn save_file_write(&self, key_parent: String, save_file: &mut SaveFile) -> Result<(), Error> {
+    let key = format!("{}.h", key_parent);
+    // self.harvest_timer.save_file_write(key, save_file)?;
 
-    pub fn save_file_write(
-        &self,
-        key_parent: String,
-        save_file: &mut SaveFile,
-    ) -> Result<(), Error> {
-        let key = format!("{}.h", key_parent);
-        // self.harvest_timer.save_file_write(key, save_file)?;
+    Ok(())
+}
+*/
 
-        Ok(())
-    }
+pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+    let key = format!("{}.h", key_parent);
+    let tm = TileMethods::MudPit;
 
-    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
-        let key = format!("{}.h", key_parent);
-        let tm = TileMethods::MudPit(TileMudPit {
-            // harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
-        });
-
-        Ok(tm)
-    }
+    Ok(tm)
 }

@@ -22,41 +22,36 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
-    build_methods: TileBoulder::new_methods,
-    add_components: TileBoulder::add_components,
+    build_methods: new_methods,
+    add_components: add_components,
 });
 
 const HARVEST_SECONDS: f64 = 120.0;
 
-#[derive(Debug)]
-pub struct TileBoulder {}
+pub fn new_methods(origin: GridPos) -> TileMethods {
+    TileMethods::Boulder
+}
 
-impl TileBoulder {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::Boulder(TileBoulder {})
-    }
+fn add_components(inst: &mut TileInstance, origin: GridPos) {
+    inst.components.push(TileComponent::Harvestable {
+        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Boulder),
+    });
+}
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
-        inst.components.push(TileComponent::Harvestable {
-            timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Boulder),
-        });
-    }
+/*
+pub fn save_file_write(&self, key_parent: String, save_file: &mut SaveFile) -> Result<(), Error> {
+    let key = format!("{}.h", key_parent);
+    // self.harvest_timer.save_file_write(key, save_file)?;
 
-    pub fn save_file_write(
-        &self,
-        key_parent: String,
-        save_file: &mut SaveFile,
-    ) -> Result<(), Error> {
-        let key = format!("{}.h", key_parent);
-        // self.harvest_timer.save_file_write(key, save_file)?;
+    Ok(())
+}
+*/
 
-        Ok(())
-    }
+pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
+    todo!();
 
-    pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
-        let key = format!("{}.h", key_parent);
-        let tm = TileMethods::Boulder(TileBoulder {});
+    let key = format!("{}.h", key_parent);
+    // let tm = TileMethods::Boulder(TileBoulder {});
 
-        Ok(tm)
-    }
+    // Ok(tm)
 }

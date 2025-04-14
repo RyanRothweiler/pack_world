@@ -17,16 +17,4 @@ pub mod tile_tall_grass;
 pub mod tile_water;
 
 pub use tile_bird_nest::TileBirdNest;
-pub use tile_boulder::TileBoulder;
-pub use tile_cave::TileCave;
-pub use tile_clam::TileClam;
-pub use tile_dirt::TileDirt;
-pub use tile_frog::TileFrog;
-pub use tile_grass::TileGrass;
-pub use tile_mud_pit::TileMudPit;
-pub use tile_newt::TileNewt;
 pub use tile_oak_tree::TileOakTree;
-pub use tile_reed::TileReed;
-pub use tile_shrub::TileShrub;
-pub use tile_tall_grass::TileTallGrass;
-pub use tile_water::TileWater;

@@ -15,28 +15,12 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::ValidPosition()],
 
-    build_methods: TileWater::new_methods,
-    add_components: TileWater::add_components,
+    build_methods: new_methods,
+    add_components: add_components,
 });
 
-#[derive(Debug)]
-pub struct TileWater {}
-
-impl TileWater {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::Water(TileWater {})
-    }
-
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
-
-    pub fn render(
-        &self,
-        rot_time: f64,
-        pos: &GridPos,
-        shader_color: Shader,
-        render_pack: &mut RenderPack,
-        assets: &Assets,
-    ) {
-        draw_tile(TileType::Water, 0.0, pos, shader_color, render_pack, assets);
-    }
+pub fn new_methods(origin: GridPos) -> TileMethods {
+    TileMethods::Water
 }
+
+pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}

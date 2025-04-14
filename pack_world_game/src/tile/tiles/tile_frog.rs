@@ -23,56 +23,45 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::TallGrass)],
 
-    build_methods: TileFrog::new_methods,
-    add_components: TileFrog::add_components,
+    build_methods: new_methods,
+    add_components: add_components,
 });
 
 const HARVEST_SECONDS: f64 = 10800.0;
 
-#[derive(Debug)]
-pub struct TileFrog {}
+pub fn new_methods(origin: GridPos) -> TileMethods {
+    TileMethods::Frog
+}
 
-impl TileFrog {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
-        TileMethods::Frog(TileFrog {})
-    }
+pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
+    inst.components.push(TileComponent::Harvestable {
+        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
+    });
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
-        inst.components.push(TileComponent::Harvestable {
-            timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
-        });
+    inst.components.push(TileComponent::Wander {
+        state: WanderState {
+            target_grid_offset: GridPos::new(1, 1),
+            curr_world_pos: grid_to_world(&origin),
+        },
+    });
+}
 
-        inst.components.push(TileComponent::Wander {
-            state: WanderState {
-                target_grid_offset: GridPos::new(1, 1),
-                curr_world_pos: grid_to_world(&origin),
-            },
-        });
-    }
+/*
+pub fn save_file_write(&self, key_parent: String, save_file: &mut SaveFile) -> Result<(), Error> {
+    let key = format!("{}.h", key_parent);
+    // self.harvest_timer.save_file_write(key, save_file)?;
 
-    pub fn save_file_write(
-        &self,
-        key_parent: String,
-        save_file: &mut SaveFile,
-    ) -> Result<(), Error> {
-        let key = format!("{}.h", key_parent);
-        // self.harvest_timer.save_file_write(key, save_file)?;
+    Ok(())
+}
+*/
 
-        Ok(())
-    }
+pub fn save_file_load(
+    key_parent: String,
+    grid_pos: GridPos,
+    save_file: &SaveFile,
+) -> Result<TileMethods, Error> {
+    let key = format!("{}.h", key_parent);
+    let tm = TileMethods::Frog;
 
-    pub fn save_file_load(
-        key_parent: String,
-        grid_pos: GridPos,
-        save_file: &SaveFile,
-    ) -> Result<TileMethods, Error> {
-        let key = format!("{}.h", key_parent);
-        let tm = TileMethods::Frog(TileFrog {
-            // harvest_timer: HarvestTimer::save_file_load(key, save_file)?,
-            // target_grid_offset: GridPos::new(1, 1),
-            // curr_world_pos: grid_to_world(&grid_pos),
-        });
-
-        Ok(tm)
-    }
+    Ok(tm)
 }
