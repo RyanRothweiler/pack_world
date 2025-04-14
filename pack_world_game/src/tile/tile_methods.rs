@@ -200,6 +200,9 @@ impl TileMethods {
         let type_key = format!("{}.t", key_parent);
         let state_key = format!("{}.s", key_parent);
 
+        todo!();
+
+        /*
         let id = save_file.load_i32(&type_key).unwrap();
         match id {
             1 => Ok(tile_dirt::new_methods(GridPos::new(0, 0))),
@@ -220,6 +223,7 @@ impl TileMethods {
                 return Err(Error::UnknownTileMethodID(id));
             }
         }
+        */
     }
 }
 

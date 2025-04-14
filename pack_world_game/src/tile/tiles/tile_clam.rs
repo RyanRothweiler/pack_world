@@ -26,20 +26,19 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Water)],
 
-    build_methods: new_methods,
-    add_components: add_components,
+    new_instance: new_instance,
 });
 
 const HARVEST_SECONDS: f64 = 20.0;
 
-pub fn new_methods(origin: GridPos) -> TileMethods {
-    TileMethods::Clam
-}
+pub fn new_instance(grid_pos: GridPos) -> TileInstance {
+    let mut inst = TileInstance::new(TileType::Clam, grid_pos, TileMethods::Clam);
 
-fn add_components(inst: &mut TileInstance, origin: GridPos) {
     inst.components.push(TileComponent::Harvestable {
         timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Clam),
     });
+
+    inst
 }
 
 /*

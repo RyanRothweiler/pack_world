@@ -44,12 +44,7 @@ impl TileType {
 
     pub fn create_instance(&self, grid_pos: GridPos) -> TileInstance {
         let def = self.get_definition();
-        let methods = (def.build_methods)(grid_pos);
-
-        let mut inst = TileInstance::new(*self, grid_pos, methods);
-        (def.add_components)(&mut inst, grid_pos);
-
-        return inst;
+        (def.new_instance)(grid_pos)
     }
 
     pub fn get_definition(&self) -> &'static TileDefinition {

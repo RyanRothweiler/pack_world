@@ -22,8 +22,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
-    build_methods: TileOakTree::new_methods,
-    add_components: TileOakTree::add_components,
+    new_instance: new_instance,
 });
 
 const HARVEST_SECONDS: f64 = 360.0;
@@ -35,20 +34,24 @@ pub struct TileOakTree {
     pub nest_id: Option<EntityID>,
 }
 
-impl TileOakTree {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
+pub fn new_instance(grid_pos: GridPos) -> TileInstance {
+    let mut inst = TileInstance::new(
+        TileType::OakTree,
+        grid_pos,
         TileMethods::OakTree(TileOakTree {
             has_nest: false,
             nest_id: None,
-        })
-    }
+        }),
+    );
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
-        inst.components.push(TileComponent::Harvestable {
-            timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
-        });
-    }
+    inst.components.push(TileComponent::Harvestable {
+        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
+    });
 
+    inst
+}
+
+impl TileOakTree {
     pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
         if tile_type == TileType::BirdNest {
             self.has_nest = true;

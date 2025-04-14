@@ -26,24 +26,14 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
-    build_methods: new_methods,
-    add_components: add_components,
+    new_instance: new_instance,
 });
 
 const HARVEST_SECONDS: f64 = 18.0;
 
-pub fn new_methods(origin: GridPos) -> TileMethods {
-    let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
-    ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
-    ht.add_drop_condition(
-        (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
-        WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
-    );
+pub fn new_instance(grid_pos: GridPos) -> TileInstance {
+    let mut inst = TileInstance::new(TileType::Grass, grid_pos, TileMethods::Grass);
 
-    TileMethods::Grass
-}
-
-fn add_components(inst: &mut TileInstance, origin: GridPos) {
     let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
     ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
     ht.add_drop_condition(
@@ -53,6 +43,8 @@ fn add_components(inst: &mut TileInstance, origin: GridPos) {
 
     inst.components
         .push(TileComponent::Harvestable { timer: ht });
+
+    inst
 }
 
 /*

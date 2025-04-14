@@ -23,8 +23,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
         has_nest: false,
     })],
 
-    build_methods: TileBirdNest::new_methods,
-    add_components: TileBirdNest::add_components,
+    new_instance: new_instance,
 });
 
 #[derive(Debug)]
@@ -32,15 +31,19 @@ pub struct TileBirdNest {
     tree_origin: GridPos,
 }
 
-impl TileBirdNest {
-    pub fn new_methods(origin: GridPos) -> TileMethods {
+pub fn new_instance(grid_pos: GridPos) -> TileInstance {
+    let mut inst = TileInstance::new(
+        TileType::BirdNest,
+        grid_pos,
         TileMethods::BirdNest(TileBirdNest {
             tree_origin: GridPos::new(0, 0),
-        })
-    }
+        }),
+    );
 
-    pub fn add_components(inst: &mut TileInstance, origin: GridPos) {}
+    inst
+}
 
+impl TileBirdNest {
     pub fn tile_placed(&mut self, current_tiles: Vec<&TileInstance>) {
         for inst in current_tiles {
             if inst.tile_type == TileType::OakTree {

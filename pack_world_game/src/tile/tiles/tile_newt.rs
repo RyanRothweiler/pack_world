@@ -23,17 +23,14 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Water)],
 
-    build_methods: new_methods,
-    add_components: add_components,
+    new_instance: new_instance,
 });
 
 const HARVEST_SECONDS: f64 = 10800.0;
 
-pub fn new_methods(origin: GridPos) -> TileMethods {
-    TileMethods::Newt
-}
+pub fn new_instance(grid_pos: GridPos) -> TileInstance {
+    let mut inst = TileInstance::new(TileType::Newt, grid_pos, TileMethods::Newt);
 
-pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
     inst.components.push(TileComponent::Harvestable {
         timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::SmallGold),
     });
@@ -41,9 +38,11 @@ pub fn add_components(inst: &mut TileInstance, origin: GridPos) {
     inst.components.push(TileComponent::Wander {
         state: WanderState {
             target_grid_offset: GridPos::new(1, 1),
-            curr_world_pos: grid_to_world(&origin),
+            curr_world_pos: grid_to_world(&grid_pos),
         },
     });
+
+    inst
 }
 
 /*
