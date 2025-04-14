@@ -22,7 +22,7 @@ pub mod tile_component;
 pub use tile_component::*;
 
 /// This is just manual dynamic dispatch because Dyn breaks hot realoding.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TileMethods {
     Dirt,
     Grass,
@@ -41,61 +41,6 @@ pub enum TileMethods {
 }
 
 impl TileMethods {
-    pub fn render_hover_info(
-        &self,
-        harvestable: Option<&HarvestTimer>,
-        y_offset: f64,
-        shader_color: Shader,
-        render_pack: &mut RenderPack,
-    ) {
-        let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
-        let r = Rect::new_top_size(base, 200.0, 10.0);
-
-        if let Some(time_comp) = harvestable {
-            draw_progress_bar(time_comp.percent_done(), &r, shader_color, render_pack);
-        }
-    }
-
-    /// Convert the tile into a tilesnapshot
-    pub fn into_snapshot(&self) -> TileSnapshot {
-        match self {
-            TileMethods::Dirt => TileSnapshot::Dirt,
-            TileMethods::Water => TileSnapshot::Water,
-            TileMethods::Grass => TileSnapshot::Grass,
-            TileMethods::Boulder => TileSnapshot::Boulder,
-            TileMethods::OakTree(state) => TileSnapshot::OakTree {
-                has_nest: state.has_nest,
-            },
-            TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
-            TileMethods::Cave => TileSnapshot::Cave,
-            TileMethods::Shrub => TileSnapshot::Shrub,
-            TileMethods::MudPit => TileSnapshot::MudPit,
-            TileMethods::TallGrass => TileSnapshot::TallGrass,
-            TileMethods::Frog => TileSnapshot::Frog,
-            TileMethods::Newt => TileSnapshot::Newt,
-            TileMethods::Reed => TileSnapshot::Reed,
-            TileMethods::Clam => TileSnapshot::Clam,
-        }
-    }
-
-    /// Some other tile is placed ontop of this one.
-    /// top_id is the entity_id of the newly placed tile.
-    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
-        match self {
-            TileMethods::OakTree(state) => state.tile_placed_ontop(tile_type, top_id),
-
-            // Default is that tile doesn't care
-            _ => {}
-        }
-    }
-
-    pub fn tile_placed(&mut self, current_tiles: Vec<&TileInstance>) {
-        match self {
-            TileMethods::BirdNest(state) => state.tile_placed(current_tiles),
-            _ => {}
-        }
-    }
-
     pub fn save_file_write(
         &self,
         key_parent: String,
@@ -114,13 +59,11 @@ impl TileMethods {
                 let id: i32 = 2;
 
                 save_file.save_i32(&type_key, id);
-                // TileGrass::save_file_write(state_key, save_file)?;
             }
             TileMethods::Boulder => {
                 let id: i32 = 3;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::OakTree(state) => {
                 let id: i32 = 4;
@@ -138,31 +81,26 @@ impl TileMethods {
                 let id: i32 = 6;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::Shrub => {
                 let id: i32 = 7;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::MudPit => {
                 let id: i32 = 8;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::TallGrass => {
                 let id: i32 = 9;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::Frog => {
                 let id: i32 = 10;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::Water => {
                 let id: i32 = 11;
@@ -173,19 +111,16 @@ impl TileMethods {
                 let id: i32 = 12;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::Reed => {
                 let id: i32 = 13;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
             TileMethods::Clam => {
                 let id: i32 = 14;
 
                 save_file.save_i32(&type_key, id);
-                // state.save_file_write(state_key, save_file)?;
             }
         }
 

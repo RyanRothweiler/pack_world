@@ -77,7 +77,7 @@ impl World {
         let world_cell = self.get_entities(grid_pos);
         for (layer, eid) in &world_cell.layers {
             match self.entities.get_mut(&eid) {
-                Some(tile_inst) => tile_inst.methods.tile_placed_ontop(tile, new_entity_id),
+                Some(tile_inst) => tile_inst.tile_placed_ontop(tile, new_entity_id),
 
                 // Nobody there to noify
                 None => {}
@@ -94,7 +94,7 @@ impl World {
                 }
             }
 
-            inst.methods.tile_placed(currents);
+            inst.tile_placed(currents);
         }
 
         // Find tiles that are going to be overwritten, so that we can give them back to the player
@@ -243,7 +243,7 @@ impl World {
             for (layer_key, eid) in &world_layer.layers {
                 // let inst: &TileInstance = self.entities.get(eid)
                 if let Some(tile_inst) = self.entities.get(eid) {
-                    ret.entities.insert(*eid, tile_inst.methods.into_snapshot());
+                    ret.entities.insert(*eid, tile_inst.into_snapshot());
                 }
             }
         }

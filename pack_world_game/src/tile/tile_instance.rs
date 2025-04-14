@@ -12,13 +12,13 @@ use crate::{
 use gengar_engine::{
     platform_api::*,
     render::{render_pack::*, shader::*},
+    ui::*,
 };
 
 // TODO make these private?
 pub struct TileInstance {
     pub tile_type: TileType,
     pub grid_pos: GridPos,
-    pub methods: TileMethods,
 
     pub components: Vec<TileComponent>,
 
@@ -26,6 +26,8 @@ pub struct TileInstance {
     pub drop_timer: f64,
     pub drops_queue: Vec<Drop>,
     pub destroy_after_drops: bool,
+
+    methods: TileMethods,
 }
 
 impl TileInstance {
@@ -40,6 +42,61 @@ impl TileInstance {
             drop_timer: 0.0,
             drops_queue: vec![],
             destroy_after_drops: false,
+        }
+    }
+
+    /// Convert the tile into a tilesnapshot
+    pub fn into_snapshot(&self) -> TileSnapshot {
+        match &self.methods {
+            TileMethods::Dirt => TileSnapshot::Dirt,
+            TileMethods::Water => TileSnapshot::Water,
+            TileMethods::Grass => TileSnapshot::Grass,
+            TileMethods::Boulder => TileSnapshot::Boulder,
+            TileMethods::OakTree(state) => TileSnapshot::OakTree {
+                has_nest: state.has_nest,
+            },
+            TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
+            TileMethods::Cave => TileSnapshot::Cave,
+            TileMethods::Shrub => TileSnapshot::Shrub,
+            TileMethods::MudPit => TileSnapshot::MudPit,
+            TileMethods::TallGrass => TileSnapshot::TallGrass,
+            TileMethods::Frog => TileSnapshot::Frog,
+            TileMethods::Newt => TileSnapshot::Newt,
+            TileMethods::Reed => TileSnapshot::Reed,
+            TileMethods::Clam => TileSnapshot::Clam,
+        }
+    }
+
+    /// Some other tile is placed ontop of this one.
+    /// top_id is the entity_id of the newly placed tile.
+    pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
+        match &mut self.methods {
+            TileMethods::OakTree(state) => state.tile_placed_ontop(tile_type, top_id),
+
+            // Default is that tile doesn't care
+            _ => {}
+        }
+    }
+
+    pub fn tile_placed(&mut self, current_tiles: Vec<&TileInstance>) {
+        match &mut self.methods {
+            TileMethods::BirdNest(state) => state.tile_placed(current_tiles),
+            _ => {}
+        }
+    }
+
+    pub fn render_hover_info(
+        &self,
+        harvestable: Option<&HarvestTimer>,
+        y_offset: f64,
+        shader_color: Shader,
+        render_pack: &mut RenderPack,
+    ) {
+        let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
+        let r = Rect::new_top_size(base, 200.0, 10.0);
+
+        if let Some(time_comp) = harvestable {
+            draw_progress_bar(time_comp.percent_done(), &r, shader_color, render_pack);
         }
     }
 

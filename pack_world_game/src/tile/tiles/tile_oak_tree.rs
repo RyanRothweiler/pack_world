@@ -27,7 +27,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
 const HARVEST_SECONDS: f64 = 360.0;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TileOakTree {
     // TODO remove has_nest and just use the nest_id option
     pub has_nest: bool,

@@ -626,7 +626,7 @@ pub fn game_loop(
                         &mut gs.ui_context.as_mut().unwrap(),
                     );
 
-                    tile.methods.render_hover_info(
+                    tile.render_hover_info(
                         tile.get_component_harvestable(),
                         y,
                         es.shader_color.clone(),
