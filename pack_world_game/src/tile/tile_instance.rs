@@ -45,28 +45,6 @@ impl TileInstance {
         }
     }
 
-    /// Convert the tile into a tilesnapshot
-    pub fn into_snapshot(&self) -> TileSnapshot {
-        match &self.methods {
-            TileMethods::Dirt => TileSnapshot::Dirt,
-            TileMethods::Water => TileSnapshot::Water,
-            TileMethods::Grass => TileSnapshot::Grass,
-            TileMethods::Boulder => TileSnapshot::Boulder,
-            TileMethods::OakTree(state) => TileSnapshot::OakTree {
-                has_nest: state.has_nest,
-            },
-            TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
-            TileMethods::Cave => TileSnapshot::Cave,
-            TileMethods::Shrub => TileSnapshot::Shrub,
-            TileMethods::MudPit => TileSnapshot::MudPit,
-            TileMethods::TallGrass => TileSnapshot::TallGrass,
-            TileMethods::Frog => TileSnapshot::Frog,
-            TileMethods::Newt => TileSnapshot::Newt,
-            TileMethods::Reed => TileSnapshot::Reed,
-            TileMethods::Clam => TileSnapshot::Clam,
-        }
-    }
-
     /// Some other tile is placed ontop of this one.
     /// top_id is the entity_id of the newly placed tile.
     pub fn tile_placed_ontop(&mut self, tile_type: TileType, top_id: EntityID) {
@@ -222,6 +200,38 @@ impl TileInstance {
                     assets,
                 );
             }
+        }
+    }
+
+    /// Convert the tile into a tilesnapshot
+    pub fn into_snapshot(&self) -> TileSnapshot {
+        /*
+        I made multiple attempts to to remove the need for the snapshots.
+        But this actually seems the best. Otherwise we need equals checks on the
+        individual tile states. And also each world condition definition would need
+        to include unecessary tile state data.
+        Also separation of world conditions into its own structure would be needed.
+        This all was more complicated and not obviously better than just
+        manually doing conversions into a new structure.
+        */
+
+        match &self.methods {
+            TileMethods::Dirt => TileSnapshot::Dirt,
+            TileMethods::Water => TileSnapshot::Water,
+            TileMethods::Grass => TileSnapshot::Grass,
+            TileMethods::Boulder => TileSnapshot::Boulder,
+            TileMethods::OakTree(state) => TileSnapshot::OakTree {
+                has_nest: state.has_nest,
+            },
+            TileMethods::BirdNest(state) => TileSnapshot::BirdNest,
+            TileMethods::Cave => TileSnapshot::Cave,
+            TileMethods::Shrub => TileSnapshot::Shrub,
+            TileMethods::MudPit => TileSnapshot::MudPit,
+            TileMethods::TallGrass => TileSnapshot::TallGrass,
+            TileMethods::Frog => TileSnapshot::Frog,
+            TileMethods::Newt => TileSnapshot::Newt,
+            TileMethods::Reed => TileSnapshot::Reed,
+            TileMethods::Clam => TileSnapshot::Clam,
         }
     }
 
