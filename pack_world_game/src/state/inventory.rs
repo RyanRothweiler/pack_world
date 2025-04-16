@@ -120,22 +120,22 @@ impl Inventory {
         let limit_key = format!("{}.l", key_parent);
 
         let mut inv = Self::new();
-        inv.gold = save_file.load_i64(&gold_key).unwrap();
-        inv.limit = save_file.load_i64(&limit_key).unwrap() as usize;
+        inv.gold = save_file.load_i64(&gold_key)?;
+        inv.limit = save_file.load_i64(&limit_key)? as usize;
 
         for (key, value) in &save_file.entries {
             // check if is tile
             let parts: Vec<&str> = key.split('.').collect();
             if parts[0].starts_with("item_index") {
-                let index = save_file.load_i64(key).unwrap();
+                let index = save_file.load_i64(key)?;
 
                 let id = format!("item.{}.id", index);
                 let count_key = format!("{}.item_count", index);
 
                 let item = ItemType::save_file_load(id, save_file)?;
-                let count = save_file.load_i64(&count_key).unwrap();
+                let count = save_file.load_i64(&count_key)?;
 
-                inv.give_item(item, count).unwrap();
+                inv.give_item(item, count)?;
             }
         }
 

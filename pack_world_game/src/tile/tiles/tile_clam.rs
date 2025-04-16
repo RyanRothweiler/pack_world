@@ -40,19 +40,3 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
 
     inst
 }
-
-/*
-pub fn save_file_write(&self, key_parent: String, save_file: &mut SaveFile) -> Result<(), Error> {
-    let key = format!("{}.h", key_parent);
-    // self.harvest_timer.save_file_write(key, save_file)?;
-
-    Ok(())
-}
-*/
-
-pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
-    let key = format!("{}.h", key_parent);
-    let tm = TileMethods::Clam;
-
-    Ok(tm)
-}

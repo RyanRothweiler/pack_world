@@ -3,6 +3,7 @@ use gengar_engine::{platform_api::*, vectors::*};
 
 const MOVE_SPEED: f64 = 0.5;
 
+#[derive(Debug)]
 pub struct WanderState {
     pub curr_world_pos: VecTwo,
     pub target_grid_offset: GridPos,

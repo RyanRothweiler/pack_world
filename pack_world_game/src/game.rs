@@ -315,8 +315,9 @@ pub fn game_loop(
         // manual save for testing
         #[cfg(feature = "dev")]
         {
-            if input.get_key(KeyCode::S).on_press {
+            if input.get_key(KeyCode::Q).on_press {
                 save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
+                println!("Game manually saved");
             }
 
             if input.get_key(KeyCode::L).on_press {
@@ -327,20 +328,25 @@ pub fn game_loop(
         // check for data to load
         {
             if !es.game_to_load.is_empty() {
-                let mut ms_to_sim = load_game(
+                match load_game(
                     &mut gs.world,
                     &mut gs.inventory,
                     &es.game_to_load,
                     platform_api,
-                );
+                ) {
+                    Ok(mut ms_to_sim) => {
+                        while ms_to_sim > 0.0 {
+                            // println!("Forward Simulating {}ms remaining", ms_to_sim);
+                            let ms_step = ms_to_sim.clamp(0.0, MAX_SIM_MS);
+                            sim_world(gs, ms_step / 1000.0, platform_api);
+                            ms_to_sim -= ms_step;
+                        }
+                    }
+                    Err(error) => {
+                        println!("Error loading save file {:?}", error);
+                    }
+                };
                 es.game_to_load.clear();
-
-                while ms_to_sim > 0.0 {
-                    println!("Forward Simulating {}ms remaining", ms_to_sim);
-                    let ms_step = ms_to_sim.clamp(0.0, MAX_SIM_MS);
-                    sim_world(gs, ms_step / 1000.0, platform_api);
-                    ms_to_sim -= ms_step;
-                }
             }
         }
     }

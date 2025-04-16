@@ -121,10 +121,10 @@ impl TileOakTree {
         let has_nest_key = format!("{}.hn", key_parent);
         let nest_entity_id = format!("{}.hne", key_parent);
 
-        let has_nest: bool = save_file.load_bool(&has_nest_key).unwrap();
+        let has_nest: bool = save_file.load_bool(&has_nest_key)?;
         let mut nest_entity: Option<EntityID> = None;
         if has_nest {
-            let eid = save_file.load_u64(&nest_entity_id).unwrap();
+            let eid = save_file.load_u64(&nest_entity_id)?;
             nest_entity = Some(EntityID { id: eid });
         }
 

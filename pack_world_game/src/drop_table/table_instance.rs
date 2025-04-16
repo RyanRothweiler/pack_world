@@ -85,7 +85,7 @@ impl DropTableInstance {
     pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<Self, Error> {
         let type_key = format!("{}.t", key_parent);
 
-        let id = save_file.load_i32(&type_key).unwrap();
+        let id = save_file.load_i32(&type_key)?;
         match id {
             1 => {
                 let id: i32 = 1;

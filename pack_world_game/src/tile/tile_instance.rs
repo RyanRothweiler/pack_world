@@ -295,6 +295,7 @@ impl TileInstance {
         let type_key = format!("{}.type", key_parent);
         let grid_x_key = format!("{}.x", key_parent);
         let grid_y_key = format!("{}.y", key_parent);
+        let comp_key = format!("{}.comp", key_parent);
 
         save_file.save_i32(&type_key, self.tile_type.to_index());
         save_file.save_i32(&grid_x_key, self.grid_pos.x);
@@ -303,6 +304,12 @@ impl TileInstance {
         let methods_key = format!("{}.m", key_parent);
         self.methods.save_file_write(methods_key, save_file)?;
 
+        // Save compnents
+        // This assumes a tile doesn't have multiple of the same type of component
+        for c in &self.components {
+            c.save_file_write(comp_key.clone(), save_file)?;
+        }
+
         Ok(())
     }
 
@@ -310,18 +317,24 @@ impl TileInstance {
         let type_key = format!("{}.type", key_parent);
         let grid_x_key = format!("{}.x", key_parent);
         let grid_y_key = format!("{}.y", key_parent);
+        let comp_key = format!("{}.comp", key_parent);
 
-        let type_index = save_file.load_i32(&type_key).unwrap();
+        let type_index = save_file.load_i32(&type_key)?;
 
         let tile_type: TileType = TileType::from_index(type_index)?;
 
         let mut grid_pos = GridPos::new(0, 0);
-        grid_pos.x = save_file.load_i32(&grid_x_key).unwrap();
-        grid_pos.y = save_file.load_i32(&grid_y_key).unwrap();
+        grid_pos.x = save_file.load_i32(&grid_x_key)?;
+        grid_pos.y = save_file.load_i32(&grid_y_key)?;
 
         let methods =
             TileMethods::save_file_load(format!("{}.m", key_parent), grid_pos, save_file)?;
 
-        Ok(TileInstance::new(tile_type, grid_pos, methods))
+        let mut inst = (tile_type.get_definition().new_instance)(grid_pos);
+        for c in &mut inst.components {
+            c.save_file_load(comp_key.clone(), save_file)?;
+        }
+
+        Ok(inst)
     }
 }

@@ -106,10 +106,7 @@ impl TileBirdNest {
         let y_key = format!("{}.y", key_parent);
 
         let tm = TileMethods::BirdNest(TileBirdNest {
-            tree_origin: GridPos::new(
-                save_file.load_i32(&x_key).unwrap(),
-                save_file.load_i32(&y_key).unwrap(),
-            ),
+            tree_origin: GridPos::new(save_file.load_i32(&x_key)?, save_file.load_i32(&y_key)?),
         });
 
         Ok(tm)

@@ -92,7 +92,7 @@ impl TileMethods {
         let type_key = format!("{}.t", key_parent);
         let state_key = format!("{}.s", key_parent);
 
-        let id = save_file.load_i32(&type_key).unwrap();
+        let id = save_file.load_i32(&type_key)?;
         match id {
             1 => Ok(Self::Dirt),
             2 => Ok(Self::Grass),

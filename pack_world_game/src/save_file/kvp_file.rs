@@ -181,39 +181,39 @@ impl SaveFile {
         self.entries.insert(key.into(), d);
     }
 
-    pub fn load_f64(&self, key: &str) -> Option<f64> {
+    pub fn load_f64(&self, key: &str) -> Result<f64, Error> {
         if !self.entries.contains_key(key) {
-            return None;
+            return Err(Error::MissingKey(key.into()));
         }
 
         let data = *self.entries.get(key).unwrap();
         let val = f64::from_le_bytes(data);
-        Some(val)
+        Ok(val)
     }
 
-    pub fn load_i64(&self, key: &str) -> Option<i64> {
+    pub fn load_i64(&self, key: &str) -> Result<i64, Error> {
         if !self.entries.contains_key(key) {
-            return None;
+            return Err(Error::MissingKey(key.into()));
         }
 
         let data = *self.entries.get(key).unwrap();
         let val = i64::from_le_bytes(data);
-        Some(val)
+        Ok(val)
     }
 
-    pub fn load_u64(&self, key: &str) -> Option<u64> {
+    pub fn load_u64(&self, key: &str) -> Result<u64, Error> {
         if !self.entries.contains_key(key) {
-            return None;
+            return Err(Error::MissingKey(key.into()));
         }
 
         let data = *self.entries.get(key).unwrap();
         let val = u64::from_le_bytes(data);
-        Some(val)
+        Ok(val)
     }
 
-    pub fn load_f32(&self, key: &str) -> Option<f32> {
+    pub fn load_f32(&self, key: &str) -> Result<f32, Error> {
         if !self.entries.contains_key(key) {
-            return None;
+            return Err(Error::MissingKey(key.into()));
         }
 
         let data = *self.entries.get(key).unwrap();
@@ -225,12 +225,12 @@ impl SaveFile {
         d[3] = data[3];
 
         let val = f32::from_le_bytes(d);
-        Some(val)
+        Ok(val)
     }
 
-    pub fn load_i32(&self, key: &str) -> Option<i32> {
+    pub fn load_i32(&self, key: &str) -> Result<i32, Error> {
         if !self.entries.contains_key(key) {
-            return None;
+            return Err(Error::MissingKey(key.into()));
         }
 
         let data = *self.entries.get(key).unwrap();
@@ -242,12 +242,12 @@ impl SaveFile {
         d[3] = data[3];
 
         let val = i32::from_le_bytes(d);
-        Some(val)
+        Ok(val)
     }
 
-    pub fn load_u32(&self, key: &str) -> Option<u32> {
+    pub fn load_u32(&self, key: &str) -> Result<u32, Error> {
         if !self.entries.contains_key(key) {
-            return None;
+            return Err(Error::MissingKey(key.into()));
         }
 
         let data = *self.entries.get(key).unwrap();
@@ -259,19 +259,19 @@ impl SaveFile {
         d[3] = data[3];
 
         let val = u32::from_le_bytes(d);
-        Some(val)
+        Ok(val)
     }
 
-    pub fn load_bool(&self, key: &str) -> Option<bool> {
+    pub fn load_bool(&self, key: &str) -> Result<bool, Error> {
         if !self.entries.contains_key(key) {
-            return None;
+            return Err(Error::MissingKey(key.into()));
         }
 
         let data = *self.entries.get(key).unwrap();
         if data[0] == 1 {
-            Some(true)
+            Ok(true)
         } else {
-            Some(false)
+            Ok(false)
         }
     }
 }

@@ -70,7 +70,7 @@ pub fn load_game(
     inventory: &mut Inventory,
     data: &Vec<u8>,
     platform_api: &PlatformApi,
-) -> f64 {
+) -> Result<f64, Error> {
     world.clear();
     inventory.clear();
 
@@ -79,7 +79,7 @@ pub fn load_game(
 
     // world stuff
     {
-        world.next_entity_id = save_file.load_u64("next_entity_id").unwrap();
+        world.next_entity_id = save_file.load_u64("next_entity_id")?;
 
         for (key, value) in &save_file.entries {
             // check if is tile
@@ -88,38 +88,36 @@ pub fn load_game(
             // tile instance
             if parts[0].starts_with(TILE_INSTANCE_ID_CHAR) {
                 let eid = EntityID {
-                    id: save_file.load_u64(key).unwrap(),
+                    id: save_file.load_u64(key)?,
                 };
 
                 let tile_instance =
-                    TileInstance::save_file_load(format!("{}", eid.id), &save_file).unwrap();
+                    TileInstance::save_file_load(format!("{}", eid.id), &save_file)?;
 
                 world.raw_insert_entity(eid, tile_instance);
             } else if parts[0].starts_with(VALID_ADJ_ID_CHAR) {
-                let i = save_file.load_i32(key).unwrap();
+                let i = save_file.load_i32(key)?;
 
                 let key_x = &format!("valid_x.{}", i as i32);
                 let key_y = &format!("valid_y.{}", i as i32);
 
-                let grid_pos = GridPos::new(
-                    save_file.load_i32(&key_x).unwrap(),
-                    save_file.load_i32(&key_y).unwrap(),
-                );
+                let grid_pos =
+                    GridPos::new(save_file.load_i32(&key_x)?, save_file.load_i32(&key_y)?);
 
                 world.valids.insert(grid_pos, true);
             }
         }
     }
 
-    let inv = Inventory::save_file_load("".into(), &save_file).unwrap();
+    let inv = Inventory::save_file_load("".into(), &save_file)?;
     inventory.items_seen = inv.items_seen;
     inventory.items = inv.items;
     inventory.gold = inv.gold;
     inventory.limit = inv.limit;
 
     let time_now = (platform_api.epoch_time_ms)();
-    let time_saved = save_file.load_f64("unix_time_saved").unwrap();
+    let time_saved = save_file.load_f64("unix_time_saved")?;
 
     // limit to 24h of simulation
-    return (time_now - time_saved).clamp(0.0, 86_400_000.0);
+    return Ok((time_now - time_saved).clamp(0.0, 86_400_000.0));
 }

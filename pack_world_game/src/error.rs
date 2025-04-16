@@ -14,7 +14,10 @@ pub enum Error {
     NegativeItemCount,
     InvalidTilePosition,
     HitBankLimit,
+
+    // Loading
     InvalidTileTypeIndex(i32),
+    MissingKey(String),
 }
 
 impl From<std::io::Error> for Error {
