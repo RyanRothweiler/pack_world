@@ -28,7 +28,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
 #[derive(Debug, Clone)]
 pub struct TileBirdNest {
-    tree_origin: GridPos,
+    pub tree_origin: GridPos,
 }
 
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {

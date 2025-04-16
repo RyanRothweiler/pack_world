@@ -106,11 +106,8 @@ impl TileOakTree {
         key_parent: String,
         save_file: &mut SaveFile,
     ) -> Result<(), Error> {
-        let timer_key = format!("{}.h", key_parent);
         let has_nest_key = format!("{}.hn", key_parent);
         let nest_entity_id = format!("{}.hne", key_parent);
-
-        // self.harvest_timer.save_file_write(timer_key, save_file)?;
 
         save_file.save_bool(&has_nest_key, self.has_nest);
         if self.has_nest {
@@ -121,11 +118,9 @@ impl TileOakTree {
     }
 
     pub fn save_file_load(key_parent: String, save_file: &SaveFile) -> Result<TileMethods, Error> {
-        let timer_key = format!("{}.h", key_parent);
         let has_nest_key = format!("{}.hn", key_parent);
         let nest_entity_id = format!("{}.hne", key_parent);
 
-        // let harvest_timer = HarvestTimer::save_file_load(timer_key, save_file)?;
         let has_nest: bool = save_file.load_bool(&has_nest_key).unwrap();
         let mut nest_entity: Option<EntityID> = None;
         if has_nest {
@@ -136,14 +131,12 @@ impl TileOakTree {
         let tm = TileMethods::OakTree(TileOakTree {
             has_nest: has_nest,
             nest_id: nest_entity,
-            // harvest_timer: harvest_timer,
         });
 
         Ok(tm)
     }
 }
 
-/*
 mod test {
     use super::*;
     use crate::save_file::*;
@@ -155,7 +148,6 @@ mod test {
         let orig = TileOakTree {
             has_nest: true,
             nest_id: Some(EntityID { id: 100 }),
-            harvest_timer: HarvestTimer::new(0.0, FixedTableID::Boulder),
         };
 
         orig.save_file_write("tree".into(), &mut save_file).unwrap();
@@ -169,4 +161,3 @@ mod test {
         }
     }
 }
-*/
