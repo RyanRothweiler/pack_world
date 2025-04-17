@@ -1,5 +1,8 @@
 use crate::{drop_table::*, item::*, pack::*, state::inventory::*, tile::*};
-use gengar_engine::render::image::*;
+use gengar_engine::{
+    model::*,
+    render::{image::*, material::*},
+};
 
 pub struct Assets {
     pub image_dirt: Image,
@@ -41,6 +44,9 @@ pub struct Assets {
     pub image_pack_stick: Image,
     pub image_pack_mud: Image,
     pub image_pack_water: Image,
+
+    pub model_tile_grass: Model,
+    pub tile_grass_material: Material,
 }
 
 impl Assets {
@@ -85,6 +91,9 @@ impl Assets {
             image_pack_stick: Image::new(),
             image_pack_mud: Image::new(),
             image_pack_water: Image::new(),
+
+            model_tile_grass: Model::new(),
+            tile_grass_material: Material::new(),
         }
     }
 

@@ -78,6 +78,14 @@ impl State {
             RenderPack::new(ProjectionType::Orthographic, window_resolution),
         );
 
+        state.render_packs.insert(
+            RenderPackID::NewWorld,
+            RenderPack::new(
+                ProjectionType::Perspective { focal_length: 0.95 },
+                window_resolution,
+            ),
+        );
+
         return state;
     }
 

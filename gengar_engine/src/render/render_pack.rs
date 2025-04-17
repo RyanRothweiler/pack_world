@@ -7,6 +7,9 @@ use crate::{
 pub enum RenderPackID {
     UI,
     World,
+
+    // 3d camera
+    NewWorld,
 }
 
 pub struct RenderPack {

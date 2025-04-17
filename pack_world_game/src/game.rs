@@ -188,6 +188,76 @@ pub fn game_init(
     )
     .unwrap();
 
+    gs.assets.model_tile_grass = Model::load_upload(
+        include_str!("../resources/models/tile_grass/tile_grass.obj"),
+        render_api,
+    )
+    .unwrap();
+
+    {
+        // monkey material
+        gs.assets.tile_grass_material.shader = Some(es.pbr_shader);
+        /*
+        gs.monkey_material.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.albedo.gl_id.unwrap(),
+                texture_slot: 0,
+            }),
+        );
+        gs.monkey_material.uniforms.insert(
+            "normalTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.normal.gl_id.unwrap(),
+                texture_slot: 1,
+            }),
+        );
+        gs.monkey_material.uniforms.insert(
+            "metallicTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.metallic.gl_id.unwrap(),
+                texture_slot: 2,
+            }),
+        );
+        gs.monkey_material.uniforms.insert(
+            "roughnessTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.roughness.gl_id.unwrap(),
+                texture_slot: 3,
+            }),
+        );
+        gs.monkey_material.uniforms.insert(
+            "aoTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.ao.gl_id.unwrap(),
+                texture_slot: 4,
+            }),
+        );
+        */
+    }
+
+    // init camera
+    {
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .transform
+            .local_position = VecThreeFloat::new(1.0, 30.0, 20.0);
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .pitch = 55.0;
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .yaw = 88.0
+    }
+
     gs.light_trans = Some(es.new_transform());
 
     // setup font styles
@@ -643,6 +713,38 @@ pub fn game_loop(
         }
 
         handle_signals(update_signals, gs, platform_api);
+    }
+
+    // new tile rendering
+    {
+        let mut trans = Transform::new();
+        // trans.local_position = VecThreeFloat::new(0.0, 0.0, -10.0);
+        trans.update_global_matrix(&M44::new_identity());
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .move_fly(0.1, input);
+
+        println!(
+            "{:?}",
+            es.render_packs
+                .get_mut(&RenderPackID::NewWorld)
+                .unwrap()
+                .camera
+                .pitch
+        );
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .commands
+            .push(RenderCommand::new_model(
+                &trans,
+                &gs.assets.model_tile_grass,
+                &gs.assets.tile_grass_material,
+            ));
     }
 
     es.render_packs
