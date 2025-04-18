@@ -422,7 +422,7 @@ pub fn render(
         render_list(
             VecThreeFloat::new_zero(),
             &mut es.game_debug_render_commands,
-            &es.render_packs.get(&RenderPackID::World).unwrap().camera,
+            &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera,
             &render_api,
         );
         render_list(

@@ -47,6 +47,12 @@ pub struct Assets {
 
     pub model_tile_grass: Model,
     pub tile_grass_material: Material,
+
+    pub tile_grass_albedo: Image,
+    pub tile_grass_ao: Image,
+    pub tile_grass_roughness: Image,
+    pub tile_grass_metallic: Image,
+    pub tile_grass_normal: Image,
 }
 
 impl Assets {
@@ -94,6 +100,12 @@ impl Assets {
 
             model_tile_grass: Model::new(),
             tile_grass_material: Material::new(),
+            tile_grass_albedo: Image::new(),
+
+            tile_grass_ao: Image::new(),
+            tile_grass_roughness: Image::new(),
+            tile_grass_metallic: Image::new(),
+            tile_grass_normal: Image::new(),
         }
     }
 

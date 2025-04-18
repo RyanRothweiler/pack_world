@@ -190,50 +190,81 @@ pub fn game_init(
 
     gs.assets.model_tile_grass = Model::load_upload(
         include_str!("../resources/models/tile_grass/tile_grass.obj"),
+        // include_str!("../resources/monkey.obj"),
         render_api,
     )
     .unwrap();
 
+    //pbr tile grass material
     {
+        gs.assets.tile_grass_albedo = load_image_cursor(
+            include_bytes!("../resources/models/tile_grass/BaseColor.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_grass_ao = load_image_cursor(
+            include_bytes!("../resources/models/tile_grass/AO.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_grass_normal = load_image_cursor(
+            include_bytes!("../resources/models/tile_grass/Normal.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_grass_roughness = load_image_cursor(
+            include_bytes!("../resources/models/tile_grass/Roughness.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_grass_metallic = load_image_cursor(
+            include_bytes!("../resources/models/tile_grass/Metallic.png"),
+            render_api,
+        )
+        .unwrap();
+
         // monkey material
         gs.assets.tile_grass_material.shader = Some(es.pbr_shader);
-        /*
-        gs.monkey_material.uniforms.insert(
+        gs.assets.tile_grass_material.uniforms.insert(
             "tex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.albedo.gl_id.unwrap(),
+                image_id: gs.assets.tile_grass_albedo.gl_id.unwrap(),
                 texture_slot: 0,
             }),
         );
-        gs.monkey_material.uniforms.insert(
+
+        gs.assets.tile_grass_material.uniforms.insert(
             "normalTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.normal.gl_id.unwrap(),
+                image_id: gs.assets.tile_grass_normal.gl_id.unwrap(),
                 texture_slot: 1,
             }),
         );
-        gs.monkey_material.uniforms.insert(
+        gs.assets.tile_grass_material.uniforms.insert(
             "metallicTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.metallic.gl_id.unwrap(),
+                image_id: gs.assets.tile_grass_metallic.gl_id.unwrap(),
                 texture_slot: 2,
             }),
         );
-        gs.monkey_material.uniforms.insert(
+        gs.assets.tile_grass_material.uniforms.insert(
             "roughnessTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.roughness.gl_id.unwrap(),
+                image_id: gs.assets.tile_grass_roughness.gl_id.unwrap(),
                 texture_slot: 3,
             }),
         );
-        gs.monkey_material.uniforms.insert(
+        gs.assets.tile_grass_material.uniforms.insert(
             "aoTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.ao.gl_id.unwrap(),
+                image_id: gs.assets.tile_grass_ao.gl_id.unwrap(),
                 texture_slot: 4,
             }),
         );
-        */
     }
 
     // init camera
@@ -259,6 +290,15 @@ pub fn game_init(
     }
 
     gs.light_trans = Some(es.new_transform());
+    gs.center_trans = Some(es.new_transform());
+
+    {
+        let lt: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
+        lt.parent = gs.center_trans;
+
+        let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+        ct.local_rotation.y = 90.0;
+    }
 
     // setup font styles
     {
@@ -715,26 +755,29 @@ pub fn game_loop(
         handle_signals(update_signals, gs, platform_api);
     }
 
+    // draw sphere for light
+    {
+        let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
+        ct.local_position.x = 10.0;
+        ct.local_position.z = -2.0;
+        ct.local_position.y = 5.0;
+        draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
+    }
+
     // new tile rendering
     {
         let mut trans = Transform::new();
         // trans.local_position = VecThreeFloat::new(0.0, 0.0, -10.0);
         trans.update_global_matrix(&M44::new_identity());
 
+        let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+        ct.local_rotation.y += 0.01;
+
         es.render_packs
             .get_mut(&RenderPackID::NewWorld)
             .unwrap()
             .camera
-            .move_fly(0.1, input);
-
-        println!(
-            "{:?}",
-            es.render_packs
-                .get_mut(&RenderPackID::NewWorld)
-                .unwrap()
-                .camera
-                .pitch
-        );
+            .move_fly(0.3, input);
 
         es.render_packs
             .get_mut(&RenderPackID::NewWorld)

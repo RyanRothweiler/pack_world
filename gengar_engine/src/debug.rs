@@ -81,7 +81,7 @@ pub fn draw_sphere(center: VecThreeFloat, size: f64, color: Color) {
         .render_commands
         .push(RenderCommand::new_model(&trans, &model, &material));
 
-    panic!("this won't render correctly because I've changed the world render pack to be orthographic.");
+    // panic!("this won't render correctly because I've changed the world render pack to be orthographic.");
 }
 
 pub fn draw_plane(center: VecThreeFloat, size: f64, color: Color) {
