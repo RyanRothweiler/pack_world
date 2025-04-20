@@ -53,6 +53,24 @@ pub struct Assets {
     pub tile_grass_roughness: Image,
     pub tile_grass_metallic: Image,
     pub tile_grass_normal: Image,
+
+    pub model_tile_dirt: Model,
+    pub tile_dirt_material: Material,
+
+    pub tile_dirt_albedo: Image,
+    pub tile_dirt_ao: Image,
+    pub tile_dirt_roughness: Image,
+    pub tile_dirt_metallic: Image,
+    pub tile_dirt_normal: Image,
+
+    pub model_tile_water: Model,
+    pub tile_water_material: Material,
+
+    pub tile_water_albedo: Image,
+    pub tile_water_ao: Image,
+    pub tile_water_roughness: Image,
+    pub tile_water_metallic: Image,
+    pub tile_water_normal: Image,
 }
 
 impl Assets {
@@ -100,12 +118,30 @@ impl Assets {
 
             model_tile_grass: Model::new(),
             tile_grass_material: Material::new(),
-            tile_grass_albedo: Image::new(),
 
+            tile_grass_albedo: Image::new(),
             tile_grass_ao: Image::new(),
             tile_grass_roughness: Image::new(),
             tile_grass_metallic: Image::new(),
             tile_grass_normal: Image::new(),
+
+            model_tile_dirt: Model::new(),
+            tile_dirt_material: Material::new(),
+
+            tile_dirt_albedo: Image::new(),
+            tile_dirt_ao: Image::new(),
+            tile_dirt_roughness: Image::new(),
+            tile_dirt_metallic: Image::new(),
+            tile_dirt_normal: Image::new(),
+
+            model_tile_water: Model::new(),
+            tile_water_material: Material::new(),
+
+            tile_water_albedo: Image::new(),
+            tile_water_ao: Image::new(),
+            tile_water_roughness: Image::new(),
+            tile_water_metallic: Image::new(),
+            tile_water_normal: Image::new(),
         }
     }
 

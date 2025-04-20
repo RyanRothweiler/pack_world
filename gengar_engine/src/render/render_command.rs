@@ -44,7 +44,7 @@ impl RenderCommand {
 
         RenderCommand {
             kind: VertexDataKind::Vao { id: model.vao.id },
-            prog_id: material.shader.unwrap().prog_id,
+            prog_id: material.shader.expect("Material missing shader").prog_id,
             indices: model.indices.clone(),
             uniforms: uniforms,
         }

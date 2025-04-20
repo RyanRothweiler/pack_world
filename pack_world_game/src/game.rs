@@ -190,10 +190,93 @@ pub fn game_init(
 
     gs.assets.model_tile_grass = Model::load_upload(
         include_str!("../resources/models/tile_grass/tile_grass.obj"),
-        // include_str!("../resources/monkey.obj"),
         render_api,
     )
     .unwrap();
+
+    gs.assets.model_tile_dirt = Model::load_upload(
+        include_str!("../resources/models/first_tile/first_tile.obj"),
+        render_api,
+    )
+    .unwrap();
+
+    gs.assets.model_tile_water = Model::load_upload(
+        include_str!("../resources/models/tile_water/tile_water.obj"),
+        render_api,
+    )
+    .unwrap();
+
+    //pbr tile dirt material
+    {
+        gs.assets.tile_dirt_albedo = load_image_cursor(
+            include_bytes!("../resources/models/first_tile/BaseColor.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_dirt_ao = load_image_cursor(
+            include_bytes!("../resources/models/first_tile/AO.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_dirt_normal = load_image_cursor(
+            include_bytes!("../resources/models/first_tile/Normal.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_dirt_roughness = load_image_cursor(
+            include_bytes!("../resources/models/first_tile/Roughness.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_dirt_metallic = load_image_cursor(
+            include_bytes!("../resources/models/first_tile/Metallic.png"),
+            render_api,
+        )
+        .unwrap();
+
+        // dirt material
+        gs.assets.tile_dirt_material.shader = Some(es.pbr_shader);
+        gs.assets.tile_dirt_material.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_dirt_albedo.gl_id.unwrap(),
+                texture_slot: 0,
+            }),
+        );
+
+        gs.assets.tile_dirt_material.uniforms.insert(
+            "normalTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_dirt_normal.gl_id.unwrap(),
+                texture_slot: 1,
+            }),
+        );
+        gs.assets.tile_dirt_material.uniforms.insert(
+            "metallicTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_dirt_metallic.gl_id.unwrap(),
+                texture_slot: 2,
+            }),
+        );
+        gs.assets.tile_dirt_material.uniforms.insert(
+            "roughnessTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_dirt_roughness.gl_id.unwrap(),
+                texture_slot: 3,
+            }),
+        );
+        gs.assets.tile_dirt_material.uniforms.insert(
+            "aoTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_dirt_ao.gl_id.unwrap(),
+                texture_slot: 4,
+            }),
+        );
+    }
 
     //pbr tile grass material
     {
@@ -227,7 +310,7 @@ pub fn game_init(
         )
         .unwrap();
 
-        // monkey material
+        // grass material
         gs.assets.tile_grass_material.shader = Some(es.pbr_shader);
         gs.assets.tile_grass_material.uniforms.insert(
             "tex".to_string(),
@@ -262,6 +345,78 @@ pub fn game_init(
             "aoTex".to_string(),
             UniformData::Texture(TextureInfo {
                 image_id: gs.assets.tile_grass_ao.gl_id.unwrap(),
+                texture_slot: 4,
+            }),
+        );
+    }
+
+    //pbr tile water material
+    {
+        gs.assets.tile_water_albedo = load_image_cursor(
+            include_bytes!("../resources/models/tile_water/BaseColor.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_water_ao = load_image_cursor(
+            include_bytes!("../resources/models/tile_water/AO.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_water_normal = load_image_cursor(
+            include_bytes!("../resources/models/tile_water/Normal.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_water_roughness = load_image_cursor(
+            include_bytes!("../resources/models/tile_water/Roughness.png"),
+            render_api,
+        )
+        .unwrap();
+
+        gs.assets.tile_water_metallic = load_image_cursor(
+            include_bytes!("../resources/models/tile_water/Metallic.png"),
+            render_api,
+        )
+        .unwrap();
+
+        // grass material
+        gs.assets.tile_water_material.shader = Some(es.pbr_shader);
+        gs.assets.tile_water_material.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_water_albedo.gl_id.unwrap(),
+                texture_slot: 0,
+            }),
+        );
+
+        gs.assets.tile_water_material.uniforms.insert(
+            "normalTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_water_normal.gl_id.unwrap(),
+                texture_slot: 1,
+            }),
+        );
+        gs.assets.tile_water_material.uniforms.insert(
+            "metallicTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_water_metallic.gl_id.unwrap(),
+                texture_slot: 2,
+            }),
+        );
+        gs.assets.tile_water_material.uniforms.insert(
+            "roughnessTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_water_roughness.gl_id.unwrap(),
+                texture_slot: 3,
+            }),
+        );
+        gs.assets.tile_water_material.uniforms.insert(
+            "aoTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: gs.assets.tile_water_ao.gl_id.unwrap(),
                 texture_slot: 4,
             }),
         );
@@ -758,9 +913,9 @@ pub fn game_loop(
     // draw sphere for light
     {
         let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
-        ct.local_position.x = 10.0;
-        ct.local_position.z = -2.0;
-        ct.local_position.y = 5.0;
+        ct.local_position.x = -2.0;
+        ct.local_position.z = 10.0;
+        ct.local_position.y = 15.0;
         draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
     }
 
@@ -787,6 +942,58 @@ pub fn game_loop(
                 &trans,
                 &gs.assets.model_tile_grass,
                 &gs.assets.tile_grass_material,
+            ));
+    }
+
+    // new tile rendering
+    {
+        let mut trans = Transform::new();
+        trans.local_position = VecThreeFloat::new(2.0, 0.0, 0.0);
+        trans.update_global_matrix(&M44::new_identity());
+
+        // let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+        // ct.local_rotation.y += 0.01;
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .move_fly(0.3, input);
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .commands
+            .push(RenderCommand::new_model(
+                &trans,
+                &gs.assets.model_tile_dirt,
+                &gs.assets.tile_dirt_material,
+            ));
+    }
+
+    // new tile rendering
+    {
+        let mut trans = Transform::new();
+        trans.local_position = VecThreeFloat::new(-2.0, 0.0, 0.0);
+        trans.update_global_matrix(&M44::new_identity());
+
+        // let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+        // ct.local_rotation.y += 0.01;
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .move_fly(0.3, input);
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .commands
+            .push(RenderCommand::new_model(
+                &trans,
+                &gs.assets.model_tile_water,
+                &gs.assets.tile_water_material,
             ));
     }
 

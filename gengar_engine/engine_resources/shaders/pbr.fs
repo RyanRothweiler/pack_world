@@ -84,7 +84,8 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main()
 {
-    vec3 albedo = texture(tex, vTexCoord).rgb;
+    // vec3 albedo = texture(tex, vTexCoord).rgb;
+    vec3 albedo = vec3(pow(texture(tex, vTexCoord).r, 2.2), pow(texture(tex, vTexCoord).g, 2.2), pow(texture(tex, vTexCoord).b, 2.2));
     float metallic = min(texture(metallicTex, vTexCoord).r, 0.9);
     float roughness = min(texture(roughnessTex, vTexCoord).r, 0.9);
     float ao = texture(aoTex, vTexCoord).r;
@@ -111,7 +112,8 @@ void main()
         vec3 L = normalize(vLightPos - vFragPos);
         vec3 H = normalize(V + L);
         float distance    = length(vLightPos - vFragPos);
-        float attenuation = 1.0 / (distance * distance);
+        // float attenuation = 1.0 / (distance * distance);
+        float attenuation = 0.03;
         vec3 radiance     = vLightColor * attenuation;        
         
         // cook-torrance brdf
@@ -133,7 +135,7 @@ void main()
 
     //}
   
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 ambient = vec3(0.3) * albedo * ao;
     vec3 color = ambient + Lo;
     
     color = color / (color + vec3(1.0));
