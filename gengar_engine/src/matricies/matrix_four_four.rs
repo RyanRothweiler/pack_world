@@ -1,6 +1,6 @@
 use crate::vectors::*;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct M44 {
     pub elements: [f64; 16],
 }
@@ -21,6 +21,37 @@ impl M44 {
         ret.set(3, 3, 1.0);
 
         return ret;
+    }
+
+    pub fn pretty_print(self) {
+        println!(
+            "[{},{},{},{}]",
+            self.get(0, 0),
+            self.get(1, 0),
+            self.get(2, 0),
+            self.get(3, 0)
+        );
+        println!(
+            "[{},{},{},{}]",
+            self.get(0, 1),
+            self.get(1, 1),
+            self.get(2, 1),
+            self.get(3, 1)
+        );
+        println!(
+            "[{},{},{},{}]",
+            self.get(0, 2),
+            self.get(1, 2),
+            self.get(2, 2),
+            self.get(3, 2)
+        );
+        println!(
+            "[{},{},{},{}]",
+            self.get(0, 3),
+            self.get(1, 3),
+            self.get(2, 3),
+            self.get(3, 3)
+        );
     }
 
     pub fn new_translation(translation: VecThreeFloat) -> Self {
@@ -85,19 +116,19 @@ impl M44 {
     pub fn multiply(a: &M44, b: &M44) -> Self {
         let mut ret = M44::new_empty();
 
-        for x in 0..4 {
-            for y in 0..4 {
-                let mut val: f64 = 0.0;
+        for col in 0..4 {
+            for row in 0..4 {
+                let mut val = 0.0;
 
                 for i in 0..4 {
-                    val = val + (a.get(i, y) * b.get(x, i));
+                    val += a.get(i, row) * b.get(col, i);
                 }
 
-                ret.set(x, y, val);
+                ret.set(col, row, val);
             }
         }
 
-        return ret;
+        ret
     }
 
     pub fn apply_vec_three(mat: &M44, vec: &VecThreeFloat) -> VecThreeFloat {
@@ -122,6 +153,47 @@ impl M44 {
         return ret;
     }
 
+    pub fn apply_vec_four(mat: &M44, vec: &VecFour) -> VecFour {
+        let mut ret = VecFour::new(0.0, 0.0, 0.0, 0.0);
+
+        ret.x = (mat.get(0, 0) * vec.x)
+            + (mat.get(1, 0) * vec.y)
+            + (mat.get(2, 0) * vec.z)
+            + (mat.get(3, 0) * vec.w);
+
+        ret.y = (mat.get(0, 1) * vec.x)
+            + (mat.get(1, 1) * vec.y)
+            + (mat.get(2, 1) * vec.z)
+            + (mat.get(3, 1) * vec.w);
+
+        ret.z = (mat.get(0, 2) * vec.x)
+            + (mat.get(1, 2) * vec.y)
+            + (mat.get(2, 2) * vec.z)
+            + (mat.get(3, 2) * vec.w);
+
+        ret.w = (mat.get(0, 3) * vec.x)
+            + (mat.get(1, 3) * vec.y)
+            + (mat.get(2, 3) * vec.z)
+            + (mat.get(3, 3) * vec.w);
+
+        return ret;
+    }
+
+    /*
+    pub fn apply_vec_three_project(mat: &M44, vec: &VecThreeFloat) -> VecThreeFloat {
+        let x =
+            mat.get(0, 0) * vec.x + mat.get(0, 1) * vec.y + mat.get(0, 2) * vec.z + mat.get(0, 3);
+        let y =
+            mat.get(1, 0) * vec.x + mat.get(1, 1) * vec.y + mat.get(1, 2) * vec.z + mat.get(1, 3);
+        let z =
+            mat.get(2, 0) * vec.x + mat.get(2, 1) * vec.y + mat.get(2, 2) * vec.z + mat.get(2, 3);
+        let w =
+            mat.get(3, 0) * vec.x + mat.get(3, 1) * vec.y + mat.get(3, 2) * vec.z + mat.get(3, 3);
+
+        VecThreeFloat::new(x / w, y / w, z / w)
+    }
+    */
+
     pub fn set(&mut self, x: usize, y: usize, val: f64) {
         let i: usize = (4 * x) + y;
         self.elements[i] = val;
@@ -132,6 +204,7 @@ impl M44 {
         return self.elements[i];
     }
 
+    #[must_use]
     pub fn transpose(&self) -> Self {
         let mut ret = M44::new_empty();
 

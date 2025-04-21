@@ -386,6 +386,7 @@ pub fn render(
     render_api.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
     render_api.platform_api.clear();
 
+    /*
     render_render_pack(
         light_pos,
         es.render_packs.get_mut(&RenderPackID::World).unwrap(),
@@ -396,6 +397,7 @@ pub fn render(
         es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
         &render_api,
     );
+    */
     render_render_pack(
         light_pos,
         es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),

@@ -14,8 +14,13 @@ pub struct Camera {
     pub pitch: f64,
 
     pub transform: Transform,
+
     pub view_mat: M44,
+    pub view_mat_inverse: M44,
+
     pub projection_mat: M44,
+    pub projection_mat_inverse: M44,
+
     pub projection_type: ProjectionType,
     pub resolution: VecTwo,
     pub near_plane: f64,
@@ -27,8 +32,12 @@ impl Camera {
     pub fn new(projection_type: ProjectionType, resolution: VecTwo) -> Self {
         Camera {
             transform: Transform::new(),
+
             view_mat: M44::new_identity(),
+            view_mat_inverse: M44::new_identity(),
+
             projection_mat: M44::new_identity(),
+            projection_mat_inverse: M44::new_identity(),
 
             forward: VecThreeFloat::new(0.0, 0.0, 1.0),
 
@@ -53,16 +62,53 @@ impl Camera {
                 let b = aspect;
                 let c = focal_length;
 
-                let d = (self.near_plane + self.far_plane) / (self.near_plane - self.far_plane);
-                let e =
+                let d: f64 =
+                    (self.near_plane + self.far_plane) / (self.near_plane - self.far_plane);
+                let e: f64 =
                     (2.0 * self.far_plane * self.near_plane) / (self.near_plane - self.far_plane);
 
+                /*
+                let fov = 180.0;
+                let pt: f64 = (fov / 2.0) * (3.14159 / 180.0);
+                let s: f64 = 1.0 / pt.tan();
+
+                // forward using fov
                 self.projection_mat = M44::new_identity();
-                self.projection_mat.set(0, 0, a * c);
-                self.projection_mat.set(1, 1, b * c);
+                self.projection_mat.set(0, 0, s);
+                self.projection_mat.set(1, 1, s);
                 self.projection_mat.set(2, 2, d);
                 self.projection_mat.set(3, 2, e);
                 self.projection_mat.set(2, 3, -1.0);
+                */
+
+                let ac: f64 = a * c;
+                let bc: f64 = b * c;
+
+                /*
+                let ac = 2.0;
+                let bc = 2.0;
+
+                let d = -1.0;
+                let e = -2.0;
+                */
+
+                // forward using focal_length
+                self.projection_mat = M44::new_identity();
+                self.projection_mat.set(0, 0, ac);
+                self.projection_mat.set(1, 1, bc);
+                self.projection_mat.set(2, 2, d);
+                self.projection_mat.set(3, 2, e);
+                self.projection_mat.set(2, 3, -1.0);
+
+                // inverse
+                self.projection_mat_inverse = M44::new_empty();
+                self.projection_mat_inverse.set(0, 0, 1.0 / ac);
+                self.projection_mat_inverse.set(1, 1, 1.0 / bc);
+                self.projection_mat_inverse.set(3, 2, -1.0);
+
+                self.projection_mat_inverse.set(2, 3, 1.0 / e);
+
+                self.projection_mat_inverse.set(3, 3, d / e);
             }
 
             ProjectionType::Orthographic => {
@@ -137,6 +183,43 @@ impl Camera {
             self.view_mat.set(2, 2, cam_dir.z);
 
             self.view_mat.translate(inv_pos);
+
+            // view inverse
+            {
+                let ix = cam_right / (cam_right.length() * cam_right.length());
+                let iy = cam_up / (cam_up.length() * cam_up.length());
+                let iz = cam_dir / (cam_dir.length() * cam_dir.length());
+
+                let mut ip = VecThreeFloat::new_zero();
+                ip.x = (self.transform.local_position.x * ix.x)
+                    + (self.transform.local_position.y * iy.x)
+                    + (self.transform.local_position.z * iz.x);
+
+                ip.y = (self.transform.local_position.x * ix.y)
+                    + (self.transform.local_position.y * iy.y)
+                    + (self.transform.local_position.z * iz.y);
+
+                ip.z = (self.transform.local_position.x * ix.z)
+                    + (self.transform.local_position.y * iy.z)
+                    + (self.transform.local_position.z * iz.z);
+
+                self.view_mat_inverse = M44::new_empty();
+                self.view_mat_inverse.set(0, 0, ix.x);
+                self.view_mat_inverse.set(1, 0, ix.y);
+                self.view_mat_inverse.set(2, 0, ix.z);
+
+                self.view_mat_inverse.set(0, 1, iy.x);
+                self.view_mat_inverse.set(1, 1, iy.y);
+                self.view_mat_inverse.set(2, 1, iy.z);
+
+                self.view_mat_inverse.set(0, 2, iz.x);
+                self.view_mat_inverse.set(1, 2, iz.y);
+                self.view_mat_inverse.set(2, 2, iz.z);
+
+                self.view_mat_inverse.set(0, 3, ip.x * -1.0);
+                self.view_mat_inverse.set(1, 3, ip.y * -1.0);
+                self.view_mat_inverse.set(2, 3, ip.z * -1.0);
+            }
         }
     }
 
@@ -182,7 +265,41 @@ impl Camera {
     pub fn screen_to_world(&self, input: VecTwo) -> VecTwo {
         match self.projection_type {
             ProjectionType::Perspective { focal_length } => {
-                println!("Perspective projection not implemented here.");
+                /*
+                vector3 ClipCoords = {};
+                ClipCoords.X = ((2.0f * Pos.X) / Globals->Window->Width) - 1.0f;
+                ClipCoords.Y = 1.0f - ((2.0f * Pos.Y) / Globals->Window->Height);
+
+                vector3 eyespace = Apply4y4(Cam->ProjectionMatrixInv, ClipCoords);
+                vector3 worldspace = Apply4y4(Cam->ViewMatrixInv, eyespace);
+
+                vector3 Dir = Vector3Normalize(worldspace - Cam->Center);
+                real32 Length = PlaneIntersectGetDist(Cam->Center, Dir, PlanePos, PlaneNormal);
+
+                // Check the opposite side of the plane
+                if (Length < 1) {
+                    Length = PlaneIntersectGetDist(Cam->Center, Dir * -1, PlanePos, PlaneNormal) * -1;
+                }
+
+                // If still not intersection, then error
+                if (Length < 1)  {
+                    ConsoleLog("Could not find intersecton.");
+                }
+
+                worldspace = Cam->Center + (Dir * Length);
+
+                return (worldspace);
+                */
+
+                let clip_coords = VecThreeFloat::new(
+                    ((2.0 * input.x) / self.resolution.x) - 1.0,
+                    1.0 - ((2.0 * input.y) / self.resolution.y),
+                    0.0,
+                );
+
+                let eye_space = M44::apply_vec_three(&self.projection_mat_inverse, &clip_coords);
+                let world_space = M44::apply_vec_three(&self.view_mat_inverse, &eye_space);
+
                 return VecTwo::new(0.0, 0.0);
             }
             ProjectionType::Orthographic => {
@@ -200,8 +317,7 @@ impl Camera {
     pub fn world_to_screen(&self, input: VecTwo) -> VecTwo {
         match self.projection_type {
             ProjectionType::Perspective { focal_length } => {
-                println!("Perspective projection not implemented here.");
-                return VecTwo::new(0.0, 0.0);
+                todo!("Perspective projection not implemented here.");
             }
             ProjectionType::Orthographic => {
                 // NOTE this is basically just wrong. but works becuse our world space is screen space.
@@ -213,5 +329,67 @@ impl Camera {
                     );
             }
         }
+    }
+}
+
+mod test {
+    use super::*;
+
+    #[test]
+    pub fn view_matrix() {
+        let mut cam = Camera::new(
+            ProjectionType::Perspective { focal_length: 0.9 },
+            VecTwo::new(1024.0, 512.0),
+        );
+
+        cam.update_matricies();
+
+        let point = VecThreeFloat::new(10.0, 20.5, -123.8);
+        let point_screen = M44::apply_vec_three(&cam.view_mat, &point);
+        let point_screen_inv = M44::apply_vec_three(&cam.view_mat_inverse, &point_screen);
+
+        // check for good enough
+        let good_enough = 1000.0;
+        assert_eq!(
+            (point.x * good_enough) as i64,
+            (point_screen_inv.x * good_enough) as i64
+        );
+        assert_eq!(
+            (point.y * good_enough) as i64,
+            (point_screen_inv.y * good_enough) as i64
+        );
+        assert_eq!(
+            (point.z * good_enough) as i64,
+            (point_screen_inv.z * good_enough) as i64
+        );
+    }
+
+    #[test]
+    pub fn projection_matrix() {
+        let mut cam = Camera::new(
+            ProjectionType::Perspective { focal_length: 0.9 },
+            VecTwo::new(1024.0, 512.0),
+        );
+
+        cam.update_matricies();
+
+        let point = VecThreeFloat::new(10.0, 20.5, -123.8);
+        let point_screen = M44::apply_vec_three(&cam.view_mat, &point);
+        let point_screen_inv = M44::apply_vec_three(&cam.view_mat_inverse, &point_screen);
+
+        // check for good enough
+        let good_enough = 1000.0;
+        assert_eq!(
+            (point.x * good_enough) as i64,
+            (point_screen_inv.x * good_enough) as i64
+        );
+        assert_eq!(
+            (point.y * good_enough) as i64,
+            (point_screen_inv.y * good_enough) as i64
+        );
+        assert_eq!(
+            (point.z * good_enough) as i64,
+            (point_screen_inv.z * good_enough) as i64
+        );
     }
 }

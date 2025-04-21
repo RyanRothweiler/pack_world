@@ -1,6 +1,6 @@
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, Div, Mul, Sub};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct VecThreeFloat {
     pub x: f64,
     pub y: f64,
@@ -75,6 +75,18 @@ impl Mul<f64> for VecThreeFloat {
             x: self.x * input,
             y: self.y * input,
             z: self.z * input,
+        }
+    }
+}
+
+impl Div<f64> for VecThreeFloat {
+    type Output = Self;
+
+    fn div(self, input: f64) -> Self {
+        Self {
+            x: self.x / input,
+            y: self.y / input,
+            z: self.z / input,
         }
     }
 }
