@@ -45,7 +45,7 @@ impl Camera {
             projection_type,
 
             near_plane: 0.1,
-            far_plane: 10.0,
+            far_plane: 1000.0,
             fov: 0.0,
 
             yaw: 90.0,
@@ -56,62 +56,30 @@ impl Camera {
     pub fn update_matricies(&mut self) {
         match &self.projection_type {
             ProjectionType::Perspective { focal_length } => {
-                let aspect: f64 = self.resolution.x / self.resolution.y;
+                let aspect = self.resolution.x / self.resolution.y;
+                let fov_y = 110.0_f64.to_radians();
+                let f = 1.0 / (fov_y / 2.0).tan();
 
-                let a = 1.0;
-                let b = aspect;
-                let c = focal_length;
-
-                let d: f64 =
-                    (self.near_plane + self.far_plane) / (self.near_plane - self.far_plane);
-                let e: f64 =
+                let a = f / aspect;
+                let b = f;
+                let c = (self.far_plane + self.near_plane) / (self.near_plane - self.far_plane);
+                let d =
                     (2.0 * self.far_plane * self.near_plane) / (self.near_plane - self.far_plane);
 
-                /*
-                let fov = 180.0;
-                let pt: f64 = (fov / 2.0) * (3.14159 / 180.0);
-                let s: f64 = 1.0 / pt.tan();
-
-                // forward using fov
-                self.projection_mat = M44::new_identity();
-                self.projection_mat.set(0, 0, s);
-                self.projection_mat.set(1, 1, s);
-                self.projection_mat.set(2, 2, d);
-                self.projection_mat.set(3, 2, e);
+                self.projection_mat = M44::new_empty();
+                self.projection_mat.set(0, 0, a);
+                self.projection_mat.set(1, 1, b);
+                self.projection_mat.set(2, 2, c);
                 self.projection_mat.set(2, 3, -1.0);
-                */
+                self.projection_mat.set(3, 2, d);
+                self.projection_mat.set(3, 3, 0.0);
 
-                let ac: f64 = a * c;
-                let bc: f64 = b * c;
-
-                /*
-                let ac = 2.0;
-                let bc = 2.0;
-
-                let d = -1.0;
-                let e = -2.0;
-                */
-
-                // forward using focal_length
-                self.projection_mat = M44::new_identity();
-                self.projection_mat.set(0, 0, ac);
-                self.projection_mat.set(1, 1, bc);
-                self.projection_mat.set(2, 2, d);
-                self.projection_mat.set(3, 2, e);
-                self.projection_mat.set(2, 3, -1.0);
-
-                // inverse
                 self.projection_mat_inverse = M44::new_empty();
-
-                self.projection_mat_inverse.set(0, 0, 1.0 / ac);
-                self.projection_mat_inverse.set(1, 1, 1.0 / bc);
-                // self.projection_mat_inverse.set(2, 2, 0.0);
-
-                self.projection_mat_inverse.set(3, 2, -1.0);
-
+                self.projection_mat_inverse.set(0, 0, 1.0 / a);
+                self.projection_mat_inverse.set(1, 1, 1.0 / b);
                 self.projection_mat_inverse.set(2, 3, 1.0 / d);
-
-                self.projection_mat_inverse.set(3, 3, e / d);
+                self.projection_mat_inverse.set(3, 2, -1.0);
+                self.projection_mat_inverse.set(3, 3, c / d);
             }
 
             ProjectionType::Orthographic => {
@@ -222,6 +190,9 @@ impl Camera {
                 self.view_mat_inverse.set(0, 3, ip.x * -1.0);
                 self.view_mat_inverse.set(1, 3, ip.y * -1.0);
                 self.view_mat_inverse.set(2, 3, ip.z * -1.0);
+
+                self.view_mat_inverse
+                    .translate(self.transform.local_position);
             }
         }
     }
@@ -268,54 +239,41 @@ impl Camera {
     pub fn screen_to_world(&self, input: VecTwo) -> VecThreeFloat {
         match self.projection_type {
             ProjectionType::Perspective { focal_length } => {
-                let ndc = VecThreeFloat::new(
-                    ((2.0 * input.x) / self.resolution.x) - 1.0,
-                    1.0 - ((2.0 * input.y) / self.resolution.y),
-                    0.5,
+                let x = (2.0 * input.x) / self.resolution.x - 1.0;
+                let y = 1.0 - (2.0 * input.y) / self.resolution.y;
+
+                let z_near = -1.0; // or -1.0 if OpenGL-style
+                let z_far = 1.0;
+
+                let clip_near = VecFour::new(x, y, z_near, 1.0);
+                let clip_far = VecFour::new(x, y, z_far, 1.0);
+
+                let view_near = M44::apply_vec_four(&self.projection_mat_inverse, &clip_near);
+                let view_near = VecThreeFloat::new(
+                    view_near.x / view_near.w,
+                    view_near.y / view_near.w,
+                    view_near.z / view_near.w,
                 );
 
-                let clip = VecFour::new(ndc.x, ndc.y, ndc.z, 1.0);
-
-                let view_space = M44::apply_vec_four(&self.projection_mat_inverse, &clip);
-                let view_space = VecThreeFloat::new(
-                    view_space.x / view_space.w,
-                    view_space.y / view_space.w,
-                    view_space.z / view_space.w,
+                let view_far = M44::apply_vec_four(&self.projection_mat_inverse, &clip_far);
+                let view_far = VecThreeFloat::new(
+                    view_far.x / view_far.w,
+                    view_far.y / view_far.w,
+                    view_far.z / view_far.w,
                 );
-                let world_space = M44::apply_vec_three(&self.view_mat_inverse, &view_space);
 
-                return world_space;
+                let world_near: VecThreeFloat =
+                    M44::apply_vec_three(&self.view_mat_inverse, &view_near);
+                let world_far: VecThreeFloat =
+                    M44::apply_vec_three(&self.view_mat_inverse, &view_far);
 
-                /*
-                let mut dir = world_space - self.transform.local_position;
+                let mut dir = world_far - world_near;
                 dir.normalize();
 
-                let len = Self::plane_intersection_distance(
-                    self.transform.local_position,
-                    dir,
-                    VecThreeFloat::new(0.0, 0.0, 0.0),
-                    VecThreeFloat::new(0.0, -1.0, 0.0),
-                )
-                .unwrap();
-                */
-
-                // Check both sides of the plane
-                /*
-                if len < 1.0 {
-                    panic!("invalid");
-
-                    len = Self::ray_v_plane(
-                        self.transform.local_position,
-                        dir * -1.0,
-                        VecThreeFloat::new(0.0, 0.0, 0.0),
-                        VecThreeFloat::new(-1.0, 0.0, 0.0),
-                    ) * -1.0;
-                }
-                */
-
-                // println!("{}", len);
-
-                // return self.transform.local_position + (dir * len);
+                // let pos = self.transform.local_position + (dir * 10.0);
+                let pos = world_near + (dir * 10.0);
+                return pos;
+                // (world_near, dir)
             }
             ProjectionType::Orthographic => {
                 panic!("Orthogrphic projection not implemented");
@@ -405,7 +363,6 @@ mod test {
         assert!(VecThreeFloat::close_enough(&point, &point_screen_inv));
     }
 
-    /*
     #[test]
     pub fn projection_matrix() {
         let mut cam = Camera::new(
@@ -420,14 +377,5 @@ mod test {
         mul.pretty_print();
 
         assert!(M44::close_enough(&M44::new_identity(), &mul));
-
-        /*
-        let point = VecThreeFloat::new(10.0, 20.5, -123.8);
-        let point_screen = M44::apply_vec_three(&cam.projection_mat, &point);
-        let point_screen_inv = M44::apply_vec_three(&cam.projection_mat_inverse, &point_screen);
-
-        assert!(VecThreeFloat::close_enough(&point, &point_screen_inv));
-        */
     }
-    */
 }

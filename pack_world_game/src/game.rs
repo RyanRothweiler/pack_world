@@ -429,8 +429,9 @@ pub fn game_init(
             .unwrap()
             .camera
             .transform
-            .local_position = VecThreeFloat::new(1.0, 30.0, 20.0);
+            .local_position = VecThreeFloat::new(0.0, 0.0, 10.0);
 
+        /*
         es.render_packs
             .get_mut(&RenderPackID::NewWorld)
             .unwrap()
@@ -442,6 +443,7 @@ pub fn game_init(
             .unwrap()
             .camera
             .yaw = 88.0
+            */
     }
 
     gs.light_trans = Some(es.new_transform());
@@ -936,13 +938,11 @@ pub fn game_loop(
         draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
     }
 
-    /*
     es.render_packs
         .get_mut(&RenderPackID::NewWorld)
         .unwrap()
         .camera
         .move_fly(0.3, input);
-    */
 
     // new tile rendering
     {
@@ -956,6 +956,26 @@ pub fn game_loop(
         let mut trans = Transform::new();
         // trans.local_position = VecThreeFloat::new(0.0, 0.0, -10.0);
         trans.local_position = world_pos;
+        trans.update_global_matrix(&M44::new_identity());
+
+        let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+        ct.local_rotation.y += 0.01;
+
+        es.render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .commands
+            .push(RenderCommand::new_model(
+                &trans,
+                &gs.assets.model_tile_grass,
+                &gs.assets.tile_grass_material,
+            ));
+    }
+
+    // new tile rendering
+    {
+        let mut trans = Transform::new();
+        trans.local_position = VecThreeFloat::new(0.0, 0.0, -10.0);
         trans.update_global_matrix(&M44::new_identity());
 
         let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
