@@ -207,10 +207,10 @@ impl Camera {
         }
 
         let mut right = VecThreeFloat::cross(self.forward, VecThreeFloat::new(0.0, 1.0, 0.0));
-        right.normalize();
+        right.normalize_self();
 
         let mut up = VecThreeFloat::cross(self.forward, right);
-        up.normalize();
+        up.normalize_self();
 
         if input.get_key(KeyCode::A).pressing {
             self.transform.local_position = self.transform.local_position + (right * mov_speed);
@@ -268,7 +268,7 @@ impl Camera {
                     M44::apply_vec_three(&self.view_mat_inverse, &view_far);
 
                 let mut dir = world_far - world_near;
-                dir.normalize();
+                dir.normalize_self();
 
                 // let pos = self.transform.local_position + (dir * 10.0);
                 let pos = world_near + (dir * 10.0);
@@ -317,8 +317,23 @@ impl Camera {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
+
+    fn get_test_camera() -> Camera {
+        let mut cam = Camera::new(
+            ProjectionType::Perspective { focal_length: 0.9 },
+            VecTwo::new(1024.0, 512.0),
+        );
+
+        cam.transform.local_position = VecThreeFloat::new(10.0, 1.0, 5.0);
+        cam.yaw = 20.0;
+        cam.pitch = 100.0;
+        cam.update_matricies();
+
+        return cam;
+    }
 
     #[test]
     pub fn plane_intersection_distance() {
@@ -333,12 +348,7 @@ mod test {
 
     #[test]
     pub fn view_matrix_identity() {
-        let mut cam = Camera::new(
-            ProjectionType::Perspective { focal_length: 0.9 },
-            VecTwo::new(1024.0, 512.0),
-        );
-
-        cam.update_matricies();
+        let cam = get_test_camera();
 
         let mul = M44::multiply(&cam.view_mat, &cam.view_mat_inverse);
         assert!(M44::close_enough(&M44::new_identity(), &mul));
@@ -346,12 +356,7 @@ mod test {
 
     #[test]
     pub fn view_matrix_position() {
-        let mut cam = Camera::new(
-            ProjectionType::Perspective { focal_length: 0.9 },
-            VecTwo::new(1024.0, 512.0),
-        );
-
-        cam.update_matricies();
+        let cam = get_test_camera();
 
         let point = VecThreeFloat::new(10.0, 20.5, -123.8);
 
@@ -365,12 +370,7 @@ mod test {
 
     #[test]
     pub fn projection_matrix() {
-        let mut cam = Camera::new(
-            ProjectionType::Perspective { focal_length: 0.9 },
-            VecTwo::new(1024.0, 512.0),
-        );
-
-        cam.update_matricies();
+        let cam = get_test_camera();
 
         let mul = M44::multiply(&cam.projection_mat, &cam.projection_mat_inverse);
 

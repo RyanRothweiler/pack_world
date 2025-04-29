@@ -29,7 +29,7 @@ mod test {
     #[test]
     fn vec_three_normalize() {
         let mut ret = VecThreeFloat::new(5.0, 1.0, 2.5);
-        ret.normalize();
+        ret.normalize_self();
 
         assert_eq!((ret.x * 100.0) as i32, 88);
         assert_eq!((ret.y * 100.0) as i32, 17);

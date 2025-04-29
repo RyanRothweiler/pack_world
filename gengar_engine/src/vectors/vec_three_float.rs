@@ -28,11 +28,22 @@ impl VecThreeFloat {
         ((self.x * self.x) + (self.y * self.y) + (self.z * self.z)).sqrt()
     }
 
-    pub fn normalize(&mut self) {
+    pub fn normalize_self(&mut self) {
         let len = self.length();
         self.x = self.x / len;
         self.y = self.y / len;
         self.z = self.z / len;
+    }
+
+    pub fn normalize(self) -> Self {
+        let mut ret = self;
+
+        let len = ret.length();
+        ret.x = ret.x / len;
+        ret.y = ret.y / len;
+        ret.z = ret.z / len;
+
+        return ret;
     }
 
     pub fn close_enough(a: &Self, b: &Self) -> bool {
