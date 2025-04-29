@@ -109,9 +109,9 @@ impl Camera {
 
                 self.projection_mat_inverse.set(3, 2, -1.0);
 
-                self.projection_mat_inverse.set(2, 3, 1.0 / e);
+                self.projection_mat_inverse.set(2, 3, 1.0 / d);
 
-                self.projection_mat_inverse.set(3, 3, d / e);
+                self.projection_mat_inverse.set(3, 3, e / d);
             }
 
             ProjectionType::Orthographic => {
@@ -268,23 +268,27 @@ impl Camera {
     pub fn screen_to_world(&self, input: VecTwo) -> VecThreeFloat {
         match self.projection_type {
             ProjectionType::Perspective { focal_length } => {
-                let clip_coords = VecThreeFloat::new(
+                let ndc = VecThreeFloat::new(
                     ((2.0 * input.x) / self.resolution.x) - 1.0,
-                    ((2.0 * input.y) / self.resolution.y) - 1.0,
-                    0.0,
+                    1.0 - ((2.0 * input.y) / self.resolution.y),
+                    0.5,
                 );
 
-                // println!("{:?}", clip_coords);
+                let clip = VecFour::new(ndc.x, ndc.y, ndc.z, 1.0);
 
-                // self.projection_mat_inverse.pretty_print();
+                let view_space = M44::apply_vec_four(&self.projection_mat_inverse, &clip);
+                let view_space = VecThreeFloat::new(
+                    view_space.x / view_space.w,
+                    view_space.y / view_space.w,
+                    view_space.z / view_space.w,
+                );
+                let world_space = M44::apply_vec_three(&self.view_mat_inverse, &view_space);
 
-                let eye_space = M44::apply_vec_three(&self.projection_mat_inverse, &clip_coords);
-                let world_space = M44::apply_vec_three(&self.view_mat_inverse, &eye_space);
+                return world_space;
 
+                /*
                 let mut dir = world_space - self.transform.local_position;
                 dir.normalize();
-
-                println!("{:?}", self.transform.local_position);
 
                 let len = Self::plane_intersection_distance(
                     self.transform.local_position,
@@ -293,6 +297,7 @@ impl Camera {
                     VecThreeFloat::new(0.0, -1.0, 0.0),
                 )
                 .unwrap();
+                */
 
                 // Check both sides of the plane
                 /*
@@ -310,7 +315,7 @@ impl Camera {
 
                 // println!("{}", len);
 
-                return self.transform.local_position + (dir * len);
+                // return self.transform.local_position + (dir * len);
             }
             ProjectionType::Orthographic => {
                 panic!("Orthogrphic projection not implemented");
