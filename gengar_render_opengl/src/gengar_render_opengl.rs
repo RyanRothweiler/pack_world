@@ -407,6 +407,7 @@ pub fn render(
         panic!("This assumes two render packs for now. If there is more then sometning needs to be done.");
     }
 
+    /*
     // Debug rendering
     {
         render_list(
@@ -434,6 +435,7 @@ pub fn render(
             &render_api,
         );
     }
+    */
 }
 
 fn render_render_pack(light_pos: VecThreeFloat, pack: &mut RenderPack, render_api: &OglRenderApi) {

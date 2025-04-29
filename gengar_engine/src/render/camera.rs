@@ -57,61 +57,47 @@ impl Camera {
         match &self.projection_type {
             ProjectionType::Perspective { focal_length } => {
                 let aspect: f64 = self.resolution.x / self.resolution.y;
+                let fov_y: f64 = 45.0;
+
+                let mut f: f64 = fov_y.to_radians();
+
+                f = f / 2.0;
+                f = 1.0 / f.tan();
+
+                let top = self.near_plane * f;
+                let right = top * aspect;
+
+                let a = (1.0 / aspect) * f;
+                let b = f;
+
+                let d: f64 =
+                    (self.far_plane + self.near_plane) / (self.near_plane - self.far_plane);
+                let e: f64 =
+                    (2.0 * self.far_plane * self.near_plane) / (self.near_plane - self.far_plane);
 
                 let a = 1.0;
                 let b = aspect;
                 let c = focal_length;
 
-                let d: f64 =
-                    (self.near_plane + self.far_plane) / (self.near_plane - self.far_plane);
-                let e: f64 =
-                    (2.0 * self.far_plane * self.near_plane) / (self.near_plane - self.far_plane);
+                // let a = 1.0 * focal_length;
+                // let b = aspect * focal_length;
 
-                /*
-                let fov = 180.0;
-                let pt: f64 = (fov / 2.0) * (3.14159 / 180.0);
-                let s: f64 = 1.0 / pt.tan();
-
-                // forward using fov
                 self.projection_mat = M44::new_identity();
-                self.projection_mat.set(0, 0, s);
-                self.projection_mat.set(1, 1, s);
+                self.projection_mat.set(0, 0, a * c);
+                self.projection_mat.set(1, 1, b * c);
                 self.projection_mat.set(2, 2, d);
                 self.projection_mat.set(3, 2, e);
                 self.projection_mat.set(2, 3, -1.0);
-                */
-
-                let ac: f64 = a * c;
-                let bc: f64 = b * c;
+                self.projection_mat.set(3, 3, 0.0);
 
                 /*
-                let ac = 2.0;
-                let bc = 2.0;
-
-                let d = -1.0;
-                let e = -2.0;
-                */
-
-                // forward using focal_length
-                self.projection_mat = M44::new_identity();
-                self.projection_mat.set(0, 0, ac);
-                self.projection_mat.set(1, 1, bc);
-                self.projection_mat.set(2, 2, d);
-                self.projection_mat.set(3, 2, e);
-                self.projection_mat.set(2, 3, -1.0);
-
-                // inverse
                 self.projection_mat_inverse = M44::new_empty();
-
-                self.projection_mat_inverse.set(0, 0, 1.0 / ac);
-                self.projection_mat_inverse.set(1, 1, 1.0 / bc);
-                // self.projection_mat_inverse.set(2, 2, 0.0);
-
+                self.projection_mat_inverse.set(0, 0, 1.0 / a);
+                self.projection_mat_inverse.set(1, 1, 1.0 / b);
                 self.projection_mat_inverse.set(3, 2, -1.0);
-
                 self.projection_mat_inverse.set(2, 3, 1.0 / d);
-
-                self.projection_mat_inverse.set(3, 3, e / d);
+                self.projection_mat_inverse.set(3, 3, c / d);
+                */
             }
 
             ProjectionType::Orthographic => {
@@ -274,7 +260,10 @@ impl Camera {
                     0.5,
                 );
 
-                let clip = VecFour::new(ndc.x, ndc.y, ndc.z, 1.0);
+                let clip = VecFour::new(ndc.x, ndc.y, ndc.z, 0.0);
+
+                // self.projection_mat_inverse.pretty_print();
+                // println!("---");
 
                 let view_space = M44::apply_vec_four(&self.projection_mat_inverse, &clip);
                 let view_space = VecThreeFloat::new(
@@ -405,7 +394,6 @@ mod test {
         assert!(VecThreeFloat::close_enough(&point, &point_screen_inv));
     }
 
-    /*
     #[test]
     pub fn projection_matrix() {
         let mut cam = Camera::new(
@@ -429,5 +417,4 @@ mod test {
         assert!(VecThreeFloat::close_enough(&point, &point_screen_inv));
         */
     }
-    */
 }

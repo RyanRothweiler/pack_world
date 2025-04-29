@@ -429,7 +429,7 @@ pub fn game_init(
             .unwrap()
             .camera
             .transform
-            .local_position = VecThreeFloat::new(1.0, 30.0, 20.0);
+            .local_position = VecThreeFloat::new(0.0, 0.0, 20.0);
 
         es.render_packs
             .get_mut(&RenderPackID::NewWorld)
@@ -785,13 +785,6 @@ pub fn game_loop(
 
     // testing
     {
-        let world_pos = es
-            .render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera
-            .screen_to_world(input.mouse.pos);
-
         // draw_sphere(world_pos, 0.1, COLOR_BLUE);
     }
 
@@ -936,13 +929,31 @@ pub fn game_loop(
         draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
     }
 
-    /*
     es.render_packs
         .get_mut(&RenderPackID::NewWorld)
         .unwrap()
         .camera
-        .move_fly(0.3, input);
-    */
+        .move_fly(1.0, input);
+
+    {
+        println!(
+            "{:?}",
+            es.render_packs
+                .get_mut(&RenderPackID::NewWorld)
+                .unwrap()
+                .camera
+                .yaw
+        );
+
+        println!(
+            "{:?}",
+            es.render_packs
+                .get_mut(&RenderPackID::NewWorld)
+                .unwrap()
+                .camera
+                .pitch
+        );
+    }
 
     // new tile rendering
     {
@@ -954,8 +965,8 @@ pub fn game_loop(
             .screen_to_world(input.mouse.pos);
 
         let mut trans = Transform::new();
-        // trans.local_position = VecThreeFloat::new(0.0, 0.0, -10.0);
-        trans.local_position = world_pos;
+        trans.local_position = VecThreeFloat::new(0.0, 0.0, 0.0);
+        // trans.local_position = world_pos;
         trans.update_global_matrix(&M44::new_identity());
 
         let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
