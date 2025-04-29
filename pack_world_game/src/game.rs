@@ -783,9 +783,26 @@ pub fn game_loop(
         handle_signals(sigs, gs, platform_api);
     }
 
+    // testing
+    {
+        let world_pos = es
+            .render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .screen_to_world(input.mouse.pos);
+
+        draw_sphere(world_pos, 0.1, COLOR_BLUE);
+    }
+
     let mouse_grid: GridPos = {
         let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
-        let mouse_world = cam_pack.camera.screen_to_world(input.mouse.pos);
+        // let mouse_world = cam_pack.camera.screen_to_world(input.mouse.pos);
+        let mouse_world = input.mouse.pos
+            + VecTwo::new(
+                cam_pack.camera.transform.local_position.x,
+                cam_pack.camera.transform.local_position.y,
+            );
         let mouse_grid: GridPos = world_to_grid(&mouse_world);
 
         mouse_grid
@@ -919,6 +936,7 @@ pub fn game_loop(
         draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
     }
 
+    /*
     // new tile rendering
     {
         let mut trans = Transform::new();
@@ -996,6 +1014,7 @@ pub fn game_loop(
                 &gs.assets.tile_water_material,
             ));
     }
+    */
 
     es.render_packs
         .get_mut(&RenderPackID::UI)

@@ -54,6 +54,23 @@ impl M44 {
         );
     }
 
+    pub fn close_enough(a: &Self, b: &Self) -> bool {
+        let decs = 1000.0;
+
+        for col in 0..4 {
+            for row in 0..4 {
+                let av = a.get(col, row);
+                let bv = b.get(col, row);
+
+                if (av * decs).abs() as i64 != (bv * decs).abs() as i64 {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     pub fn new_translation(translation: VecThreeFloat) -> Self {
         let mut trans_mat = M44::new_identity();
 

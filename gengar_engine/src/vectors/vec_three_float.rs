@@ -36,10 +36,14 @@ impl VecThreeFloat {
     }
 
     pub fn close_enough(a: &Self, b: &Self) -> bool {
-        let decs = 100.0;
+        let decs = 1000.0;
         ((a.x * decs) as i64 == (b.x * decs) as i64)
             && ((a.y * decs) as i64 == (b.y * decs) as i64)
             && ((a.z * decs) as i64 == (b.z * decs) as i64)
+    }
+
+    pub fn dot(a: &Self, b: &Self) -> f64 {
+        (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
     }
 }
 
