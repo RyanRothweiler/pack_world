@@ -4,7 +4,7 @@ mod grid_pos;
 
 pub use grid_pos::*;
 
-pub const GRID_SIZE: f64 = 50.0;
+pub const GRID_SIZE: f64 = 2.0;
 
 pub fn grid_snap(pos: &VecTwo) -> VecTwo {
     VecTwo::new(

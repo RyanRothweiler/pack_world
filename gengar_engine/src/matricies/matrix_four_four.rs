@@ -62,7 +62,7 @@ impl M44 {
                 let av = a.get(col, row);
                 let bv = b.get(col, row);
 
-                if (av * decs) as i64 != (bv * decs) as i64 {
+                if (av * decs).round() as i64 != (bv * decs).round() as i64 {
                     return false;
                 }
             }

@@ -11,6 +11,7 @@ use std::{include_str, io::Cursor};
 pub mod analytics;
 pub mod ascii;
 pub mod byte_conversion;
+pub mod collisions;
 pub mod color;
 pub mod debug;
 pub mod error;
@@ -139,6 +140,5 @@ pub fn engine_frame_end(es: &mut State) {
         pack.camera.update_matricies();
     }
 
-    
     Transform::update_all(&mut es.transforms);
 }

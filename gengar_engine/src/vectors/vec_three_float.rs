@@ -1,3 +1,4 @@
+use crate::vectors::*;
 use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -22,6 +23,14 @@ impl VecThreeFloat {
         ret.y = (a.z * b.x) - (a.x * b.z);
         ret.z = (a.x * b.y) - (a.y * b.x);
         ret
+    }
+
+    pub fn xy(&self) -> VecTwo {
+        VecTwo::new(self.x, self.y)
+    }
+    
+    pub fn xz(&self) -> VecTwo {
+        VecTwo::new(self.x, self.z)
     }
 
     pub fn length(&self) -> f64 {

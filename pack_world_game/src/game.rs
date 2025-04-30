@@ -10,6 +10,7 @@ use crate::state::*;
 use gengar_engine::{
     analytics::*,
     ascii::*,
+    collisions::*,
     color::*,
     debug::*,
     input::*,
@@ -19,8 +20,8 @@ use gengar_engine::{
     platform_api::*,
     rect::*,
     render::{
-        image::Image, load_image, load_image_cursor, material::*, render_command::RenderCommand,
-        render_pack::*, shader::*, vao::*, RenderApi,
+        camera::*, image::Image, load_image, load_image_cursor, material::*,
+        render_command::RenderCommand, render_pack::*, shader::*, vao::*, RenderApi,
     },
     state::State as EngineState,
     transform::*,
@@ -429,9 +430,8 @@ pub fn game_init(
             .unwrap()
             .camera
             .transform
-            .local_position = VecThreeFloat::new(0.0, 0.0, 10.0);
+            .local_position = VecThreeFloat::new(1.0, 12.3, 9.0);
 
-        /*
         es.render_packs
             .get_mut(&RenderPackID::NewWorld)
             .unwrap()
@@ -443,7 +443,6 @@ pub fn game_init(
             .unwrap()
             .camera
             .yaw = 88.0
-            */
     }
 
     gs.light_trans = Some(es.new_transform());
@@ -787,19 +786,55 @@ pub fn game_loop(
 
     // testing
     {
-        let world_pos = es
-            .render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera
-            .screen_to_world(input.mouse.pos);
+        let cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
+        let pos = cam.screen_to_world(input.mouse.pos);
 
-        // draw_sphere(world_pos, 0.1, COLOR_BLUE);
+        let dir = (pos - cam.transform.local_position).normalize();
+
+        if let Some(len) = plane_intersection_distance(
+            cam.transform.local_position,
+            dir,
+            VecThreeFloat::new(0.0, 0.0, 0.0),
+            VecThreeFloat::new(0.0, -1.0, 0.0),
+        ) {
+            let world_pos = cam.transform.local_position + (dir * len);
+            draw_sphere(world_pos, 0.1, COLOR_BLUE);
+
+            let mouse_grid: GridPos = world_to_grid(&world_pos.xz());
+            println!("{:?}", mouse_grid);
+            let world_grid = grid_to_world(&mouse_grid);
+
+            draw_sphere(
+                VecThreeFloat::new(world_grid.x, 0.0, world_grid.y),
+                0.1,
+                COLOR_RED,
+            );
+
+            {
+                let mut trans = Transform::new();
+                trans.local_position = VecThreeFloat::new(world_grid.x, 0.0, world_grid.y);
+                trans.update_global_matrix(&M44::new_identity());
+
+                let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+                ct.local_rotation.y += 0.01;
+
+                es.render_packs
+                    .get_mut(&RenderPackID::NewWorld)
+                    .unwrap()
+                    .commands
+                    .push(RenderCommand::new_model(
+                        &trans,
+                        &gs.assets.model_tile_grass,
+                        &gs.assets.tile_grass_material,
+                    ));
+            }
+        }
     }
 
     let mouse_grid: GridPos = {
         let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
         // let mouse_world = cam_pack.camera.screen_to_world(input.mouse.pos);
+
         let mouse_world = input.mouse.pos
             + VecTwo::new(
                 cam_pack.camera.transform.local_position.x,
@@ -946,36 +981,8 @@ pub fn game_loop(
 
     // new tile rendering
     {
-        let world_pos = es
-            .render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera
-            .screen_to_world(input.mouse.pos);
-
         let mut trans = Transform::new();
-        // trans.local_position = VecThreeFloat::new(0.0, 0.0, -10.0);
-        trans.local_position = world_pos;
-        trans.update_global_matrix(&M44::new_identity());
-
-        let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-        ct.local_rotation.y += 0.01;
-
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .commands
-            .push(RenderCommand::new_model(
-                &trans,
-                &gs.assets.model_tile_grass,
-                &gs.assets.tile_grass_material,
-            ));
-    }
-
-    // new tile rendering
-    {
-        let mut trans = Transform::new();
-        trans.local_position = VecThreeFloat::new(0.0, 0.0, -10.0);
+        trans.local_position = VecThreeFloat::new(0.0, 0.0, 0.0);
         trans.update_global_matrix(&M44::new_identity());
 
         let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
