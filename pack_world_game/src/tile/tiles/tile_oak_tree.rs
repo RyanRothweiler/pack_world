@@ -70,9 +70,11 @@ impl TileOakTree {
     ) {
         let mut rotation: f64 = 0.0;
         if time_comp.can_harvest() {
-            rotation = f64::sin(rot_time) * 7.0;
+            // rotation = f64::sin(rot_time) * 7.0;
         }
 
+        todo!("add third dimension");
+        /*
         // render tree
         {
             let mut r = Rect::new_square(GRID_SIZE * 2.0);
@@ -99,6 +101,7 @@ impl TileOakTree {
                 .commands
                 .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
         }
+        */
     }
 
     pub fn save_file_write(

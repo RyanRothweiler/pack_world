@@ -22,9 +22,10 @@ pub fn world_to_grid(pos: &VecTwo) -> GridPos {
     };
 }
 
-pub fn grid_to_world(pos: &GridPos) -> VecTwo {
-    VecTwo {
+pub fn grid_to_world(pos: &GridPos) -> VecThreeFloat {
+    VecThreeFloat {
         x: pos.x as f64 * GRID_SIZE,
-        y: pos.y as f64 * GRID_SIZE,
+        y: 0.0,
+        z: pos.y as f64 * GRID_SIZE,
     }
 }

@@ -29,6 +29,7 @@ pub mod tiles;
 
 pub use {tile_definition::*, tile_instance::*, tile_methods::*, tile_type::*};
 
+/*
 pub fn draw_tile(
     tile_type: TileType,
     rotation: f64,
@@ -51,7 +52,7 @@ pub fn draw_tile(
 pub fn draw_tile_world_pos(
     tile_type: TileType,
     rotation: f64,
-    pos: &VecTwo,
+    pos: &VecThreeFoat,
     shader_color: Shader,
     render_pack: &mut RenderPack,
     assets: &Assets,
@@ -80,3 +81,4 @@ pub fn draw_tile_world_pos(
         .commands
         .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
 }
+*/

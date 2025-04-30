@@ -126,6 +126,7 @@ impl TileInstance {
         }
 
         // Update drop displays
+        /*
         {
             if self.drops_queue.len() > 0 {
                 self.drop_timer += delta_time;
@@ -147,6 +148,7 @@ impl TileInstance {
                 }
             }
         }
+        */
 
         ret
     }
@@ -174,6 +176,7 @@ impl TileInstance {
                 );
             }
             _ => {
+                /*
                 let harvestable = self.get_component_harvestable();
                 let wander = self.get_component_wander();
 
@@ -190,7 +193,9 @@ impl TileInstance {
                 if let Some(wander_state) = wander {
                     render_pos = wander_state.curr_world_pos;
                 }
+                */
 
+                /*
                 draw_tile_world_pos(
                     self.tile_type,
                     rotation,
@@ -199,6 +204,26 @@ impl TileInstance {
                     render_pack,
                     assets,
                 );
+                */
+
+                /*
+                let mut trans = Transform::new();
+                trans.local_position = VecThreeFloat::new(0.0, 0.0, 0.0);
+                trans.update_global_matrix(&M44::new_identity());
+
+                let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+                ct.local_rotation.y += 0.01;
+
+                es.render_packs
+                    .get_mut(&RenderPackID::NewWorld)
+                    .unwrap()
+                    .commands
+                    .push(RenderCommand::new_model(
+                        &trans,
+                        &gs.assets.model_tile_grass,
+                        &gs.assets.tile_grass_material,
+                    ));
+                */
             }
         }
     }

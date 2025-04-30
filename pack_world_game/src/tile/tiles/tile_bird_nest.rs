@@ -61,6 +61,9 @@ impl TileBirdNest {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
+        todo!("add third dimension");
+
+        /*
         let mut r = Rect::new_square(GRID_SIZE);
         let pos_world =
             grid_to_world(&self.tree_origin) + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.1);
@@ -85,6 +88,7 @@ impl TileBirdNest {
         render_pack
             .commands
             .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
+        */
     }
 
     pub fn save_file_write(

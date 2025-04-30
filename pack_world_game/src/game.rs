@@ -430,7 +430,7 @@ pub fn game_init(
             .unwrap()
             .camera
             .transform
-            .local_position = VecThreeFloat::new(1.0, 12.3, 9.0);
+            .local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
 
         es.render_packs
             .get_mut(&RenderPackID::NewWorld)
@@ -442,7 +442,7 @@ pub fn game_init(
             .get_mut(&RenderPackID::NewWorld)
             .unwrap()
             .camera
-            .yaw = 88.0
+            .yaw = 90.0
     }
 
     gs.light_trans = Some(es.new_transform());
@@ -746,7 +746,7 @@ pub fn game_loop(
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
                             &gs.assets,
                         );
                     }
@@ -801,18 +801,13 @@ pub fn game_loop(
             draw_sphere(world_pos, 0.1, COLOR_BLUE);
 
             let mouse_grid: GridPos = world_to_grid(&world_pos.xz());
-            println!("{:?}", mouse_grid);
             let world_grid = grid_to_world(&mouse_grid);
 
-            draw_sphere(
-                VecThreeFloat::new(world_grid.x, 0.0, world_grid.y),
-                0.1,
-                COLOR_RED,
-            );
+            draw_sphere(world_grid, 0.1, COLOR_RED);
 
             {
                 let mut trans = Transform::new();
-                trans.local_position = VecThreeFloat::new(world_grid.x, 0.0, world_grid.y);
+                trans.local_position = world_grid;
                 trans.update_global_matrix(&M44::new_identity());
 
                 let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
@@ -861,7 +856,8 @@ pub fn game_loop(
             let pos = mouse_grid + *p;
 
             let mut r = Rect::new_square(GRID_SIZE * 0.5);
-            r.set_center(grid_to_world(&pos));
+            todo!("new grid stuff here");
+            // r.set_center(grid_to_world(&pos));
 
             let mut color = COLOR_WHITE;
             if !can_place {
@@ -899,6 +895,9 @@ pub fn game_loop(
         let world_snapshot = gs.world.get_world_snapshot();
 
         if gs.tile_placing.is_none() {
+            // todo!("new grid stuff here");
+
+            /*
             let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
             let mouse_snapped_screen = es
                 .render_packs
@@ -959,6 +958,7 @@ pub fn game_loop(
                     );
                 }
             }
+            */
         }
 
         handle_signals(update_signals, gs, platform_api);
@@ -979,6 +979,7 @@ pub fn game_loop(
         .camera
         .move_fly(0.3, input);
 
+    /*
     // new tile rendering
     {
         let mut trans = Transform::new();
@@ -998,6 +999,7 @@ pub fn game_loop(
                 &gs.assets.tile_grass_material,
             ));
     }
+    */
 
     /*
 

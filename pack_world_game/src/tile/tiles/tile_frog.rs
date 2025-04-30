@@ -35,12 +35,15 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
         timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Frog),
     });
 
+    todo!("add third dimension");
+    /*
     inst.components.push(TileComponent::Wander {
         state: WanderState {
             target_grid_offset: GridPos::new(1, 1),
             curr_world_pos: grid_to_world(&grid_pos),
         },
     });
+    */
 
     inst
 }
