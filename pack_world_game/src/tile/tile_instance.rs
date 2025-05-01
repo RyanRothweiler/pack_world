@@ -205,25 +205,6 @@ impl TileInstance {
                     assets,
                 );
                 */
-
-                /*
-                let mut trans = Transform::new();
-                trans.local_position = VecThreeFloat::new(0.0, 0.0, 0.0);
-                trans.update_global_matrix(&M44::new_identity());
-
-                let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-                ct.local_rotation.y += 0.01;
-
-                es.render_packs
-                    .get_mut(&RenderPackID::NewWorld)
-                    .unwrap()
-                    .commands
-                    .push(RenderCommand::new_model(
-                        &trans,
-                        &gs.assets.model_tile_grass,
-                        &gs.assets.tile_grass_material,
-                    ));
-                */
             }
         }
     }

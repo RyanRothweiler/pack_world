@@ -9,9 +9,11 @@ use crate::{
 };
 use gengar_engine::{
     color::*,
+    matricies::*,
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    transform::*,
     vectors::*,
 };
 use std::{
@@ -29,7 +31,6 @@ pub mod tiles;
 
 pub use {tile_definition::*, tile_instance::*, tile_methods::*, tile_type::*};
 
-/*
 pub fn draw_tile(
     tile_type: TileType,
     rotation: f64,
@@ -52,11 +53,12 @@ pub fn draw_tile(
 pub fn draw_tile_world_pos(
     tile_type: TileType,
     rotation: f64,
-    pos: &VecThreeFoat,
+    pos: &VecThreeFloat,
     shader_color: Shader,
     render_pack: &mut RenderPack,
     assets: &Assets,
 ) {
+    /*
     let mut r = Rect::new_square(GRID_SIZE);
 
     r.set_center(*pos);
@@ -80,5 +82,21 @@ pub fn draw_tile_world_pos(
     render_pack
         .commands
         .push(RenderCommand::new_rect(&r, -1.0, rotation, &mat));
+    */
+
+    let mut trans = Transform::new();
+    trans.local_position = *pos;
+    trans.update_global_matrix(&M44::new_identity());
+
+    /*
+    es.render_packs
+        .get_mut(&RenderPackID::NewWorld)
+        .unwrap()
+        .commands
+        .push(RenderCommand::new_model(
+            &trans,
+            &gs.assets.model_tile_grass,
+            &gs.assets.tile_grass_material,
+        ));
+        */
 }
-*/

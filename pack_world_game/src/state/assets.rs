@@ -3,6 +3,11 @@ use gengar_engine::{
     model::*,
     render::{image::*, material::*},
 };
+use std::collections::HashMap;
+
+pub mod tile_asset_pack;
+
+pub use tile_asset_pack::*;
 
 pub struct Assets {
     pub image_dirt: Image,
@@ -71,6 +76,8 @@ pub struct Assets {
     pub tile_water_roughness: Image,
     pub tile_water_metallic: Image,
     pub tile_water_normal: Image,
+
+    pub tile_assets: HashMap<TileType, TileAssetPack>,
 }
 
 impl Assets {
@@ -142,6 +149,8 @@ impl Assets {
             tile_water_roughness: Image::new(),
             tile_water_metallic: Image::new(),
             tile_water_normal: Image::new(),
+
+            tile_assets: HashMap::new(),
         }
     }
 
