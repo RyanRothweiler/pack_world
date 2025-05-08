@@ -1,12 +1,15 @@
 use crate::{drop_table::*, item::*, pack::*, state::inventory::*, tile::*};
 use gengar_engine::{
+    binary_file_system::*,
     model::*,
     render::{image::*, material::*},
 };
 use std::collections::HashMap;
 
+pub mod asset_library;
 pub mod tile_asset_pack;
 
+pub use asset_library::*;
 pub use tile_asset_pack::*;
 
 pub struct Assets {
@@ -50,16 +53,8 @@ pub struct Assets {
     pub image_pack_mud: Image,
     pub image_pack_water: Image,
 
-    pub model_tile_grass: Model,
     pub tile_grass_material: Material,
 
-    pub tile_grass_albedo: Image,
-    pub tile_grass_ao: Image,
-    pub tile_grass_roughness: Image,
-    pub tile_grass_metallic: Image,
-    pub tile_grass_normal: Image,
-
-    pub model_tile_dirt: Model,
     pub tile_dirt_material: Material,
 
     pub tile_dirt_albedo: Image,
@@ -68,7 +63,6 @@ pub struct Assets {
     pub tile_dirt_metallic: Image,
     pub tile_dirt_normal: Image,
 
-    pub model_tile_water: Model,
     pub tile_water_material: Material,
 
     pub tile_water_albedo: Image,
@@ -78,6 +72,9 @@ pub struct Assets {
     pub tile_water_normal: Image,
 
     pub tile_assets: HashMap<TileType, TileAssetPack>,
+
+    pub binary_file_system: BinaryFileSystem,
+    pub asset_library: AssetLibrary,
 }
 
 impl Assets {
@@ -123,16 +120,8 @@ impl Assets {
             image_pack_mud: Image::new(),
             image_pack_water: Image::new(),
 
-            model_tile_grass: Model::new(),
             tile_grass_material: Material::new(),
 
-            tile_grass_albedo: Image::new(),
-            tile_grass_ao: Image::new(),
-            tile_grass_roughness: Image::new(),
-            tile_grass_metallic: Image::new(),
-            tile_grass_normal: Image::new(),
-
-            model_tile_dirt: Model::new(),
             tile_dirt_material: Material::new(),
 
             tile_dirt_albedo: Image::new(),
@@ -141,7 +130,6 @@ impl Assets {
             tile_dirt_metallic: Image::new(),
             tile_dirt_normal: Image::new(),
 
-            model_tile_water: Model::new(),
             tile_water_material: Material::new(),
 
             tile_water_albedo: Image::new(),
@@ -151,6 +139,8 @@ impl Assets {
             tile_water_normal: Image::new(),
 
             tile_assets: HashMap::new(),
+            binary_file_system: BinaryFileSystem::new(),
+            asset_library: AssetLibrary::new(),
         }
     }
 

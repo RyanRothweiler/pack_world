@@ -131,6 +131,10 @@ fn open_url(url: String) {
     println!("Open url {url}");
 }
 
+fn load_file(path: &Path) -> Vec<u8> {
+    todo!("do file loading stuff");
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: random,
@@ -139,6 +143,7 @@ pub fn get_platform_api() -> PlatformApi {
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
         open_url: open_url,
+        load_file: load_file,
     }
 }
 

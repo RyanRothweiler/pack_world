@@ -10,6 +10,7 @@ use std::{include_str, io::Cursor};
 
 pub mod analytics;
 pub mod ascii;
+pub mod binary_file_system;
 pub mod byte_conversion;
 pub mod collisions;
 pub mod color;

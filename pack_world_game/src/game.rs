@@ -55,6 +55,7 @@ pub mod world;
 #[cfg(test)]
 pub mod testing_infra;
 
+use assets::*;
 pub use constants::*;
 use grid::*;
 use harvest_drop::*;
@@ -105,6 +106,9 @@ pub fn game_init(
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
+
+    // gs.assets.binary_file_system = load_game_assets();
+    load_game_assets(&mut gs.assets.asset_library, render_api);
 
     gs.assets.image_dirt =
         load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
@@ -189,24 +193,6 @@ pub fn game_init(
     )
     .unwrap();
 
-    gs.assets.model_tile_grass = Model::load_upload(
-        include_str!("../resources/models/tile_grass/tile_grass.obj"),
-        render_api,
-    )
-    .unwrap();
-
-    gs.assets.model_tile_dirt = Model::load_upload(
-        include_str!("../resources/models/first_tile/first_tile.obj"),
-        render_api,
-    )
-    .unwrap();
-
-    gs.assets.model_tile_water = Model::load_upload(
-        include_str!("../resources/models/tile_water/tile_water.obj"),
-        render_api,
-    )
-    .unwrap();
-
     //pbr tile dirt material
     {
         gs.assets.tile_dirt_albedo = load_image_cursor(
@@ -281,42 +267,17 @@ pub fn game_init(
 
     //pbr tile grass material
     {
-        gs.assets.tile_grass_albedo = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/BaseColor.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_ao = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/AO.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_normal = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/Normal.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_roughness = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/Roughness.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_metallic = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/Metallic.png"),
-            render_api,
-        )
-        .unwrap();
-
         // grass material
         gs.assets.tile_grass_material.shader = Some(es.pbr_shader);
         gs.assets.tile_grass_material.uniforms.insert(
             "tex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_grass_albedo.gl_id.unwrap(),
+                image_id: gs
+                    .assets
+                    .asset_library
+                    .get_texture("tile_grass_base_color")
+                    .gl_id
+                    .unwrap(),
                 texture_slot: 0,
             }),
         );
@@ -324,28 +285,48 @@ pub fn game_init(
         gs.assets.tile_grass_material.uniforms.insert(
             "normalTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_grass_normal.gl_id.unwrap(),
+                image_id: gs
+                    .assets
+                    .asset_library
+                    .get_texture("tile_grass_normal")
+                    .gl_id
+                    .unwrap(),
                 texture_slot: 1,
             }),
         );
         gs.assets.tile_grass_material.uniforms.insert(
             "metallicTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_grass_metallic.gl_id.unwrap(),
+                image_id: gs
+                    .assets
+                    .asset_library
+                    .get_texture("tile_grass_metallic")
+                    .gl_id
+                    .unwrap(),
                 texture_slot: 2,
             }),
         );
         gs.assets.tile_grass_material.uniforms.insert(
             "roughnessTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_grass_roughness.gl_id.unwrap(),
+                image_id: gs
+                    .assets
+                    .asset_library
+                    .get_texture("tile_grass_roughness")
+                    .gl_id
+                    .unwrap(),
                 texture_slot: 3,
             }),
         );
         gs.assets.tile_grass_material.uniforms.insert(
             "aoTex".to_string(),
             UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_grass_ao.gl_id.unwrap(),
+                image_id: gs
+                    .assets
+                    .asset_library
+                    .get_texture("tile_grass_ao")
+                    .gl_id
+                    .unwrap(),
                 texture_slot: 4,
             }),
         );
@@ -819,7 +800,7 @@ pub fn game_loop(
                     .commands
                     .push(RenderCommand::new_model(
                         &trans,
-                        &gs.assets.model_tile_grass,
+                        gs.assets.asset_library.get_model("tile_grass"),
                         &gs.assets.tile_grass_material,
                     ));
             }

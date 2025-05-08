@@ -16,6 +16,7 @@ use gengar_engine::{
 use js_sys::{Date, Math};
 use std::{
     collections::HashMap,
+    path::Path,
     sync::{LazyLock, Mutex},
 };
 use wasm_bindgen::prelude::*;
@@ -117,6 +118,10 @@ fn open_url(url: String) {
     let _ = web_sys::window().unwrap().open_with_url(&url);
 }
 
+fn load_file(path: &Path) -> Vec<u8> {
+    vec![]
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: rand,
@@ -125,6 +130,7 @@ pub fn get_platform_api() -> PlatformApi {
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
         open_url: open_url,
+        load_file: load_file,
     }
 }
 
