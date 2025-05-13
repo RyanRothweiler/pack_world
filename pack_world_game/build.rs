@@ -41,6 +41,12 @@ use std::collections::HashMap;
                     write!(output_file, "\"../../../../resources/{}\", ", path).unwrap();
                     writeln!(output_file, "render_api);").unwrap();
                 }
+                "model" => {
+                    write!(output_file, "include_model!(al, ").unwrap();
+                    write!(output_file, "\"{}\", ", id).unwrap();
+                    write!(output_file, "\"../../../../resources/{}\", ", path).unwrap();
+                    writeln!(output_file, "render_api);").unwrap();
+                }
                 _ => panic!("Unknown asset type {}", asset_type),
             }
         }

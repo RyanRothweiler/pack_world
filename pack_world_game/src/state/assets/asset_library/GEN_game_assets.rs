@@ -12,4 +12,7 @@ include_texture!(al, "tile_grass_ao", "../../../../resources/models/tile_grass/A
 include_texture!(al, "tile_grass_normal", "../../../../resources/models/tile_grass/Normal.png", render_api);
 include_texture!(al, "tile_grass_roughness", "../../../../resources/models/tile_grass/Roughness.png", render_api);
 include_texture!(al, "tile_grass_metallic", "../../../../resources/models/tile_grass/Metallic.png", render_api);
+include_model!(al, "tile_grass", "../../../../resources/models/tile_grass/tile_grass.obj", render_api);
+include_model!(al, "tile_dirt", "../../../../resources/models/first_tile/first_tile.obj", render_api);
+include_model!(al, "tile_water", "../../../../resources/models/tile_water/tile_water.obj", render_api);
 }

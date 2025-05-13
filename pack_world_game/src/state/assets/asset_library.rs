@@ -69,25 +69,4 @@ macro_rules! include_texture {
 
 pub fn load_game_assets(al: &mut AssetLibrary, render_api: &impl RenderApi) {
     GEN_game_assets::load_game_assets(al, render_api);
-
-    include_model!(
-        al,
-        "tile_grass",
-        "../../../resources/models/tile_grass/tile_grass.obj",
-        render_api
-    );
-
-    include_model!(
-        al,
-        "tile_dirt",
-        "../../../resources/models/first_tile/first_tile.obj",
-        render_api
-    );
-
-    include_model!(
-        al,
-        "tile_water",
-        "../../../resources/models/tile_water/tile_water.obj",
-        render_api
-    );
 }

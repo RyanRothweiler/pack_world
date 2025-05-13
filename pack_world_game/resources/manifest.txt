@@ -17,3 +17,15 @@ models/tile_grass/Roughness.png
 texture
 tile_grass_metallic
 models/tile_grass/Metallic.png
+
+model
+tile_grass
+models/tile_grass/tile_grass.obj
+
+model
+tile_dirt
+models/first_tile/first_tile.obj
+
+model
+tile_water
+models/tile_water/tile_water.obj
