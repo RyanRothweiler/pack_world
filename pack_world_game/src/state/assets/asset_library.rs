@@ -4,6 +4,9 @@ use gengar_engine::{
 };
 use std::collections::HashMap;
 
+#[allow(non_snake_case)]
+pub mod GEN_game_assets;
+
 pub struct AssetLibrary {
     models: HashMap<String, Model>,
     textures: HashMap<String, Image>,
@@ -40,6 +43,7 @@ macro_rules! asset_include {
 }
 */
 
+#[macro_export]
 macro_rules! include_model {
     ($al:expr, $id:expr, $data_path:expr, $render_api:expr) => {
         let model = Model::load_upload(include_str!($data_path), $render_api).unwrap();
@@ -51,6 +55,7 @@ macro_rules! include_model {
     };
 }
 
+#[macro_export]
 macro_rules! include_texture {
     ($al:expr, $id:expr, $data_path:expr, $render_api:expr) => {
         let image = load_image_cursor(include_bytes!($data_path), $render_api).unwrap();
@@ -63,6 +68,8 @@ macro_rules! include_texture {
 }
 
 pub fn load_game_assets(al: &mut AssetLibrary, render_api: &impl RenderApi) {
+    GEN_game_assets::load_game_assets(al, render_api);
+
     include_model!(
         al,
         "tile_grass",
@@ -81,41 +88,6 @@ pub fn load_game_assets(al: &mut AssetLibrary, render_api: &impl RenderApi) {
         al,
         "tile_water",
         "../../../resources/models/tile_water/tile_water.obj",
-        render_api
-    );
-
-    include_texture!(
-        al,
-        "tile_grass_base_color",
-        "../../../resources/models/tile_grass/BaseColor.png",
-        render_api
-    );
-
-    include_texture!(
-        al,
-        "tile_grass_ao",
-        "../../../resources/models/tile_grass/AO.png",
-        render_api
-    );
-
-    include_texture!(
-        al,
-        "tile_grass_normal",
-        "../../../resources/models/tile_grass/Normal.png",
-        render_api
-    );
-
-    include_texture!(
-        al,
-        "tile_grass_roughness",
-        "../../../resources/models/tile_grass/Roughness.png",
-        render_api
-    );
-
-    include_texture!(
-        al,
-        "tile_grass_metallic",
-        "../../../resources/models/tile_grass/metallic.png",
         render_api
     );
 }
