@@ -1,6 +1,7 @@
+use crate::TileType;
 use gengar_engine::{
     model::*,
-    render::{image::*, RenderApi, *},
+    render::{image::*, material::*, shader::*, RenderApi, *},
 };
 use std::collections::HashMap;
 
@@ -69,4 +70,6 @@ macro_rules! include_texture {
 
 pub fn load_game_assets(al: &mut AssetLibrary, render_api: &impl RenderApi) {
     GEN_game_assets::load_game_assets(al, render_api);
+
+    // build tile materials
 }

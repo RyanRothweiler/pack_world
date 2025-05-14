@@ -100,3 +100,26 @@ pub fn draw_tile_world_pos(
         ));
         */
 }
+
+pub fn draw_tile_world_new(
+    tile_type: TileType,
+    rotation: f64,
+    pos: &VecThreeFloat,
+    render_pack: &mut RenderPack,
+    assets: &Assets,
+) {
+    let tile_asset_id = tile_type.to_string_id();
+
+    let mut trans = Transform::new();
+    trans.local_position = *pos;
+    trans.update_global_matrix(&M44::new_identity());
+
+    render_pack.commands.push(RenderCommand::new_model(
+        &trans,
+        assets.asset_library.get_model(&tile_asset_id),
+        assets
+            .tile_materials
+            .get(&tile_type)
+            .expect(&format!("Missing tile material {:?}", tile_type)),
+    ));
+}

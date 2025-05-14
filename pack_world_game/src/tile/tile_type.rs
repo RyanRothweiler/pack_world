@@ -47,6 +47,10 @@ impl TileType {
         (def.new_instance)(grid_pos)
     }
 
+    pub fn to_string_id(&self) -> String {
+        format!("tile_{:?}", self).to_lowercase()
+    }
+
     pub fn get_definition(&self) -> &'static TileDefinition {
         match self {
             TileType::Grass => &tile_grass::DEF,

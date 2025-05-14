@@ -1,8 +1,10 @@
+use crate::{assets::AssetLibrary, tile::TileType};
 use gengar_engine::{
     model::*,
     render::{image::*, material::*},
 };
 
+/*
 pub struct TileAssetPack {
     pub model: Model,
     pub material: Material,
@@ -14,9 +16,8 @@ pub struct TileAssetPack {
     pub tex_normal: Image,
 }
 
-/*
 impl TileAssetPack {
-    pub fn load() -> Self {
+    pub fn load(tile_type: TileType, asset_library: &AssetLibrary) -> Self {
         let mut pack = Self {
             model: Model::new(),
             material: Material::new(),
@@ -28,35 +29,7 @@ impl TileAssetPack {
             tex_normal: Image::new(),
         };
 
-        gs.assets.tile_grass_albedo = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/BaseColor.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_ao = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/AO.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_normal = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/Normal.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_roughness = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/Roughness.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_grass_metallic = load_image_cursor(
-            include_bytes!("../resources/models/tile_grass/Metallic.png"),
-            render_api,
-        )
-        .unwrap();
+        // pack.model
 
         // grass material
         gs.assets.tile_grass_material.shader = Some(es.pbr_shader);

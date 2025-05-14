@@ -26,6 +26,5 @@ model
 tile_dirt
 models/first_tile/first_tile.obj
 
-model
+tile
 tile_water
-models/tile_water/tile_water.obj

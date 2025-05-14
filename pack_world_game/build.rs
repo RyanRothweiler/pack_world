@@ -30,22 +30,49 @@ use std::collections::HashMap;
         if !lines[i].trim().is_empty() {
             let asset_type: &str = lines[i].trim();
             let id: &str = lines[i + 1].trim();
-            let path: &str = lines[i + 2].trim();
-
-            i += 3;
 
             match asset_type {
                 "texture" => {
-                    write!(output_file, "include_texture!(al, ").unwrap();
-                    write!(output_file, "\"{}\", ", id).unwrap();
-                    write!(output_file, "\"../../../../resources/{}\", ", path).unwrap();
-                    writeln!(output_file, "render_api);").unwrap();
+                    let path: &str = lines[i + 2].trim();
+                    i += 3;
+
+                    write_texture(&mut output_file, id, path);
                 }
                 "model" => {
-                    write!(output_file, "include_model!(al, ").unwrap();
-                    write!(output_file, "\"{}\", ", id).unwrap();
-                    write!(output_file, "\"../../../../resources/{}\", ", path).unwrap();
-                    writeln!(output_file, "render_api);").unwrap();
+                    let path: &str = lines[i + 2].trim();
+                    i += 3;
+
+                    write_model(&mut output_file, id, path);
+                }
+                "tile" => {
+                    i += 2;
+
+                    write_model(&mut output_file, id, &format!("tiles/{}/{}.obj", id, id));
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_base_color", id),
+                        &format!("tiles/{}/BaseColor.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_metallic", id),
+                        &format!("tiles/{}/Metallic.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_roughness", id),
+                        &format!("tiles/{}/Roughness.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_ao", id),
+                        &format!("tiles/{}/AO.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_normal", id),
+                        &format!("tiles/{}/Normal.png", id),
+                    );
                 }
                 _ => panic!("Unknown asset type {}", asset_type),
             }
@@ -57,4 +84,18 @@ use std::collections::HashMap;
         }
     }
     writeln!(output_file, "}}").unwrap();
+}
+
+fn write_texture(output_file: &mut File, id: &str, path: &str) {
+    write!(output_file, "include_texture!(al, ").unwrap();
+    write!(output_file, "\"{}\", ", id).unwrap();
+    write!(output_file, "\"../../../../resources/{}\", ", path).unwrap();
+    writeln!(output_file, "render_api);").unwrap();
+}
+
+fn write_model(output_file: &mut File, id: &str, path: &str) {
+    write!(output_file, "include_model!(al, ").unwrap();
+    write!(output_file, "\"{}\", ", id).unwrap();
+    write!(output_file, "\"../../../../resources/{}\", ", path).unwrap();
+    writeln!(output_file, "render_api);").unwrap();
 }

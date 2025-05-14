@@ -109,6 +109,7 @@ pub fn game_init(
 
     // gs.assets.binary_file_system = load_game_assets();
     load_game_assets(&mut gs.assets.asset_library, render_api);
+    gs.assets.build_tile_materials(es.pbr_shader);
 
     gs.assets.image_dirt =
         load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
@@ -327,78 +328,6 @@ pub fn game_init(
                     .get_texture("tile_grass_ao")
                     .gl_id
                     .unwrap(),
-                texture_slot: 4,
-            }),
-        );
-    }
-
-    //pbr tile water material
-    {
-        gs.assets.tile_water_albedo = load_image_cursor(
-            include_bytes!("../resources/models/tile_water/BaseColor.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_water_ao = load_image_cursor(
-            include_bytes!("../resources/models/tile_water/AO.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_water_normal = load_image_cursor(
-            include_bytes!("../resources/models/tile_water/Normal.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_water_roughness = load_image_cursor(
-            include_bytes!("../resources/models/tile_water/Roughness.png"),
-            render_api,
-        )
-        .unwrap();
-
-        gs.assets.tile_water_metallic = load_image_cursor(
-            include_bytes!("../resources/models/tile_water/Metallic.png"),
-            render_api,
-        )
-        .unwrap();
-
-        // grass material
-        gs.assets.tile_water_material.shader = Some(es.pbr_shader);
-        gs.assets.tile_water_material.uniforms.insert(
-            "tex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_water_albedo.gl_id.unwrap(),
-                texture_slot: 0,
-            }),
-        );
-
-        gs.assets.tile_water_material.uniforms.insert(
-            "normalTex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_water_normal.gl_id.unwrap(),
-                texture_slot: 1,
-            }),
-        );
-        gs.assets.tile_water_material.uniforms.insert(
-            "metallicTex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_water_metallic.gl_id.unwrap(),
-                texture_slot: 2,
-            }),
-        );
-        gs.assets.tile_water_material.uniforms.insert(
-            "roughnessTex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_water_roughness.gl_id.unwrap(),
-                texture_slot: 3,
-            }),
-        );
-        gs.assets.tile_water_material.uniforms.insert(
-            "aoTex".to_string(),
-            UniformData::Texture(TextureInfo {
-                image_id: gs.assets.tile_water_ao.gl_id.unwrap(),
                 texture_slot: 4,
             }),
         );
@@ -786,13 +715,14 @@ pub fn game_loop(
 
             draw_sphere(world_grid, 0.1, COLOR_RED);
 
+            let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
+            ct.local_rotation.y += 0.01;
+
+            /*
             {
                 let mut trans = Transform::new();
                 trans.local_position = world_grid;
                 trans.update_global_matrix(&M44::new_identity());
-
-                let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-                ct.local_rotation.y += 0.01;
 
                 es.render_packs
                     .get_mut(&RenderPackID::NewWorld)
@@ -804,6 +734,15 @@ pub fn game_loop(
                         &gs.assets.tile_grass_material,
                     ));
             }
+            */
+
+            draw_tile_world_new(
+                TileType::Water,
+                0.0,
+                &world_grid,
+                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                &gs.assets,
+            );
         }
     }
 

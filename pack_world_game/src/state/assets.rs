@@ -2,7 +2,7 @@ use crate::{drop_table::*, item::*, pack::*, state::inventory::*, tile::*};
 use gengar_engine::{
     binary_file_system::*,
     model::*,
-    render::{image::*, material::*},
+    render::{image::*, material::*, shader::*},
 };
 use std::collections::HashMap;
 
@@ -63,15 +63,7 @@ pub struct Assets {
     pub tile_dirt_metallic: Image,
     pub tile_dirt_normal: Image,
 
-    pub tile_water_material: Material,
-
-    pub tile_water_albedo: Image,
-    pub tile_water_ao: Image,
-    pub tile_water_roughness: Image,
-    pub tile_water_metallic: Image,
-    pub tile_water_normal: Image,
-
-    pub tile_assets: HashMap<TileType, TileAssetPack>,
+    pub tile_materials: HashMap<TileType, Material>,
 
     pub binary_file_system: BinaryFileSystem,
     pub asset_library: AssetLibrary,
@@ -130,18 +122,89 @@ impl Assets {
             tile_dirt_metallic: Image::new(),
             tile_dirt_normal: Image::new(),
 
-            tile_water_material: Material::new(),
-
-            tile_water_albedo: Image::new(),
-            tile_water_ao: Image::new(),
-            tile_water_roughness: Image::new(),
-            tile_water_metallic: Image::new(),
-            tile_water_normal: Image::new(),
-
-            tile_assets: HashMap::new(),
+            tile_materials: HashMap::new(),
             binary_file_system: BinaryFileSystem::new(),
             asset_library: AssetLibrary::new(),
         }
+    }
+
+    pub fn build_tile_materials(&mut self, pbr_shader: Shader) {
+        pub fn build_tile_material(
+            tile_type: TileType,
+            asset_library: &AssetLibrary,
+            pbr_shader: Shader,
+        ) -> Material {
+            let mut mat = Material::new();
+
+            let tile_base_id = tile_type.to_string_id();
+
+            mat.shader = Some(pbr_shader);
+            mat.uniforms.insert(
+                "tex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: asset_library
+                        .get_texture(&format!("{}_base_color", tile_base_id))
+                        .gl_id
+                        .unwrap(),
+                    texture_slot: 0,
+                }),
+            );
+
+            mat.uniforms.insert(
+                "normalTex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: asset_library
+                        .get_texture(&format!("{}_normal", tile_base_id))
+                        .gl_id
+                        .unwrap(),
+                    texture_slot: 0,
+                }),
+            );
+
+            mat.uniforms.insert(
+                "metallicTex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: asset_library
+                        .get_texture(&format!("{}_metallic", tile_base_id))
+                        .gl_id
+                        .unwrap(),
+                    texture_slot: 0,
+                }),
+            );
+
+            mat.uniforms.insert(
+                "roughnessTex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: asset_library
+                        .get_texture(&format!("{}_roughness", tile_base_id))
+                        .gl_id
+                        .unwrap(),
+                    texture_slot: 0,
+                }),
+            );
+
+            mat.uniforms.insert(
+                "aoTex".to_string(),
+                UniformData::Texture(TextureInfo {
+                    image_id: asset_library
+                        .get_texture(&format!("{}_ao", tile_base_id))
+                        .gl_id
+                        .unwrap(),
+                    texture_slot: 0,
+                }),
+            );
+
+            return mat;
+        }
+
+        self.tile_materials.insert(
+            TileType::Water,
+            build_tile_material(TileType::Water, &self.asset_library, pbr_shader),
+        );
+        self.tile_materials.insert(
+            TileType::Grass,
+            build_tile_material(TileType::Grass, &self.asset_library, pbr_shader),
+        );
     }
 
     pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
