@@ -53,16 +53,6 @@ pub struct Assets {
     pub image_pack_mud: Image,
     pub image_pack_water: Image,
 
-    pub tile_grass_material: Material,
-
-    pub tile_dirt_material: Material,
-
-    pub tile_dirt_albedo: Image,
-    pub tile_dirt_ao: Image,
-    pub tile_dirt_roughness: Image,
-    pub tile_dirt_metallic: Image,
-    pub tile_dirt_normal: Image,
-
     pub tile_materials: HashMap<TileType, Material>,
 
     pub binary_file_system: BinaryFileSystem,
@@ -112,16 +102,6 @@ impl Assets {
             image_pack_mud: Image::new(),
             image_pack_water: Image::new(),
 
-            tile_grass_material: Material::new(),
-
-            tile_dirt_material: Material::new(),
-
-            tile_dirt_albedo: Image::new(),
-            tile_dirt_ao: Image::new(),
-            tile_dirt_roughness: Image::new(),
-            tile_dirt_metallic: Image::new(),
-            tile_dirt_normal: Image::new(),
-
             tile_materials: HashMap::new(),
             binary_file_system: BinaryFileSystem::new(),
             asset_library: AssetLibrary::new(),
@@ -157,18 +137,18 @@ impl Assets {
                         .get_texture(&format!("{}_normal", tile_base_id))
                         .gl_id
                         .unwrap(),
-                    texture_slot: 0,
+                    texture_slot: 1,
                 }),
             );
 
             mat.uniforms.insert(
-                "metallicTex".to_string(),
+                "metallicTex    ".to_string(),
                 UniformData::Texture(TextureInfo {
                     image_id: asset_library
                         .get_texture(&format!("{}_metallic", tile_base_id))
                         .gl_id
                         .unwrap(),
-                    texture_slot: 0,
+                    texture_slot: 2,
                 }),
             );
 
@@ -179,7 +159,7 @@ impl Assets {
                         .get_texture(&format!("{}_roughness", tile_base_id))
                         .gl_id
                         .unwrap(),
-                    texture_slot: 0,
+                    texture_slot: 3,
                 }),
             );
 
@@ -190,7 +170,7 @@ impl Assets {
                         .get_texture(&format!("{}_ao", tile_base_id))
                         .gl_id
                         .unwrap(),
-                    texture_slot: 0,
+                    texture_slot: 4,
                 }),
             );
 
@@ -204,6 +184,10 @@ impl Assets {
         self.tile_materials.insert(
             TileType::Grass,
             build_tile_material(TileType::Grass, &self.asset_library, pbr_shader),
+        );
+        self.tile_materials.insert(
+            TileType::Dirt,
+            build_tile_material(TileType::Dirt, &self.asset_library, pbr_shader),
         );
     }
 
