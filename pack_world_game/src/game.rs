@@ -251,7 +251,7 @@ pub fn game_init(
     // setup first map
     {
         let init_dirt: Vec<GridPos> = vec![
-            GridPos::new(20, 10),
+            GridPos::new(0, 0),
             // GridPos::new(21, 10),
             // GridPos::new(20, 11),
             // GridPos::new(21, 11),
@@ -555,8 +555,10 @@ pub fn game_loop(
         handle_signals(sigs, gs, platform_api);
     }
 
-    // testing
-    {
+    // Get mouse grid position
+    let mouse_grid: GridPos = {
+        let mut val = GridPos::new(0, 0);
+
         let cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
         let pos = cam.screen_to_world(input.mouse.pos);
 
@@ -569,38 +571,10 @@ pub fn game_loop(
             VecThreeFloat::new(0.0, -1.0, 0.0),
         ) {
             let world_pos = cam.transform.local_position + (dir * len);
-            draw_sphere(world_pos, 0.1, COLOR_BLUE);
-
-            let mouse_grid: GridPos = world_to_grid(&world_pos.xz());
-            let world_grid = grid_to_world(&mouse_grid);
-
-            draw_sphere(world_grid, 0.1, COLOR_RED);
-
-            let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-            ct.local_rotation.y += 0.01;
-
-            draw_tile_world_new(
-                TileType::Grass,
-                0.0,
-                &world_grid,
-                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-                &gs.assets,
-            );
+            val = world_to_grid(&world_pos.xz());
         }
-    }
 
-    let mouse_grid: GridPos = {
-        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
-        // let mouse_world = cam_pack.camera.screen_to_world(input.mouse.pos);
-
-        let mouse_world = input.mouse.pos
-            + VecTwo::new(
-                cam_pack.camera.transform.local_position.x,
-                cam_pack.camera.transform.local_position.y,
-            );
-        let mouse_grid: GridPos = world_to_grid(&mouse_world);
-
-        mouse_grid
+        val
     };
 
     // placing tiles
@@ -658,17 +632,6 @@ pub fn game_loop(
         let world_snapshot = gs.world.get_world_snapshot();
 
         if gs.tile_placing.is_none() {
-            // todo!("new grid stuff here");
-
-            /*
-            let mouse_snapped: VecTwo = grid_to_world(&mouse_grid);
-            let mouse_snapped_screen = es
-                .render_packs
-                .get_mut(&RenderPackID::World)
-                .unwrap()
-                .camera
-                .world_to_screen(mouse_snapped);
-
             let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
 
             for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
@@ -682,20 +645,23 @@ pub fn game_loop(
 
                 // render hover rect
                 {
-                    let r = Rect::new(
-                        mouse_snapped_screen - VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
-                        mouse_snapped_screen + VecTwo::new(GRID_SIZE * 0.5, GRID_SIZE * 0.5),
-                    );
-
                     let mut mat = Material::new();
                     mat.shader = Some(es.shader_color);
-                    mat.set_color(Color::new(1.0, 1.0, 1.0, 0.5));
+                    mat.set_color(Color::new(1.0, 1.0, 1.0, 0.8));
+
+                    let mut trans = Transform::new();
+                    trans.local_position = grid_to_world(&mouse_grid);
+                    trans.update_global_matrix(&M44::new_identity());
 
                     es.render_packs
-                        .get_mut(&RenderPackID::UI)
+                        .get_mut(&RenderPackID::NewWorld)
                         .unwrap()
                         .commands
-                        .push(RenderCommand::new_rect_outline(&r, -1.0, 1.0, &mat));
+                        .push(RenderCommand::new_model(
+                            &trans,
+                            gs.assets.asset_library.get_model("tile_outline"),
+                            &mat,
+                        ));
                 }
 
                 // render info
@@ -721,7 +687,6 @@ pub fn game_loop(
                     );
                 }
             }
-            */
         }
 
         handle_signals(update_signals, gs, platform_api);
@@ -741,83 +706,6 @@ pub fn game_loop(
         .unwrap()
         .camera
         .move_fly(0.3, input);
-
-    /*
-    // new tile rendering
-    {
-        let mut trans = Transform::new();
-        trans.local_position = VecThreeFloat::new(0.0, 0.0, 0.0);
-        trans.update_global_matrix(&M44::new_identity());
-
-        let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-        ct.local_rotation.y += 0.01;
-
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .commands
-            .push(RenderCommand::new_model(
-                &trans,
-                &gs.assets.model_tile_grass,
-                &gs.assets.tile_grass_material,
-            ));
-    }
-    */
-
-    /*
-
-    // new tile rendering
-    {
-        let mut trans = Transform::new();
-        trans.local_position = VecThreeFloat::new(2.0, 0.0, 0.0);
-        trans.update_global_matrix(&M44::new_identity());
-
-        // let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-        // ct.local_rotation.y += 0.01;
-
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera
-            .move_fly(0.3, input);
-
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .commands
-            .push(RenderCommand::new_model(
-                &trans,
-                &gs.assets.model_tile_dirt,
-                &gs.assets.tile_dirt_material,
-            ));
-    }
-
-    // new tile rendering
-    {
-        let mut trans = Transform::new();
-        trans.local_position = VecThreeFloat::new(-2.0, 0.0, 0.0);
-        trans.update_global_matrix(&M44::new_identity());
-
-        // let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-        // ct.local_rotation.y += 0.01;
-
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera
-            .move_fly(0.3, input);
-
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .commands
-            .push(RenderCommand::new_model(
-                &trans,
-                &gs.assets.model_tile_water,
-                &gs.assets.tile_water_material,
-            ));
-    }
-    */
 
     es.render_packs
         .get_mut(&RenderPackID::UI)

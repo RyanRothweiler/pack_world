@@ -6,3 +6,7 @@ tile_grass
 
 tile
 tile_dirt
+
+model
+tile_outline
+models/tile_outline/tile_outline.obj

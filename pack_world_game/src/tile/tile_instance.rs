@@ -176,18 +176,19 @@ impl TileInstance {
                 );
             }
             _ => {
-                /*
                 let harvestable = self.get_component_harvestable();
                 let wander = self.get_component_wander();
 
                 // harvesting rotation
                 let mut rotation: f64 = 0.0;
+
                 if let Some(time_comp) = harvestable {
                     if time_comp.can_harvest() {
                         rotation = f64::sin(rot_time) * 7.0;
                     }
                 }
 
+                /*
                 // wander position
                 let mut render_pos = grid_to_world(pos);
                 if let Some(wander_state) = wander {
@@ -195,16 +196,7 @@ impl TileInstance {
                 }
                 */
 
-                /*
-                draw_tile_world_pos(
-                    self.tile_type,
-                    rotation,
-                    &render_pos,
-                    shader_color,
-                    render_pack,
-                    assets,
-                );
-                */
+                draw_tile_grid_pos(self.tile_type, rotation, &pos, render_pack, assets);
             }
         }
     }
