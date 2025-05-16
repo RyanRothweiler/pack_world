@@ -7,8 +7,6 @@ pub struct PlatformApi {
     pub epoch_time_ms: fn() -> f64,
     pub open_url: fn(url: String),
 
-    pub load_file: fn(path: &Path) -> Vec<u8>,
-
     pub write_save_game_data: fn(data: Vec<u8>) -> Result<(), Error>,
     pub fetch_game_save: fn(),
 }

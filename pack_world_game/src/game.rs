@@ -588,29 +588,16 @@ pub fn game_loop(
 
         // render tile placing
         let footprint = &tile.get_definition().footprint;
-
         for p in footprint {
             let pos = mouse_grid + *p;
 
-            let mut r = Rect::new_square(GRID_SIZE * 0.5);
-            todo!("new grid stuff here");
-            // r.set_center(grid_to_world(&pos));
-
-            let mut color = COLOR_WHITE;
-            if !can_place {
-                color = COLOR_RED;
-            }
-
-            let mut mat = Material::new();
-            mat.shader = Some(es.color_texture_shader);
-            mat.set_image(gs.assets.get_tile_icon(&tile));
-            mat.set_color(color);
-
-            es.render_packs
-                .get_mut(&RenderPackID::World)
-                .unwrap()
-                .commands
-                .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
+            draw_tile_grid_pos(
+                tile,
+                0.0,
+                &pos,
+                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                &gs.assets,
+            );
         }
 
         // place tile
@@ -640,7 +627,6 @@ pub fn game_loop(
                 // Harvesting
                 if input.mouse.button_left.pressing && tile.can_harvest() {
                     tile.harvest(&world_snapshot, platform_api);
-                    // println!("harvest sigs {:?}", update_signals);
                 }
 
                 // render hover rect

@@ -104,7 +104,6 @@ impl World {
 
                 let types_removed = self.remove_tile(pos, tile_layer);
                 for t in types_removed {
-                    todo!("add third dimension");
 
                     /*
                     ret.push(UpdateSignal::AddHarvestDrop {

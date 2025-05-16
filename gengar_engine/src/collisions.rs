@@ -23,7 +23,7 @@ mod test {
 
     #[test]
     pub fn plane_intersection_distance() {
-        let d = Camera::plane_intersection_distance(
+        let d = super::plane_intersection_distance(
             VecThreeFloat::new(0.0, 0.0, 10.0),
             VecThreeFloat::new(0.0, 0.0, -1.0),
             VecThreeFloat::new(0.0, 0.0, 0.0),
