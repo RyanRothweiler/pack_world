@@ -4,133 +4,20 @@ use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
     render::{
-        camera::*, image::Image, render_command::*, render_pack::*, shader::*, vao::Vao,
-        RenderApi as EngineRenderApiTrait, ShaderType,
+        camera::*, frame_buffer_pack::*, image::Image, render_command::*, render_pack::*,
+        shader::*, vao::Vao, RenderApi as EngineRenderApiTrait, ShaderType,
     },
     state::State as EngineState,
     vectors::*,
 };
 
-const GL_VERTEX_SHADER: i32 = 0x8B31;
-const GL_FRAGMENT_SHADER: i32 = 0x8B30;
-const GL_COMPILE_STATUS: i32 = 0x8B81;
-const GL_LINK_STATUS: i32 = 0x8B82;
-const GL_ARRAY_BUFFER: i32 = 0x8892;
-const GL_STATIC_DRAW: i32 = 0x88E4;
-const GL_ELEMENT_ARRAY_BUFFER: i32 = 0x8893;
-const GL_TEXTURE_2D: i32 = 0x0DE1;
+mod gl_types;
 
-const GL_TRIANGLES: i32 = 0x0004;
+use gl_types::*;
 
-const GL_TEXTURE0: i32 = 0x84C0;
-
-// const GL_TRUE: i32 = 1;
-const GL_FALSE: i32 = 0;
-
-const RG: i32 = 0x8227;
-const RG16: i32 = 0x822C;
-const RG16F: i32 = 0x822F;
-const RG16I: i32 = 0x8239;
-const RG16UI: i32 = 0x823A;
-const RG16_SNORM: i32 = 0x8F99;
-const RG32F: i32 = 0x8230;
-const RG32I: i32 = 0x823B;
-const RG32UI: i32 = 0x823C;
-const RG8: i32 = 0x822B;
-const RG8I: i32 = 0x8237;
-const RG8UI: i32 = 0x8238;
-const RG8_SNORM: i32 = 0x8F95;
-const RGB: i32 = 0x1907;
-const RGB10: i32 = 0x8052;
-const RGB10_A2: i32 = 0x8059;
-const RGB10_A2UI: i32 = 0x906F;
-const RGB12: i32 = 0x8053;
-const RGB16: i32 = 0x8054;
-const RGB16F: i32 = 0x881B;
-const RGB16I: i32 = 0x8D89;
-const RGB16UI: i32 = 0x8D77;
-const RGB16_SNORM: i32 = 0x8F9A;
-const RGB32F: i32 = 0x8815;
-const RGB32I: i32 = 0x8D83;
-const RGB32UI: i32 = 0x8D71;
-const RGB4: i32 = 0x804F;
-const RGB5: i32 = 0x8050;
-const RGB5_A1: i32 = 0x8057;
-const RGB8: i32 = 0x8051;
-const RGB8I: i32 = 0x8D8F;
-const RGB8UI: i32 = 0x8D7D;
-const RGB8_SNORM: i32 = 0x8F96;
-const RGB9_E5: i32 = 0x8C3D;
-const RGBA: i32 = 0x1908;
-const RGBA12: i32 = 0x805A;
-const RGBA16: i32 = 0x805B;
-const RGBA16F: i32 = 0x881A;
-const RGBA16I: i32 = 0x8D88;
-const RGBA16UI: i32 = 0x8D76;
-const RGBA16_SNORM: i32 = 0x8F9B;
-const RGBA2: i32 = 0x8055;
-const RGBA32F: i32 = 0x8814;
-const RGBA32I: i32 = 0x8D82;
-const RGBA32UI: i32 = 0x8D70;
-const RGBA4: i32 = 0x8056;
-const RGBA8: i32 = 0x8058;
-const RGBA8I: i32 = 0x8D8E;
-const RGBA8UI: i32 = 0x8D7C;
-const RGBA8_SNORM: i32 = 0x8F97;
-const RGBA_INTEGER: i32 = 0x8D99;
-const RGB_INTEGER: i32 = 0x8D98;
-const RG_INTEGER: i32 = 0x8228;
-
-const UNSIGNED_BYTE: i32 = 0x1401;
-const UNSIGNED_BYTE_2_3_3_REV: i32 = 0x8362;
-const UNSIGNED_BYTE_3_3_2: i32 = 0x8032;
-const UNSIGNED_INT: i32 = 0x1405;
-const UNSIGNED_INT_10F_11F_11F_REV: i32 = 0x8C3B;
-const UNSIGNED_INT_10_10_10_2: i32 = 0x8036;
-const UNSIGNED_INT_24_8: i32 = 0x84FA;
-const UNSIGNED_INT_2_10_10_10_REV: i32 = 0x8368;
-const UNSIGNED_INT_5_9_9_9_REV: i32 = 0x8C3E;
-const UNSIGNED_INT_8_8_8_8: i32 = 0x8035;
-const UNSIGNED_INT_8_8_8_8_REV: i32 = 0x8367;
-const UNSIGNED_INT_SAMPLER_1D: i32 = 0x8DD1;
-const UNSIGNED_INT_SAMPLER_1D_ARRAY: i32 = 0x8DD6;
-const UNSIGNED_INT_SAMPLER_2D: i32 = 0x8DD2;
-const UNSIGNED_INT_SAMPLER_2D_ARRAY: i32 = 0x8DD7;
-const UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE: i32 = 0x910A;
-const UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY: i32 = 0x910D;
-const UNSIGNED_INT_SAMPLER_2D_RECT: i32 = 0x8DD5;
-const UNSIGNED_INT_SAMPLER_3D: i32 = 0x8DD3;
-const UNSIGNED_INT_SAMPLER_BUFFER: i32 = 0x8DD8;
-const UNSIGNED_INT_SAMPLER_CUBE: i32 = 0x8DD4;
-const UNSIGNED_INT_VEC2: i32 = 0x8DC6;
-const UNSIGNED_INT_VEC3: i32 = 0x8DC7;
-const UNSIGNED_INT_VEC4: i32 = 0x8DC8;
-const UNSIGNED_NORMALIZED: i32 = 0x8C17;
-const UNSIGNED_SHORT: i32 = 0x1403;
-const UNSIGNED_SHORT_1_5_5_5_REV: i32 = 0x8366;
-const UNSIGNED_SHORT_4_4_4_4: i32 = 0x8033;
-const UNSIGNED_SHORT_4_4_4_4_REV: i32 = 0x8365;
-const UNSIGNED_SHORT_5_5_5_1: i32 = 0x8034;
-const UNSIGNED_SHORT_5_6_5: i32 = 0x8363;
-const UNSIGNED_SHORT_5_6_5_REV: i32 = 0x8364;
-
-const GL_ONE_MINUS_SRC_ALPHA: u32 = 0x0303;
-const GL_SRC_ALPHA: u32 = 0x0302;
-
-const GL_BLEND: u32 = 0x0BE2;
-const GL_DEPTH_TEST: u32 = 0x0B71;
-const GL_LEQUAL: u32 = 0x0203;
-const GL_GEQUAL: u32 = 0x0206;
-
-const GL_TEXTURE_MAG_FILTER: u32 = 0x2800;
-const GL_TEXTURE_MIN_FILTER: u32 = 0x2801;
-const GL_LINEAR: u32 = 0x2601;
-
-const GL_FRAMEBUFFER_SRGB: u32 = 0x8DB9;
-const GL_SRGB: u32 = 0x8C40;
-const GL_SRGB8: u32 = 0x8C41;
-const GL_SRGB8_ALPHA8: u32 = 0x8C43;
-const GL_SRGB_ALPHA: u32 = 0x8C42;
+// Adjust the viewport to take into account the windows titlebar area.
+// Really not a great solution and obviously will break on other platforms.
+const WINDOWS_TITLE_BAR_ADJ: i32 = 40;
 
 // Platform implementation of these
 pub trait OGLPlatformImpl {
@@ -160,10 +47,13 @@ pub trait OGLPlatformImpl {
         target: u32,
         gl_storage_format: i32,
         image_format: u32,
-        image_pixel_format: u32,
-        image: &Image,
+        image_pixel_type: u32,
+        width: i32,
+        height: i32,
+        image_data: Option<&Vec<u8>>,
     );
     fn enable(&self, feature: u32);
+    fn disable(&self, feature: u32);
     fn depth_func(&self, func: u32);
     fn blend_func(&self, func: u32, setting: u32);
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32);
@@ -190,6 +80,12 @@ pub trait OGLPlatformImpl {
     fn uniform_3fv(&self, loc: i32, count: i32, data: &VecThreeFloat);
     fn uniform_1f(&self, loc: i32, data: f32);
     fn uniform_1i(&self, loc: i32, data: i32);
+
+    fn gen_frame_buffers(&self, count: i32, id: *mut u32);
+    fn bind_frame_buffer(&self, ty: u32, id: u32);
+    fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32);
+    fn check_frame_buffer_status(&self, ty: u32) -> u32;
+    fn draw_buffers(&self, ty: i32, attachments: Vec<u32>);
 }
 
 pub struct OglRenderApi {
@@ -351,10 +247,139 @@ impl EngineRenderApiTrait for OglRenderApi {
             RGBA,
             RGBA as u32,
             UNSIGNED_BYTE as u32,
-            &image,
+            image.width as i32,
+            image.height as i32,
+            Some(&image.data),
         );
 
         Ok(tex_id)
+    }
+
+    fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, EngineError> {
+        let mut pack = FrameBufferPack {
+            frame_buffer: 0,
+            color_buffer: 0,
+        };
+
+        // framebuffer
+        self.platform_api
+            .gen_frame_buffers(1, &mut pack.frame_buffer);
+        self.platform_api
+            .bind_frame_buffer(GL_FRAMEBUFFER, pack.frame_buffer);
+
+        // color texture
+        {
+            self.platform_api.gen_textures(1, &mut pack.color_buffer);
+            self.platform_api
+                .bind_texture(GL_TEXTURE_2D, pack.color_buffer);
+            self.platform_api.tex_image_2d(
+                GL_TEXTURE_2D as u32,
+                RGBA,
+                RGBA as u32,
+                UNSIGNED_BYTE as u32,
+                width,
+                height,
+                None,
+            );
+            self.platform_api.tex_parameter_i(
+                GL_TEXTURE_2D as u32,
+                GL_TEXTURE_MAG_FILTER,
+                GL_LINEAR as i32,
+            );
+            self.platform_api.tex_parameter_i(
+                GL_TEXTURE_2D as u32,
+                GL_TEXTURE_MIN_FILTER,
+                GL_LINEAR as i32,
+            );
+
+            // attach to framebuffer object
+            self.platform_api.frame_buffer_2d(
+                GL_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0 as u32,
+                GL_TEXTURE_2D as u32,
+                pack.color_buffer,
+                0,
+            );
+
+            self.platform_api.bind_texture(GL_TEXTURE_2D, 0);
+        }
+
+        /*
+        // color texture
+        {
+            let mut ds: u32 = 0;
+            self.platform_api.gen_textures(1, &mut ds);
+            self.platform_api.bind_texture(GL_TEXTURE_2D, ds);
+            self.platform_api.tex_image_2d(
+                GL_TEXTURE_2D as u32,
+                GL_DEPTH24_STENCIL8 as i32,
+                RGBA as u32,
+                UNSIGNED_BYTE as u32,
+                width,
+                height,
+                None,
+            );
+            self.platform_api.tex_parameter_i(
+                GL_TEXTURE_2D as u32,
+                GL_TEXTURE_MAG_FILTER,
+                GL_LINEAR as i32,
+            );
+            self.platform_api.tex_parameter_i(
+                GL_TEXTURE_2D as u32,
+                GL_TEXTURE_MIN_FILTER,
+                GL_LINEAR as i32,
+            );
+
+            // attach to framebuffer object
+            self.platform_api.frame_buffer_2d(
+                GL_FRAMEBUFFER,
+                GL_DEPTH_STENCIL_ATTACHMENT as u32,
+                GL_TEXTURE_2D as u32,
+                ds,
+                0,
+            );
+
+            self.platform_api.bind_texture(GL_TEXTURE_2D, 0);
+        }
+        */
+
+        self.platform_api
+            .draw_buffers(1, vec![GL_COLOR_ATTACHMENT0]);
+
+        let status = self.platform_api.check_frame_buffer_status(GL_FRAMEBUFFER);
+        if status != GL_FRAMEBUFFER_COMPLETE {
+            panic!("Framebuffer is incomplete");
+        }
+
+        self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, 0);
+
+        Ok(pack)
+    }
+
+    fn draw_frame_buffer(&self, frame_buffer: u32, render_pack: &mut RenderPack) {
+        self.platform_api
+            .bind_frame_buffer(GL_FRAMEBUFFER, frame_buffer);
+
+        self.platform_api.viewport(
+            0,
+            0,
+            render_pack.camera.resolution.x as i32,
+            render_pack.camera.resolution.y as i32,
+        );
+
+        self.platform_api.enable(GL_DEPTH_TEST);
+        self.platform_api.enable(GL_BLEND);
+        self.platform_api
+            .blend_func(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        self.platform_api.depth_func(GL_LEQUAL);
+
+        self.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
+        self.platform_api.clear();
+
+        render_render_pack(VecThreeFloat::new(0.0, 0.0, 0.0), render_pack, self);
+
+        self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, 0);
     }
 }
 
@@ -364,13 +389,9 @@ pub fn render(
     resolution: &VecTwo,
     render_api: &OglRenderApi,
 ) {
-    // Adjust the viewport to take into account the windows titlebar area.
-    // Really not a great solution and obviously will break on other platforms.
-    let windows_title_bar_adj = 40;
-
     render_api.platform_api.viewport(
         0,
-        -windows_title_bar_adj,
+        -WINDOWS_TITLE_BAR_ADJ,
         resolution.x as i32,
         resolution.y as i32,
     );

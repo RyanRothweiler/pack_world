@@ -2,13 +2,20 @@ use png::*;
 use std::{fs::File, io::Cursor, path::Path};
 
 use crate::{
-    error::*, model::*, rect::*, render::material::Material, state::*, transform::*, vectors::*,
+    error::*,
+    model::*,
+    rect::*,
+    render::{frame_buffer_pack::*, material::Material, render_pack::*},
+    state::*,
+    transform::*,
+    vectors::*,
 };
 use image::*;
 use render_command::*;
 use shader::*;
 
 pub mod camera;
+pub mod frame_buffer_pack;
 pub mod image;
 pub mod material;
 pub mod render_command;
@@ -38,6 +45,9 @@ pub trait RenderApi {
         data: &Vec<VecTwo>,
         location: u32,
     ) -> Result<u32, Error>;
+
+    fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, Error>;
+    fn draw_frame_buffer(&self, frame_buffer: u32, render_pack: &mut RenderPack);
 }
 
 pub enum ShaderType {

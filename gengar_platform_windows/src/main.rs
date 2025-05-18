@@ -82,6 +82,7 @@ type FuncGameLoop = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
     &mut gengar_engine::input::Input,
+    &gengar_render_opengl::OglRenderApi,
     &PlatformApi,
 );
 
@@ -435,6 +436,7 @@ fn main() {
                     &mut game_state,
                     &mut engine_state,
                     &mut input,
+                    &render_api,
                     &platform_api,
                 );
             } else {
@@ -443,6 +445,7 @@ fn main() {
                     &mut game_state,
                     &mut engine_state,
                     &mut input,
+                    &render_api,
                     &platform_api,
                 );
             }
@@ -624,7 +627,7 @@ unsafe fn load_game_dll() -> std::result::Result<GameDll, EngineError> {
 
 unsafe fn get_game_procs_from_dll(dll: HMODULE) -> std::result::Result<GameDll, EngineError> {
     let init_proc = GetProcAddress(dll, s!("game_init_ogl"));
-    let loop_proc = GetProcAddress(dll, s!("game_loop"));
+    let loop_proc = GetProcAddress(dll, s!("game_loop_ogl"));
 
     let dll = GameDll {
         dll_handle: dll,

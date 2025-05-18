@@ -348,6 +348,7 @@ pub fn main_loop() {
             GAME_STATE.as_mut().unwrap(),
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
+            RENDER_API.as_mut().unwrap(),
             &platform_api,
         );
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());

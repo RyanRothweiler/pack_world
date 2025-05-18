@@ -6,7 +6,7 @@ use crate::{
 };
 use gengar_engine::{
     model::*,
-    render::{image::Image, material::*, vao::*},
+    render::{frame_buffer_pack::*, image::Image, material::*, vao::*},
     state::State as EngineState,
     transform::*,
     typeface::*,
@@ -55,6 +55,8 @@ pub struct State {
     pub rotate_time: f64,
 
     pub ui_context: Option<UIContext>,
+
+    pub test_frame_buffer: FrameBufferPack,
 }
 
 impl State {
@@ -88,6 +90,8 @@ impl State {
             rotate_time: 0.0,
 
             ui_context: None,
+
+            test_frame_buffer: FrameBufferPack::new(),
         }
     }
 }

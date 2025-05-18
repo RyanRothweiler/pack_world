@@ -8,7 +8,7 @@
     clippy::all
 )]
 
-use gengar_engine::{matricies::matrix_four_four::*, render::image::Image, vectors::*};
+use gengar_engine::{matricies::matrix_four_four::*, vectors::*};
 use gengar_render_opengl::*;
 
 use libc;
@@ -58,6 +58,14 @@ type func_glUniform3fv = extern "stdcall" fn(i32, i32, *const f32);
 type func_glUniform4fv = extern "stdcall" fn(i32, i32, *const f32);
 type func_glUniformMatrix4fv = extern "stdcall" fn(i32, i32, bool, *const f32);
 
+type func_glGenFramebuffers = extern "stdcall" fn(i32, *mut u32);
+type func_glBindFramebuffer = extern "stdcall" fn(u32, u32);
+type func_glFrameBufferTexture2D = extern "stdcall" fn(u32, u32, u32, u32, i32);
+
+type func_glCheckFramebufferStatus = extern "stdcall" fn(u32) -> u32;
+
+type func_glDrawBuffers = extern "stdcall" fn(i32, *const u32);
+
 pub struct WglMethods {
     glActiveTexture: func_glActiveTexture,
     glBindTexture: func_glBindTexture,
@@ -90,6 +98,12 @@ pub struct WglMethods {
     glUniform3fv: func_glUniform3fv,
     glUniform4fv: func_glUniform4fv,
     glUniformMatrix4fv: func_glUniformMatrix4fv,
+
+    glGenFramebuffers: func_glGenFramebuffers,
+    glBindFramebuffer: func_glBindFramebuffer,
+    glFramebufferTexture2D: func_glFrameBufferTexture2D,
+    glCheckFrameBufferStatus: func_glCheckFramebufferStatus,
+    glDrawBuffers: func_glDrawBuffers,
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
@@ -123,6 +137,10 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
             output_length,
             output_buffer.as_mut_ptr(),
         );
+    }
+
+    fn draw_buffers(&self, ty: i32, attachments: Vec<u32>) {
+        (self.glDrawBuffers)(ty, attachments.as_ptr());
     }
 
     fn create_program(&self) -> u32 {
@@ -209,8 +227,24 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glGenTextures)(count, id);
     }
 
+    fn gen_frame_buffers(&self, count: i32, id: *mut u32) {
+        (self.glGenFramebuffers)(count, id);
+    }
+
     fn bind_texture(&self, typ: i32, id: u32) {
         (self.glBindTexture)(typ, id);
+    }
+
+    fn bind_frame_buffer(&self, typ: u32, id: u32) {
+        (self.glBindFramebuffer)(typ, id);
+    }
+
+    fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32) {
+        (self.glFramebufferTexture2D)(target, attachment, ty, textarget, level);
+    }
+
+    fn check_frame_buffer_status(&self, ty: u32) -> u32 {
+        (self.glCheckFrameBufferStatus)(ty)
     }
 
     fn tex_parameter_i(&self, target: u32, pname: u32, param: i32) {
@@ -225,19 +259,26 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         gl_storage_format: i32,
         image_format: u32,
         image_pixel_type: u32,
-        image: &Image,
+        width: i32,
+        height: i32,
+        image_data: Option<&Vec<u8>>,
     ) {
         let mip_level: i32 = 0;
         let border = 0;
-        let data_ptr = image.data.as_ptr() as *const libc::c_void;
+
+        // image.data.as_ptr() as *const libc::c_void;
+        let data_ptr = match image_data {
+            Some(v) => v.as_ptr() as *const libc::c_void,
+            None => std::ptr::null(),
+        };
 
         unsafe {
             glTexImage2D(
                 target,
                 mip_level,
                 gl_storage_format,
-                image.width as i32,
-                image.height as i32,
+                width,
+                height,
                 border,
                 image_format,
                 image_pixel_type,
@@ -249,6 +290,12 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
     fn enable(&self, feature: u32) {
         unsafe {
             glEnable(feature);
+        }
+    }
+
+    fn disable(&self, feature: u32) {
+        unsafe {
+            glDisable(feature);
         }
     }
 
@@ -360,6 +407,12 @@ pub fn get_ogl_render_api() -> OglRenderApi {
             glUniform3fv: wgl_get_proc_address!(s!("glUniform3fv")),
             glUniform4fv: wgl_get_proc_address!(s!("glUniform4fv")),
             glUniformMatrix4fv: wgl_get_proc_address!(s!("glUniformMatrix4fv")),
+
+            glGenFramebuffers: wgl_get_proc_address!(s!("glGenFramebuffers")),
+            glBindFramebuffer: wgl_get_proc_address!(s!("glBindFramebuffer")),
+            glFramebufferTexture2D: wgl_get_proc_address!(s!("glFramebufferTexture2D")),
+            glCheckFrameBufferStatus: wgl_get_proc_address!(s!("glCheckFramebufferStatus")),
+            glDrawBuffers: wgl_get_proc_address!(s!("glDrawBuffers")),
         }
     };
 

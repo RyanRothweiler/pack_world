@@ -1,7 +1,10 @@
 use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
-    render::{image::Image, vao::Vao, RenderApi as EngineRenderApiTrait, ShaderType},
+    render::{
+        frame_buffer_pack::*, image::Image, render_pack::*, vao::Vao,
+        RenderApi as EngineRenderApiTrait, ShaderType,
+    },
     vectors::*,
 };
 use web_sys::{
@@ -306,6 +309,14 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         gl_state.textures.insert(tex_id, tex);
 
         Ok(tex_id)
+    }
+
+    fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, EngineError> {
+        todo!("Implement webgl framebuffer work");
+    }
+
+    fn draw_frame_buffer(&self, frame_buffer: u32, render_pack: &mut RenderPack) {
+        todo!("Implement webgl framebuffer work");
     }
 }
 

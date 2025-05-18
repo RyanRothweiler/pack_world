@@ -196,24 +196,15 @@ pub fn game_init(
 
     // init camera
     {
-        es.render_packs
+        let mut cam = &mut es
+            .render_packs
             .get_mut(&RenderPackID::NewWorld)
             .unwrap()
-            .camera
-            .transform
-            .local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
+            .camera;
 
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera
-            .pitch = 55.0;
-
-        es.render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera
-            .yaw = 90.0
+        cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
+        cam.pitch = 55.0;
+        cam.yaw = 90.0;
     }
 
     gs.light_trans = Some(es.new_transform());
@@ -275,6 +266,10 @@ pub fn game_init(
     {
         gs.debug_state.debug_panel = Some(UIPanel::DebugPanel(DebugPanel {}));
     }
+
+    gs.test_frame_buffer = render_api
+        .build_frame_buffer(128, 128)
+        .expect("Invalid framebuffer");
 }
 
 fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
@@ -285,13 +280,26 @@ fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
     handle_signals(update_signals, gs, platform_api);
 }
 
-// Prev delta time is in seconds. So for 60 fps 0.016666.
+// The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
+pub fn game_loop_ogl(
+    prev_delta_time: f64,
+    gs: &mut State,
+    es: &mut EngineState,
+    input: &mut Input,
+    render_api: &OglRenderApi,
+    platform_api: &PlatformApi,
+) {
+    game_loop(prev_delta_time, gs, es, input, render_api, platform_api);
+}
+
+// Prev delta time is in seconds. So for 60 fps 0.016666.
 pub fn game_loop(
     prev_delta_time: f64,
     gs: &mut State,
     es: &mut EngineState,
     input: &mut Input,
+    render_api: &impl RenderApi,
     platform_api: &PlatformApi,
 ) {
     gengar_engine::debug::init_context(
@@ -301,6 +309,33 @@ pub fn game_loop(
         es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
+
+    // framebuffer test
+    {
+        let mut render_pack = RenderPack::new(
+            ProjectionType::Perspective { focal_length: 0.95 },
+            VecTwo::new(128.0, 128.0),
+        );
+
+        let world_cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
+
+        let mut cam = &mut render_pack.camera;
+        cam.transform.local_position = world_cam.transform.local_position;
+        cam.pitch = world_cam.pitch;
+        cam.yaw = world_cam.yaw;
+
+        cam.update_matricies();
+
+        draw_tile_world_pos(
+            TileType::Dirt,
+            0.0,
+            &VecThreeFloat::new_zero(),
+            &mut render_pack,
+            &gs.assets,
+        );
+
+        render_api.draw_frame_buffer(gs.test_frame_buffer.frame_buffer, &mut render_pack);
+    }
 
     // update ui_context
     {
@@ -420,6 +455,17 @@ pub fn game_loop(
 
         // Update input
         input.mouse.button_left.on_press = ui_frame_state.mouse_left;
+    }
+
+    // frame buffer drawing test
+    {
+        draw_image(
+            Rect::new_center(VecTwo::new(200.0, 500.0), VecTwo::new(100.0, 100.0)),
+            gs.test_frame_buffer.color_buffer,
+            COLOR_WHITE,
+            &mut ui_frame_state,
+            &mut gs.ui_context.as_mut().unwrap(),
+        );
     }
 
     // debug panel
@@ -586,7 +632,7 @@ pub fn game_loop(
 
         let can_place = tile.can_place_here(mouse_grid, &gs.world);
 
-        // render tile placing
+        // ren1der tile placing
         let footprint = &tile.get_definition().footprint;
         for p in footprint {
             let pos = mouse_grid + *p;
