@@ -1235,7 +1235,7 @@ pub type GLvdpauSurfaceNV = GLintptr;
             pub unsafe fn GenQueries(n: types::GLsizei, ids: *mut types::GLuint) -> () { __gl_imports::mem::transmute::<_, extern "system" fn(types::GLsizei, *mut types::GLuint) -> ()>(storage::GenQueries.f)(n, ids) }
 /// Fallbacks: GenRenderbuffersEXT
 #[allow(non_snake_case, unused_variables, dead_code)] #[inline]
-            pub unsafe fn GenRenderbuffers(n: types::GLsizei, renderbuffers: *mut types::GLuint) -> () { __gl_imports::mem::transmute::<_, extern "system" fn(types::GLsizei, *mut types::GLuint) -> ()>(storage::GenRenderbuffers.f)(n, renderbuffers) }
+            pub unsafe fn GenRecnderbuffers(n: types::GLsizei, renderbuffers: *mut types::GLuint) -> () { __gl_imports::mem::transmute::<_, extern "system" fn(types::GLsizei, *mut types::GLuint) -> ()>(storage::GenRenderbuffers.f)(n, renderbuffers) }
 #[allow(non_snake_case, unused_variables, dead_code)] #[inline]
             pub unsafe fn GenSamplers(count: types::GLsizei, samplers: *mut types::GLuint) -> () { __gl_imports::mem::transmute::<_, extern "system" fn(types::GLsizei, *mut types::GLuint) -> ()>(storage::GenSamplers.f)(count, samplers) }
 #[allow(non_snake_case, unused_variables, dead_code)] #[inline]

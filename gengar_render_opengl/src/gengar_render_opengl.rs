@@ -86,6 +86,11 @@ pub trait OGLPlatformImpl {
     fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32);
     fn check_frame_buffer_status(&self, ty: u32) -> u32;
     fn draw_buffers(&self, ty: i32, attachments: Vec<u32>);
+
+    fn gen_render_buffers(&self, count: i32, id: *mut u32);
+    fn bind_render_buffer(&self, ty: u32, id: u32);
+    fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32);
+    fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32);
 }
 
 pub struct OglRenderApi {
@@ -304,47 +309,36 @@ impl EngineRenderApiTrait for OglRenderApi {
             self.platform_api.bind_texture(GL_TEXTURE_2D, 0);
         }
 
-        /*
-        // color texture
+        // depth and stencil buffers
         {
-            let mut ds: u32 = 0;
-            self.platform_api.gen_textures(1, &mut ds);
-            self.platform_api.bind_texture(GL_TEXTURE_2D, ds);
-            self.platform_api.tex_image_2d(
-                GL_TEXTURE_2D as u32,
-                GL_DEPTH24_STENCIL8 as i32,
-                RGBA as u32,
-                UNSIGNED_BYTE as u32,
+            let mut rbo: u32 = 0;
+
+            self.platform_api.gen_render_buffers(1, &mut rbo);
+            self.platform_api.bind_render_buffer(GL_RENDERBUFFER, rbo);
+            self.platform_api.render_buffer_storage(
+                GL_RENDERBUFFER,
+                GL_DEPTH24_STENCIL8,
                 width,
                 height,
-                None,
             );
-            self.platform_api.tex_parameter_i(
-                GL_TEXTURE_2D as u32,
-                GL_TEXTURE_MAG_FILTER,
-                GL_LINEAR as i32,
-            );
-            self.platform_api.tex_parameter_i(
-                GL_TEXTURE_2D as u32,
-                GL_TEXTURE_MIN_FILTER,
-                GL_LINEAR as i32,
-            );
+            self.platform_api.bind_render_buffer(GL_RENDERBUFFER, 0);
 
-            // attach to framebuffer object
-            self.platform_api.frame_buffer_2d(
+            self.platform_api.frame_buffer_render_buffer(
                 GL_FRAMEBUFFER,
-                GL_DEPTH_STENCIL_ATTACHMENT as u32,
-                GL_TEXTURE_2D as u32,
-                ds,
-                0,
+                GL_DEPTH_STENCIL_ATTACHMENT,
+                GL_RENDERBUFFER,
+                rbo,
             );
-
-            self.platform_api.bind_texture(GL_TEXTURE_2D, 0);
         }
-        */
 
-        self.platform_api
-            .draw_buffers(1, vec![GL_COLOR_ATTACHMENT0]);
+        self.platform_api.draw_buffers(
+            3,
+            vec![
+                GL_COLOR_ATTACHMENT0,
+                GL_COLOR_ATTACHMENT1,
+                GL_COLOR_ATTACHMENT2,
+            ],
+        );
 
         let status = self.platform_api.check_frame_buffer_status(GL_FRAMEBUFFER);
         if status != GL_FRAMEBUFFER_COMPLETE {
@@ -377,7 +371,7 @@ impl EngineRenderApiTrait for OglRenderApi {
         self.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
         self.platform_api.clear();
 
-        render_render_pack(VecThreeFloat::new(0.0, 0.0, 0.0), render_pack, self);
+        render_render_pack(VecThreeFloat::new(100.0, 100.0, 0.0), render_pack, self);
 
         self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, 0);
     }

@@ -268,7 +268,7 @@ pub fn game_init(
     }
 
     gs.test_frame_buffer = render_api
-        .build_frame_buffer(128, 128)
+        .build_frame_buffer(512, 512)
         .expect("Invalid framebuffer");
 }
 
@@ -314,7 +314,7 @@ pub fn game_loop(
     {
         let mut render_pack = RenderPack::new(
             ProjectionType::Perspective { focal_length: 0.95 },
-            VecTwo::new(128.0, 128.0),
+            VecTwo::new(512.0, 512.0),
         );
 
         let world_cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;

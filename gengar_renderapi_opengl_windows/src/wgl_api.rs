@@ -66,6 +66,11 @@ type func_glCheckFramebufferStatus = extern "stdcall" fn(u32) -> u32;
 
 type func_glDrawBuffers = extern "stdcall" fn(i32, *const u32);
 
+type func_GenRenderbuffers = extern "stdcall" fn(i32, *mut u32);
+type func_BindRenderbuffer = extern "stdcall" fn(u32, u32);
+type func_RenderbufferStorage = extern "stdcall" fn(u32, u32, i32, i32);
+type func_FramebufferRenderbuffer = extern "stdcall" fn(u32, u32, u32, u32);
+
 pub struct WglMethods {
     glActiveTexture: func_glActiveTexture,
     glBindTexture: func_glBindTexture,
@@ -104,6 +109,11 @@ pub struct WglMethods {
     glFramebufferTexture2D: func_glFrameBufferTexture2D,
     glCheckFrameBufferStatus: func_glCheckFramebufferStatus,
     glDrawBuffers: func_glDrawBuffers,
+
+    glGenRenderbuffers: func_GenRenderbuffers,
+    glBindRenderbuffer: func_BindRenderbuffer,
+    glRenderbufferStorage: func_RenderbufferStorage,
+    glFramebufferRenderbuffer: func_FramebufferRenderbuffer,
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
@@ -316,7 +326,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
     }
 
     fn clear(&self) {
-        unsafe { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) };
+        unsafe { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT) };
     }
 
     fn use_program(&self, prog_id: u32) {
@@ -369,6 +379,22 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
             glViewport(x, y, width, height);
         }
     }
+
+    fn gen_render_buffers(&self, count: i32, id: *mut u32) {
+        (self.glGenRenderbuffers)(count, id);
+    }
+
+    fn bind_render_buffer(&self, ty: u32, id: u32) {
+        (self.glBindRenderbuffer)(ty, id);
+    }
+
+    fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32) {
+        (self.glRenderbufferStorage)(ty, stor_type, width, height);
+    }
+
+    fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32) {
+        (self.glFramebufferRenderbuffer)(target, ty, tar, rbid);
+    }
 }
 
 static mut extern_global_wgl_methods: Option<WglMethods> = None;
@@ -413,6 +439,10 @@ pub fn get_ogl_render_api() -> OglRenderApi {
             glFramebufferTexture2D: wgl_get_proc_address!(s!("glFramebufferTexture2D")),
             glCheckFrameBufferStatus: wgl_get_proc_address!(s!("glCheckFramebufferStatus")),
             glDrawBuffers: wgl_get_proc_address!(s!("glDrawBuffers")),
+            glGenRenderbuffers: wgl_get_proc_address!(s!("glGenRenderbuffers")),
+            glBindRenderbuffer: wgl_get_proc_address!(s!("glBindRenderbuffer")),
+            glRenderbufferStorage: wgl_get_proc_address!(s!("glRenderbufferStorage")),
+            glFramebufferRenderbuffer: wgl_get_proc_address!(s!("glFramebufferRenderbuffer")),
         }
     };
 
