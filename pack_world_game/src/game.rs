@@ -306,9 +306,6 @@ pub fn game_loop(
     );
     gengar_engine::debug::frame_start();
 
-    // framebuffer test
-    {}
-
     // update ui_context
     {
         let ui_context = gs.ui_context.get_or_insert(UIContext {
@@ -333,27 +330,6 @@ pub fn game_loop(
 
     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
 
-    #[cfg(feature = "dev")]
-    {
-        let fps = 1.0 / prev_delta_time;
-        let g = 0.3;
-        draw_text(
-            &format!(
-                "{:?}fps {:?}ms",
-                fps as i32,
-                (prev_delta_time * 1000.0) as i32
-            ),
-            VecTwo::new(
-                es.window_resolution.x - 140.0,
-                es.window_resolution.y - 60.0,
-            ),
-            Color::new(g, g, g, 1.0),
-            &gs.font_style_body,
-            &mut ui_frame_state,
-            &mut gs.ui_context.as_mut().unwrap(),
-        );
-    }
-
     // render tile thumbnails.
     // use the hash map to know which tiles to render.
     {
@@ -365,40 +341,8 @@ pub fn game_loop(
         }
 
         for tile_type in tiles_to_render {
-            // make frame buffer
-            let buffer_pack = render_api
-                .build_frame_buffer(512, 512)
-                .expect("Error building framebuffer pack");
-
-            // draw the tile into the framebuffer
-            let mut render_pack = RenderPack::new(
-                ProjectionType::Perspective { focal_length: 0.95 },
-                VecTwo::new(512.0, 512.0),
-            );
-
-            let mut cam = &mut render_pack.camera;
-            cam.transform.local_position = VecThreeFloat::new(-3.5, 5.2, 3.8);
-            cam.pitch = 44.0;
-            cam.yaw = 133.2;
-
-            cam.update_matricies();
-
-            draw_tile_world_pos(
-                tile_type,
-                0.0,
-                &VecThreeFloat::new_zero(),
-                &mut render_pack,
-                &gs.assets,
-            );
-
-            render_api.draw_frame_buffer(buffer_pack.frame_buffer, &mut render_pack);
-
-            // add to tiles hashmap
             gs.assets
-                .tile_thumbnails
-                .insert(tile_type, Some(buffer_pack));
-
-            println!("Rendered thumbnail for {:?}", tile_type);
+                .render_tile_thumbnail(tile_type, None, None, render_api);
         }
     }
 
@@ -477,38 +421,78 @@ pub fn game_loop(
         input.mouse.button_left.on_press = ui_frame_state.mouse_left;
     }
 
-    // frame buffer drawing test
-    /*
-    {
-        draw_framebuffer(
-            Rect::new_center(VecTwo::new(200.0, 500.0), VecTwo::new(100.0, 100.0)),
-            gs.test_frame_buffer.color_buffer,
-            COLOR_WHITE,
-            &mut ui_frame_state,
-            &mut gs.ui_context.as_mut().unwrap(),
-        );
-    }
-    */
-
-    // debug panel
+    // debug developer stuff
     #[cfg(feature = "dev")]
     {
-        if input.get_key(KeyCode::Tab).on_press {
-            gs.debug_state.showing_debug_panel = !gs.debug_state.showing_debug_panel;
+        // draw fps
+        {
+            let fps = 1.0 / prev_delta_time;
+            let g = 0.3;
+            draw_text(
+                &format!(
+                    "{:?}fps {:?}ms",
+                    fps as i32,
+                    (prev_delta_time * 1000.0) as i32
+                ),
+                VecTwo::new(
+                    es.window_resolution.x - 140.0,
+                    es.window_resolution.y - 60.0,
+                ),
+                Color::new(g, g, g, 1.0),
+                &gs.font_style_body,
+                &mut ui_frame_state,
+                &mut gs.ui_context.as_mut().unwrap(),
+            );
         }
 
-        if gs.debug_state.showing_debug_panel {
-            if let Some(panel) = &mut gs.debug_state.debug_panel {
-                let sigs = panel.update(
-                    &mut ui_frame_state,
-                    &gs.inventory,
-                    &mut gs.assets,
-                    &mut gs.ui_context.as_mut().unwrap(),
-                    platform_api,
-                );
-
-                handle_signals(sigs, gs, es, platform_api);
+        // debug panel
+        {
+            if input.get_key(KeyCode::Tab).on_press {
+                gs.debug_state.showing_debug_panel = !gs.debug_state.showing_debug_panel;
             }
+
+            if gs.debug_state.showing_debug_panel {
+                if let Some(panel) = &mut gs.debug_state.debug_panel {
+                    let sigs = panel.update(
+                        &mut ui_frame_state,
+                        &gs.inventory,
+                        &mut gs.assets,
+                        &mut gs.ui_context.as_mut().unwrap(),
+                        platform_api,
+                    );
+
+                    handle_signals(sigs, gs, es, platform_api);
+                }
+            }
+        }
+
+        // tile thumbnail testing
+        if false {
+            let spd = 0.05;
+
+            if input.get_key(KeyCode::U).pressing {
+                gs.debug_state.thumbnail_dist -= spd;
+            }
+            if input.get_key(KeyCode::M).pressing {
+                gs.debug_state.thumbnail_dist += spd;
+            }
+            if input.get_key(KeyCode::Y).pressing {
+                gs.debug_state.thumbnail_height += spd;
+            }
+            if input.get_key(KeyCode::N).pressing {
+                gs.debug_state.thumbnail_height -= spd;
+            }
+
+            let tile_type = TileType::Grass;
+            gs.assets.render_tile_thumbnail(
+                tile_type,
+                Some(gs.debug_state.thumbnail_dist),
+                Some(gs.debug_state.thumbnail_height),
+                render_api,
+            );
+
+            println!("dist {:?}", gs.debug_state.thumbnail_dist);
+            println!("height {:?}", gs.debug_state.thumbnail_height);
         }
     }
 
@@ -569,8 +553,6 @@ pub fn game_loop(
     }
 
     // render tiles. Render each layer separately.
-    // Kinda fucked but whatver. Maybe could setup a new data structure to handle this.
-    // This is what enforces the render layer ordering
     {
         // TODO chagne this to use delta_time
         gs.rotate_time += 0.08;

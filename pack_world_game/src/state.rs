@@ -25,6 +25,9 @@ use inventory::*;
 pub struct DebugState {
     pub showing_debug_panel: bool,
     pub debug_panel: Option<UIPanel>,
+
+    pub thumbnail_dist: f64,
+    pub thumbnail_height: f64,
 }
 
 pub struct State {
@@ -64,6 +67,8 @@ impl State {
             debug_state: DebugState {
                 showing_debug_panel: false,
                 debug_panel: None,
+                thumbnail_dist: 0.0,
+                thumbnail_height: 0.0,
             },
 
             active_ui_panels: vec![],

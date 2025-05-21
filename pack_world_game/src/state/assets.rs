@@ -2,7 +2,11 @@ use crate::{drop_table::*, item::*, pack::*, state::inventory::*, tile::*};
 use gengar_engine::{
     binary_file_system::*,
     model::*,
-    render::{frame_buffer_pack::*, image::*, material::*, shader::*},
+    render::{
+        camera::*, frame_buffer_pack::*, image::*, material::*, render_pack::*, shader::*,
+        RenderApi,
+    },
+    vectors::*,
 };
 use std::collections::HashMap;
 
@@ -281,5 +285,58 @@ impl Assets {
             TileType::Reed => return self.image_reed.gl_id,
             TileType::Clam => return self.image_clam.gl_id,
         };
+    }
+
+    pub fn render_tile_thumbnail(
+        &mut self,
+        tile_type: TileType,
+        test_dist: Option<f64>,
+        test_height: Option<f64>,
+        render_api: &impl RenderApi,
+    ) {
+        let cam_dist = match tile_type {
+            _ => 5.0,
+        };
+
+        let cam_height = match tile_type {
+            _ => 3.5,
+        };
+
+        let pos_dir = VecThreeFloat::new(-3.5, 5.2, 3.8).normalize();
+        let mut pos = pos_dir * test_dist.unwrap_or(cam_dist);
+        pos.y = test_height.unwrap_or(cam_height);
+
+        // make frame buffer
+        let buffer_pack = render_api
+            .build_frame_buffer(512, 512)
+            .expect("Error building framebuffer pack");
+
+        // draw the tile into the framebuffer
+        let mut render_pack = RenderPack::new(
+            ProjectionType::Perspective { focal_length: 0.95 },
+            VecTwo::new(512.0, 512.0),
+        );
+
+        let mut cam = &mut render_pack.camera;
+        cam.transform.local_position = pos;
+        cam.pitch = 44.0;
+        cam.yaw = 133.2;
+
+        cam.update_matricies();
+
+        draw_tile_world_pos(
+            tile_type,
+            0.0,
+            &VecThreeFloat::new_zero(),
+            &mut render_pack,
+            self,
+        );
+
+        render_api.draw_frame_buffer(buffer_pack.frame_buffer, &mut render_pack);
+
+        // add to tiles hashmap
+        self.tile_thumbnails.insert(tile_type, Some(buffer_pack));
+
+        println!("Rendered thumbnail for {:?}", tile_type);
     }
 }
