@@ -59,9 +59,6 @@ pub fn draw_tile_world_pos(
     render_pack.commands.push(RenderCommand::new_model(
         &trans,
         assets.asset_library.get_model(&tile_asset_id),
-        assets
-            .tile_materials
-            .get(&tile_type)
-            .expect(&format!("Missing tile material {:?}", tile_type)),
+        assets.get_tile_material(tile_type),
     ));
 }

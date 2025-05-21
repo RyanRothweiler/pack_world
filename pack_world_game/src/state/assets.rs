@@ -1,6 +1,7 @@
 use crate::{drop_table::*, item::*, pack::*, state::inventory::*, tile::*};
 use gengar_engine::{
     binary_file_system::*,
+    color::*,
     model::*,
     render::{
         camera::*, frame_buffer_pack::*, image::*, material::*, render_pack::*, shader::*,
@@ -11,10 +12,8 @@ use gengar_engine::{
 use std::collections::HashMap;
 
 pub mod asset_library;
-pub mod tile_asset_pack;
 
 pub use asset_library::*;
-pub use tile_asset_pack::*;
 
 pub struct Assets {
     pub image_dirt: Image,
@@ -64,6 +63,8 @@ pub struct Assets {
 
     // Isn't really an asset but often needed when an asset would be
     pub tile_thumbnails: HashMap<TileType, Option<FrameBufferPack>>,
+
+    pub missing_material: Material,
 }
 
 impl Assets {
@@ -114,10 +115,12 @@ impl Assets {
             asset_library: AssetLibrary::new(),
 
             tile_thumbnails: HashMap::new(),
+            missing_material: Material::new(),
         }
     }
 
-    pub fn build_tile_materials(&mut self, pbr_shader: Shader) {
+    // Do assets setup. Probably better to not need this step and just have it be part of the constructor.
+    pub fn build_assets(&mut self, pbr_shader: Shader, shader_color: Shader) {
         pub fn build_tile_material(
             tile_type: TileType,
             asset_library: &AssetLibrary,
@@ -198,6 +201,11 @@ impl Assets {
             TileType::Dirt,
             build_tile_material(TileType::Dirt, &self.asset_library, pbr_shader),
         );
+
+        // build materials
+        self.missing_material.shader = Some(shader_color);
+        self.missing_material
+            .set_color(Color::new(1.0, 0.0, 0.0, 1.0));
     }
 
     pub fn get_tile_thumbnail(&mut self, tile: &TileType) -> Option<u32> {
@@ -218,11 +226,8 @@ impl Assets {
     }
 
     pub fn get_item_icon(&mut self, item: &ItemType) -> u32 {
-        if let Some(item_icon) = self.get_item_image_opt(item) {
-            return item_icon;
-        } else {
-            return self.image_grass.gl_id.unwrap();
-        }
+        self.get_item_image_opt(item)
+            .unwrap_or(self.image_grass.gl_id.unwrap())
     }
 
     pub fn get_drop_icon(&mut self, drop: &DropType) -> u32 {
@@ -338,5 +343,11 @@ impl Assets {
         self.tile_thumbnails.insert(tile_type, Some(buffer_pack));
 
         println!("Rendered thumbnail for {:?}", tile_type);
+    }
+
+    pub fn get_tile_material(&self, tile: TileType) -> &Material {
+        self.tile_materials
+            .get(&tile)
+            .unwrap_or(&self.missing_material)
     }
 }

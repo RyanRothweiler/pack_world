@@ -22,9 +22,12 @@ impl AssetLibrary {
     }
 
     pub fn get_model(&self, id: &str) -> &Model {
-        self.models
-            .get(id.into())
-            .expect(&format!("Missing asset id {}", id))
+        if let Some(model) = self.models.get(id.into()) {
+            return model;
+        } else {
+            // Missing model
+            return self.models.get("model_missing").unwrap();
+        }
     }
 
     pub fn get_texture(&self, id: &str) -> &Image {

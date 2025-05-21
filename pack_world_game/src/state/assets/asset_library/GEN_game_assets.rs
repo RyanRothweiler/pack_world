@@ -26,4 +26,5 @@ include_texture!(al, "tile_dirt_roughness", "../../../../resources/tiles/tile_di
 include_texture!(al, "tile_dirt_ao", "../../../../resources/tiles/tile_dirt/AO.png", render_api);
 include_texture!(al, "tile_dirt_normal", "../../../../resources/tiles/tile_dirt/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
+include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }

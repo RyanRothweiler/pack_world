@@ -109,7 +109,7 @@ pub fn game_init(
 
     // gs.assets.binary_file_system = load_game_assets();
     load_game_assets(&mut gs.assets.asset_library, render_api);
-    gs.assets.build_tile_materials(es.pbr_shader);
+    gs.assets.build_assets(es.pbr_shader, es.shader_color);
 
     gs.assets.image_dirt =
         load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();

@@ -10,3 +10,7 @@ tile_dirt
 model
 tile_outline
 models/tile_outline/tile_outline.obj
+
+model
+model_missing
+models/model_missing/model_missing.obj
