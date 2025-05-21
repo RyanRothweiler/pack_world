@@ -196,17 +196,32 @@ impl Assets {
         );
     }
 
+    pub fn get_tile_thumbnail(&mut self, tile: &TileType) -> Option<u32> {
+        if let Some(tile_thumbnail) = self.tile_thumbnails.get(tile) {
+            if let Some(buffer_pack) = tile_thumbnail {
+                return Some(buffer_pack.color_buffer);
+            }
+        } else {
+            self.tile_thumbnails.insert(*tile, None);
+        }
+
+        return None;
+    }
+
     pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
         self.get_tile_image_opt(tile)
             .expect(&format!("Missing tile image for {:?}", tile))
     }
 
-    pub fn get_item_icon(&self, item: &ItemType) -> u32 {
-        self.get_item_image_opt(item)
-            .expect(&format!("Missing item image for {:?}", item))
+    pub fn get_item_icon(&mut self, item: &ItemType) -> u32 {
+        if let Some(item_icon) = self.get_item_image_opt(item) {
+            return item_icon;
+        } else {
+            return self.image_grass.gl_id.unwrap();
+        }
     }
 
-    pub fn get_drop_icon(&self, drop: &DropType) -> u32 {
+    pub fn get_drop_icon(&mut self, drop: &DropType) -> u32 {
         match drop {
             DropType::Gold => return self.image_gold.gl_id.unwrap(),
             DropType::Item { item_type } => return self.get_item_icon(item_type),
@@ -227,7 +242,7 @@ impl Assets {
         };
     }
 
-    fn get_item_image_opt(&self, item: &ItemType) -> Option<u32> {
+    fn get_item_image_opt(&mut self, item: &ItemType) -> Option<u32> {
         match item {
             ItemType::DirtClod => return self.image_dirt_clod.gl_id,
             ItemType::Stick => return self.image_stick.gl_id,
@@ -245,7 +260,7 @@ impl Assets {
             ItemType::OldHat => return self.image_old_hat.gl_id,
             ItemType::Dew => return self.image_dew.gl_id,
 
-            ItemType::Tile(tile_type) => return self.get_tile_image_opt(tile_type),
+            ItemType::Tile(tile_type) => return self.get_tile_thumbnail(tile_type),
         };
     }
 

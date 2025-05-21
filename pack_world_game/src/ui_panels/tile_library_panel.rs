@@ -26,7 +26,7 @@ impl TileLibraryPanel {
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
-        assets: &Assets,
+        assets: &mut Assets,
         ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
@@ -238,7 +238,7 @@ impl TileLibraryPanel {
         mut y_cursor: &mut f64,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
-        assets: &Assets,
+        assets: &mut Assets,
         ui_context: &mut UIContext,
         grid_rect: Rect,
     ) -> Vec<UpdateSignal> {
@@ -251,25 +251,19 @@ impl TileLibraryPanel {
 
         match item_type {
             ItemType::Tile(tile_type) => {
-                if let Some(tile_thumbnail) = assets.tile_thumbnails.get(tile_type) {
-                    if let Some(buffer_pack) = tile_thumbnail {
-                        if draw_button_id(
-                            i,
-                            &disp,
-                            ButtonStyleData::new_shrink(None, Some(buffer_pack.color_buffer), 0.5),
-                            &grid_rect,
-                            ui_state,
-                            std::line!(),
-                            ui_context,
-                        ) {
-                            ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
-                            self.item_selected = Some((i, *item_type));
-                        }
+                if let Some(tile_thumbnail) = assets.get_tile_thumbnail(tile_type) {
+                    if draw_button_id(
+                        i,
+                        &disp,
+                        ButtonStyleData::new_shrink(None, Some(tile_thumbnail), 0.5),
+                        &grid_rect,
+                        ui_state,
+                        std::line!(),
+                        ui_context,
+                    ) {
+                        ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                        self.item_selected = Some((i, *item_type));
                     }
-                } else {
-                    ret.push(UpdateSignal::TriggerRenderTileThumbnail {
-                        tile_type: *tile_type,
-                    });
                 }
             }
 

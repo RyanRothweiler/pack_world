@@ -276,19 +276,35 @@ impl Camera {
         }
     }
 
-    pub fn world_to_screen(&self, input: VecTwo) -> VecTwo {
+    pub fn world_to_screen(&self, input: VecThreeFloat, screen_resolution: VecTwo) -> VecTwo {
         match self.projection_type {
             ProjectionType::Perspective { focal_length } => {
-                todo!("Perspective projection not implemented here.");
+                // Convert input to homogeneous coordinates (Vec4)
+                let input_homogeneous = VecFour::new(input.x, input.y, input.z, 1.0);
+
+                // Apply view and projection matrices
+                let view_pos = M44::apply_vec_four(&self.view_mat, &input_homogeneous);
+                let clip_pos = M44::apply_vec_four(&self.projection_mat, &view_pos);
+
+                // Perspective divide to get NDC
+                if clip_pos.w.abs() > f64::EPSILON {
+                    let ndc_x = clip_pos.x / clip_pos.w;
+                    let ndc_y = clip_pos.y / clip_pos.w;
+
+                    let half_width = screen_resolution.x * 0.5;
+                    let half_height = screen_resolution.y * 0.5;
+
+                    VecTwo::new(
+                        (ndc_x * half_width) + half_width,
+                        screen_resolution.y - ((ndc_y * half_height) + half_height),
+                    )
+                } else {
+                    // Avoid division by zero — return some sentinel or log warning
+                    VecTwo::new(0.0, 0.0)
+                }
             }
             ProjectionType::Orthographic => {
-                // NOTE this is basically just wrong. but works becuse our world space is screen space.
-                // If the projection matrix width/height doen't match the screen then this won't work.
-                return input
-                    - VecTwo::new(
-                        self.transform.local_position.x,
-                        self.transform.local_position.y,
-                    );
+                todo!("Orghographic not implemented");
             }
         }
     }
@@ -298,10 +314,12 @@ impl Camera {
 mod test {
     use super::*;
 
+    static SCREEN_RES: VecTwo = VecTwo::new(1024.0, 512.0);
+
     fn get_test_camera() -> Camera {
         let mut cam = Camera::new(
             ProjectionType::Perspective { focal_length: 0.9 },
-            VecTwo::new(1024.0, 512.0),
+            SCREEN_RES,
         );
 
         cam.transform.local_position = VecThreeFloat::new(10.0, 1.0, 5.0);
@@ -323,7 +341,7 @@ mod test {
         assert!(M44::close_enough(&M44::new_identity(), &mul));
     }
 
-    // #[test]
+    #[test]
     pub fn view_matrix_position() {
         let cam = get_test_camera();
 
@@ -346,5 +364,17 @@ mod test {
         mul.pretty_print();
 
         assert!(M44::close_enough(&M44::new_identity(), &mul));
+    }
+
+    #[test]
+    pub fn projection_conversions() {
+        let cam = get_test_camera();
+        let world_pos = VecThreeFloat::new(10.0, 1.0, -12.5);
+
+        let screen_pos = cam.world_to_screen(world_pos, SCREEN_RES);
+        let world_test = cam.screen_to_world(screen_pos);
+
+        assert_eq!(world_pos.x.round(), world_test.x.round());
+        assert_eq!(world_pos.y.round(), world_test.y.round());
     }
 }

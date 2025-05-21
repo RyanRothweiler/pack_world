@@ -28,7 +28,7 @@ impl VecThreeFloat {
     pub fn xy(&self) -> VecTwo {
         VecTwo::new(self.x, self.y)
     }
-    
+
     pub fn xz(&self) -> VecTwo {
         VecTwo::new(self.x, self.z)
     }

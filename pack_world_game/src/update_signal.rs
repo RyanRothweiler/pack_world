@@ -10,7 +10,13 @@ use crate::{
     ui_panels::{home_panel::*, *},
     world::world_layer::*,
 };
-use gengar_engine::{analytics::*, platform_api::*, vectors::*};
+use gengar_engine::{
+    analytics::*,
+    platform_api::*,
+    render::{camera::*, render_pack::*},
+    state::State as EngineState,
+    vectors::*,
+};
 
 // TODO maybe consolidate shot purchases into one enum.
 // with state for the type of purchase
@@ -44,7 +50,7 @@ pub enum UpdateSignal {
     GiveDrop(Drop),
 
     /// Setup a harvest drop
-    AddHarvestDrop { drop: Drop, origin: VecTwo },
+    AddHarvestDrop { drop: Drop, origin: GridPos },
 
     /// Destroy a tile
     DestroyTile { pos: GridPos, layer: WorldLayer },
@@ -59,7 +65,12 @@ pub enum UpdateSignal {
     TriggerRenderTileThumbnail { tile_type: TileType },
 }
 
-pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_api: &PlatformApi) {
+pub fn handle_signals(
+    mut signals: Vec<UpdateSignal>,
+    gs: &mut State,
+    es: &EngineState,
+    platform_api: &PlatformApi,
+) {
     let mut curr_signals: Vec<UpdateSignal> = vec![];
     curr_signals.append(&mut signals);
 
@@ -93,8 +104,15 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                 }
 
                 UpdateSignal::AddHarvestDrop { drop, origin } => {
+                    let cam: &Camera =
+                        &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
+
+                    let world_pos = grid_to_world(origin);
+                    let screen_pos_origin: VecTwo =
+                        cam.world_to_screen(world_pos, es.window_resolution);
+
                     gs.harvest_drops
-                        .push(HarvestDrop::new(*drop, *origin, platform_api));
+                        .push(HarvestDrop::new(*drop, screen_pos_origin, platform_api));
                     vec![]
                 }
 

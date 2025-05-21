@@ -60,7 +60,7 @@ impl HarvestDrop {
         step: f64,
         shader: Shader,
         render_pack: &mut RenderPack,
-        assets: &Assets,
+        assets: &mut Assets,
     ) {
         self.time += step;
 
@@ -119,7 +119,7 @@ impl HarvestDrop {
 
             render_pack
                 .commands
-                .push(RenderCommand::new_rect(&rect, -1.0, 0.0, &mat));
+                .push(RenderCommand::new_rect_flipped(&rect, -1.0, 0.0, &mat));
         }
     }
 }

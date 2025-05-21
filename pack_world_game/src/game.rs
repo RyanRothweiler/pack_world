@@ -268,12 +268,12 @@ pub fn game_init(
     }
 }
 
-fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
+fn sim_world(gs: &mut State, es: &EngineState, ms: f64, platform_api: &PlatformApi) {
     let mut update_signals: Vec<UpdateSignal> = vec![];
     for (eid, entity) in &mut gs.world.entities {
         update_signals.append(&mut entity.sim_update(ms));
     }
-    handle_signals(update_signals, gs, platform_api);
+    handle_signals(update_signals, gs, es, platform_api);
 }
 
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
@@ -430,7 +430,7 @@ pub fn game_loop(
                         while ms_to_sim > 0.0 {
                             // println!("Forward Simulating {}ms remaining", ms_to_sim);
                             let ms_step = ms_to_sim.clamp(0.0, MAX_SIM_MS);
-                            sim_world(gs, ms_step / 1000.0, platform_api);
+                            sim_world(gs, es, ms_step / 1000.0, platform_api);
                             ms_to_sim -= ms_step;
                         }
                     }
@@ -452,7 +452,7 @@ pub fn game_loop(
             update_signals.append(&mut panel.update(
                 &mut ui_frame_state,
                 &gs.inventory,
-                &gs.assets,
+                &mut gs.assets,
                 &mut gs.ui_context.as_mut().unwrap(),
                 platform_api,
             ));
@@ -463,7 +463,7 @@ pub fn game_loop(
             Some(page) => update_signals.append(&mut page.update(
                 &mut ui_frame_state,
                 &gs.inventory,
-                &gs.assets,
+                &mut gs.assets,
                 &mut gs.ui_context.as_mut().unwrap(),
                 platform_api,
             )),
@@ -471,7 +471,7 @@ pub fn game_loop(
         }
 
         // Handle signals
-        handle_signals(update_signals, gs, platform_api);
+        handle_signals(update_signals, gs, es, platform_api);
 
         // Update input
         input.mouse.button_left.on_press = ui_frame_state.mouse_left;
@@ -502,12 +502,12 @@ pub fn game_loop(
                 let sigs = panel.update(
                     &mut ui_frame_state,
                     &gs.inventory,
-                    &gs.assets,
+                    &mut gs.assets,
                     &mut gs.ui_context.as_mut().unwrap(),
                     platform_api,
                 );
 
-                handle_signals(sigs, gs, platform_api);
+                handle_signals(sigs, gs, es, platform_api);
             }
         }
     }
@@ -521,7 +521,7 @@ pub fn game_loop(
             frame_delta = 100.0;
         }
 
-        sim_world(gs, frame_delta, platform_api);
+        sim_world(gs, es, frame_delta, platform_api);
     }
 
     // camera controls
@@ -565,7 +565,7 @@ pub fn game_loop(
         for (eid, tile_inst) in &mut gs.world.entities {
             update_sigs.append(&mut tile_inst.update(prev_delta_time, platform_api));
         }
-        handle_signals(update_sigs, gs, platform_api);
+        handle_signals(update_sigs, gs, es, platform_api);
     }
 
     // render tiles. Render each layer separately.
@@ -609,7 +609,7 @@ pub fn game_loop(
                 0.001,
                 es.color_texture_shader,
                 es.render_packs.get_mut(&RenderPackID::World).unwrap(),
-                &gs.assets,
+                &mut gs.assets,
             );
 
             if h.is_finished() {
@@ -620,7 +620,7 @@ pub fn game_loop(
         // remove fnished
         gs.harvest_drops.retain(|h| !h.is_finished());
 
-        handle_signals(sigs, gs, platform_api);
+        handle_signals(sigs, gs, es, platform_api);
     }
 
     // Get mouse grid position
@@ -676,7 +676,7 @@ pub fn game_loop(
                     gs.tile_placing = None;
                 }
 
-                handle_signals(update_sigs, gs, platform_api);
+                handle_signals(update_sigs, gs, es, platform_api);
             }
         }
     }
@@ -743,7 +743,7 @@ pub fn game_loop(
             }
         }
 
-        handle_signals(update_signals, gs, platform_api);
+        handle_signals(update_signals, gs, es, platform_api);
     }
 
     // draw sphere for light

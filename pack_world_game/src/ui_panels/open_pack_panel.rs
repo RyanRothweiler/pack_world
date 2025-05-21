@@ -41,7 +41,7 @@ impl OpenPackPanel {
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
-        assets: &Assets,
+        assets: &mut Assets,
         ui_context: &mut UIContext,
         platform_api: &PlatformApi,
     ) -> Vec<UpdateSignal> {

@@ -8,7 +8,7 @@ pub struct VecTwo {
 }
 
 impl VecTwo {
-    pub fn new(x: f64, y: f64) -> Self {
+    pub const fn new(x: f64, y: f64) -> Self {
         VecTwo { x, y }
     }
 

@@ -25,7 +25,7 @@ impl PackDetailsData {
         &mut self,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
-        assets: &Assets,
+        assets: &mut Assets,
         ui_context: &mut UIContext,
     ) -> Vec<UpdateSignal> {
         let mut update_signals: Vec<UpdateSignal> = vec![];

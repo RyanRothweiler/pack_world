@@ -50,7 +50,25 @@ impl RenderCommand {
         }
     }
 
-    pub fn  new_rect(rect: &Rect, z: f64, rot_deg: f64, material: &Material) -> Self {
+    pub fn new_rect_flipped(rect: &Rect, z: f64, rot_deg: f64, material: &Material) -> Self {
+        Self::new_rect_uvs(
+            rect,
+            z,
+            rot_deg,
+            vec![
+                VecTwo::new(0.0, 0.0),
+                VecTwo::new(1.0, 0.0),
+                VecTwo::new(0.0, -1.0),
+                //
+                VecTwo::new(0.0, -1.0),
+                VecTwo::new(1.0, 0.0),
+                VecTwo::new(1.0, -1.0),
+            ],
+            material,
+        )
+    }
+
+    pub fn new_rect(rect: &Rect, z: f64, rot_deg: f64, material: &Material) -> Self {
         Self::new_rect_uvs(
             rect,
             z,

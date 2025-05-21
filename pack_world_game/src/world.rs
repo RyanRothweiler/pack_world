@@ -104,13 +104,10 @@ impl World {
 
                 let types_removed = self.remove_tile(pos, tile_layer);
                 for t in types_removed {
-
-                    /*
                     ret.push(UpdateSignal::AddHarvestDrop {
                         drop: Drop::new_tile(t, 1),
-                        origin: grid_to_world(&grid_pos),
+                        origin: grid_pos,
                     });
-                    */
                 }
             }
         }
