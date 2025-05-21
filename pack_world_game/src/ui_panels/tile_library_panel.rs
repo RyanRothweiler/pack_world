@@ -255,7 +255,7 @@ impl TileLibraryPanel {
                     if draw_button_id(
                         i,
                         &disp,
-                        ButtonStyleData::new_shrink(None, Some(tile_thumbnail), 0.5),
+                        ButtonStyleData::new_shrink(None, Some(tile_thumbnail), 4.0),
                         &grid_rect,
                         ui_state,
                         std::line!(),

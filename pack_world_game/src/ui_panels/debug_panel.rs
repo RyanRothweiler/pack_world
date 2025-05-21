@@ -21,24 +21,8 @@ impl DebugPanel {
         let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(1400.0, 800.0));
         begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
 
-        let item_types: Vec<ItemType> = vec![
-            ItemType::DirtClod,
-            ItemType::Stick,
-            ItemType::Tile(TileType::Dirt),
-            ItemType::Tile(TileType::Water),
-            ItemType::Tile(TileType::Boulder),
-            ItemType::Tile(TileType::TallGrass),
-            ItemType::Tile(TileType::BirdNest),
-            ItemType::Tile(TileType::OakTree),
-            ItemType::Tile(TileType::Frog),
-            ItemType::Tile(TileType::Shrub),
-            ItemType::MudBaby,
-            ItemType::OakLog,
-            ItemType::Baby,
-            ItemType::DragonEgg,
-        ];
-
-        // giving old
+        /*
+        // giving gold
         {
             if draw_button(
                 "Gold 10,000",
@@ -51,29 +35,32 @@ impl DebugPanel {
                 ret.push(UpdateSignal::GiveGold { amount: 10_000 });
             }
         }
+        */
 
-        let y_offset: f64 = 80.0;
-        let mut i: i32 = 0;
-        for ty in item_types {
-            let y: f64 = 50.0 + (y_offset * i as f64);
+        let grid_rects = get_grid_layout(GridLayoutInfo {
+            bounds_width: 300.0,
+            col_count: 3,
+            cell_height: 100.0,
+            gutter: 10.0,
+            cells_count: 100,
+        });
 
-            let icon = assets.get_item_icon(&ty);
+        for (i, ty) in ALL_TILE_TYPES.iter().enumerate() {
+            let icon = assets.get_item_icon(&ItemType::Tile(*ty));
 
             if draw_button(
                 &format!("{:?}", ty),
-                ButtonStyleData::new_outline(Some(icon)),
-                &Rect::new_top_size(VecTwo::new(10.0, y), 50.0, 50.0),
+                ButtonStyleData::new_shrink(None, Some(icon), 4.0),
+                &grid_rects[i],
                 ui_state,
                 std::line!(),
                 ui_context,
             ) {
                 ret.push(UpdateSignal::GiveItem {
-                    item_type: ty,
+                    item_type: ItemType::Tile(*ty),
                     count: 1000,
                 });
             }
-
-            i += 1;
         }
 
         end_panel(&mut ui_state, ui_context);

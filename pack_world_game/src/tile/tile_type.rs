@@ -4,6 +4,7 @@ use crate::{
     tile::{tile_definition::*, tile_instance::*, tiles::*, TileMethods},
     world::*,
 };
+use std::sync::LazyLock;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Hash)]
 pub enum TileType {
@@ -22,6 +23,25 @@ pub enum TileType {
     Reed,
     Clam,
 }
+
+pub const ALL_TILE_TYPES: LazyLock<Vec<TileType>> = LazyLock::new(|| {
+    vec![
+        TileType::Dirt,
+        TileType::Grass,
+        TileType::Boulder,
+        TileType::OakTree,
+        TileType::BirdNest,
+        TileType::Cave,
+        TileType::Shrub,
+        TileType::MudPit,
+        TileType::TallGrass,
+        TileType::Frog,
+        TileType::Water,
+        TileType::Newt,
+        TileType::Reed,
+        TileType::Clam,
+    ]
+});
 
 impl TileType {
     /// Can you place the tile here
