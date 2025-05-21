@@ -54,6 +54,7 @@ pub fn draw_tile_world_pos(
 
     let mut trans = Transform::new();
     trans.local_position = *pos;
+    trans.local_rotation = VecThreeFloat::new(0.0, (rotation * 0.015).sin(), 0.0);
     trans.update_global_matrix(&M44::new_identity());
 
     render_pack.commands.push(RenderCommand::new_model(

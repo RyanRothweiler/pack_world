@@ -126,7 +126,6 @@ impl TileInstance {
         }
 
         // Update drop displays
-        /*
         {
             if self.drops_queue.len() > 0 {
                 self.drop_timer += delta_time;
@@ -136,7 +135,7 @@ impl TileInstance {
 
                     return vec![UpdateSignal::AddHarvestDrop {
                         drop: self.drops_queue.pop().unwrap(),
-                        origin: grid_to_world(&self.grid_pos),
+                        origin: self.grid_pos,
                     }];
                 }
             } else {
@@ -148,7 +147,6 @@ impl TileInstance {
                 }
             }
         }
-        */
 
         ret
     }
