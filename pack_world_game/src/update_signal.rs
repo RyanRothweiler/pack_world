@@ -54,6 +54,9 @@ pub enum UpdateSignal {
 
     /// Open url
     OpenURL { url: String },
+
+    /// Trigger rendering a tile thumbnail
+    TriggerRenderTileThumbnail { tile_type: TileType },
 }
 
 pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_api: &PlatformApi) {
@@ -73,23 +76,28 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                     gs.active_page = Some(panel);
                     vec![]
                 }
+
                 UpdateSignal::SetPlacingTile(tile) => {
                     gs.tile_placing = *tile;
                     vec![]
                 }
+
                 UpdateSignal::GiveItem { item_type, count } => {
                     gs.inventory.give_item(*item_type, *count).unwrap();
                     vec![UpdateSignal::SaveGame]
                 }
+
                 UpdateSignal::GiveDrop(drop) => {
                     gs.inventory.give_drop(*drop).unwrap();
                     vec![UpdateSignal::SaveGame]
                 }
+
                 UpdateSignal::AddHarvestDrop { drop, origin } => {
                     gs.harvest_drops
                         .push(HarvestDrop::new(*drop, *origin, platform_api));
                     vec![]
                 }
+
                 UpdateSignal::OpenPack(pack_id) => {
                     let pack_info: &Pack = pack_id.get_pack_info();
 
@@ -107,10 +115,12 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                         UpdateSignal::SaveGame,
                     ]
                 }
+
                 UpdateSignal::HomePanelTabChange(_) => {
                     panic!("Home panel needs to consume this");
                     vec![]
                 }
+
                 UpdateSignal::PurchaseBankSlot => {
                     if gs.inventory.gold >= gs.inventory.next_slot_cost() {
                         gs.inventory.gold -= gs.inventory.next_slot_cost();
@@ -118,10 +128,12 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
                     }
                     vec![UpdateSignal::SaveGame]
                 }
+
                 UpdateSignal::GiveGold { amount } => {
                     let _ = gs.inventory.give_gold(*amount);
                     vec![UpdateSignal::SaveGame]
                 }
+
                 UpdateSignal::SaveGame => {
                     match save_game(&gs.world, &gs.inventory, platform_api) {
                         Ok(()) => println!("Game saved successfully"),
@@ -130,12 +142,20 @@ pub fn handle_signals(mut signals: Vec<UpdateSignal>, gs: &mut State, platform_a
 
                     vec![]
                 }
+
                 UpdateSignal::DestroyTile { pos, layer } => {
                     gs.world.destroy_tile(*pos, *layer);
                     vec![UpdateSignal::SaveGame]
                 }
+
                 UpdateSignal::OpenURL { url } => {
                     (platform_api.open_url)(url.clone());
+
+                    vec![]
+                }
+
+                UpdateSignal::TriggerRenderTileThumbnail { tile_type } => {
+                    gs.assets.tile_thumbnails.insert(*tile_type, None);
 
                     vec![]
                 }

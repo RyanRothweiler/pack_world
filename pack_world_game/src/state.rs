@@ -55,8 +55,6 @@ pub struct State {
     pub rotate_time: f64,
 
     pub ui_context: Option<UIContext>,
-
-    pub test_frame_buffer: FrameBufferPack,
 }
 
 impl State {
@@ -90,8 +88,6 @@ impl State {
             rotate_time: 0.0,
 
             ui_context: None,
-
-            test_frame_buffer: FrameBufferPack::new(),
         }
     }
 }

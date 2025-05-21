@@ -26,6 +26,7 @@ pub mod harvest_timer;
 pub mod tile_definition;
 pub mod tile_instance;
 pub mod tile_methods;
+// pub mod tile_thumbnail;
 pub mod tile_type;
 pub mod tiles;
 

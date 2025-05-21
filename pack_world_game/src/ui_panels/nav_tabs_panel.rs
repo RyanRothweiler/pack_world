@@ -60,7 +60,7 @@ impl NavTabsPanel {
             if draw_button_id(
                 0,
                 "",
-                ButtonStyleData::new_shrink(Some(assets.image_twitter.gl_id.unwrap()), 0.2),
+                ButtonStyleData::new_shrink(Some(assets.image_twitter.gl_id.unwrap()), None, 0.2),
                 &twitter,
                 ui_state,
                 std::line!(),
@@ -73,7 +73,7 @@ impl NavTabsPanel {
             if draw_button_id(
                 1,
                 "",
-                ButtonStyleData::new_shrink(Some(assets.image_bluesky.gl_id.unwrap()), 0.2),
+                ButtonStyleData::new_shrink(Some(assets.image_bluesky.gl_id.unwrap()), None, 0.2),
                 &bluesky,
                 ui_state,
                 std::line!(),

@@ -111,7 +111,7 @@ impl ShopPanel {
                 if draw_button_id(
                     i as i32,
                     "",
-                    ButtonStyleData::new_shrink(Some(assets.get_pack_icon(&pack_id)), 1.0),
+                    ButtonStyleData::new_shrink(Some(assets.get_pack_icon(&pack_id)), None, 1.0),
                     &button_rect,
                     ui_state,
                     std::line!(),

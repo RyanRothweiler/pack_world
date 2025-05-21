@@ -368,7 +368,7 @@ impl EngineRenderApiTrait for OglRenderApi {
 
         self.platform_api.depth_func(GL_LEQUAL);
 
-        self.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
+        self.platform_api.clear_color(0.0, 0.0, 0.0, 0.0);
         self.platform_api.clear();
 
         render_render_pack(VecThreeFloat::new(100.0, 100.0, 0.0), render_pack, self);

@@ -19,6 +19,11 @@ pub enum ButtonStyle {
 pub struct ButtonStyleData {
     pub style: ButtonStyle,
     pub image: Option<u32>,
+
+    // This doesn't really need to be separate from the image.
+    // But I'm being lazy. Its only here because we need a
+    // different call on the draw_image with different uvs to flip the framebuffer image.
+    pub framebuffer: Option<u32>,
 }
 
 impl ButtonStyleData {
@@ -26,13 +31,15 @@ impl ButtonStyleData {
         Self {
             style: ButtonStyle::OutlineColor,
             image,
+            framebuffer: None,
         }
     }
 
-    pub fn new_shrink(image: Option<u32>, amount: f64) -> Self {
+    pub fn new_shrink(image: Option<u32>, framebuffer: Option<u32>, amount: f64) -> Self {
         Self {
             style: ButtonStyle::Shrink { amount: amount },
             image,
+            framebuffer,
         }
     }
 }
@@ -236,6 +243,39 @@ pub fn draw_button_id(
         context
             .render_commands
             .push(RenderCommand::new_rect(&icon_rect, -1.0, 0.0, &mat));
+    }
+
+    // draw framebuffer icon
+    if let Some(icon) = style.framebuffer {
+        let mut icon_rect: Rect = rect.clone();
+
+        button_state.image_shrink = lerp(
+            button_state.image_shrink,
+            image_shrink_target,
+            context.delta_time * 30.0,
+        );
+        icon_rect.shrink(button_state.image_shrink);
+
+        let mut mat = Material::new();
+        mat.shader = Some(context.color_shader_texture);
+        mat.set_image(icon);
+        mat.set_color(COLOR_WHITE);
+
+        context.render_commands.push(RenderCommand::new_rect_uvs(
+            &icon_rect,
+            -1.0,
+            0.0,
+            vec![
+                VecTwo::new(0.0, 0.0),
+                VecTwo::new(1.0, 0.0),
+                VecTwo::new(0.0, -1.0),
+                //
+                VecTwo::new(0.0, -1.0),
+                VecTwo::new(1.0, 0.0),
+                VecTwo::new(1.0, -1.0),
+            ],
+            &mat,
+        ));
     }
 
     render_word(

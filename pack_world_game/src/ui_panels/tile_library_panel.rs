@@ -37,13 +37,13 @@ impl TileLibraryPanel {
         {
             let mut item_hovering: Option<(Rect, ItemType)> = None;
 
-            let col_count = 5;
+            let col_count = 3;
             // generate a bunch more than we need
             let title_cells_count = 25;
             let grid_rects = get_grid_layout(GridLayoutInfo {
                 bounds_width: 300.0,
                 col_count: col_count,
-                cell_height: 60.0,
+                cell_height: 100.0,
                 gutter: 10.0,
                 cells_count: inventory.items.len() as i32 + title_cells_count,
             });
@@ -251,19 +251,28 @@ impl TileLibraryPanel {
 
         match item_type {
             ItemType::Tile(tile_type) => {
-                if draw_button_id(
-                    i,
-                    &disp,
-                    ButtonStyleData::new_shrink(Some(icon), 0.5),
-                    &grid_rect,
-                    ui_state,
-                    std::line!(),
-                    ui_context,
-                ) {
-                    ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
-                    self.item_selected = Some((i, *item_type));
+                if let Some(tile_thumbnail) = assets.tile_thumbnails.get(tile_type) {
+                    if let Some(buffer_pack) = tile_thumbnail {
+                        if draw_button_id(
+                            i,
+                            &disp,
+                            ButtonStyleData::new_shrink(None, Some(buffer_pack.color_buffer), 0.5),
+                            &grid_rect,
+                            ui_state,
+                            std::line!(),
+                            ui_context,
+                        ) {
+                            ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                            self.item_selected = Some((i, *item_type));
+                        }
+                    }
+                } else {
+                    ret.push(UpdateSignal::TriggerRenderTileThumbnail {
+                        tile_type: *tile_type,
+                    });
                 }
             }
+
             ItemType::DirtClod
             | ItemType::Stick
             | ItemType::MudBaby

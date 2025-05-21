@@ -55,6 +55,39 @@ impl UIFrameState {
     }
 }
 
+/// Custom for drawing framebuffers cuz they need to be flipped
+pub fn draw_framebuffer(
+    mut rect: Rect,
+    image: u32,
+    color: Color,
+    ui_state: &mut UIFrameState,
+    context: &mut UIContext,
+) {
+    let mut mat = Material::new();
+    mat.shader = Some(context.color_shader_texture);
+    mat.set_image(image);
+    mat.set_color(color);
+
+    let origin = ui_state.get_origin();
+    rect.translate(origin);
+
+    context.render_commands.push(RenderCommand::new_rect_uvs(
+        &rect,
+        -1.0,
+        0.0,
+        vec![
+            VecTwo::new(0.0, 0.0),
+            VecTwo::new(1.0, 0.0),
+            VecTwo::new(0.0, -1.0),
+            //
+            VecTwo::new(0.0, -1.0),
+            VecTwo::new(1.0, 0.0),
+            VecTwo::new(1.0, -1.0),
+        ],
+        &mat,
+    ));
+}
+
 pub fn draw_image(
     mut rect: Rect,
     image: u32,

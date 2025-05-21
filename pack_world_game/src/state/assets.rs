@@ -2,7 +2,7 @@ use crate::{drop_table::*, item::*, pack::*, state::inventory::*, tile::*};
 use gengar_engine::{
     binary_file_system::*,
     model::*,
-    render::{image::*, material::*, shader::*},
+    render::{frame_buffer_pack::*, image::*, material::*, shader::*},
 };
 use std::collections::HashMap;
 
@@ -57,6 +57,9 @@ pub struct Assets {
 
     pub binary_file_system: BinaryFileSystem,
     pub asset_library: AssetLibrary,
+
+    // Isn't really an asset but often needed when an asset would be
+    pub tile_thumbnails: HashMap<TileType, Option<FrameBufferPack>>,
 }
 
 impl Assets {
@@ -105,6 +108,8 @@ impl Assets {
             tile_materials: HashMap::new(),
             binary_file_system: BinaryFileSystem::new(),
             asset_library: AssetLibrary::new(),
+
+            tile_thumbnails: HashMap::new(),
         }
     }
 

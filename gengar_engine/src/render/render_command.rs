@@ -50,17 +50,32 @@ impl RenderCommand {
         }
     }
 
-    pub fn new_rect(rect: &Rect, z: f64, rot_deg: f64, material: &Material) -> Self {
+    pub fn  new_rect(rect: &Rect, z: f64, rot_deg: f64, material: &Material) -> Self {
+        Self::new_rect_uvs(
+            rect,
+            z,
+            rot_deg,
+            vec![
+                VecTwo::new(0.0, 0.0),
+                VecTwo::new(1.0, 0.0),
+                VecTwo::new(0.0, 1.0),
+                //
+                VecTwo::new(0.0, 1.0),
+                VecTwo::new(1.0, 0.0),
+                VecTwo::new(1.0, 1.0),
+            ],
+            material,
+        )
+    }
+
+    pub fn new_rect_uvs(
+        rect: &Rect,
+        z: f64,
+        rot_deg: f64,
+        uvs: Vec<VecTwo>,
+        material: &Material,
+    ) -> Self {
         let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
-        let uvs: Vec<VecTwo> = vec![
-            VecTwo::new(0.0, 0.0),
-            VecTwo::new(1.0, 0.0),
-            VecTwo::new(0.0, 1.0),
-            //
-            VecTwo::new(0.0, 1.0),
-            VecTwo::new(1.0, 0.0),
-            VecTwo::new(1.0, 1.0),
-        ];
 
         let mut uniforms: HashMap<String, UniformData> = material.uniforms.clone();
 

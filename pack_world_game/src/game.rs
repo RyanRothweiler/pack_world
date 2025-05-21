@@ -266,10 +266,6 @@ pub fn game_init(
     {
         gs.debug_state.debug_panel = Some(UIPanel::DebugPanel(DebugPanel {}));
     }
-
-    gs.test_frame_buffer = render_api
-        .build_frame_buffer(512, 512)
-        .expect("Invalid framebuffer");
 }
 
 fn sim_world(gs: &mut State, ms: f64, platform_api: &PlatformApi) {
@@ -311,31 +307,7 @@ pub fn game_loop(
     gengar_engine::debug::frame_start();
 
     // framebuffer test
-    {
-        let mut render_pack = RenderPack::new(
-            ProjectionType::Perspective { focal_length: 0.95 },
-            VecTwo::new(512.0, 512.0),
-        );
-
-        let world_cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
-
-        let mut cam = &mut render_pack.camera;
-        cam.transform.local_position = world_cam.transform.local_position;
-        cam.pitch = world_cam.pitch;
-        cam.yaw = world_cam.yaw;
-
-        cam.update_matricies();
-
-        draw_tile_world_pos(
-            TileType::Dirt,
-            0.0,
-            &VecThreeFloat::new_zero(),
-            &mut render_pack,
-            &gs.assets,
-        );
-
-        render_api.draw_frame_buffer(gs.test_frame_buffer.frame_buffer, &mut render_pack);
-    }
+    {}
 
     // update ui_context
     {
@@ -380,6 +352,54 @@ pub fn game_loop(
             &mut ui_frame_state,
             &mut gs.ui_context.as_mut().unwrap(),
         );
+    }
+
+    // render tile thumbnails.
+    // use the hash map to know which tiles to render.
+    {
+        let mut tiles_to_render: Vec<TileType> = vec![];
+        for (key, value) in &mut gs.assets.tile_thumbnails {
+            if value.is_none() {
+                tiles_to_render.push(*key);
+            }
+        }
+
+        for tile_type in tiles_to_render {
+            // make frame buffer
+            let buffer_pack = render_api
+                .build_frame_buffer(512, 512)
+                .expect("Error building framebuffer pack");
+
+            // draw the tile into the framebuffer
+            let mut render_pack = RenderPack::new(
+                ProjectionType::Perspective { focal_length: 0.95 },
+                VecTwo::new(512.0, 512.0),
+            );
+
+            let mut cam = &mut render_pack.camera;
+            cam.transform.local_position = VecThreeFloat::new(-3.5, 5.2, 3.8);
+            cam.pitch = 44.0;
+            cam.yaw = 133.2;
+
+            cam.update_matricies();
+
+            draw_tile_world_pos(
+                tile_type,
+                0.0,
+                &VecThreeFloat::new_zero(),
+                &mut render_pack,
+                &gs.assets,
+            );
+
+            render_api.draw_frame_buffer(buffer_pack.frame_buffer, &mut render_pack);
+
+            // add to tiles hashmap
+            gs.assets
+                .tile_thumbnails
+                .insert(tile_type, Some(buffer_pack));
+
+            println!("Rendered thumbnail for {:?}", tile_type);
+        }
     }
 
     // save game
@@ -458,8 +478,9 @@ pub fn game_loop(
     }
 
     // frame buffer drawing test
+    /*
     {
-        draw_image(
+        draw_framebuffer(
             Rect::new_center(VecTwo::new(200.0, 500.0), VecTwo::new(100.0, 100.0)),
             gs.test_frame_buffer.color_buffer,
             COLOR_WHITE,
@@ -467,6 +488,7 @@ pub fn game_loop(
             &mut gs.ui_context.as_mut().unwrap(),
         );
     }
+    */
 
     // debug panel
     #[cfg(feature = "dev")]
