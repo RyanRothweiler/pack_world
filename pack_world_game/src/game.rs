@@ -552,34 +552,31 @@ pub fn game_loop(
         handle_signals(update_sigs, gs, es, platform_api);
     }
 
-    // render tiles. Render each layer separately.
+    // render tiles
     {
         // TODO chagne this to use delta_time
         gs.rotate_time += 0.08;
 
-        fn render_layer(target_layer: WorldLayer, gs: &mut State, es: &mut EngineState) {
-            for (grid_pos, world_cell) in &gs.world.entity_map {
-                for (layer, eid) in &world_cell.layers {
-                    if *layer == target_layer {
-                        let entity = &gs.world.get_entity(&eid);
-
-                        entity.render(
-                            gs.rotate_time,
-                            &entity.grid_pos,
-                            es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-                            &gs.assets,
-                        );
+        for (grid_pos, world_cell) in &gs.world.entity_map {
+            for (layer, eid) in &world_cell.layers {
+                // Skip ground tils if there is a floor
+                if *layer == WorldLayer::Ground {
+                    if world_cell.layers.contains_key(&WorldLayer::Floor) {
+                        continue;
                     }
                 }
+
+                let entity = &gs.world.get_entity(&eid);
+
+                entity.render(
+                    gs.rotate_time,
+                    &entity.grid_pos,
+                    es.color_texture_shader,
+                    es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                    &gs.assets,
+                );
             }
         }
-
-        render_layer(WorldLayer::Ground, gs, es);
-        render_layer(WorldLayer::Floor, gs, es);
-        render_layer(WorldLayer::TreeAttachment, gs, es);
-        render_layer(WorldLayer::Walker, gs, es);
-        render_layer(WorldLayer::Planted, gs, es);
     }
 
     // update harvest drops
