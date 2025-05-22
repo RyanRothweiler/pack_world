@@ -510,6 +510,7 @@ pub fn game_loop(
 
     // camera controls
     {
+        /*
         let keyboard_speed = 1000.0;
         let drag_speed = 0.75;
 
@@ -527,6 +528,7 @@ pub fn game_loop(
         if input.get_key(KeyCode::D).pressing {
             cam_pack.camera.transform.local_position.x += keyboard_speed * prev_delta_time;
         }
+        */
 
         // camera click dragging
         /*
@@ -587,7 +589,7 @@ pub fn game_loop(
             h.update_and_draw(
                 0.001,
                 es.color_texture_shader,
-                es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
                 &mut gs.assets,
             );
 
