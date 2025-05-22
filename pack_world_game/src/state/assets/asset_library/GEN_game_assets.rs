@@ -31,6 +31,12 @@ include_texture!(al, "tile_boulder_metallic", "../../../../resources/tiles/tile_
 include_texture!(al, "tile_boulder_roughness", "../../../../resources/tiles/tile_boulder/Roughness.png", render_api);
 include_texture!(al, "tile_boulder_ao", "../../../../resources/tiles/tile_boulder/AO.png", render_api);
 include_texture!(al, "tile_boulder_normal", "../../../../resources/tiles/tile_boulder/Normal.png", render_api);
+include_model!(al, "tile_cave", "../../../../resources/tiles/tile_cave/tile_cave.obj", render_api);
+include_texture!(al, "tile_cave_base_color", "../../../../resources/tiles/tile_cave/BaseColor.png", render_api);
+include_texture!(al, "tile_cave_metallic", "../../../../resources/tiles/tile_cave/Metallic.png", render_api);
+include_texture!(al, "tile_cave_roughness", "../../../../resources/tiles/tile_cave/Roughness.png", render_api);
+include_texture!(al, "tile_cave_ao", "../../../../resources/tiles/tile_cave/AO.png", render_api);
+include_texture!(al, "tile_cave_normal", "../../../../resources/tiles/tile_cave/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }

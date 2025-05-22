@@ -10,6 +10,9 @@ tile_dirt
 tile
 tile_boulder
 
+tile
+tile_cave
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

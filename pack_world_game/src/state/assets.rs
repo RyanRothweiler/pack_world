@@ -208,6 +208,10 @@ impl Assets {
             TileType::Boulder,
             build_tile_material(TileType::Boulder, &self.asset_library, pbr_shader),
         );
+        self.tile_materials.insert(
+            TileType::Cave,
+            build_tile_material(TileType::Cave, &self.asset_library, pbr_shader),
+        );
 
         // build materials
         self.missing_material.shader = Some(shader_color);
