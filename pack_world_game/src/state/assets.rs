@@ -186,6 +186,9 @@ impl Assets {
                 }),
             );
 
+            mat.uniforms
+                .insert("ambientRed".to_string(), UniformData::Float(0.3));
+
             return mat;
         }
 
@@ -337,6 +340,7 @@ impl Assets {
             tile_type,
             0.0,
             &VecThreeFloat::new_zero(),
+            true,
             &mut render_pack,
             self,
         );

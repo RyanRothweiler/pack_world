@@ -194,7 +194,7 @@ impl TileInstance {
                 }
                 */
 
-                draw_tile_grid_pos(self.tile_type, rotation, &pos, render_pack, assets);
+                draw_tile_grid_pos(self.tile_type, rotation, &pos, true, render_pack, assets);
             }
         }
     }

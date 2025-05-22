@@ -36,17 +36,26 @@ pub fn draw_tile_grid_pos(
     tile_type: TileType,
     rotation: f64,
     pos: &GridPos,
+    can_place: bool,
     render_pack: &mut RenderPack,
     assets: &Assets,
 ) {
     let world_pos = grid_to_world(pos);
-    draw_tile_world_pos(tile_type, rotation, &world_pos, render_pack, assets);
+    draw_tile_world_pos(
+        tile_type,
+        rotation,
+        &world_pos,
+        can_place,
+        render_pack,
+        assets,
+    );
 }
 
 pub fn draw_tile_world_pos(
     tile_type: TileType,
     rotation: f64,
     pos: &VecThreeFloat,
+    can_place: bool,
     render_pack: &mut RenderPack,
     assets: &Assets,
 ) {
@@ -57,9 +66,15 @@ pub fn draw_tile_world_pos(
     trans.local_rotation = VecThreeFloat::new(0.0, (rotation * 0.015).sin(), 0.0);
     trans.update_global_matrix(&M44::new_identity());
 
+    let mut mat = assets.get_tile_material(tile_type).clone();
+    if !can_place {
+        mat.uniforms
+            .insert("ambientRed".to_string(), UniformData::Float(10.0));
+    }
+
     render_pack.commands.push(RenderCommand::new_model(
         &trans,
         assets.asset_library.get_model(&tile_asset_id),
-        assets.get_tile_material(tile_type),
+        &mat,
     ));
 }

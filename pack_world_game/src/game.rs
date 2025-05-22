@@ -645,6 +645,7 @@ pub fn game_loop(
                 tile,
                 0.0,
                 &pos,
+                can_place,
                 es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
                 &gs.assets,
             );
