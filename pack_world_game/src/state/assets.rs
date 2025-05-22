@@ -201,6 +201,10 @@ impl Assets {
             TileType::Dirt,
             build_tile_material(TileType::Dirt, &self.asset_library, pbr_shader),
         );
+        self.tile_materials.insert(
+            TileType::Boulder,
+            build_tile_material(TileType::Boulder, &self.asset_library, pbr_shader),
+        );
 
         // build materials
         self.missing_material.shader = Some(shader_color);

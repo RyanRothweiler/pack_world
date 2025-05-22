@@ -4,8 +4,14 @@ use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
     render::{
-        camera::*, frame_buffer_pack::*, image::Image, render_command::*, render_pack::*,
-        shader::*, vao::Vao, RenderApi as EngineRenderApiTrait, ShaderType,
+        camera::*,
+        frame_buffer_pack::*,
+        image::{Image, ImageFormat},
+        render_command::*,
+        render_pack::*,
+        shader::*,
+        vao::Vao,
+        RenderApi as EngineRenderApiTrait, ShaderType,
     },
     state::State as EngineState,
     vectors::*,
@@ -240,17 +246,21 @@ impl EngineRenderApiTrait for OglRenderApi {
             GL_LINEAR as i32,
         );
 
+        let image_format = match image.format {
+            ImageFormat::RGBA => RGBA,
+            ImageFormat::RGB => RGB,
+        };
+
         /*
-        let mut color_space = RGB;
         if gamma_correct {
-            color_space = GL_SRGB as i32;
+            image_format = GL_SRGB as i32;
         }
         */
 
         self.platform_api.tex_image_2d(
             GL_TEXTURE_2D as u32,
             RGBA,
-            RGBA as u32,
+            image_format as u32,
             UNSIGNED_BYTE as u32,
             image.width as i32,
             image.height as i32,

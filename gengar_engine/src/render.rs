@@ -79,9 +79,15 @@ pub fn load_image(read: impl std::io::Read) -> Result<Image, Error> {
     image.height = info.height;
 
     // Check for image type that we support
-    if info.color_type != ColorType::Rgba {
-        return Err(Error::InvalidImageFormat);
+    match info.color_type {
+        ColorType::Rgba => image.format = ImageFormat::RGBA,
+        ColorType::Rgb => image.format = ImageFormat::RGB,
+        _ => {
+            eprintln!("Invalid image format {:?}", info.color_type);
+            return Err(Error::InvalidImageFormat);
+        }
     }
+
     if info.bit_depth != BitDepth::Eight {
         return Err(Error::InvalidImageBitDepth);
     }
