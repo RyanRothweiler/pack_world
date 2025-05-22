@@ -13,6 +13,9 @@ tile_boulder
 tile
 tile_cave
 
+tile
+tile_tallgrass
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

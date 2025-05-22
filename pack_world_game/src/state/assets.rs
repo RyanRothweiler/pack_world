@@ -192,26 +192,20 @@ impl Assets {
             return mat;
         }
 
-        self.tile_materials.insert(
+        // build tile materials
+        for tile_type in vec![
             TileType::Water,
-            build_tile_material(TileType::Water, &self.asset_library, pbr_shader),
-        );
-        self.tile_materials.insert(
             TileType::Grass,
-            build_tile_material(TileType::Grass, &self.asset_library, pbr_shader),
-        );
-        self.tile_materials.insert(
             TileType::Dirt,
-            build_tile_material(TileType::Dirt, &self.asset_library, pbr_shader),
-        );
-        self.tile_materials.insert(
             TileType::Boulder,
-            build_tile_material(TileType::Boulder, &self.asset_library, pbr_shader),
-        );
-        self.tile_materials.insert(
             TileType::Cave,
-            build_tile_material(TileType::Cave, &self.asset_library, pbr_shader),
-        );
+            TileType::TallGrass,
+        ] {
+            self.tile_materials.insert(
+                tile_type,
+                build_tile_material(tile_type, &self.asset_library, pbr_shader),
+            );
+        }
 
         // build materials
         self.missing_material.shader = Some(shader_color);

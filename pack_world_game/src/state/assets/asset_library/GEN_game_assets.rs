@@ -37,6 +37,12 @@ include_texture!(al, "tile_cave_metallic", "../../../../resources/tiles/tile_cav
 include_texture!(al, "tile_cave_roughness", "../../../../resources/tiles/tile_cave/Roughness.png", render_api);
 include_texture!(al, "tile_cave_ao", "../../../../resources/tiles/tile_cave/AO.png", render_api);
 include_texture!(al, "tile_cave_normal", "../../../../resources/tiles/tile_cave/Normal.png", render_api);
+include_model!(al, "tile_tallgrass", "../../../../resources/tiles/tile_tallgrass/tile_tallgrass.obj", render_api);
+include_texture!(al, "tile_tallgrass_base_color", "../../../../resources/tiles/tile_tallgrass/BaseColor.png", render_api);
+include_texture!(al, "tile_tallgrass_metallic", "../../../../resources/tiles/tile_tallgrass/Metallic.png", render_api);
+include_texture!(al, "tile_tallgrass_roughness", "../../../../resources/tiles/tile_tallgrass/Roughness.png", render_api);
+include_texture!(al, "tile_tallgrass_ao", "../../../../resources/tiles/tile_tallgrass/AO.png", render_api);
+include_texture!(al, "tile_tallgrass_normal", "../../../../resources/tiles/tile_tallgrass/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }
