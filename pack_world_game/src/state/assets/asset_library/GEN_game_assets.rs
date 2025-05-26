@@ -49,6 +49,12 @@ include_texture!(al, "tile_shrub_metallic", "../../../../resources/tiles/tile_sh
 include_texture!(al, "tile_shrub_roughness", "../../../../resources/tiles/tile_shrub/Roughness.png", render_api);
 include_texture!(al, "tile_shrub_ao", "../../../../resources/tiles/tile_shrub/AO.png", render_api);
 include_texture!(al, "tile_shrub_normal", "../../../../resources/tiles/tile_shrub/Normal.png", render_api);
+include_model!(al, "tile_oaktree", "../../../../resources/tiles/tile_oaktree/tile_oaktree.obj", render_api);
+include_texture!(al, "tile_oaktree_base_color", "../../../../resources/tiles/tile_oaktree/BaseColor.png", render_api);
+include_texture!(al, "tile_oaktree_metallic", "../../../../resources/tiles/tile_oaktree/Metallic.png", render_api);
+include_texture!(al, "tile_oaktree_roughness", "../../../../resources/tiles/tile_oaktree/Roughness.png", render_api);
+include_texture!(al, "tile_oaktree_ao", "../../../../resources/tiles/tile_oaktree/AO.png", render_api);
+include_texture!(al, "tile_oaktree_normal", "../../../../resources/tiles/tile_oaktree/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }

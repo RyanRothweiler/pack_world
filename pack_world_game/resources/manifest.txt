@@ -19,6 +19,9 @@ tile_tallgrass
 tile
 tile_shrub
 
+tile
+tile_oaktree
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

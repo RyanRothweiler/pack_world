@@ -201,6 +201,7 @@ impl Assets {
             TileType::Cave,
             TileType::TallGrass,
             TileType::Shrub,
+            TileType::OakTree,
         ] {
             self.tile_materials.insert(
                 tile_type,
@@ -306,10 +307,12 @@ impl Assets {
         render_api: &impl RenderApi,
     ) {
         let cam_dist = match tile_type {
+            TileType::OakTree => 9.14,
             _ => 5.0,
         };
 
         let cam_height = match tile_type {
+            TileType::OakTree => 7.5,
             _ => 3.5,
         };
 

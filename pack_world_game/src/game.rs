@@ -483,7 +483,7 @@ pub fn game_loop(
                 gs.debug_state.thumbnail_height -= spd;
             }
 
-            let tile_type = TileType::Grass;
+            let tile_type = TileType::OakTree;
             gs.assets.render_tile_thumbnail(
                 tile_type,
                 Some(gs.debug_state.thumbnail_dist),
@@ -635,20 +635,17 @@ pub fn game_loop(
 
         let can_place = tile.can_place_here(mouse_grid, &gs.world);
 
-        // ren1der tile placing
+        // render tile placing
         let footprint = &tile.get_definition().footprint;
-        for p in footprint {
-            let pos = mouse_grid + *p;
 
-            draw_tile_grid_pos(
-                tile,
-                0.0,
-                &pos,
-                can_place,
-                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-                &gs.assets,
-            );
-        }
+        draw_tile_grid_pos(
+            tile,
+            0.0,
+            &mouse_grid,
+            can_place,
+            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+            &gs.assets,
+        );
 
         // place tile
         if input.mouse.button_left.on_press && can_place {

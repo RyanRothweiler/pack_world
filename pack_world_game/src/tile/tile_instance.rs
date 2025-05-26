@@ -163,16 +163,6 @@ impl TileInstance {
             TileMethods::BirdNest(state) => {
                 state.render(rot_time, pos, shader_color, render_pack, assets);
             }
-            TileMethods::OakTree(state) => {
-                state.render(
-                    self.get_component_harvestable().unwrap(),
-                    rot_time,
-                    pos,
-                    shader_color,
-                    render_pack,
-                    assets,
-                );
-            }
             _ => {
                 let harvestable = self.get_component_harvestable();
                 let wander = self.get_component_wander();
