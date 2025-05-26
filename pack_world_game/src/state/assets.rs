@@ -200,6 +200,7 @@ impl Assets {
             TileType::Boulder,
             TileType::Cave,
             TileType::TallGrass,
+            TileType::Shrub,
         ] {
             self.tile_materials.insert(
                 tile_type,

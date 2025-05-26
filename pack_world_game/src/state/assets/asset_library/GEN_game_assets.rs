@@ -43,6 +43,12 @@ include_texture!(al, "tile_tallgrass_metallic", "../../../../resources/tiles/til
 include_texture!(al, "tile_tallgrass_roughness", "../../../../resources/tiles/tile_tallgrass/Roughness.png", render_api);
 include_texture!(al, "tile_tallgrass_ao", "../../../../resources/tiles/tile_tallgrass/AO.png", render_api);
 include_texture!(al, "tile_tallgrass_normal", "../../../../resources/tiles/tile_tallgrass/Normal.png", render_api);
+include_model!(al, "tile_shrub", "../../../../resources/tiles/tile_shrub/tile_shrub.obj", render_api);
+include_texture!(al, "tile_shrub_base_color", "../../../../resources/tiles/tile_shrub/BaseColor.png", render_api);
+include_texture!(al, "tile_shrub_metallic", "../../../../resources/tiles/tile_shrub/Metallic.png", render_api);
+include_texture!(al, "tile_shrub_roughness", "../../../../resources/tiles/tile_shrub/Roughness.png", render_api);
+include_texture!(al, "tile_shrub_ao", "../../../../resources/tiles/tile_shrub/AO.png", render_api);
+include_texture!(al, "tile_shrub_normal", "../../../../resources/tiles/tile_shrub/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }

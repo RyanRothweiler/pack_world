@@ -16,6 +16,9 @@ tile_cave
 tile
 tile_tallgrass
 
+tile
+tile_shrub
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj
