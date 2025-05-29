@@ -55,6 +55,12 @@ include_texture!(al, "tile_oaktree_metallic", "../../../../resources/tiles/tile_
 include_texture!(al, "tile_oaktree_roughness", "../../../../resources/tiles/tile_oaktree/Roughness.png", render_api);
 include_texture!(al, "tile_oaktree_ao", "../../../../resources/tiles/tile_oaktree/AO.png", render_api);
 include_texture!(al, "tile_oaktree_normal", "../../../../resources/tiles/tile_oaktree/Normal.png", render_api);
+include_model!(al, "tile_mudpit", "../../../../resources/tiles/tile_mudpit/tile_mudpit.obj", render_api);
+include_texture!(al, "tile_mudpit_base_color", "../../../../resources/tiles/tile_mudpit/BaseColor.png", render_api);
+include_texture!(al, "tile_mudpit_metallic", "../../../../resources/tiles/tile_mudpit/Metallic.png", render_api);
+include_texture!(al, "tile_mudpit_roughness", "../../../../resources/tiles/tile_mudpit/Roughness.png", render_api);
+include_texture!(al, "tile_mudpit_ao", "../../../../resources/tiles/tile_mudpit/AO.png", render_api);
+include_texture!(al, "tile_mudpit_normal", "../../../../resources/tiles/tile_mudpit/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }
