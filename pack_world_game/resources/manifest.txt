@@ -25,6 +25,9 @@ tile_oaktree
 tile
 tile_mudpit
 
+tile
+tile_birdnest
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

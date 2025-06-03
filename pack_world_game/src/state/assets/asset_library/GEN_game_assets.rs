@@ -61,6 +61,12 @@ include_texture!(al, "tile_mudpit_metallic", "../../../../resources/tiles/tile_m
 include_texture!(al, "tile_mudpit_roughness", "../../../../resources/tiles/tile_mudpit/Roughness.png", render_api);
 include_texture!(al, "tile_mudpit_ao", "../../../../resources/tiles/tile_mudpit/AO.png", render_api);
 include_texture!(al, "tile_mudpit_normal", "../../../../resources/tiles/tile_mudpit/Normal.png", render_api);
+include_model!(al, "tile_birdnest", "../../../../resources/tiles/tile_birdnest/tile_birdnest.obj", render_api);
+include_texture!(al, "tile_birdnest_base_color", "../../../../resources/tiles/tile_birdnest/BaseColor.png", render_api);
+include_texture!(al, "tile_birdnest_metallic", "../../../../resources/tiles/tile_birdnest/Metallic.png", render_api);
+include_texture!(al, "tile_birdnest_roughness", "../../../../resources/tiles/tile_birdnest/Roughness.png", render_api);
+include_texture!(al, "tile_birdnest_ao", "../../../../resources/tiles/tile_birdnest/AO.png", render_api);
+include_texture!(al, "tile_birdnest_normal", "../../../../resources/tiles/tile_birdnest/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }
