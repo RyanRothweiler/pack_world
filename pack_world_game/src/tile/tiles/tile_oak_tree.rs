@@ -19,6 +19,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops construction resources.",
     world_layer: WorldLayer::Floor,
     footprint: GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
+    placing_draw_footprint: false,
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 

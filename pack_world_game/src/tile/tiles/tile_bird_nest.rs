@@ -19,6 +19,8 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::TreeAttachment,
     footprint: vec![GridPos::new(0, 0)],
 
+    placing_draw_footprint: false,
+
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::OakTree {
         has_nest: false,
     })],

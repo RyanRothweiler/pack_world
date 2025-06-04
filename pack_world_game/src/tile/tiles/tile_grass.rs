@@ -23,6 +23,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Drops basic resources. Reduce cooldown by 10% if adjacent to water.",
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
+    placing_draw_footprint: false,
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 

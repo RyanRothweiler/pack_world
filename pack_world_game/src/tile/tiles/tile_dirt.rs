@@ -12,6 +12,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Placed on empty space. Creates ground for other tiles.",
     world_layer: WorldLayer::Ground,
     footprint: vec![GridPos::new(0, 0)],
+    placing_draw_footprint: false,
 
     placement_constraints: vec![WorldCondition::ValidPosition()],
 

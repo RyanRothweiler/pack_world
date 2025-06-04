@@ -52,10 +52,22 @@ impl TileType {
         for p in &definition.footprint {
             let pos = origin + *p;
 
-            for cond in &definition.placement_constraints {
-                if !cond.valid(pos, &world_snapshot) {
-                    return false;
-                }
+            if !self.pos_passes_placement_constraints(pos, world) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// Doesn't mean the tile is placeable. Only means this pos pases the placement constraints.
+    pub fn pos_passes_placement_constraints(&self, pos: GridPos, world: &World) -> bool {
+        let definition = self.get_definition();
+        let world_snapshot = world.get_world_snapshot();
+
+        for cond in &definition.placement_constraints {
+            if !cond.valid(pos, &world_snapshot) {
+                return false;
             }
         }
 

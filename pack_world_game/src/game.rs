@@ -633,21 +633,39 @@ pub fn game_loop(
             gs.tile_placing = None;
         }
 
-        let can_place = tile.can_place_here(mouse_grid, &gs.world);
-
         // render tile placing
-        let footprint = &tile.get_definition().footprint;
+        if tile.get_definition().placing_draw_footprint {
+            let footprint = &tile.get_definition().footprint;
 
-        draw_tile_grid_pos(
-            tile,
-            0.0,
-            &mouse_grid,
-            can_place,
-            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-            &gs.assets,
-        );
+            for p in footprint {
+                let pos = mouse_grid + *p;
+
+                let can_place = tile.pos_passes_placement_constraints(pos, &gs.world);
+
+                draw_tile_grid_pos(
+                    tile,
+                    0.0,
+                    &pos,
+                    can_place,
+                    es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                    &gs.assets,
+                );
+            }
+        } else {
+            let can_place = tile.can_place_here(mouse_grid, &gs.world);
+
+            draw_tile_grid_pos(
+                tile,
+                0.0,
+                &mouse_grid,
+                can_place,
+                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                &gs.assets,
+            );
+        }
 
         // place tile
+        let can_place = tile.can_place_here(mouse_grid, &gs.world);
         if input.mouse.button_left.on_press && can_place {
             if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
                 let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();

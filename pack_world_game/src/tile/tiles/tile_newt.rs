@@ -20,6 +20,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Must be placed in water. Drops potion resources.",
     world_layer: WorldLayer::Walker,
     footprint: GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
+    placing_draw_footprint: false,
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Water)],
 

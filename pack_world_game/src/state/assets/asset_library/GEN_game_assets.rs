@@ -67,6 +67,12 @@ include_texture!(al, "tile_birdnest_metallic", "../../../../resources/tiles/tile
 include_texture!(al, "tile_birdnest_roughness", "../../../../resources/tiles/tile_birdnest/Roughness.png", render_api);
 include_texture!(al, "tile_birdnest_ao", "../../../../resources/tiles/tile_birdnest/AO.png", render_api);
 include_texture!(al, "tile_birdnest_normal", "../../../../resources/tiles/tile_birdnest/Normal.png", render_api);
+include_model!(al, "tile_frog", "../../../../resources/tiles/tile_frog/tile_frog.obj", render_api);
+include_texture!(al, "tile_frog_base_color", "../../../../resources/tiles/tile_frog/BaseColor.png", render_api);
+include_texture!(al, "tile_frog_metallic", "../../../../resources/tiles/tile_frog/Metallic.png", render_api);
+include_texture!(al, "tile_frog_roughness", "../../../../resources/tiles/tile_frog/Roughness.png", render_api);
+include_texture!(al, "tile_frog_ao", "../../../../resources/tiles/tile_frog/AO.png", render_api);
+include_texture!(al, "tile_frog_normal", "../../../../resources/tiles/tile_frog/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }

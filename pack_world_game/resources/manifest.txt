@@ -28,6 +28,9 @@ tile_mudpit
 tile
 tile_birdnest
 
+tile
+tile_frog
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

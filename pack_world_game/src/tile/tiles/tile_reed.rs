@@ -23,6 +23,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     description: "Must be placed in mud. Drops potion resources",
     world_layer: WorldLayer::Planted,
     footprint: vec![GridPos::new(0, 0)],
+    placing_draw_footprint: false,
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::MudPit)],
 

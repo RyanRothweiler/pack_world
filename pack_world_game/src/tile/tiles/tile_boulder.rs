@@ -20,6 +20,8 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     world_layer: WorldLayer::Floor,
     footprint: vec![GridPos::new(0, 0)],
 
+    placing_draw_footprint: false,
+
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
 
     new_instance: new_instance,
