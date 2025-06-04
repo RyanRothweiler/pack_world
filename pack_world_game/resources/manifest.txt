@@ -34,6 +34,9 @@ tile_frog
 tile
 tile_newt
 
+tile
+tile_reed
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

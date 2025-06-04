@@ -483,7 +483,7 @@ pub fn game_loop(
                 gs.debug_state.thumbnail_height -= spd;
             }
 
-            let tile_type = TileType::OakTree;
+            let tile_type = TileType::Reed;
             gs.assets.render_tile_thumbnail(
                 tile_type,
                 Some(gs.debug_state.thumbnail_dist),

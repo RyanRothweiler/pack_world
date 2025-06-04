@@ -206,6 +206,7 @@ impl Assets {
             TileType::BirdNest,
             TileType::Frog,
             TileType::Newt,
+            TileType::Reed,
         ] {
             self.tile_materials.insert(
                 tile_type,
@@ -312,11 +313,13 @@ impl Assets {
     ) {
         let cam_dist = match tile_type {
             TileType::OakTree => 9.14,
+            TileType::Reed => 3.8,
             _ => 5.0,
         };
 
         let cam_height = match tile_type {
             TileType::OakTree => 7.5,
+            TileType::Reed => 4.5,
             _ => 3.5,
         };
 
