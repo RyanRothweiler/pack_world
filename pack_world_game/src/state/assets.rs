@@ -205,6 +205,7 @@ impl Assets {
             TileType::MudPit,
             TileType::BirdNest,
             TileType::Frog,
+            TileType::Newt,
         ] {
             self.tile_materials.insert(
                 tile_type,

@@ -31,6 +31,9 @@ tile_birdnest
 tile
 tile_frog
 
+tile
+tile_newt
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj
