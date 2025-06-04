@@ -21,7 +21,7 @@ use std::sync::LazyLock;
 pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     title: "Clam",
     description: "Drops trash and occasionally pearls.",
-    world_layer: WorldLayer::Floor,
+    world_layer: WorldLayer::Walker,
     footprint: vec![GridPos::new(0, 0)],
     placing_draw_footprint: false,
 

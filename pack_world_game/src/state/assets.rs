@@ -16,31 +16,17 @@ pub mod asset_library;
 pub use asset_library::*;
 
 pub struct Assets {
-    pub image_dirt: Image,
-    pub image_grass: Image,
     pub image_dirt_clod: Image,
     pub image_stick: Image,
-    pub image_boulder: Image,
     pub image_rock: Image,
-    pub image_oak_tree: Image,
     pub image_oak_wood: Image,
-    pub image_bird_nest: Image,
     pub image_gold: Image,
     pub image_acorn: Image,
-    pub image_cave: Image,
     pub image_dragon_egg: Image,
     pub image_baby: Image,
-    pub image_shrub: Image,
     pub image_berry: Image,
     pub image_question_mark: Image,
-    pub image_mud_pit: Image,
-    pub image_tall_grass: Image,
     pub image_mud_baby: Image,
-    pub image_frog: Image,
-    pub image_water: Image,
-    pub image_newt: Image,
-    pub image_reed: Image,
-    pub image_clam: Image,
     pub image_pearl: Image,
     pub image_old_boot: Image,
     pub image_seaweed: Image,
@@ -70,31 +56,17 @@ pub struct Assets {
 impl Assets {
     pub fn new() -> Self {
         Self {
-            image_dirt: Image::new(),
-            image_grass: Image::new(),
             image_stick: Image::new(),
             image_dirt_clod: Image::new(),
-            image_boulder: Image::new(),
             image_rock: Image::new(),
-            image_oak_tree: Image::new(),
             image_oak_wood: Image::new(),
-            image_bird_nest: Image::new(),
             image_gold: Image::new(),
             image_acorn: Image::new(),
-            image_cave: Image::new(),
             image_dragon_egg: Image::new(),
             image_baby: Image::new(),
-            image_shrub: Image::new(),
             image_berry: Image::new(),
             image_question_mark: Image::new(),
-            image_mud_pit: Image::new(),
-            image_tall_grass: Image::new(),
             image_mud_baby: Image::new(),
-            image_frog: Image::new(),
-            image_water: Image::new(),
-            image_newt: Image::new(),
-            image_reed: Image::new(),
-            image_clam: Image::new(),
             image_pearl: Image::new(),
             image_old_boot: Image::new(),
             image_seaweed: Image::new(),
@@ -207,6 +179,7 @@ impl Assets {
             TileType::Frog,
             TileType::Newt,
             TileType::Reed,
+            TileType::Clam,
         ] {
             self.tile_materials.insert(
                 tile_type,
@@ -232,14 +205,9 @@ impl Assets {
         return None;
     }
 
-    pub fn get_tile_icon(&self, tile: &TileType) -> u32 {
-        self.get_tile_image_opt(tile)
-            .expect(&format!("Missing tile image for {:?}", tile))
-    }
-
     pub fn get_item_icon(&mut self, item: &ItemType) -> u32 {
         self.get_item_image_opt(item)
-            .unwrap_or(self.image_grass.gl_id.unwrap())
+            .unwrap_or(self.image_question_mark.gl_id.unwrap())
     }
 
     pub fn get_drop_icon(&mut self, drop: &DropType) -> u32 {
@@ -282,25 +250,6 @@ impl Assets {
             ItemType::Dew => return self.image_dew.gl_id,
 
             ItemType::Tile(tile_type) => return self.get_tile_thumbnail(tile_type),
-        };
-    }
-
-    fn get_tile_image_opt(&self, tile: &TileType) -> Option<u32> {
-        match tile {
-            TileType::Dirt => return self.image_dirt.gl_id,
-            TileType::Grass => return self.image_grass.gl_id,
-            TileType::Boulder => return self.image_boulder.gl_id,
-            TileType::OakTree => return self.image_oak_tree.gl_id,
-            TileType::BirdNest => return self.image_bird_nest.gl_id,
-            TileType::Cave => return self.image_cave.gl_id,
-            TileType::Shrub => return self.image_shrub.gl_id,
-            TileType::MudPit => return self.image_mud_pit.gl_id,
-            TileType::TallGrass => return self.image_tall_grass.gl_id,
-            TileType::Frog => return self.image_frog.gl_id,
-            TileType::Water => return self.image_water.gl_id,
-            TileType::Newt => return self.image_newt.gl_id,
-            TileType::Reed => return self.image_reed.gl_id,
-            TileType::Clam => return self.image_clam.gl_id,
         };
     }
 

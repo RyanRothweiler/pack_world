@@ -111,62 +111,34 @@ pub fn game_init(
     load_game_assets(&mut gs.assets.asset_library, render_api);
     gs.assets.build_assets(es.pbr_shader, es.shader_color);
 
-    gs.assets.image_dirt =
-        load_image_cursor(include_bytes!("../resources/dirt.png"), render_api).unwrap();
-    gs.assets.image_grass =
-        load_image_cursor(include_bytes!("../resources/grass.png"), render_api).unwrap();
     gs.assets.image_dirt_clod =
         load_image_cursor(include_bytes!("../resources/dirt_clod.png"), render_api).unwrap();
     gs.assets.image_stick =
         load_image_cursor(include_bytes!("../resources/stick.png"), render_api).unwrap();
     gs.assets.image_pack_starter =
         load_image_cursor(include_bytes!("../resources/pack_starter.png"), render_api).unwrap();
-    gs.assets.image_boulder =
-        load_image_cursor(include_bytes!("../resources/boulder.png"), render_api).unwrap();
     gs.assets.image_rock =
         load_image_cursor(include_bytes!("../resources/rock.png"), render_api).unwrap();
-    gs.assets.image_oak_tree =
-        load_image_cursor(include_bytes!("../resources/oak_tree.png"), render_api).unwrap();
     gs.assets.image_oak_wood =
         load_image_cursor(include_bytes!("../resources/oak_wood.png"), render_api).unwrap();
-    gs.assets.image_bird_nest =
-        load_image_cursor(include_bytes!("../resources/bird_nest.png"), render_api).unwrap();
     gs.assets.image_gold =
         load_image_cursor(include_bytes!("../resources/gold.png"), render_api).unwrap();
     gs.assets.image_acorn =
         load_image_cursor(include_bytes!("../resources/acorn.png"), render_api).unwrap();
-    gs.assets.image_cave =
-        load_image_cursor(include_bytes!("../resources/cave.png"), render_api).unwrap();
     gs.assets.image_dragon_egg =
         load_image_cursor(include_bytes!("../resources/dragon_egg.png"), render_api).unwrap();
     gs.assets.image_baby =
         load_image_cursor(include_bytes!("../resources/baby.png"), render_api).unwrap();
-    gs.assets.image_shrub =
-        load_image_cursor(include_bytes!("../resources/shrub.png"), render_api).unwrap();
     gs.assets.image_berry =
         load_image_cursor(include_bytes!("../resources/berry.png"), render_api).unwrap();
     gs.assets.image_pack_stick =
         load_image_cursor(include_bytes!("../resources/pack_stick.png"), render_api).unwrap();
     gs.assets.image_question_mark =
         load_image_cursor(include_bytes!("../resources/question_mark.png"), render_api).unwrap();
-    gs.assets.image_mud_pit =
-        load_image_cursor(include_bytes!("../resources/mud_pit.png"), render_api).unwrap();
-    gs.assets.image_tall_grass =
-        load_image_cursor(include_bytes!("../resources/tall_grass.png"), render_api).unwrap();
     gs.assets.image_mud_baby =
         load_image_cursor(include_bytes!("../resources/mud_baby.png"), render_api).unwrap();
-    gs.assets.image_frog =
-        load_image_cursor(include_bytes!("../resources/frog.png"), render_api).unwrap();
-    gs.assets.image_water =
-        load_image_cursor(include_bytes!("../resources/water.png"), render_api).unwrap();
     gs.assets.image_pack_mud =
         load_image_cursor(include_bytes!("../resources/pack_mud.png"), render_api).unwrap();
-    gs.assets.image_newt =
-        load_image_cursor(include_bytes!("../resources/newt.png"), render_api).unwrap();
-    gs.assets.image_reed =
-        load_image_cursor(include_bytes!("../resources/reed.png"), render_api).unwrap();
-    gs.assets.image_clam =
-        load_image_cursor(include_bytes!("../resources/clam.png"), render_api).unwrap();
     gs.assets.image_pearl =
         load_image_cursor(include_bytes!("../resources/pearl.png"), render_api).unwrap();
     gs.assets.image_old_boot =

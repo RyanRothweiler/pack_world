@@ -85,6 +85,12 @@ include_texture!(al, "tile_reed_metallic", "../../../../resources/tiles/tile_ree
 include_texture!(al, "tile_reed_roughness", "../../../../resources/tiles/tile_reed/Roughness.png", render_api);
 include_texture!(al, "tile_reed_ao", "../../../../resources/tiles/tile_reed/AO.png", render_api);
 include_texture!(al, "tile_reed_normal", "../../../../resources/tiles/tile_reed/Normal.png", render_api);
+include_model!(al, "tile_clam", "../../../../resources/tiles/tile_clam/tile_clam.obj", render_api);
+include_texture!(al, "tile_clam_base_color", "../../../../resources/tiles/tile_clam/BaseColor.png", render_api);
+include_texture!(al, "tile_clam_metallic", "../../../../resources/tiles/tile_clam/Metallic.png", render_api);
+include_texture!(al, "tile_clam_roughness", "../../../../resources/tiles/tile_clam/Roughness.png", render_api);
+include_texture!(al, "tile_clam_ao", "../../../../resources/tiles/tile_clam/AO.png", render_api);
+include_texture!(al, "tile_clam_normal", "../../../../resources/tiles/tile_clam/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }
