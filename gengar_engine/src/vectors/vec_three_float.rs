@@ -33,6 +33,10 @@ impl VecThreeFloat {
         VecTwo::new(self.x, self.z)
     }
 
+    pub fn dist_from(&self, a: VecThreeFloat) -> f64 {
+        ((self.x - a.x).powf(2.0) + (self.y - a.y).powf(2.0) + (self.z - a.z).powf(2.0)).sqrt()
+    }
+
     pub fn length(&self) -> f64 {
         ((self.x * self.x) + (self.y * self.y) + (self.z * self.z)).sqrt()
     }

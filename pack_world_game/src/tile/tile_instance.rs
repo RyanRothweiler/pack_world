@@ -176,15 +176,20 @@ impl TileInstance {
                     }
                 }
 
-                /*
                 // wander position
                 let mut render_pos = grid_to_world(pos);
                 if let Some(wander_state) = wander {
                     render_pos = wander_state.curr_world_pos;
                 }
-                */
 
-                draw_tile_grid_pos(self.tile_type, rotation, &pos, true, render_pack, assets);
+                draw_tile_world_pos(
+                    self.tile_type,
+                    rotation,
+                    &render_pos,
+                    true,
+                    render_pack,
+                    assets,
+                );
             }
         }
     }
