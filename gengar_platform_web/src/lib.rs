@@ -168,6 +168,9 @@ pub fn start() {
 
         buffers: HashMap::new(),
         next_buffer_id: 0,
+
+        frame_buffers: HashMap::new(),
+        next_frame_buffer_id: 0,
     };
 
     let performance = window

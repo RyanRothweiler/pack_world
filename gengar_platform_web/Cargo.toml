@@ -42,6 +42,8 @@ features = [
   "WebGlProgram",
   "WebGlBuffer",
   "WebGlShader",
+  "WebGlFramebuffer",
+  "WebGlRenderbuffer",
   "KeyboardEvent",
   "MouseEvent",
   "BeforeUnloadEvent",

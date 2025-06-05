@@ -2,13 +2,17 @@ use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
     render::{
-        frame_buffer_pack::*, image::Image, render_pack::*, vao::Vao,
+        frame_buffer_pack::*,
+        image::{Image, ImageFormat},
+        render_pack::*,
+        vao::Vao,
         RenderApi as EngineRenderApiTrait, ShaderType,
     },
     vectors::*,
 };
+
 use web_sys::{
-    WebGl2RenderingContext, WebGlBuffer, WebGlProgram, WebGlShader, WebGlTexture,
+    WebGl2RenderingContext, WebGlBuffer, WebGlFramebuffer, WebGlProgram, WebGlShader, WebGlTexture,
     WebGlUniformLocation, WebGlVertexArrayObject,
 };
 
@@ -31,6 +35,9 @@ pub struct WebGLState {
 
     pub buffers: HashMap<u32, WebGlBuffer>,
     pub next_buffer_id: u32,
+
+    pub frame_buffers: HashMap<u32, WebGlFramebuffer>,
+    pub next_frame_buffer_id: u32,
 }
 
 impl WebGLState {
@@ -278,8 +285,16 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         let mip_level: i32 = 0;
         let border: i32 = 0;
 
-        let gl_internal_format: i32 = WebGl2RenderingContext::RGBA as i32;
-        let image_format: u32 = WebGl2RenderingContext::RGBA as u32;
+        let image_format = match data.format {
+            ImageFormat::RGBA => WebGl2RenderingContext::RGBA as u32,
+            ImageFormat::RGB => WebGl2RenderingContext::RGB as u32,
+        };
+
+        let gl_internal_format = match data.format {
+            ImageFormat::RGBA => WebGl2RenderingContext::RGBA as i32,
+            ImageFormat::RGB => WebGl2RenderingContext::RGB as i32,
+        };
+
         let image_pixel_format: u32 = WebGl2RenderingContext::UNSIGNED_BYTE as u32;
 
         /*
@@ -289,7 +304,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         */
 
         context
-            .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_u8_array_and_src_offset(
+            .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
                 WebGl2RenderingContext::TEXTURE_2D,
                 mip_level,
                 gl_internal_format,
@@ -298,8 +313,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
                 border,
                 image_format,
                 image_pixel_format,
-                &data.data,
-                0,
+                Some(&data.data),
             )
             .unwrap();
 
@@ -312,11 +326,163 @@ impl EngineRenderApiTrait for WebGLRenderApi {
     }
 
     fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, EngineError> {
-        todo!("Implement webgl framebuffer work");
+        let context = unsafe { GL_CONTEXT.as_mut().unwrap() };
+        let gl_state: &mut WebGLState = unsafe { GL_STATE.as_mut().unwrap() };
+
+        // framebuffer
+        let frame_buffer = context.create_framebuffer().unwrap();
+        context.bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, Some(&frame_buffer));
+
+        // color texture
+        let color_buffer = context.create_texture().unwrap();
+        {
+            context.bind_texture(WebGl2RenderingContext::TEXTURE_2D, Some(&color_buffer));
+
+            let mip_level: i32 = 0;
+            let border: i32 = 0;
+
+            let gl_internal_format: i32 = WebGl2RenderingContext::RGBA as i32;
+            let image_format: u32 = WebGl2RenderingContext::RGBA as u32;
+            let image_pixel_format: u32 = WebGl2RenderingContext::UNSIGNED_BYTE as u32;
+
+            context
+                .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
+                    WebGl2RenderingContext::TEXTURE_2D,
+                    mip_level,
+                    gl_internal_format,
+                    width,
+                    height,
+                    border,
+                    image_format,
+                    image_pixel_format,
+                    None,
+                )
+                .unwrap();
+
+            context.tex_parameteri(
+                WebGl2RenderingContext::TEXTURE_2D,
+                WebGl2RenderingContext::TEXTURE_MAG_FILTER,
+                WebGl2RenderingContext::LINEAR as i32,
+            );
+            context.tex_parameteri(
+                WebGl2RenderingContext::TEXTURE_2D,
+                WebGl2RenderingContext::TEXTURE_MIN_FILTER,
+                WebGl2RenderingContext::LINEAR as i32,
+            );
+
+            context.framebuffer_texture_2d(
+                WebGl2RenderingContext::FRAMEBUFFER,
+                WebGl2RenderingContext::COLOR_ATTACHMENT0,
+                WebGl2RenderingContext::TEXTURE_2D,
+                Some(&color_buffer),
+                0,
+            );
+            context.bind_texture(WebGl2RenderingContext::TEXTURE_2D, None);
+        }
+
+        // depth and stencil buffers
+        {
+            let rbo = context.create_renderbuffer().unwrap();
+            context.bind_renderbuffer(WebGl2RenderingContext::RENDERBUFFER, Some(&rbo));
+
+            context.renderbuffer_storage(
+                WebGl2RenderingContext::RENDERBUFFER,
+                WebGl2RenderingContext::DEPTH24_STENCIL8,
+                width,
+                height,
+            );
+            context.bind_renderbuffer(WebGl2RenderingContext::RENDERBUFFER, None);
+
+            context.framebuffer_renderbuffer(
+                WebGl2RenderingContext::FRAMEBUFFER,
+                WebGl2RenderingContext::DEPTH_STENCIL_ATTACHMENT,
+                WebGl2RenderingContext::RENDERBUFFER,
+                Some(&rbo),
+            );
+        }
+
+        {
+            let buffers = vec![
+                WebGl2RenderingContext::COLOR_ATTACHMENT0,
+                WebGl2RenderingContext::COLOR_ATTACHMENT1,
+                WebGl2RenderingContext::COLOR_ATTACHMENT2,
+            ];
+
+            // Convert to JSValue array
+            let js_buffers = js_sys::Array::new();
+            for &b in buffers.iter() {
+                js_buffers.push(&wasm_bindgen::JsValue::from(b));
+            }
+
+            context.draw_buffers(&js_buffers);
+        }
+
+        let status = context.check_framebuffer_status(WebGl2RenderingContext::FRAMEBUFFER);
+        if status != WebGl2RenderingContext::FRAMEBUFFER_COMPLETE {
+            panic!("Framebuffer is incomplete");
+        }
+
+        context.bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, None);
+
+        let gl_state: &mut WebGLState = unsafe { GL_STATE.as_mut().unwrap() };
+
+        let pack = FrameBufferPack {
+            frame_buffer: gl_state.next_frame_buffer_id,
+            color_buffer: gl_state.next_texture_id,
+        };
+
+        gl_state.next_frame_buffer_id += 1;
+        gl_state.next_texture_id += 1;
+        gl_state
+            .frame_buffers
+            .insert(pack.frame_buffer, frame_buffer);
+        gl_state.textures.insert(pack.color_buffer, color_buffer);
+
+        Ok(pack)
     }
 
     fn draw_frame_buffer(&self, frame_buffer: u32, render_pack: &mut RenderPack) {
-        todo!("Implement webgl framebuffer work");
+        let context = unsafe { GL_CONTEXT.as_mut().unwrap() };
+        let gl_state: &mut WebGLState = unsafe { GL_STATE.as_mut().unwrap() };
+
+        let fb = gl_state
+            .frame_buffers
+            .get(&frame_buffer)
+            .expect("Missing framebuffer id");
+
+        context.bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, Some(&fb));
+        context.viewport(
+            0,
+            0,
+            render_pack.camera.resolution.x as i32,
+            render_pack.camera.resolution.y as i32,
+        );
+
+        context.enable(WebGl2RenderingContext::DEPTH_TEST);
+        context.enable(WebGl2RenderingContext::BLEND);
+
+        context.blend_func(
+            WebGl2RenderingContext::SRC_ALPHA,
+            WebGl2RenderingContext::ONE_MINUS_SRC_ALPHA,
+        );
+
+        context.depth_func(WebGl2RenderingContext::LEQUAL);
+
+        context.clear_color(0.0, 0.0, 0.0, 0.0);
+        context.clear(
+            WebGl2RenderingContext::COLOR_BUFFER_BIT
+                | WebGl2RenderingContext::DEPTH_BUFFER_BIT
+                | WebGl2RenderingContext::STENCIL_BUFFER_BIT,
+        );
+
+        crate::webgl::webgl_render::render_render_pack(
+            VecThreeFloat::new(100.0, 100.0, 0.0),
+            render_pack,
+            self,
+            context,
+        );
+
+        context.bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, None);
     }
 }
 

@@ -31,8 +31,12 @@ pub fn render(
     context
         .clear(WebGl2RenderingContext::COLOR_BUFFER_BIT | WebGl2RenderingContext::DEPTH_BUFFER_BIT);
 
-    todo!("fix the order of these lists");
-
+    render_render_pack(
+        light_pos,
+        es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+        &render_api,
+        context,
+    );
     render_render_pack(
         light_pos,
         es.render_packs.get_mut(&RenderPackID::World).unwrap(),
@@ -79,7 +83,7 @@ pub fn render(
     */
 }
 
-fn render_render_pack(
+pub fn render_render_pack(
     light_pos: VecThreeFloat,
     pack: &mut RenderPack,
     render_api: &WebGLRenderApi,
@@ -94,7 +98,7 @@ fn render_render_pack(
     );
 }
 
-fn render_list(
+pub fn render_list(
     light_pos: VecThreeFloat,
     render_commands: &mut Vec<RenderCommand>,
     camera: &Camera,
