@@ -23,9 +23,9 @@ pub mod render_pack;
 pub mod shader;
 pub mod vao;
 
-// Render backend independent calls
+// Render backend independent calls. This abstracts over all render backend. That is the hope.
 pub trait RenderApi {
-    fn make_shader_program(&self, vert_shader: &str, frag_shader: &str) -> Result<u32, Error>;
+    fn make_shader_program(&mut self, vert_shader: &str, frag_shader: &str) -> Result<u32, Error>;
     fn create_vao(&self) -> Result<u32, Error>;
 
     // if gamma_correct is true then we'll pass srgb color space so that the image is gamma corrected by the graphics card.

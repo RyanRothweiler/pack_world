@@ -128,6 +128,7 @@ version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "gengar_engine",
+ "gengar_render_opengl",
  "js-sys",
  "pack_world_game",
  "rexie",

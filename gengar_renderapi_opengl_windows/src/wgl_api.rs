@@ -117,7 +117,7 @@ pub struct WglMethods {
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
-    fn create_shader(&self, id: i32) -> u32 {
+    fn create_shader(&mut self, id: i32) -> u32 {
         return (self.glCreateShader)(id);
     }
 
@@ -153,7 +153,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glDrawBuffers)(ty, attachments.as_ptr());
     }
 
-    fn create_program(&self) -> u32 {
+    fn create_program(&mut self) -> u32 {
         return (self.glCreateProgram)();
     }
 

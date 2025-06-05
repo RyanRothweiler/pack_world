@@ -26,7 +26,7 @@ impl Shader {
         Shader { prog_id: 0 }
     }
 
-    pub fn compile(vert: &str, frag: &str, render_api: &impl RenderApi) -> Result<Self, Error> {
+    pub fn compile(vert: &str, frag: &str, render_api: &mut impl RenderApi) -> Result<Self, Error> {
         let prog_id = render_api.make_shader_program(vert, frag)?;
         Ok(Shader { prog_id: prog_id })
     }

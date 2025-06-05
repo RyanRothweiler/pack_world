@@ -25,9 +25,9 @@ use gl_types::*;
 // Really not a great solution and obviously will break on other platforms.
 const WINDOWS_TITLE_BAR_ADJ: i32 = 40;
 
-// Platform implementation of these
+// Platformm specific opengl calls. This abstracts over the platforms.
 pub trait OGLPlatformImpl {
-    fn create_shader(&self, id: i32) -> u32;
+    fn create_shader(&mut self, id: i32) -> u32;
     fn shader_source(&self, id: u32, source: &str);
     fn compile_shader(&self, id: u32);
     fn get_shader_iv(&self, id: u32, info_typ: i32, output: *mut i32);
@@ -38,7 +38,7 @@ pub trait OGLPlatformImpl {
         output_length: *mut i32,
         output_buffer: &mut Vec<u8>,
     );
-    fn create_program(&self) -> u32;
+    fn create_program(&mut self) -> u32;
     fn attach_shader(&self, prog_id: u32, shader_id: u32);
     fn link_program(&self, prog_id: u32);
     fn gen_vertex_arrays(&self, count: i32, vao: *mut u32);
@@ -119,7 +119,7 @@ impl OglRenderApi {
     }
 
     fn compile_shader(
-        &self,
+        &mut self,
         shader_source: &str,
         shader_type: ShaderType,
     ) -> Result<u32, EngineError> {
@@ -149,7 +149,7 @@ impl OglRenderApi {
 
 impl EngineRenderApiTrait for OglRenderApi {
     fn make_shader_program(
-        &self,
+        &mut self,
         vert_shader: &str,
         frag_shader: &str,
     ) -> Result<u32, EngineError> {
@@ -160,6 +160,9 @@ impl EngineRenderApiTrait for OglRenderApi {
         self.platform_api.attach_shader(prog_id, vert_id);
         self.platform_api.attach_shader(prog_id, frag_id);
         self.platform_api.link_program(prog_id);
+
+        // we might need to change the error checking here to handle webgl.
+        // get_shader_iv is different on webgl
 
         let mut status: i32 = -1;
         self.platform_api

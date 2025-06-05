@@ -335,7 +335,7 @@ fn main() {
         let mut game_dll = load_game_dll().unwrap();
 
         // after context is setup, get the render api calls
-        let render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
+        let mut render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
 
         let mut engine_state = gengar_engine::state::State::new(resolution);
         let mut game_state = game::state::State::new();
@@ -343,7 +343,7 @@ fn main() {
         // setup input
         let mut input = gengar_engine::input::Input::new();
 
-        gengar_engine::load_resources(&mut engine_state, &render_api);
+        gengar_engine::load_resources(&mut engine_state, &mut render_api);
         if cfg!(feature = "hotreloading_dll") {
             (game_dll.proc_init)(
                 &mut game_state,

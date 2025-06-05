@@ -118,7 +118,7 @@ impl WebGLRenderApi {
 
 impl EngineRenderApiTrait for WebGLRenderApi {
     fn make_shader_program(
-        &self,
+        &mut self,
         vert_shader: &str,
         frag_shader: &str,
     ) -> Result<u32, EngineError> {

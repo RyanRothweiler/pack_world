@@ -28,6 +28,7 @@ pub mod time;
 pub mod transform;
 pub mod typeface;
 pub mod ui;
+pub mod util;
 pub mod vectors;
 pub mod vol_mem;
 
@@ -46,7 +47,7 @@ use transform::*;
 use typeface::*;
 use vectors::*;
 
-pub fn load_resources(es: &mut State, render_api: &impl render::RenderApi) {
+pub fn load_resources(es: &mut State, render_api: &mut impl render::RenderApi) {
     es.pbr_shader = Shader::compile(
         include_str!("../engine_resources/shaders/pbr.vs"),
         include_str!("../engine_resources/shaders/pbr.fs"),
