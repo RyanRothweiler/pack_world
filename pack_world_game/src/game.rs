@@ -396,10 +396,11 @@ pub fn game_loop(
     // debug developer stuff
     #[cfg(feature = "dev")]
     {
+        let g = 0.3;
+
         // draw fps
         {
             let fps = 1.0 / prev_delta_time;
-            let g = 0.3;
             draw_text(
                 &format!(
                     "{:?}fps {:?}ms",
@@ -409,6 +410,21 @@ pub fn game_loop(
                 VecTwo::new(
                     es.window_resolution.x - 140.0,
                     es.window_resolution.y - 60.0,
+                ),
+                Color::new(g, g, g, 1.0),
+                &gs.font_style_body,
+                &mut ui_frame_state,
+                &mut gs.ui_context.as_mut().unwrap(),
+            );
+        }
+
+        // render commands
+        {
+            draw_text(
+                &format!("{:?} rc", es.render_commands_len),
+                VecTwo::new(
+                    es.window_resolution.x - 140.0,
+                    es.window_resolution.y - 80.0,
                 ),
                 Color::new(g, g, g, 1.0),
                 &gs.font_style_body,
@@ -735,6 +751,15 @@ pub fn game_loop(
         .unwrap()
         .commands
         .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
+
+    // get draw calls
+    #[cfg(feature = "dev")]
+    {
+        es.render_commands_len = 0;
+        for (key, value) in &es.render_packs {
+            es.render_commands_len += value.commands.len() as i32;
+        }
+    }
 
     es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
     es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();

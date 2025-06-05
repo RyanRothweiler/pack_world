@@ -1,5 +1,8 @@
 #![allow(unused_imports, clippy::all)]
 
+/// This should work, but I realized I didn't really need it.
+/// Once all the methods here have been implemented then webgl_render can be swapped with this
+/// Then we don't need two gl rendering backends.
 use gengar_engine::{matricies::matrix_four_four::*, util::incrementing_map::*, vectors::*};
 
 use web_sys::{

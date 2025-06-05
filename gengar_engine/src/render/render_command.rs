@@ -8,7 +8,7 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum VertexDataKind {
     Vao {
         id: u32,
@@ -19,7 +19,7 @@ pub enum VertexDataKind {
     },
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct RenderCommand {
     pub kind: VertexDataKind,
 

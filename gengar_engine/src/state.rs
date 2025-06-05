@@ -38,6 +38,8 @@ pub struct State {
     pub roboto_typeface: Typeface,
 
     pub game_to_load: Vec<u8>,
+
+    pub render_commands_len: i32,
 }
 
 impl State {
@@ -66,6 +68,8 @@ impl State {
             game_to_load: vec![],
 
             frame: 0,
+
+            render_commands_len: 0,
         };
 
         state.render_packs.insert(
