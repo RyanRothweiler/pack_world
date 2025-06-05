@@ -14,6 +14,7 @@ use image::*;
 use render_command::*;
 use shader::*;
 
+pub mod accumulate_draw;
 pub mod camera;
 pub mod frame_buffer_pack;
 pub mod image;

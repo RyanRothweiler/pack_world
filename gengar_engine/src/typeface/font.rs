@@ -6,7 +6,7 @@ use crate::{
     math::*,
     matricies::matrix_four_four::*,
     rect::*,
-    render::{image::*, material::*, render_command::*, shader::*, RenderApi},
+    render::{accumulate_draw::*, image::*, material::*, render_command::*, shader::*, RenderApi},
     vectors::*,
 };
 use std::collections::HashMap;
@@ -224,20 +224,40 @@ pub fn render_word(
     render_commands: &mut Vec<RenderCommand>,
 ) {
     let mut cursor = pos;
+    let mut accum_draw = AccumulateDraw::new();
+
     for c in word.chars() {
-        render_letter(c, style, cursor, color, render_commands);
+        accumulate_draw_letter(c, style, cursor, &mut accum_draw);
 
         let glyph: &Glyph = style.typeface.glyphs.get(&c).unwrap();
         cursor.x += glyph.advance * EM_SCALE * KERNING_ADJ * style.size;
     }
+
+    // Guess the correct pxRange
+    let px_range = lerp(1.0, 24.0, style.size / 20.0);
+
+    let mut uniforms = style.typeface.material.uniforms.clone();
+    uniforms.insert("color".into(), UniformData::VecFour(color.into()));
+    uniforms.insert("pxRange".into(), UniformData::Float(px_range));
+
+    let rc = RenderCommand {
+        kind: VertexDataKind::DynamicMesh {
+            mesh: accum_draw.vertex,
+            uvs: accum_draw.uv,
+        },
+
+        prog_id: style.typeface.material.shader.unwrap().prog_id,
+        indices: accum_draw.indices,
+        uniforms: uniforms,
+    };
+    render_commands.push(rc);
 }
 
-pub fn render_letter(
+fn accumulate_draw_letter(
     letter: char,
     style: &FontStyle,
     bottom_left: VecTwo,
-    color: Color,
-    render_commands: &mut Vec<RenderCommand>,
+    draw: &mut AccumulateDraw,
 ) {
     let glyph: &Glyph = style.typeface.glyphs.get(&letter).unwrap();
 
@@ -253,7 +273,7 @@ pub fn render_letter(
     r.bottom_right.x += bottom_left.x;
     r.bottom_right.y += bottom_left.y;
 
-    let indices: Vec<u32> = vec![0, 1, 2, 3, 4, 5];
+    let mesh = r.get_mesh(-1.0);
     let uvs: Vec<VecTwo> = vec![
         VecTwo::new(glyph.atlas.left(), glyph.atlas.top()),
         VecTwo::new(glyph.atlas.right(), glyph.atlas.top()),
@@ -264,23 +284,7 @@ pub fn render_letter(
         VecTwo::new(glyph.atlas.right(), glyph.atlas.bottom()),
     ];
 
-    // Guess the correct pxRange
-    let px_range = lerp(1.0, 24.0, style.size / 20.0);
-    // let px_range = 1.0;
-
-    let mut uniforms = style.typeface.material.uniforms.clone();
-    uniforms.insert("color".into(), UniformData::VecFour(color.into()));
-    uniforms.insert("pxRange".into(), UniformData::Float(px_range));
-
-    let rc = RenderCommand {
-        kind: VertexDataKind::DynamicMesh {
-            mesh: r.get_mesh(-1.0),
-            uvs: uvs,
-        },
-
-        prog_id: style.typeface.material.shader.unwrap().prog_id,
-        indices: indices,
-        uniforms: uniforms,
-    };
-    render_commands.push(rc);
+    for i in 0..6 {
+        draw.add(uvs[i], mesh[i]);
+    }
 }
