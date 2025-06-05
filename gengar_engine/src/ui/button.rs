@@ -129,14 +129,17 @@ pub fn draw_text_button_id(
             shrink_target,
             context.delta_time * 35.0,
         );
-        r.shrink(button_state.shrink_current);
 
-        let mut mat = Material::new();
-        mat.shader = Some(context.color_shader);
-        mat.set_color(Color::new(0.0, 0.51, 0.75, 0.5));
-        context
-            .render_commands
-            .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
+        if (button_state.y_current - r.top_left.y).abs() > 0.01 {
+            r.shrink(button_state.shrink_current);
+
+            let mut mat = Material::new();
+            mat.shader = Some(context.color_shader);
+            mat.set_color(Color::new(0.0, 0.51, 0.75, 0.5));
+            context
+                .render_commands
+                .push(RenderCommand::new_rect(&r, -1.0, 0.0, &mat));
+        }
     }
 
     if underline {

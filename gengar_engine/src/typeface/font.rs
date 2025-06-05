@@ -198,6 +198,8 @@ pub fn render_paragraph(
     color: Color,
     render_commands: &mut Vec<RenderCommand>,
 ) {
+    let mut accum_draw = AccumulateDraw::new();
+
     let line_height = style.typeface.line_height * EM_SCALE * style.size;
     let space_width = style.get_word_width(" ");
 
@@ -211,9 +213,11 @@ pub fn render_paragraph(
             cursor.y += line_height;
         }
 
-        render_word(word.into(), style, cursor, color, render_commands);
+        accumulate_draw_word(word.into(), style, cursor, &mut accum_draw);
         cursor.x += word_width + space_width;
     }
+
+    render_accumulate(accum_draw, style, color, render_commands);
 }
 
 pub fn render_word(
@@ -223,36 +227,29 @@ pub fn render_word(
     color: Color,
     render_commands: &mut Vec<RenderCommand>,
 ) {
-    let mut cursor = pos;
     let mut accum_draw = AccumulateDraw::new();
+    accumulate_draw_word(word, style, pos, &mut accum_draw);
+    render_accumulate(accum_draw, style, color, render_commands);
+}
+
+/// Add word to accumulate draw call
+fn accumulate_draw_word(
+    word: String,
+    style: &FontStyle,
+    pos: VecTwo,
+    accum_draw: &mut AccumulateDraw,
+) {
+    let mut cursor = pos;
 
     for c in word.chars() {
-        accumulate_draw_letter(c, style, cursor, &mut accum_draw);
+        accumulate_draw_letter(c, style, cursor, accum_draw);
 
         let glyph: &Glyph = style.typeface.glyphs.get(&c).unwrap();
         cursor.x += glyph.advance * EM_SCALE * KERNING_ADJ * style.size;
     }
-
-    // Guess the correct pxRange
-    let px_range = lerp(1.0, 24.0, style.size / 20.0);
-
-    let mut uniforms = style.typeface.material.uniforms.clone();
-    uniforms.insert("color".into(), UniformData::VecFour(color.into()));
-    uniforms.insert("pxRange".into(), UniformData::Float(px_range));
-
-    let rc = RenderCommand {
-        kind: VertexDataKind::DynamicMesh {
-            mesh: accum_draw.vertex,
-            uvs: accum_draw.uv,
-        },
-
-        prog_id: style.typeface.material.shader.unwrap().prog_id,
-        indices: accum_draw.indices,
-        uniforms: uniforms,
-    };
-    render_commands.push(rc);
 }
 
+/// Add letters to accumulate draw call
 fn accumulate_draw_letter(
     letter: char,
     style: &FontStyle,
@@ -287,4 +284,31 @@ fn accumulate_draw_letter(
     for i in 0..6 {
         draw.add(uvs[i], mesh[i]);
     }
+}
+
+/// Render an accumulated draw call
+fn render_accumulate(
+    accum_draw: AccumulateDraw,
+    style: &FontStyle,
+    color: Color,
+    render_commands: &mut Vec<RenderCommand>,
+) {
+    // Guess the correct pxRange
+    let px_range = lerp(1.0, 24.0, style.size / 20.0);
+
+    let mut uniforms = style.typeface.material.uniforms.clone();
+    uniforms.insert("color".into(), UniformData::VecFour(color.into()));
+    uniforms.insert("pxRange".into(), UniformData::Float(px_range));
+
+    let rc = RenderCommand {
+        kind: VertexDataKind::DynamicMesh {
+            mesh: accum_draw.vertex,
+            uvs: accum_draw.uv,
+        },
+
+        prog_id: style.typeface.material.shader.unwrap().prog_id,
+        indices: accum_draw.indices,
+        uniforms: uniforms,
+    };
+    render_commands.push(rc);
 }
