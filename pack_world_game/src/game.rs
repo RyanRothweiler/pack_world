@@ -61,6 +61,7 @@ use grid::*;
 use harvest_drop::*;
 use harvest_timer::*;
 use item::*;
+use pack::*;
 use save_file::*;
 use state::inventory::*;
 use tile::*;
@@ -542,30 +543,205 @@ pub fn game_loop(
         handle_signals(update_sigs, gs, es, platform_api);
     }
 
-    // render tiles
-    {
-        // TODO chagne this to use delta_time
-        gs.rotate_time += 0.08;
+    match gs.world_status {
+        WorldStatus::World => {
+            // render tiles
+            {
+                // TODO chagne this to use delta_time
+                gs.rotate_time += 0.08;
 
-        for (grid_pos, world_cell) in &gs.world.entity_map {
-            for (layer, eid) in &world_cell.layers {
-                // Skip ground tils if there is a floor
-                if *layer == WorldLayer::Ground {
-                    if world_cell.layers.contains_key(&WorldLayer::Floor) {
-                        continue;
+                for (grid_pos, world_cell) in &gs.world.entity_map {
+                    for (layer, eid) in &world_cell.layers {
+                        // Skip ground tils if there is a floor
+                        if *layer == WorldLayer::Ground {
+                            if world_cell.layers.contains_key(&WorldLayer::Floor) {
+                                continue;
+                            }
+                        }
+
+                        let entity = &gs.world.get_entity(&eid);
+
+                        entity.render(
+                            gs.rotate_time,
+                            &entity.grid_pos,
+                            es.color_texture_shader,
+                            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                            &gs.assets,
+                        );
+                    }
+                }
+            }
+
+            // Get mouse grid position
+            let mouse_grid: GridPos = {
+                let mut val = GridPos::new(0, 0);
+
+                let cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
+                let pos = cam.screen_to_world(input.mouse.pos);
+
+                let dir = (pos - cam.transform.local_position).normalize();
+
+                if let Some(len) = plane_intersection_distance(
+                    cam.transform.local_position,
+                    dir,
+                    VecThreeFloat::new(0.0, 0.0, 0.0),
+                    VecThreeFloat::new(0.0, -1.0, 0.0),
+                ) {
+                    let world_pos = cam.transform.local_position + (dir * len);
+                    val = world_to_grid(&world_pos.xz());
+                }
+
+                val
+            };
+
+            // placing tiles
+            if let Some(tile) = gs.tile_placing {
+                // escape key reseting
+                if input.get_key(KeyCode::Escape).on_press {
+                    gs.tile_placing = None;
+                }
+
+                // render tile placing
+                if tile.get_definition().placing_draw_footprint {
+                    let footprint = &tile.get_definition().footprint;
+
+                    for p in footprint {
+                        let pos = mouse_grid + *p;
+
+                        let can_place = tile.pos_passes_placement_constraints(pos, &gs.world);
+
+                        draw_tile_grid_pos(
+                            tile,
+                            0.0,
+                            &pos,
+                            can_place,
+                            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                            &gs.assets,
+                        );
+                    }
+                } else {
+                    let can_place = tile.can_place_here(mouse_grid, &gs.world);
+
+                    draw_tile_grid_pos(
+                        tile,
+                        0.0,
+                        &mouse_grid,
+                        can_place,
+                        es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                        &gs.assets,
+                    );
+                }
+
+                // place tile
+                let can_place = tile.can_place_here(mouse_grid, &gs.world);
+                if input.mouse.button_left.on_press && can_place {
+                    if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
+                        let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
+                        if count == 0 {
+                            gs.tile_placing = None;
+                        }
+
+                        handle_signals(update_sigs, gs, es, platform_api);
+                    }
+                }
+            }
+
+            // tile hovering
+            {
+                let mut update_signals: Vec<UpdateSignal> = vec![];
+                let world_snapshot = gs.world.get_world_snapshot();
+
+                if gs.tile_placing.is_none() {
+                    let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
+
+                    for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
+                        let tile = gs.world.get_entity_mut(eid);
+
+                        // Harvesting
+                        if input.mouse.button_left.pressing && tile.can_harvest() {
+                            tile.harvest(&world_snapshot, platform_api);
+                        }
+
+                        // render hover rect
+                        {
+                            let mut mat = Material::new();
+                            mat.shader = Some(es.shader_color);
+                            mat.set_color(Color::new(1.0, 1.0, 1.0, 0.8));
+
+                            let mut trans = Transform::new();
+                            trans.local_position = grid_to_world(&mouse_grid);
+                            trans.update_global_matrix(&M44::new_identity());
+
+                            es.render_packs
+                                .get_mut(&RenderPackID::NewWorld)
+                                .unwrap()
+                                .commands
+                                .push(RenderCommand::new_model(
+                                    &trans,
+                                    gs.assets.asset_library.get_model("tile_outline"),
+                                    &mat,
+                                ));
+                        }
+
+                        // render info
+                        {
+                            let mut ui_frame_state =
+                                UIFrameState::new(&input, es.window_resolution);
+
+                            let y = layer.to_index() as f64 * 40.0;
+
+                            draw_text(
+                                &format!("{:?}", tile.tile_type),
+                                VecTwo::new(450.0, 100.0 + y),
+                                COLOR_WHITE,
+                                &gs.font_style_body,
+                                &mut ui_frame_state,
+                                &mut gs.ui_context.as_mut().unwrap(),
+                            );
+
+                            tile.render_hover_info(
+                                tile.get_component_harvestable(),
+                                y,
+                                es.shader_color.clone(),
+                                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                            );
+                        }
                     }
                 }
 
-                let entity = &gs.world.get_entity(&eid);
+                handle_signals(update_signals, gs, es, platform_api);
+            }
+        }
+        WorldStatus::Shop => {
+            let pack = PackID::Starter;
+            let pack_info = pack.get_pack_info();
 
-                entity.render(
-                    gs.rotate_time,
-                    &entity.grid_pos,
-                    es.color_texture_shader,
-                    es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-                    &gs.assets,
+            let world_origin = VecThreeFloat::new_zero();
+
+            let cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
+            let screen_origin = cam.world_to_screen(world_origin, es.window_resolution);
+
+            // ui
+            {
+                // title
+                render_word(
+                    pack_info.display_name.clone().into(),
+                    &gs.font_style_header,
+                    screen_origin + VecTwo::new(50.0, 0.0),
+                    COLOR_WHITE,
+                    &mut es.render_packs.get_mut(&RenderPackID::UI).unwrap().commands,
                 );
             }
+
+            // pack model
+            draw_tile_world_pos(
+                TileType::Dirt,
+                0.0,
+                &world_origin,
+                true,
+                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                &gs.assets,
+            );
         }
     }
 
@@ -592,145 +768,7 @@ pub fn game_loop(
         handle_signals(sigs, gs, es, platform_api);
     }
 
-    // Get mouse grid position
-    let mouse_grid: GridPos = {
-        let mut val = GridPos::new(0, 0);
-
-        let cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
-        let pos = cam.screen_to_world(input.mouse.pos);
-
-        let dir = (pos - cam.transform.local_position).normalize();
-
-        if let Some(len) = plane_intersection_distance(
-            cam.transform.local_position,
-            dir,
-            VecThreeFloat::new(0.0, 0.0, 0.0),
-            VecThreeFloat::new(0.0, -1.0, 0.0),
-        ) {
-            let world_pos = cam.transform.local_position + (dir * len);
-            val = world_to_grid(&world_pos.xz());
-        }
-
-        val
-    };
-
-    // placing tiles
-    if let Some(tile) = gs.tile_placing {
-        // escape key reseting
-        if input.get_key(KeyCode::Escape).on_press {
-            gs.tile_placing = None;
-        }
-
-        // render tile placing
-        if tile.get_definition().placing_draw_footprint {
-            let footprint = &tile.get_definition().footprint;
-
-            for p in footprint {
-                let pos = mouse_grid + *p;
-
-                let can_place = tile.pos_passes_placement_constraints(pos, &gs.world);
-
-                draw_tile_grid_pos(
-                    tile,
-                    0.0,
-                    &pos,
-                    can_place,
-                    es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-                    &gs.assets,
-                );
-            }
-        } else {
-            let can_place = tile.can_place_here(mouse_grid, &gs.world);
-
-            draw_tile_grid_pos(
-                tile,
-                0.0,
-                &mouse_grid,
-                can_place,
-                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-                &gs.assets,
-            );
-        }
-
-        // place tile
-        let can_place = tile.can_place_here(mouse_grid, &gs.world);
-        if input.mouse.button_left.on_press && can_place {
-            if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
-                let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
-                if count == 0 {
-                    gs.tile_placing = None;
-                }
-
-                handle_signals(update_sigs, gs, es, platform_api);
-            }
-        }
-    }
-
-    // tile hovering
-    {
-        let mut update_signals: Vec<UpdateSignal> = vec![];
-        let world_snapshot = gs.world.get_world_snapshot();
-
-        if gs.tile_placing.is_none() {
-            let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
-
-            for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
-                let tile = gs.world.get_entity_mut(eid);
-
-                // Harvesting
-                if input.mouse.button_left.pressing && tile.can_harvest() {
-                    tile.harvest(&world_snapshot, platform_api);
-                }
-
-                // render hover rect
-                {
-                    let mut mat = Material::new();
-                    mat.shader = Some(es.shader_color);
-                    mat.set_color(Color::new(1.0, 1.0, 1.0, 0.8));
-
-                    let mut trans = Transform::new();
-                    trans.local_position = grid_to_world(&mouse_grid);
-                    trans.update_global_matrix(&M44::new_identity());
-
-                    es.render_packs
-                        .get_mut(&RenderPackID::NewWorld)
-                        .unwrap()
-                        .commands
-                        .push(RenderCommand::new_model(
-                            &trans,
-                            gs.assets.asset_library.get_model("tile_outline"),
-                            &mat,
-                        ));
-                }
-
-                // render info
-                {
-                    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
-
-                    let y = layer.to_index() as f64 * 40.0;
-
-                    draw_text(
-                        &format!("{:?}", tile.tile_type),
-                        VecTwo::new(450.0, 100.0 + y),
-                        COLOR_WHITE,
-                        &gs.font_style_body,
-                        &mut ui_frame_state,
-                        &mut gs.ui_context.as_mut().unwrap(),
-                    );
-
-                    tile.render_hover_info(
-                        tile.get_component_harvestable(),
-                        y,
-                        es.shader_color.clone(),
-                        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
-                    );
-                }
-            }
-        }
-
-        handle_signals(update_signals, gs, es, platform_api);
-    }
-
+    /*
     // draw sphere for light
     {
         let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
@@ -739,6 +777,7 @@ pub fn game_loop(
         ct.local_position.y = 15.0;
         draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
     }
+    */
 
     es.render_packs
         .get_mut(&RenderPackID::NewWorld)

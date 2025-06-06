@@ -13,14 +13,8 @@ use gengar_engine::{
     vectors::*,
 };
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Tab {
-    Shop,
-    Inventory,
-}
-
 pub struct HomePanel {
-    pub tab: Tab,
+    pub tab: WorldStatus,
 
     pub ui_nav_tabs: Box<UIPanel>,
     pub ui_shop: Box<UIPanel>,
@@ -73,6 +67,7 @@ impl HomePanel {
         update_signals.append(&mut nav_update_sigs);
 
         match self.tab {
+            /*
             Tab::Shop => update_signals.append(&mut self.ui_shop.update(
                 ui_state,
                 inventory,
@@ -80,20 +75,22 @@ impl HomePanel {
                 ui_context,
                 platform_api,
             )),
-            Tab::Inventory => update_signals.append(&mut self.ui_inventory.update(
+            */
+            WorldStatus::World => update_signals.append(&mut self.ui_inventory.update(
                 ui_state,
                 inventory,
                 assets,
                 ui_context,
                 platform_api,
             )),
+            _ => {}
         };
 
         // Consume home panel tab switch
         update_signals.retain(|sig| match sig {
-            UpdateSignal::HomePanelTabChange(tab) => {
-                self.tab = *tab;
-                false
+            UpdateSignal::WorldStatusChange { new_status } => {
+                self.tab = *new_status;
+                true
             }
             _ => true,
         });

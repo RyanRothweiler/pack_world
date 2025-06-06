@@ -20,34 +20,38 @@ impl NavTabsPanel {
         inventory: &Inventory,
         assets: &Assets,
         ui_context: &mut UIContext,
-        current_tab: Tab,
+        current_tab: WorldStatus,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
         if draw_text_button(
-            "Inventory",
+            "World",
             VecTwo::new(20.0, 40.0),
             &ui_context.font_nav.clone(),
-            current_tab == Tab::Inventory,
+            current_tab == WorldStatus::World,
             None,
             ui_state,
             std::line!(),
             ui_context,
         ) {
-            ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Inventory));
+            ret.push(UpdateSignal::WorldStatusChange {
+                new_status: WorldStatus::World,
+            });
             ret.push(UpdateSignal::SetPlacingTile(None));
         }
         if draw_text_button(
             "Shop",
-            VecTwo::new(175.0, 40.0),
+            VecTwo::new(125.0, 40.0),
             &ui_context.font_nav.clone(),
-            current_tab == Tab::Shop,
+            current_tab == WorldStatus::Shop,
             None,
             ui_state,
             std::line!(),
             ui_context,
         ) {
-            ret.push(UpdateSignal::HomePanelTabChange(home_panel::Tab::Shop));
+            ret.push(UpdateSignal::WorldStatusChange {
+                new_status: WorldStatus::Shop,
+            });
             ret.push(UpdateSignal::SetPlacingTile(None));
         }
 

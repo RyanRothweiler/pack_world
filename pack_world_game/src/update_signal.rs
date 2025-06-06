@@ -38,7 +38,7 @@ pub enum UpdateSignal {
 
     /// For the home panel. Not good that this is here.
     /// This is suggesting a different architecture.
-    HomePanelTabChange(home_panel::Tab),
+    WorldStatusChange { new_status: WorldStatus },
 
     /// Purchase a bank slot
     PurchaseBankSlot,
@@ -134,8 +134,8 @@ pub fn handle_signals(
                     ]
                 }
 
-                UpdateSignal::HomePanelTabChange(_) => {
-                    panic!("Home panel needs to consume this");
+                UpdateSignal::WorldStatusChange { new_status } => {
+                    gs.world_status = *new_status;
                     vec![]
                 }
 

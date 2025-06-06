@@ -30,6 +30,12 @@ pub struct DebugState {
     pub thumbnail_height: f64,
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+pub enum WorldStatus {
+    World,
+    Shop,
+}
+
 pub struct State {
     #[cfg(feature = "dev")]
     pub debug_state: DebugState,
@@ -58,6 +64,8 @@ pub struct State {
     pub rotate_time: f64,
 
     pub ui_context: Option<UIContext>,
+
+    pub world_status: WorldStatus,
 }
 
 impl State {
@@ -93,6 +101,8 @@ impl State {
             rotate_time: 0.0,
 
             ui_context: None,
+
+            world_status: WorldStatus::World,
         }
     }
 }
