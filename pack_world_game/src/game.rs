@@ -722,16 +722,62 @@ pub fn game_loop(
             let screen_origin = cam.world_to_screen(world_origin, es.window_resolution);
 
             // ui
+            let ui_context = &mut gs.ui_context.as_mut().unwrap();
+
+            let info_rect =
+                Rect::new_top_size(screen_origin + VecTwo::new(50.0, 0.0), 100.0, 100.0);
+            begin_panel(
+                info_rect,
+                Color::new(0.0, 0.0, 0.0, 0.0),
+                &mut ui_frame_state,
+                ui_context,
+            );
             {
-                // title
-                render_word(
-                    pack_info.display_name.clone().into(),
-                    &gs.font_style_header,
-                    screen_origin + VecTwo::new(50.0, 0.0),
+                draw_text(
+                    &pack_info.display_name,
+                    VecTwo::new(00.0, 0.0),
                     COLOR_WHITE,
-                    &mut es.render_packs.get_mut(&RenderPackID::UI).unwrap().commands,
+                    &gs.font_style_header,
+                    &mut ui_frame_state,
+                    ui_context,
                 );
+
+                // cost
+                {
+                    draw_text(
+                        "Cost",
+                        VecTwo::new(0.0, 30.0),
+                        COLOR_WHITE,
+                        &ui_context.font_body.clone(),
+                        &mut ui_frame_state,
+                        ui_context,
+                    );
+                    for (j, cost) in pack_info.cost.iter().enumerate() {
+                        let cost_origin = VecTwo::new(80.0 * j as f64, 35.0);
+                        let icon_size = 40.0;
+
+                        let icon = gs.assets.get_item_icon(&cost.0);
+                        let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
+
+                        let mut color = COLOR_WHITE;
+                        if !gs.inventory.has_atleast(cost.0, cost.1) {
+                            color = COLOR_RED;
+                        }
+
+                        draw_image(r, icon, color, &mut ui_frame_state, ui_context);
+
+                        draw_text(
+                            &format!("{}", cost.1),
+                            cost_origin + VecTwo::new(40.0, 30.0),
+                            color,
+                            &ui_context.font_body.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+                    }
+                }
             }
+            end_panel(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
 
             // pack model
             draw_tile_world_pos(
