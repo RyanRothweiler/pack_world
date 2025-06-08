@@ -18,6 +18,11 @@ pub fn plane_intersection_distance(
     return None;
 }
 
+pub fn point_within_circle(pos: VecTwo, circle_center: VecTwo, radius: f64) -> bool {
+    let dist = pos.dist_from(circle_center);
+    dist <= radius
+}
+
 mod test {
     use super::*;
 
@@ -30,5 +35,20 @@ mod test {
             VecThreeFloat::new(0.0, 0.0, -1.0),
         );
         assert_eq!(d, Some(10.0));
+    }
+
+    #[test]
+    pub fn point_within_circle() {
+        assert!(super::point_within_circle(
+            VecTwo::new(2.0, 2.0),
+            VecTwo::new(5.0, 5.0),
+            10.0,
+        ));
+
+        assert!(!super::point_within_circle(
+            VecTwo::new(2.0, 2.0),
+            VecTwo::new(5.0, 5.0),
+            1.0,
+        ));
     }
 }

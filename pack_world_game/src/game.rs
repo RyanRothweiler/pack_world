@@ -731,6 +731,26 @@ pub fn game_loop(
             }
         }
         WorldStatus::Shop => {
+            let mouse_world: VecThreeFloat = {
+                let mut val = VecThreeFloat::new_zero();
+
+                let cam: &Camera = &es.render_packs.get(&RenderPackID::Shop).unwrap().camera;
+                let pos = cam.screen_to_world(input.mouse.pos);
+
+                let dir = (pos - cam.transform.local_position).normalize();
+
+                if let Some(len) = plane_intersection_distance(
+                    cam.transform.local_position,
+                    dir,
+                    VecThreeFloat::new(0.0, 0.0, 0.0),
+                    VecThreeFloat::new(0.0, -1.0, 0.0),
+                ) {
+                    val = cam.transform.local_position + (dir * len);
+                }
+
+                val
+            };
+
             // camera controls
             {
                 let cam_pack = es.render_packs.get_mut(&RenderPackID::Shop).unwrap();
@@ -864,12 +884,18 @@ pub fn game_loop(
                     }
                     end_panel(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
 
+                    let hovering = point_within_circle(
+                        VecTwo::new(mouse_world.x, mouse_world.z),
+                        VecTwo::new(world_origin.x, world_origin.z),
+                        2.0,
+                    );
+
                     // pack model
                     draw_tile_world_pos(
                         TileType::Dirt,
                         0.0,
                         &world_origin,
-                        true,
+                        !hovering,
                         es.render_packs.get_mut(&RenderPackID::Shop).unwrap(),
                         &gs.assets,
                     );
