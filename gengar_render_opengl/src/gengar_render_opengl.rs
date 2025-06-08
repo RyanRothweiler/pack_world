@@ -421,6 +421,11 @@ pub fn render(
     );
     render_render_pack(
         light_pos,
+        es.render_packs.get_mut(&RenderPackID::Shop).unwrap(),
+        &render_api,
+    );
+    render_render_pack(
+        light_pos,
         es.render_packs.get_mut(&RenderPackID::World).unwrap(),
         &render_api,
     );
@@ -429,7 +434,7 @@ pub fn render(
         es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
         &render_api,
     );
-    if es.render_packs.len() > 3 {
+    if es.render_packs.len() > 4 {
         panic!("This assumes two render packs for now. If there is more then sometning needs to be done.");
     }
 

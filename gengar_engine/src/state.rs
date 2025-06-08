@@ -90,6 +90,14 @@ impl State {
             ),
         );
 
+        state.render_packs.insert(
+            RenderPackID::Shop,
+            RenderPack::new(
+                ProjectionType::Perspective { focal_length: 0.95 },
+                window_resolution,
+            ),
+        );
+
         return state;
     }
 

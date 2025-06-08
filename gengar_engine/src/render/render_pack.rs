@@ -10,6 +10,9 @@ pub enum RenderPackID {
 
     // 3d camera
     NewWorld,
+
+    // 3d camera. This is game specific that probably shouldn't be here
+    Shop,
 }
 
 pub struct RenderPack {

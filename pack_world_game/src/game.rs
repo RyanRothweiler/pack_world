@@ -167,7 +167,7 @@ pub fn game_init(
     )
     .unwrap();
 
-    // init camera
+    // init world camera
     {
         let mut cam = &mut es
             .render_packs
@@ -177,6 +177,15 @@ pub fn game_init(
 
         cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
         cam.pitch = 55.0;
+        cam.yaw = 90.0;
+    }
+
+    // init shop
+    {
+        let mut cam = &mut es.render_packs.get_mut(&RenderPackID::Shop).unwrap().camera;
+
+        cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
+        cam.pitch = 70.0;
         cam.yaw = 90.0;
     }
 
@@ -545,6 +554,15 @@ pub fn game_loop(
 
     match gs.world_status {
         WorldStatus::World => {
+            // camera controls
+            {
+                es.render_packs
+                    .get_mut(&RenderPackID::NewWorld)
+                    .unwrap()
+                    .camera
+                    .move_fly(0.3, input);
+            }
+
             // render tiles
             {
                 // TODO chagne this to use delta_time
@@ -713,81 +731,150 @@ pub fn game_loop(
             }
         }
         WorldStatus::Shop => {
-            let pack = PackID::Starter;
-            let pack_info = pack.get_pack_info();
-
-            let world_origin = VecThreeFloat::new_zero();
-
-            let cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
-            let screen_origin = cam.world_to_screen(world_origin, es.window_resolution);
-
-            // ui
-            let ui_context = &mut gs.ui_context.as_mut().unwrap();
-
-            let info_rect =
-                Rect::new_top_size(screen_origin + VecTwo::new(50.0, 0.0), 100.0, 100.0);
-            begin_panel(
-                info_rect,
-                Color::new(0.0, 0.0, 0.0, 0.0),
-                &mut ui_frame_state,
-                ui_context,
-            );
+            // camera controls
             {
-                draw_text(
-                    &pack_info.display_name,
-                    VecTwo::new(00.0, 0.0),
-                    COLOR_WHITE,
-                    &gs.font_style_header,
-                    &mut ui_frame_state,
-                    ui_context,
+                let cam_pack = es.render_packs.get_mut(&RenderPackID::Shop).unwrap();
+
+                let keyboard_speed = 30.0;
+                let mouse_scroll_speed = 400.0;
+                let drag_speed = gengar_engine::math::lerp(
+                    0.02,
+                    0.08,
+                    cam_pack.camera.transform.local_position.y / 100.0,
                 );
 
-                // cost
+                if input.get_key(KeyCode::W).pressing {
+                    cam_pack.camera.transform.local_position.z -= keyboard_speed * prev_delta_time;
+                }
+                if input.get_key(KeyCode::S).pressing {
+                    cam_pack.camera.transform.local_position.z += keyboard_speed * prev_delta_time;
+                }
+                if input.get_key(KeyCode::A).pressing {
+                    cam_pack.camera.transform.local_position.x -= keyboard_speed * prev_delta_time;
+                }
+                if input.get_key(KeyCode::D).pressing {
+                    cam_pack.camera.transform.local_position.x += keyboard_speed * prev_delta_time;
+                }
+                if input.mouse.scroll_delta > 0 {
+                    cam_pack.camera.transform.local_position.y -=
+                        mouse_scroll_speed * prev_delta_time;
+                } else if input.mouse.scroll_delta < 0 {
+                    cam_pack.camera.transform.local_position.y +=
+                        mouse_scroll_speed * prev_delta_time
+                }
+
+                // camera click dragging
                 {
-                    draw_text(
-                        "Cost",
-                        VecTwo::new(0.0, 30.0),
-                        COLOR_WHITE,
-                        &ui_context.font_body.clone(),
-                        &mut ui_frame_state,
-                        ui_context,
-                    );
-                    for (j, cost) in pack_info.cost.iter().enumerate() {
-                        let cost_origin = VecTwo::new(80.0 * j as f64, 35.0);
-                        let icon_size = 40.0;
-
-                        let icon = gs.assets.get_item_icon(&cost.0);
-                        let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
-
-                        let mut color = COLOR_WHITE;
-                        if !gs.inventory.has_atleast(cost.0, cost.1) {
-                            color = COLOR_RED;
+                    if input.mouse.button_left.pressing {
+                        if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
+                            cam_pack.camera.transform.local_position.x +=
+                                input.mouse.pos_delta.x * drag_speed;
+                            cam_pack.camera.transform.local_position.z +=
+                                input.mouse.pos_delta.y * drag_speed;
                         }
-
-                        draw_image(r, icon, color, &mut ui_frame_state, ui_context);
-
-                        draw_text(
-                            &format!("{}", cost.1),
-                            cost_origin + VecTwo::new(40.0, 30.0),
-                            color,
-                            &ui_context.font_body.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
                     }
                 }
             }
-            end_panel(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
 
-            // pack model
-            draw_tile_world_pos(
-                TileType::Dirt,
-                0.0,
-                &world_origin,
-                true,
-                es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
-                &gs.assets,
-            );
+            // pack layout rendering
+            {
+                let packs: Vec<PackID> =
+                    vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
+
+                for (i, pack_id) in packs.iter().enumerate() {
+                    let pack_info = pack_id.get_pack_info();
+
+                    let world_origin = VecThreeFloat::new(0.0, 0.0, i as f64 * 9.0);
+
+                    let cam: &Camera = &es.render_packs.get(&RenderPackID::Shop).unwrap().camera;
+                    let screen_origin = cam.world_to_screen(world_origin, es.window_resolution);
+
+                    // ui
+                    let ui_context = &mut gs.ui_context.as_mut().unwrap();
+
+                    let info_rect =
+                        Rect::new_top_size(screen_origin + VecTwo::new(50.0, 0.0), 100.0, 100.0);
+                    begin_panel(
+                        info_rect,
+                        Color::new(0.0, 0.0, 0.0, 0.0),
+                        &mut ui_frame_state,
+                        ui_context,
+                    );
+                    {
+                        draw_text(
+                            &pack_info.display_name,
+                            VecTwo::new(00.0, 0.0),
+                            COLOR_WHITE,
+                            &gs.font_style_header,
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+
+                        // cost
+                        {
+                            draw_text(
+                                "Cost",
+                                VecTwo::new(0.0, 30.0),
+                                COLOR_WHITE,
+                                &ui_context.font_body.clone(),
+                                &mut ui_frame_state,
+                                ui_context,
+                            );
+                            for (j, cost) in pack_info.cost.iter().enumerate() {
+                                let cost_origin = VecTwo::new(80.0 * j as f64, 35.0);
+                                let icon_size = 40.0;
+
+                                let icon = gs.assets.get_item_icon(&cost.0);
+                                let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
+
+                                let mut color = COLOR_WHITE;
+                                if !gs.inventory.has_atleast(cost.0, cost.1) {
+                                    color = COLOR_RED;
+                                }
+
+                                draw_image(r, icon, color, &mut ui_frame_state, ui_context);
+
+                                draw_text(
+                                    &format!("{}", cost.1),
+                                    cost_origin + VecTwo::new(40.0, 30.0),
+                                    color,
+                                    &ui_context.font_body.clone(),
+                                    &mut ui_frame_state,
+                                    ui_context,
+                                );
+                            }
+                        }
+
+                        /*
+                        if draw_text_button_id(
+                            i as i32,
+                            "Show Drop List",
+                            desc_origin + VecTwo::new(10.0, 110.0),
+                            &ui_context.font_body.clone(),
+                            false,
+                            Some(crate::BUTTON_BG),
+                            ui_state,
+                            std::line!(),
+                            ui_context,
+                        ) {
+                            let new_panel_data = CreatePanelData::PackDetails { pack_id: *pack_id };
+                            sigs.push(UpdateSignal::SetActivePage(new_panel_data));
+                        }
+                        */
+                    }
+                    end_panel(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
+
+                    // pack model
+                    draw_tile_world_pos(
+                        TileType::Dirt,
+                        0.0,
+                        &world_origin,
+                        true,
+                        es.render_packs.get_mut(&RenderPackID::Shop).unwrap(),
+                        &gs.assets,
+                    );
+                }
+            }
         }
     }
 
@@ -814,22 +901,14 @@ pub fn game_loop(
         handle_signals(sigs, gs, es, platform_api);
     }
 
-    /*
     // draw sphere for light
     {
         let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
         ct.local_position.x = -2.0;
         ct.local_position.z = 10.0;
         ct.local_position.y = 15.0;
-        draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
+        // draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
     }
-    */
-
-    es.render_packs
-        .get_mut(&RenderPackID::NewWorld)
-        .unwrap()
-        .camera
-        .move_fly(0.3, input);
 
     es.render_packs
         .get_mut(&RenderPackID::UI)

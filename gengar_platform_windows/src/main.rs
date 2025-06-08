@@ -66,6 +66,7 @@ static mut RUNNING: bool = true;
 
 static mut MOUSE_LEFT_DOWN: bool = false;
 static mut MOUSE_RIGHT_DOWN: bool = false;
+static mut SCROLL_DELTA: i32 = 0;
 static KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
@@ -426,6 +427,13 @@ fn main() {
                         .or_insert(ButtonState::new())
                         .update(*value);
                 }
+
+                // mouse scrolling
+                input.mouse.scroll_delta = 0;
+                if SCROLL_DELTA != 0 {
+                    input.mouse.scroll_delta = SCROLL_DELTA;
+                    SCROLL_DELTA = 0;
+                }
             }
 
             // Run game / engine loops
@@ -527,6 +535,16 @@ extern "system" fn windows_callback(
                     }
                     None => {}
                 }
+
+                LRESULT(0)
+            }
+            WM_MOUSEWHEEL => {
+                // Helper to extract wheel delta
+                fn get_wheel_delta_param(wparam: usize) -> i16 {
+                    ((wparam >> 16) & 0xffff) as i16
+                }
+
+                SCROLL_DELTA = get_wheel_delta_param(wparam.0 as usize) as i32;
 
                 LRESULT(0)
             }

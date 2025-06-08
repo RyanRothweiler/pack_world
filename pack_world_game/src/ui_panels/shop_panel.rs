@@ -28,7 +28,6 @@ impl ShopPanel {
 
         let packs: Vec<PackID> = vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
 
-        let y_offset: f64 = 80.0;
         let mut cursor_y: f64 = 50.0;
 
         for (i, pack_id) in packs.iter().enumerate() {

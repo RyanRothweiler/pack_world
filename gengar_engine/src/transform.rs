@@ -1,5 +1,6 @@
 use crate::{matricies::matrix_four_four::*, vectors::*};
 
+#[derive(Debug, Clone, Copy)]
 pub struct Transform {
     pub parent: Option<usize>,
 
