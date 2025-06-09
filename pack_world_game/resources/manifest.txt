@@ -40,6 +40,9 @@ tile_reed
 tile
 tile_clam
 
+pack
+pack_starter
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

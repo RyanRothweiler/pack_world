@@ -22,6 +22,10 @@ impl PackID {
         }
     }
 
+    pub fn to_string_id(&self) -> String {
+        format!("pack_{:?}", self).to_lowercase()
+    }
+
     pub fn from_index(index: i32) -> Self {
         match index {
             0 => Self::Starter,

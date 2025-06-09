@@ -74,6 +74,37 @@ use std::collections::HashMap;
                         &format!("tiles/{}/Normal.png", id),
                     );
                 }
+                "pack" => {
+                    i += 2;
+
+                    write_model(&mut output_file, id, &format!("packs/{}/{}.obj", id, id));
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_base_color", id),
+                        &format!("packs/{}/BaseColor.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_metallic", id),
+                        &format!("packs/{}/Metallic.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_roughness", id),
+                        &format!("packs/{}/Roughness.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_ao", id),
+                        &format!("packs/{}/AO.png", id),
+                    );
+                    write_texture(
+                        &mut output_file,
+                        &format!("{}_normal", id),
+                        &format!("packs/{}/Normal.png", id),
+                    );
+                }
+
                 _ => panic!("Unknown asset type {}", asset_type),
             }
         }

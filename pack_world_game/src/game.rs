@@ -752,7 +752,7 @@ pub fn game_loop(
             };
 
             // camera controls
-            {
+            if false {
                 let cam_pack = es.render_packs.get_mut(&RenderPackID::Shop).unwrap();
 
                 let keyboard_speed = 30.0;
@@ -794,12 +794,18 @@ pub fn game_loop(
                         }
                     }
                 }
+            } else {
+                // fly cam for testing
+                es.render_packs
+                    .get_mut(&RenderPackID::Shop)
+                    .unwrap()
+                    .camera
+                    .move_fly(0.3, input);
             }
 
             // pack layout rendering
             {
-                let packs: Vec<PackID> =
-                    vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
+                let packs: Vec<PackID> = vec![PackID::Starter];
 
                 for (i, pack_id) in packs.iter().enumerate() {
                     let pack_info = pack_id.get_pack_info();
@@ -891,14 +897,31 @@ pub fn game_loop(
                     );
 
                     // pack model
-                    draw_tile_world_pos(
-                        TileType::Dirt,
-                        0.0,
-                        &world_origin,
-                        !hovering,
-                        es.render_packs.get_mut(&RenderPackID::Shop).unwrap(),
-                        &gs.assets,
-                    );
+                    {
+                        let tile_asset_id = pack_id.to_string_id();
+
+                        let mut trans = Transform::new();
+                        trans.local_position = world_origin;
+                        trans.local_rotation =
+                            VecThreeFloat::new(0.0, -90.0_f64.to_radians(), -90.0_f64.to_radians());
+                        trans.update_global_matrix(&M44::new_identity());
+
+                        let mut mat = gs.assets.get_pack_material(*pack_id).clone();
+                        if hovering {
+                            mat.uniforms
+                                .insert("ambientRed".to_string(), UniformData::Float(10.0));
+                        }
+
+                        es.render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap()
+                            .commands
+                            .push(RenderCommand::new_model(
+                                &trans,
+                                gs.assets.asset_library.get_model(&tile_asset_id),
+                                &mat,
+                            ));
+                    }
                 }
             }
         }

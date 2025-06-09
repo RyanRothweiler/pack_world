@@ -43,6 +43,7 @@ pub struct Assets {
     pub image_pack_water: Image,
 
     pub tile_materials: HashMap<TileType, Material>,
+    pub pack_materials: HashMap<PackID, Material>,
 
     pub binary_file_system: BinaryFileSystem,
     pub asset_library: AssetLibrary,
@@ -87,83 +88,13 @@ impl Assets {
             asset_library: AssetLibrary::new(),
 
             tile_thumbnails: HashMap::new(),
+            pack_materials: HashMap::new(),
             missing_material: Material::new(),
         }
     }
 
     // Do assets setup. Probably better to not need this step and just have it be part of the constructor.
     pub fn build_assets(&mut self, pbr_shader: Shader, shader_color: Shader) {
-        pub fn build_tile_material(
-            tile_type: TileType,
-            asset_library: &AssetLibrary,
-            pbr_shader: Shader,
-        ) -> Material {
-            let mut mat = Material::new();
-
-            let tile_base_id = tile_type.to_string_id();
-
-            mat.shader = Some(pbr_shader);
-            mat.uniforms.insert(
-                "tex".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: asset_library
-                        .get_texture(&format!("{}_base_color", tile_base_id))
-                        .gl_id
-                        .unwrap(),
-                    texture_slot: 0,
-                }),
-            );
-
-            mat.uniforms.insert(
-                "normalTex".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: asset_library
-                        .get_texture(&format!("{}_normal", tile_base_id))
-                        .gl_id
-                        .unwrap(),
-                    texture_slot: 1,
-                }),
-            );
-
-            mat.uniforms.insert(
-                "metallicTex    ".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: asset_library
-                        .get_texture(&format!("{}_metallic", tile_base_id))
-                        .gl_id
-                        .unwrap(),
-                    texture_slot: 2,
-                }),
-            );
-
-            mat.uniforms.insert(
-                "roughnessTex".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: asset_library
-                        .get_texture(&format!("{}_roughness", tile_base_id))
-                        .gl_id
-                        .unwrap(),
-                    texture_slot: 3,
-                }),
-            );
-
-            mat.uniforms.insert(
-                "aoTex".to_string(),
-                UniformData::Texture(TextureInfo {
-                    image_id: asset_library
-                        .get_texture(&format!("{}_ao", tile_base_id))
-                        .gl_id
-                        .unwrap(),
-                    texture_slot: 4,
-                }),
-            );
-
-            mat.uniforms
-                .insert("ambientRed".to_string(), UniformData::Float(0.3));
-
-            return mat;
-        }
-
         // build tile materials
         for tile_type in vec![
             TileType::Water,
@@ -183,7 +114,19 @@ impl Assets {
         ] {
             self.tile_materials.insert(
                 tile_type,
-                build_tile_material(tile_type, &self.asset_library, pbr_shader),
+                Self::build_pbr_material(
+                    &tile_type.to_string_id(),
+                    &self.asset_library,
+                    pbr_shader,
+                ),
+            );
+        }
+
+        // build pack materials
+        for pack in vec![PackID::Starter] {
+            self.pack_materials.insert(
+                pack,
+                Self::build_pbr_material(&pack.to_string_id(), &self.asset_library, pbr_shader),
             );
         }
 
@@ -315,5 +258,80 @@ impl Assets {
         self.tile_materials
             .get(&tile)
             .unwrap_or(&self.missing_material)
+    }
+
+    pub fn get_pack_material(&self, pack: PackID) -> &Material {
+        self.pack_materials
+            .get(&pack)
+            .unwrap_or(&self.missing_material)
+    }
+
+    fn build_pbr_material(
+        name_base: &str,
+        asset_library: &AssetLibrary,
+        pbr_shader: Shader,
+    ) -> Material {
+        let mut mat = Material::new();
+
+        mat.shader = Some(pbr_shader);
+        mat.uniforms.insert(
+            "tex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: asset_library
+                    .get_texture(&format!("{}_base_color", name_base))
+                    .gl_id
+                    .unwrap(),
+                texture_slot: 0,
+            }),
+        );
+
+        mat.uniforms.insert(
+            "normalTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: asset_library
+                    .get_texture(&format!("{}_normal", name_base))
+                    .gl_id
+                    .unwrap(),
+                texture_slot: 1,
+            }),
+        );
+
+        mat.uniforms.insert(
+            "metallicTex    ".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: asset_library
+                    .get_texture(&format!("{}_metallic", name_base))
+                    .gl_id
+                    .unwrap(),
+                texture_slot: 2,
+            }),
+        );
+
+        mat.uniforms.insert(
+            "roughnessTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: asset_library
+                    .get_texture(&format!("{}_roughness", name_base))
+                    .gl_id
+                    .unwrap(),
+                texture_slot: 3,
+            }),
+        );
+
+        mat.uniforms.insert(
+            "aoTex".to_string(),
+            UniformData::Texture(TextureInfo {
+                image_id: asset_library
+                    .get_texture(&format!("{}_ao", name_base))
+                    .gl_id
+                    .unwrap(),
+                texture_slot: 4,
+            }),
+        );
+
+        mat.uniforms
+            .insert("ambientRed".to_string(), UniformData::Float(0.3));
+
+        return mat;
     }
 }
