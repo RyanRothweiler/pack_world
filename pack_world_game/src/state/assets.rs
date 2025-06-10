@@ -332,7 +332,7 @@ impl Assets {
         );
 
         mat.uniforms
-            .insert("ambientRed".to_string(), UniformData::Float(0.3));
+            .insert("ambientRed".to_string(), UniformData::Float(0.05));
 
         return mat;
     }

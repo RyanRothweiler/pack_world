@@ -201,6 +201,26 @@ pub fn game_init(
                 .lights
                 .push(light);
         }
+
+        // shop pack lights
+        {
+            gs.pack_light_origin = es.components.new_transform();
+            // let origin_trans: &mut Transform = &mut es.components.transforms[light.transform];
+
+            gs.pack_light_trans = es.components.new_transform();
+            let light = Light::new(gs.pack_light_trans);
+
+            let ct: &mut Transform = &mut es.components.transforms[light.transform];
+            ct.parent = Some(gs.pack_light_origin);
+            ct.local_position.x = 5.0;
+            ct.local_position.z = 10.0;
+            ct.local_position.y = 10.0;
+
+            es.render_system
+                .get_pack(RenderPackID::Shop)
+                .lights
+                .push(light);
+        }
     }
 
     // setup font styles
@@ -779,8 +799,48 @@ pub fn game_loop(
                 val
             };
 
+            // lighting
+            {
+                let light_trans: &mut Transform =
+                    &mut es.components.transforms[gs.pack_light_trans];
+
+                draw_tile_world_pos(
+                    TileType::Dirt,
+                    0.0,
+                    &light_trans.global_matrix.get_position(),
+                    true,
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::Shop)
+                        .unwrap(),
+                    &gs.assets,
+                );
+
+                let spd = 0.01;
+                let origin_trans: &mut Transform =
+                    &mut es.components.transforms[gs.pack_light_origin];
+                // origin_trans.local_rotation.x = es.frame as f64 * spd;
+                origin_trans.local_rotation.y = es.frame as f64 * spd;
+                // origin_trans.local_rotation.z = es.frame as f64 * spd;
+
+                /*
+                let light = Light::new(es.components.new_transform());
+
+                let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                ct.parent = Some(gs.pack_light_origin);
+                ct.local_position.x = -2.0;
+                ct.local_position.z = 10.0;
+                ct.local_position.y = 15.0;
+
+                es.render_system
+                    .get_pack(RenderPackID::Shop)
+                    .lights
+                    .push(light);
+                */
+            }
+
             // camera controls
-            if false {
+            if true {
                 let cam_pack = es
                     .render_system
                     .render_packs
@@ -845,6 +905,10 @@ pub fn game_loop(
 
                     let world_origin = VecThreeFloat::new(0.0, 0.0, i as f64 * 9.0);
 
+                    let p = 200.0;
+                    es.render_system.get_pack(RenderPackID::Shop).lights[0].power =
+                        VecThreeFloat::new(p, p, p);
+
                     let cam: &Camera = &es
                         .render_system
                         .render_packs
@@ -857,7 +921,7 @@ pub fn game_loop(
                     let ui_context = &mut gs.ui_context.as_mut().unwrap();
 
                     let info_rect =
-                        Rect::new_top_size(screen_origin + VecTwo::new(50.0, 0.0), 100.0, 100.0);
+                        Rect::new_top_size(screen_origin + VecTwo::new(100.0, 0.0), 100.0, 100.0);
                     begin_panel(
                         info_rect,
                         Color::new(0.0, 0.0, 0.0, 0.0),
@@ -865,6 +929,7 @@ pub fn game_loop(
                         ui_context,
                     );
                     {
+                        /*
                         draw_text(
                             &pack_info.display_name,
                             VecTwo::new(00.0, 0.0),
@@ -873,6 +938,7 @@ pub fn game_loop(
                             &mut ui_frame_state,
                             ui_context,
                         );
+                        */
 
                         // cost
                         {
@@ -941,7 +1007,7 @@ pub fn game_loop(
                         let mut trans = Transform::new();
                         trans.local_position = world_origin;
                         trans.local_rotation =
-                            VecThreeFloat::new(0.0, -90.0_f64.to_radians(), -90.0_f64.to_radians());
+                            VecThreeFloat::new(0.0, -90.0_f64.to_radians(), -70.0_f64.to_radians());
                         trans.update_global_matrix(&M44::new_identity());
 
                         let mut mat = gs.assets.get_pack_material(*pack_id).clone();

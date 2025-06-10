@@ -25,6 +25,7 @@ use gl_types::*;
 // resolved light info for rendering
 struct LightRenderInfo {
     pub position: VecThreeFloat,
+    pub power: VecThreeFloat,
 }
 
 // Adjust the viewport to take into account the windows titlebar area.
@@ -487,7 +488,10 @@ fn render_render_pack(pack: &mut RenderPack, components: &Components, render_api
     let mut lights: Vec<LightRenderInfo> = vec![];
     for l in &pack.lights {
         lights.push(LightRenderInfo {
-            position: components.transforms[l.transform].local_position,
+            position: components.transforms[l.transform]
+                .global_matrix
+                .get_position(),
+            power: l.power,
         });
     }
     render_list(lights, &mut pack.commands, &pack.camera, render_api);
@@ -521,10 +525,9 @@ fn render_list(
                 .uniforms
                 .insert("lightPos".to_string(), UniformData::VecThree(li.position));
 
-            command.uniforms.insert(
-                "lightColor".to_string(),
-                UniformData::VecThree(VecThreeFloat::new(150.0, 150.0, 150.0)),
-            );
+            command
+                .uniforms
+                .insert("lightColor".to_string(), UniformData::VecThree(li.power));
         }
 
         // upload uniform data

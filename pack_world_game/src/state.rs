@@ -63,6 +63,9 @@ pub struct State {
     pub ui_context: Option<UIContext>,
 
     pub world_status: WorldStatus,
+
+    pub pack_light_origin: usize,
+    pub pack_light_trans: usize,
 }
 
 impl State {
@@ -97,6 +100,9 @@ impl State {
             ui_context: None,
 
             world_status: WorldStatus::World,
+
+            pack_light_origin: 0,
+            pack_light_trans: 0,
         }
     }
 }
