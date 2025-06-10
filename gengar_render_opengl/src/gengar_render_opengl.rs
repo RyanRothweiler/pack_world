@@ -427,30 +427,33 @@ pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &OglRenderA
     render_api.platform_api.clear();
 
     render_render_pack(
-        es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+        es.render_system.get_pack(RenderPackID::NewWorld),
         &es.components,
         &render_api,
     );
     render_render_pack(
-        es.render_packs.get_mut(&RenderPackID::Shop).unwrap(),
+        es.render_system.get_pack(RenderPackID::Shop),
         &es.components,
         &render_api,
     );
     render_render_pack(
-        es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+        es.render_system.get_pack(RenderPackID::World),
         &es.components,
         &render_api,
     );
     render_render_pack(
-        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+        es.render_system.get_pack(RenderPackID::UI),
         &es.components,
         &render_api,
     );
+    /*
     if es.render_packs.len() > 4 {
         panic!("This assumes two render packs for now. If there is more then sometning needs to be done.");
     }
+    */
 
     // Debug rendering
+    /*
     {
         render_list(
             vec![],
@@ -477,6 +480,7 @@ pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &OglRenderA
             &render_api,
         );
     }
+    */
 }
 
 fn render_render_pack(pack: &mut RenderPack, components: &Components, render_api: &OglRenderApi) {

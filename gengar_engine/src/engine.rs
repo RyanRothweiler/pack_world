@@ -128,7 +128,7 @@ pub fn load_resources(es: &mut State, render_api: &mut impl render::RenderApi) {
 
 pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl render::RenderApi) {
     // reset render lists
-    for (key, pack) in &mut es.render_packs {
+    for (key, pack) in &mut es.render_system.render_packs {
         pack.commands.clear();
     }
 
@@ -138,7 +138,7 @@ pub fn engine_frame_start(es: &mut State, _input: &Input, _render_api: &impl ren
 }
 
 pub fn engine_frame_end(es: &mut State) {
-    for (key, pack) in &mut es.render_packs {
+    for (key, pack) in &mut es.render_system.render_packs {
         pack.camera.update_matricies();
     }
 

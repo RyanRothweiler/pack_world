@@ -169,11 +169,7 @@ pub fn game_init(
 
     // init world camera
     {
-        let mut cam = &mut es
-            .render_packs
-            .get_mut(&RenderPackID::NewWorld)
-            .unwrap()
-            .camera;
+        let mut cam = &mut es.render_system.get_pack(RenderPackID::NewWorld).camera;
 
         cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
         cam.pitch = 55.0;
@@ -182,7 +178,7 @@ pub fn game_init(
 
     // init shop
     {
-        let mut cam = &mut es.render_packs.get_mut(&RenderPackID::Shop).unwrap().camera;
+        let mut cam = &mut es.render_system.get_pack(RenderPackID::Shop).camera;
 
         cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
         cam.pitch = 70.0;
@@ -200,9 +196,8 @@ pub fn game_init(
             ct.local_position.z = 10.0;
             ct.local_position.y = 15.0;
 
-            es.render_packs
-                .get_mut(&RenderPackID::NewWorld)
-                .unwrap()
+            es.render_system
+                .get_pack(RenderPackID::NewWorld)
                 .lights
                 .push(light);
         }
@@ -565,7 +560,8 @@ pub fn game_loop(
         WorldStatus::World => {
             // camera controls
             {
-                es.render_packs
+                es.render_system
+                    .render_packs
                     .get_mut(&RenderPackID::NewWorld)
                     .unwrap()
                     .camera
@@ -592,7 +588,10 @@ pub fn game_loop(
                             gs.rotate_time,
                             &entity.grid_pos,
                             es.color_texture_shader,
-                            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::NewWorld)
+                                .unwrap(),
                             &gs.assets,
                         );
                     }
@@ -603,7 +602,12 @@ pub fn game_loop(
             let mouse_grid: GridPos = {
                 let mut val = GridPos::new(0, 0);
 
-                let cam: &Camera = &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
+                let cam: &Camera = &es
+                    .render_system
+                    .render_packs
+                    .get(&RenderPackID::NewWorld)
+                    .unwrap()
+                    .camera;
                 let pos = cam.screen_to_world(input.mouse.pos);
 
                 let dir = (pos - cam.transform.local_position).normalize();
@@ -642,7 +646,10 @@ pub fn game_loop(
                             0.0,
                             &pos,
                             can_place,
-                            es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::NewWorld)
+                                .unwrap(),
                             &gs.assets,
                         );
                     }
@@ -654,7 +661,10 @@ pub fn game_loop(
                         0.0,
                         &mouse_grid,
                         can_place,
-                        es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+                        es.render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::NewWorld)
+                            .unwrap(),
                         &gs.assets,
                     );
                 }
@@ -699,7 +709,8 @@ pub fn game_loop(
                             trans.local_position = grid_to_world(&mouse_grid);
                             trans.update_global_matrix(&M44::new_identity());
 
-                            es.render_packs
+                            es.render_system
+                                .render_packs
                                 .get_mut(&RenderPackID::NewWorld)
                                 .unwrap()
                                 .commands
@@ -730,7 +741,10 @@ pub fn game_loop(
                                 tile.get_component_harvestable(),
                                 y,
                                 es.shader_color.clone(),
-                                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                                es.render_system
+                                    .render_packs
+                                    .get_mut(&RenderPackID::UI)
+                                    .unwrap(),
                             );
                         }
                     }
@@ -743,7 +757,12 @@ pub fn game_loop(
             let mouse_world: VecThreeFloat = {
                 let mut val = VecThreeFloat::new_zero();
 
-                let cam: &Camera = &es.render_packs.get(&RenderPackID::Shop).unwrap().camera;
+                let cam: &Camera = &es
+                    .render_system
+                    .render_packs
+                    .get(&RenderPackID::Shop)
+                    .unwrap()
+                    .camera;
                 let pos = cam.screen_to_world(input.mouse.pos);
 
                 let dir = (pos - cam.transform.local_position).normalize();
@@ -762,7 +781,11 @@ pub fn game_loop(
 
             // camera controls
             if false {
-                let cam_pack = es.render_packs.get_mut(&RenderPackID::Shop).unwrap();
+                let cam_pack = es
+                    .render_system
+                    .render_packs
+                    .get_mut(&RenderPackID::Shop)
+                    .unwrap();
 
                 let keyboard_speed = 30.0;
                 let mouse_scroll_speed = 400.0;
@@ -805,7 +828,8 @@ pub fn game_loop(
                 }
             } else {
                 // fly cam for testing
-                es.render_packs
+                es.render_system
+                    .render_packs
                     .get_mut(&RenderPackID::Shop)
                     .unwrap()
                     .camera
@@ -821,7 +845,12 @@ pub fn game_loop(
 
                     let world_origin = VecThreeFloat::new(0.0, 0.0, i as f64 * 9.0);
 
-                    let cam: &Camera = &es.render_packs.get(&RenderPackID::Shop).unwrap().camera;
+                    let cam: &Camera = &es
+                        .render_system
+                        .render_packs
+                        .get(&RenderPackID::Shop)
+                        .unwrap()
+                        .camera;
                     let screen_origin = cam.world_to_screen(world_origin, es.window_resolution);
 
                     // ui
@@ -921,7 +950,8 @@ pub fn game_loop(
                                 .insert("ambientRed".to_string(), UniformData::Float(10.0));
                         }
 
-                        es.render_packs
+                        es.render_system
+                            .render_packs
                             .get_mut(&RenderPackID::Shop)
                             .unwrap()
                             .commands
@@ -944,7 +974,7 @@ pub fn game_loop(
             h.update_and_draw(
                 0.001,
                 es.color_texture_shader,
-                es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+                es.render_system.get_pack(RenderPackID::UI),
                 &mut gs.assets,
             );
 
@@ -959,7 +989,8 @@ pub fn game_loop(
         handle_signals(sigs, gs, es, platform_api);
     }
 
-    es.render_packs
+    es.render_system
+        .render_packs
         .get_mut(&RenderPackID::UI)
         .unwrap()
         .commands
@@ -969,7 +1000,7 @@ pub fn game_loop(
     #[cfg(feature = "dev")]
     {
         es.render_commands_len = 0;
-        for (key, value) in &es.render_packs {
+        for (key, value) in &es.render_system.render_packs {
             es.render_commands_len += value.commands.len() as i32;
         }
     }

@@ -104,8 +104,12 @@ pub fn handle_signals(
                 }
 
                 UpdateSignal::AddHarvestDrop { drop, origin } => {
-                    let cam: &Camera =
-                        &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera;
+                    let cam: &Camera = &es
+                        .render_system
+                        .render_packs
+                        .get(&RenderPackID::NewWorld)
+                        .unwrap()
+                        .camera;
 
                     let world_pos = grid_to_world(origin);
                     let screen_pos_origin: VecTwo =

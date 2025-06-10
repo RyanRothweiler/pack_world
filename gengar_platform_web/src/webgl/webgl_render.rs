@@ -33,19 +33,28 @@ pub fn render(
 
     render_render_pack(
         light_pos,
-        es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+        es.render_system
+            .render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap(),
         &render_api,
         context,
     );
     render_render_pack(
         light_pos,
-        es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+        es.render_system
+            .render_packs
+            .get_mut(&RenderPackID::World)
+            .unwrap(),
         &render_api,
         context,
     );
     render_render_pack(
         light_pos,
-        es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+        es.render_system
+            .render_packs
+            .get_mut(&RenderPackID::UI)
+            .unwrap(),
         &render_api,
         context,
     );

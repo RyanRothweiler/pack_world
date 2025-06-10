@@ -10,8 +10,10 @@ use crate::{
 use std::{cell::RefCell, collections::HashMap};
 
 pub mod components;
+pub mod render_system;
 
 pub use components::*;
+pub use render_system::*;
 
 // TODO rename engine state
 pub struct State {
@@ -33,8 +35,6 @@ pub struct State {
     pub game_debug_render_commands: Vec<RenderCommand>,
     pub game_ui_debug_render_commands: Vec<RenderCommand>,
 
-    pub render_packs: HashMap<RenderPackID, RenderPack>,
-
     pub roboto_typeface: Typeface,
 
     pub game_to_load: Vec<u8>,
@@ -42,6 +42,7 @@ pub struct State {
     pub render_commands_len: i32,
 
     pub components: Components,
+    pub render_system: RenderSystem,
 }
 
 impl State {
@@ -55,8 +56,6 @@ impl State {
 
             game_debug_render_commands: vec![],
             game_ui_debug_render_commands: vec![],
-
-            render_packs: HashMap::new(),
 
             window_resolution,
 
@@ -73,19 +72,20 @@ impl State {
             render_commands_len: 0,
 
             components: Components::new(),
+            render_system: RenderSystem::new(),
         };
 
-        state.render_packs.insert(
+        state.render_system.render_packs.insert(
             RenderPackID::World,
             RenderPack::new(ProjectionType::Orthographic, window_resolution),
         );
 
-        state.render_packs.insert(
+        state.render_system.render_packs.insert(
             RenderPackID::UI,
             RenderPack::new(ProjectionType::Orthographic, window_resolution),
         );
 
-        state.render_packs.insert(
+        state.render_system.render_packs.insert(
             RenderPackID::NewWorld,
             RenderPack::new(
                 ProjectionType::Perspective { focal_length: 0.95 },
@@ -93,7 +93,7 @@ impl State {
             ),
         );
 
-        state.render_packs.insert(
+        state.render_system.render_packs.insert(
             RenderPackID::Shop,
             RenderPack::new(
                 ProjectionType::Perspective { focal_length: 0.95 },
