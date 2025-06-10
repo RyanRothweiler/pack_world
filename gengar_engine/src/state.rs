@@ -9,6 +9,10 @@ use crate::{
 };
 use std::{cell::RefCell, collections::HashMap};
 
+pub mod components;
+
+pub use components::*;
+
 // TODO rename engine state
 pub struct State {
     pub window_resolution: VecTwo,
@@ -31,15 +35,13 @@ pub struct State {
 
     pub render_packs: HashMap<RenderPackID, RenderPack>,
 
-    // Pseudo ecs stuff.
-    // This doesn't handle 'deallocation'
-    pub transforms: Vec<Transform>,
-
     pub roboto_typeface: Typeface,
 
     pub game_to_load: Vec<u8>,
 
     pub render_commands_len: i32,
+
+    pub components: Components,
 }
 
 impl State {
@@ -57,7 +59,6 @@ impl State {
             render_packs: HashMap::new(),
 
             window_resolution,
-            transforms: vec![],
 
             model_sphere: Model::new(),
             model_plane: Model::new(),
@@ -70,6 +71,8 @@ impl State {
             frame: 0,
 
             render_commands_len: 0,
+
+            components: Components::new(),
         };
 
         state.render_packs.insert(
@@ -99,10 +102,5 @@ impl State {
         );
 
         return state;
-    }
-
-    pub fn new_transform(&mut self) -> usize {
-        self.transforms.push(Transform::new());
-        return self.transforms.len() - 1;
     }
 }

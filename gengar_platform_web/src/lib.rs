@@ -30,7 +30,8 @@ mod supabase;
 mod webgl;
 
 use idb::*;
-use webgl::{webgl_render::*, webgl_render_api::*};
+//webgl_render::*,
+use webgl::webgl_render_api::*;
 
 static mut ENGINE_STATE: Option<EngineState> = None;
 static mut GAME_STATE: Option<game::state::State> = None;
@@ -356,10 +357,12 @@ pub fn main_loop() {
         );
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
 
-        let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
-            [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]
-        .global_matrix
-        .get_position();
+        todo!("fix rendering with new light system");
+        /*
+            let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
+                [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]
+            .global_matrix
+            .get_position();
 
         render(
             ENGINE_STATE.as_mut().unwrap(),
@@ -368,6 +371,7 @@ pub fn main_loop() {
             &gl_context,
             light_trans,
         );
+        */
     }
 }
 

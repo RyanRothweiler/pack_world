@@ -42,9 +42,6 @@ pub struct State {
 
     pub assets: Assets,
 
-    pub light_trans: Option<usize>,
-    pub center_trans: Option<usize>,
-
     pub font_style_body: FontStyle,
     pub font_style_header: FontStyle,
     pub font_style_nav: FontStyle,
@@ -84,9 +81,6 @@ impl State {
             assets: Assets::new(),
 
             harvest_drops: vec![],
-
-            light_trans: None,
-            center_trans: None,
 
             font_style_body: Default::default(),
             font_style_header: Default::default(),

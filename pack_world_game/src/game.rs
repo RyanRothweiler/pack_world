@@ -20,7 +20,7 @@ use gengar_engine::{
     platform_api::*,
     rect::*,
     render::{
-        camera::*, image::Image, load_image, load_image_cursor, material::*,
+        camera::*, image::Image, light::*, load_image, load_image_cursor, material::*,
         render_command::RenderCommand, render_pack::*, shader::*, vao::*, RenderApi,
     },
     state::State as EngineState,
@@ -189,15 +189,23 @@ pub fn game_init(
         cam.yaw = 90.0;
     }
 
-    gs.light_trans = Some(es.new_transform());
-    gs.center_trans = Some(es.new_transform());
-
+    // lights
     {
-        let lt: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
-        lt.parent = gs.center_trans;
+        // new world light
+        {
+            let light = Light::new(es.components.new_transform());
 
-        let ct: &mut Transform = &mut es.transforms[gs.center_trans.unwrap()];
-        ct.local_rotation.y = 90.0;
+            let ct: &mut Transform = &mut es.components.transforms[light.transform];
+            ct.local_position.x = -2.0;
+            ct.local_position.z = 10.0;
+            ct.local_position.y = 15.0;
+
+            es.render_packs
+                .get_mut(&RenderPackID::NewWorld)
+                .unwrap()
+                .lights
+                .push(light);
+        }
     }
 
     // setup font styles
@@ -324,7 +332,7 @@ pub fn game_loop(
 
         for tile_type in tiles_to_render {
             gs.assets
-                .render_tile_thumbnail(tile_type, None, None, render_api);
+                .render_tile_thumbnail(tile_type, None, None, render_api, &es.components);
         }
     }
 
@@ -487,6 +495,7 @@ pub fn game_loop(
                 Some(gs.debug_state.thumbnail_dist),
                 Some(gs.debug_state.thumbnail_height),
                 render_api,
+                &es.components,
             );
 
             println!("dist {:?}", gs.debug_state.thumbnail_dist);
@@ -948,15 +957,6 @@ pub fn game_loop(
         gs.harvest_drops.retain(|h| !h.is_finished());
 
         handle_signals(sigs, gs, es, platform_api);
-    }
-
-    // draw sphere for light
-    {
-        let ct: &mut Transform = &mut es.transforms[gs.light_trans.unwrap()];
-        ct.local_position.x = -2.0;
-        ct.local_position.z = 10.0;
-        ct.local_position.y = 15.0;
-        // draw_sphere(ct.global_matrix.get_position(), 0.1, COLOR_WHITE);
     }
 
     es.render_packs

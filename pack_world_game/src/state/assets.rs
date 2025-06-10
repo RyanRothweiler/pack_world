@@ -7,6 +7,7 @@ use gengar_engine::{
         camera::*, frame_buffer_pack::*, image::*, material::*, render_pack::*, shader::*,
         RenderApi,
     },
+    state::components::*,
     vectors::*,
 };
 use std::collections::HashMap;
@@ -202,6 +203,7 @@ impl Assets {
         test_dist: Option<f64>,
         test_height: Option<f64>,
         render_api: &impl RenderApi,
+        components: &Components,
     ) {
         let cam_dist = match tile_type {
             TileType::OakTree => 9.14,
@@ -246,7 +248,7 @@ impl Assets {
             self,
         );
 
-        render_api.draw_frame_buffer(buffer_pack.frame_buffer, &mut render_pack);
+        render_api.draw_frame_buffer(buffer_pack.frame_buffer, &mut render_pack, components);
 
         // add to tiles hashmap
         self.tile_thumbnails.insert(tile_type, Some(buffer_pack));

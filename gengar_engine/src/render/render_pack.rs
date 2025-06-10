@@ -1,5 +1,5 @@
 use crate::{
-    render::{camera::*, render_command::*},
+    render::{camera::*, light::*, render_command::*},
     vectors::*,
 };
 
@@ -18,12 +18,16 @@ pub enum RenderPackID {
 pub struct RenderPack {
     pub commands: Vec<RenderCommand>,
     pub camera: Camera,
+
+    // only support one light for now
+    pub lights: Vec<Light>,
 }
 
 impl RenderPack {
     pub fn new(projection_type: ProjectionType, window_resolution: VecTwo) -> Self {
         Self {
             commands: vec![],
+            lights: vec![],
             camera: Camera::new(projection_type, window_resolution),
         }
     }

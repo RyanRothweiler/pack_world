@@ -8,6 +8,7 @@ use gengar_engine::{
         vao::Vao,
         RenderApi as EngineRenderApiTrait, ShaderType,
     },
+    state::components::*,
     vectors::*,
 };
 
@@ -441,7 +442,12 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         Ok(pack)
     }
 
-    fn draw_frame_buffer(&self, frame_buffer: u32, render_pack: &mut RenderPack) {
+    fn draw_frame_buffer(
+        &self,
+        frame_buffer: u32,
+        render_pack: &mut RenderPack,
+        components: &Components,
+    ) {
         let context = unsafe { GL_CONTEXT.as_mut().unwrap() };
         let gl_state: &mut WebGLState = unsafe { GL_STATE.as_mut().unwrap() };
 

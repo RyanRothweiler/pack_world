@@ -1,6 +1,7 @@
 #![allow(unused_variables, unused_imports, dead_code, clippy::all)]
 
 use gengar_engine::{
+    color::*,
     error::Error as EngineError,
     matricies::matrix_four_four::*,
     render::{
@@ -13,13 +14,18 @@ use gengar_engine::{
         vao::Vao,
         RenderApi as EngineRenderApiTrait, ShaderType,
     },
-    state::State as EngineState,
+    state::{components::*, State as EngineState},
     vectors::*,
 };
 
 mod gl_types;
 
 use gl_types::*;
+
+// resolved light info for rendering
+struct LightRenderInfo {
+    pub position: VecThreeFloat,
+}
 
 // Adjust the viewport to take into account the windows titlebar area.
 // Really not a great solution and obviously will break on other platforms.
@@ -363,7 +369,12 @@ impl EngineRenderApiTrait for OglRenderApi {
         Ok(pack)
     }
 
-    fn draw_frame_buffer(&self, frame_buffer: u32, render_pack: &mut RenderPack) {
+    fn draw_frame_buffer(
+        &self,
+        frame_buffer: u32,
+        render_pack: &mut RenderPack,
+        components: &Components,
+    ) {
         self.platform_api
             .bind_frame_buffer(GL_FRAMEBUFFER, frame_buffer);
 
@@ -384,18 +395,19 @@ impl EngineRenderApiTrait for OglRenderApi {
         self.platform_api.clear_color(0.0, 0.0, 0.0, 0.0);
         self.platform_api.clear();
 
-        render_render_pack(VecThreeFloat::new(100.0, 100.0, 0.0), render_pack, self);
+        /*
+        vec![LightRenderInfo {
+                position: VecThreeFloat::new(100.0, 100.0, 0.0),
+            }],
+            */
+
+        render_render_pack(render_pack, components, self);
 
         self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, 0);
     }
 }
 
-pub fn render(
-    es: &mut EngineState,
-    light_pos: VecThreeFloat,
-    resolution: &VecTwo,
-    render_api: &OglRenderApi,
-) {
+pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &OglRenderApi) {
     render_api.platform_api.viewport(
         0,
         -WINDOWS_TITLE_BAR_ADJ,
@@ -415,23 +427,23 @@ pub fn render(
     render_api.platform_api.clear();
 
     render_render_pack(
-        light_pos,
         es.render_packs.get_mut(&RenderPackID::NewWorld).unwrap(),
+        &es.components,
         &render_api,
     );
     render_render_pack(
-        light_pos,
         es.render_packs.get_mut(&RenderPackID::Shop).unwrap(),
+        &es.components,
         &render_api,
     );
     render_render_pack(
-        light_pos,
         es.render_packs.get_mut(&RenderPackID::World).unwrap(),
+        &es.components,
         &render_api,
     );
     render_render_pack(
-        light_pos,
         es.render_packs.get_mut(&RenderPackID::UI).unwrap(),
+        &es.components,
         &render_api,
     );
     if es.render_packs.len() > 4 {
@@ -441,25 +453,25 @@ pub fn render(
     // Debug rendering
     {
         render_list(
-            VecThreeFloat::new_zero(),
+            vec![],
             gengar_engine::debug::get_render_list(),
             &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
         render_list(
-            VecThreeFloat::new_zero(),
+            vec![],
             gengar_engine::debug::get_ui_render_list(),
             &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
         render_list(
-            VecThreeFloat::new_zero(),
+            vec![],
             &mut es.game_debug_render_commands,
             &es.render_packs.get(&RenderPackID::NewWorld).unwrap().camera,
             &render_api,
         );
         render_list(
-            VecThreeFloat::new_zero(),
+            vec![],
             &mut es.game_ui_debug_render_commands,
             &es.render_packs.get(&RenderPackID::UI).unwrap().camera,
             &render_api,
@@ -467,12 +479,18 @@ pub fn render(
     }
 }
 
-fn render_render_pack(light_pos: VecThreeFloat, pack: &mut RenderPack, render_api: &OglRenderApi) {
-    render_list(light_pos, &mut pack.commands, &pack.camera, render_api);
+fn render_render_pack(pack: &mut RenderPack, components: &Components, render_api: &OglRenderApi) {
+    let mut lights: Vec<LightRenderInfo> = vec![];
+    for l in &pack.lights {
+        lights.push(LightRenderInfo {
+            position: components.transforms[l.transform].local_position,
+        });
+    }
+    render_list(lights, &mut pack.commands, &pack.camera, render_api);
 }
 
 fn render_list(
-    light_pos: VecThreeFloat,
+    lights: Vec<LightRenderInfo>,
     render_commands: &mut Vec<RenderCommand>,
     camera: &Camera,
     render_api: &OglRenderApi,
@@ -492,13 +510,18 @@ fn render_list(
             "viewPos".to_string(),
             UniformData::VecThree(camera.transform.local_position),
         );
-        command
-            .uniforms
-            .insert("lightPos".to_string(), UniformData::VecThree(light_pos));
-        command.uniforms.insert(
-            "lightColor".to_string(),
-            UniformData::VecThree(VecThreeFloat::new(150.0, 150.0, 150.0)),
-        );
+
+        // This doesn't support multiple lights yet
+        for li in &lights {
+            command
+                .uniforms
+                .insert("lightPos".to_string(), UniformData::VecThree(li.position));
+
+            command.uniforms.insert(
+                "lightColor".to_string(),
+                UniformData::VecThree(VecThreeFloat::new(150.0, 150.0, 150.0)),
+            );
+        }
 
         // upload uniform data
         for (key, value) in &command.uniforms {

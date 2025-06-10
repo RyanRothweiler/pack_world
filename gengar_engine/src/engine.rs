@@ -142,5 +142,5 @@ pub fn engine_frame_end(es: &mut State) {
         pack.camera.update_matricies();
     }
 
-    Transform::update_all(&mut es.transforms);
+    Transform::update_all(&mut es.components.transforms);
 }

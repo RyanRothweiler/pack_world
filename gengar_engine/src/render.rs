@@ -5,7 +5,7 @@ use crate::{
     error::*,
     model::*,
     rect::*,
-    render::{frame_buffer_pack::*, material::Material, render_pack::*},
+    render::{components::*, frame_buffer_pack::*, material::Material, render_pack::*},
     state::*,
     transform::*,
     vectors::*,
@@ -18,6 +18,7 @@ pub mod accumulate_draw;
 pub mod camera;
 pub mod frame_buffer_pack;
 pub mod image;
+pub mod light;
 pub mod material;
 pub mod render_command;
 pub mod render_pack;
@@ -48,7 +49,13 @@ pub trait RenderApi {
     ) -> Result<u32, Error>;
 
     fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, Error>;
-    fn draw_frame_buffer(&self, frame_buffer: u32, render_pack: &mut RenderPack);
+
+    fn draw_frame_buffer(
+        &self,
+        frame_buffer: u32,
+        render_pack: &mut RenderPack,
+        components: &Components,
+    );
 }
 
 pub enum ShaderType {
