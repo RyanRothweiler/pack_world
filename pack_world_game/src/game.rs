@@ -207,19 +207,44 @@ pub fn game_init(
             gs.pack_light_origin = es.components.new_transform();
             // let origin_trans: &mut Transform = &mut es.components.transforms[light.transform];
 
-            gs.pack_light_trans = es.components.new_transform();
-            let light = Light::new(gs.pack_light_trans);
+            let rad = 10.0;
+            let y = 20.0;
 
-            let ct: &mut Transform = &mut es.components.transforms[light.transform];
-            ct.parent = Some(gs.pack_light_origin);
-            ct.local_position.x = 5.0;
-            ct.local_position.z = 10.0;
-            ct.local_position.y = 10.0;
+            // first light
+            {
+                gs.pack_light_trans = es.components.new_transform();
 
-            es.render_system
-                .get_pack(RenderPackID::Shop)
-                .lights
-                .push(light);
+                let light = Light::new(gs.pack_light_trans);
+
+                let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                ct.parent = Some(gs.pack_light_origin);
+                ct.local_position.x = rad;
+                ct.local_position.z = rad;
+                ct.local_position.y = y;
+
+                es.render_system
+                    .get_pack(RenderPackID::Shop)
+                    .lights
+                    .push(light);
+            }
+
+            // second light
+            {
+                gs.pack_light_trans_second = es.components.new_transform();
+
+                let light = Light::new(gs.pack_light_trans_second);
+
+                let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                ct.parent = Some(gs.pack_light_origin);
+                ct.local_position.x = -rad;
+                ct.local_position.z = -rad;
+                ct.local_position.y = y;
+
+                es.render_system
+                    .get_pack(RenderPackID::Shop)
+                    .lights
+                    .push(light);
+            }
         }
     }
 
@@ -804,6 +829,7 @@ pub fn game_loop(
                 let light_trans: &mut Transform =
                     &mut es.components.transforms[gs.pack_light_trans];
 
+                /*
                 draw_tile_world_pos(
                     TileType::Dirt,
                     0.0,
@@ -815,13 +841,26 @@ pub fn game_loop(
                         .unwrap(),
                     &gs.assets,
                 );
+                */
 
-                let spd = 0.01;
+                let spd = 0.007;
                 let origin_trans: &mut Transform =
                     &mut es.components.transforms[gs.pack_light_origin];
                 // origin_trans.local_rotation.x = es.frame as f64 * spd;
                 origin_trans.local_rotation.y = es.frame as f64 * spd;
                 // origin_trans.local_rotation.z = es.frame as f64 * spd;
+
+                let cp = es
+                    .render_system
+                    .render_packs
+                    .get(&RenderPackID::Shop)
+                    .unwrap()
+                    .camera
+                    .transform
+                    .local_position;
+
+                origin_trans.local_position.x = cp.x;
+                origin_trans.local_position.z = cp.z;
 
                 /*
                 let light = Light::new(es.components.new_transform());
@@ -898,7 +937,7 @@ pub fn game_loop(
 
             // pack layout rendering
             {
-                let packs: Vec<PackID> = vec![PackID::Starter];
+                let packs: Vec<PackID> = vec![PackID::Starter, PackID::Water];
 
                 for (i, pack_id) in packs.iter().enumerate() {
                     let pack_info = pack_id.get_pack_info();
@@ -1002,7 +1041,26 @@ pub fn game_loop(
 
                     // pack model
                     {
-                        let tile_asset_id = pack_id.to_string_id();
+                        // light testing
+                        {
+                            let p = 200.0;
+
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::Shop)
+                                .unwrap()
+                                .lights[0]
+                                .power = VecThreeFloat::new(3.0 * p, 0.95 * p, 0.9 * p);
+
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::Shop)
+                                .unwrap()
+                                .lights[1]
+                                .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
+                        }
+
+                        let tile_asset_id = PackID::Starter.to_string_id();
 
                         let mut trans = Transform::new();
                         trans.local_position = world_origin;
@@ -1010,22 +1068,28 @@ pub fn game_loop(
                             VecThreeFloat::new(0.0, -90.0_f64.to_radians(), -70.0_f64.to_radians());
                         trans.update_global_matrix(&M44::new_identity());
 
-                        let mut mat = gs.assets.get_pack_material(*pack_id).clone();
-                        if hovering {
-                            mat.uniforms
-                                .insert("ambientRed".to_string(), UniformData::Float(10.0));
-                        }
+                        let mut mat = gs.assets.get_pack_material(PackID::Starter).clone();
 
-                        es.render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap()
-                            .commands
-                            .push(RenderCommand::new_model(
+                        let ambient = {
+                            let v = 0.2;
+                            let mut val = VecThreeFloat::new(v, v, v);
+                            if hovering {
+                                val.x = 10.0;
+                            }
+                            val
+                        };
+
+                        mat.uniforms
+                            .insert("ambientColor".to_string(), UniformData::VecThree(ambient));
+
+                        es.render_system.add_command(
+                            RenderCommand::new_model(
                                 &trans,
                                 gs.assets.asset_library.get_model(&tile_asset_id),
                                 &mat,
-                            ));
+                            ),
+                            RenderPackID::Shop,
+                        );
                     }
                 }
             }

@@ -66,10 +66,16 @@ pub fn draw_tile_world_pos(
     trans.update_global_matrix(&M44::new_identity());
 
     let mut mat = assets.get_tile_material(tile_type).clone();
-    if !can_place {
-        mat.uniforms
-            .insert("ambientRed".to_string(), UniformData::Float(10.0));
-    }
+    let ambient = {
+        let mut val = VecThreeFloat::new(0.05, 0.05, 0.05);
+        if !can_place {
+            val.x = 10.0;
+        }
+        val
+    };
+
+    mat.uniforms
+        .insert("ambientColor".to_string(), UniformData::VecThree(ambient));
 
     render_pack.commands.push(RenderCommand::new_model(
         &trans,

@@ -4,9 +4,6 @@ in vec2 vTexCoord;
 in vec3 vNormal;
 in vec3 vFragPos;
 in vec3 vViewPos;
-in vec3 vLightPos;
-
-in vec3 vLightColor;
 
 in vec3 vNormalTan;
 in vec3 vNormalBiTan;
@@ -18,7 +15,15 @@ uniform sampler2D normalTex;
 uniform sampler2D metallicTex;
 uniform sampler2D roughnessTex;
 uniform sampler2D aoTex;
-uniform float ambientRed;
+uniform vec3 ambientColor;
+
+uniform float lightsCount;
+
+uniform vec3 lightPos;
+uniform vec3 lightColor;
+
+uniform vec3 lightPosTwo;
+uniform vec3 lightColorTwo;
 
 float PI = 3.14159265359;
 
@@ -106,16 +111,23 @@ void main()
                
     // reflectance equation
     vec3 Lo = vec3(0.0);
-    //for(int i = 0; i < 4; ++i) 
-    //{
-
+    
+    for (int i = 0; i < lightsCount; ++i) 
+    {
+        vec3 lp = lightPos;
+        vec3 power = lightColor;
+        if (i == 1) {
+            lp = lightPosTwo;
+            power = lightColorTwo;
+        }
+        
         // calculate per-light radiance
-        vec3 L = normalize(vLightPos - vFragPos);
+        vec3 L = normalize(lp - vFragPos);
         vec3 H = normalize(V + L);
-        float distance    = length(vLightPos - vFragPos);
+        float distance    = length(lp - vFragPos);
         // float attenuation = 1.0 / (distance * distance);
         float attenuation = 0.03;
-        vec3 radiance     = vLightColor * attenuation;        
+        vec3 radiance     = power * attenuation;
         
         // cook-torrance brdf
         float NDF = DistributionGGX(N, H, roughness);        
@@ -133,11 +145,10 @@ void main()
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);                
         Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
-
-    //}
+    }
   
     // vec3 ambient = vec3(0.3) * albedo * ao;
-    vec3 ambient = vec3(ambientRed, 0.05, 0.05) * albedo * ao;
+    vec3 ambient = ambientColor * albedo * ao;
     vec3 color = ambient + Lo;
     
     color = color / (color + vec3(1.0));

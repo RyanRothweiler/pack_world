@@ -519,15 +519,31 @@ fn render_list(
             UniformData::VecThree(camera.transform.local_position),
         );
 
-        // This doesn't support multiple lights yet
-        for li in &lights {
-            command
-                .uniforms
-                .insert("lightPos".to_string(), UniformData::VecThree(li.position));
+        // lights
+        {
+            command.uniforms.insert(
+                "lightsCount".to_string(),
+                UniformData::Float(lights.len() as f64),
+            );
+            if let Some(li) = lights.get(0) {
+                command
+                    .uniforms
+                    .insert("lightPos".to_string(), UniformData::VecThree(li.position));
 
-            command
-                .uniforms
-                .insert("lightColor".to_string(), UniformData::VecThree(li.power));
+                command
+                    .uniforms
+                    .insert("lightColor".to_string(), UniformData::VecThree(li.power));
+            }
+            if let Some(li) = lights.get(1) {
+                command.uniforms.insert(
+                    "lightPosTwo".to_string(),
+                    UniformData::VecThree(li.position),
+                );
+
+                command
+                    .uniforms
+                    .insert("lightColorTwo".to_string(), UniformData::VecThree(li.power));
+            }
         }
 
         // upload uniform data
