@@ -254,7 +254,7 @@ pub fn game_init(
                 ct.parent = Some(gs.pack_light_origin);
                 ct.local_position.x = rad;
                 ct.local_position.z = -rad;
-                ct.local_position.y = 2.0;
+                ct.local_position.y = 0.0;
 
                 es.render_system
                     .get_pack(RenderPackID::Shop)
@@ -955,7 +955,7 @@ pub fn game_loop(
             // pack layout rendering
             {
                 let packs: Vec<PackID> =
-                    vec![PackID::Starter, PackID::Water, PackID::Water, PackID::Water];
+                    vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
 
                 for (i, pack_id) in packs.iter().enumerate() {
                     let pack_info = pack_id.get_pack_info();
@@ -1057,8 +1057,8 @@ pub fn game_loop(
                     {
                         // light testing
                         {
-                            let p = 300.0;
-                            let white_p = 1000.0;
+                            let p = 500.0;
+                            let white_p = 2000.0;
 
                             es.render_system
                                 .render_packs
@@ -1085,30 +1085,48 @@ pub fn game_loop(
                         let hover_scale: f64 = 1.4;
                         let hover_speed: f64 = 35.0;
 
-                        if hovering {
-                            gs.pack_hovers[i] += prev_delta_time * hover_speed;
-                        } else {
-                            gs.pack_hovers[i] -= prev_delta_time * hover_speed;
-                        }
-                        gs.pack_hovers[i] = gs.pack_hovers[i].clamp(0.0, 1.0);
+                        let display_state = &mut gs.pack_display_state[i];
 
-                        let tile_asset_id = PackID::Starter.to_string_id();
+                        if hovering {
+                            display_state.hover_time += prev_delta_time * hover_speed;
+                        } else {
+                            display_state.hover_time -= prev_delta_time * hover_speed;
+                        }
+                        display_state.hover_time = display_state.hover_time.clamp(0.0, 1.0);
+
+                        let tile_asset_id = pack_id.to_string_id();
+
+                        let mut rot_max = 0.45;
+                        if hovering {
+                            rot_max = 0.05;
+                        }
+
+                        let target_rot = VecThreeFloat::new(
+                            f64::sin(gs.rotate_time) * rot_max,
+                            -90.0_f64.to_radians() + (f64::sin(gs.rotate_time + 2.0) * rot_max),
+                            -70.0_f64.to_radians() + (f64::sin(gs.rotate_time + 1.0) * rot_max),
+                        );
+                        display_state.rotation =
+                            VecThreeFloat::lerp(display_state.rotation, target_rot, 0.1);
 
                         let mut trans = Transform::new();
                         trans.local_scale = VecThreeFloat::lerp(
                             VecThreeFloat::new(1.0, 1.0, 1.0),
                             VecThreeFloat::new(hover_scale, hover_scale, hover_scale),
-                            gs.pack_hovers[i],
+                            display_state.hover_time,
                         );
+
+                        // TODO chagne this to use delta_time
+                        gs.rotate_time += 0.01;
+
                         trans.local_position = world_origin;
-                        trans.local_rotation =
-                            VecThreeFloat::new(0.0, -90.0_f64.to_radians(), -70.0_f64.to_radians());
+                        trans.local_rotation = display_state.rotation;
                         trans.update_global_matrix(&M44::new_identity());
 
-                        let mut mat = gs.assets.get_pack_material(PackID::Starter).clone();
+                        let mut mat = gs.assets.get_pack_material(*pack_id).clone();
 
                         let ambient = {
-                            let v = 0.05;
+                            let v = 0.00;
                             let mut val = VecThreeFloat::new(v, v, v);
                             if hovering {
                                 // val.x = 10.0;

@@ -97,6 +97,24 @@ include_texture!(al, "pack_starter_metallic", "../../../../resources/packs/pack_
 include_texture!(al, "pack_starter_roughness", "../../../../resources/packs/pack_starter/Roughness.png", render_api);
 include_texture!(al, "pack_starter_ao", "../../../../resources/packs/pack_starter/AO.png", render_api);
 include_texture!(al, "pack_starter_normal", "../../../../resources/packs/pack_starter/Normal.png", render_api);
+include_model!(al, "pack_mud", "../../../../resources/packs/pack_mud/pack_mud.obj", render_api);
+include_texture!(al, "pack_mud_base_color", "../../../../resources/packs/pack_mud/BaseColor.png", render_api);
+include_texture!(al, "pack_mud_metallic", "../../../../resources/packs/pack_mud/Metallic.png", render_api);
+include_texture!(al, "pack_mud_roughness", "../../../../resources/packs/pack_mud/Roughness.png", render_api);
+include_texture!(al, "pack_mud_ao", "../../../../resources/packs/pack_mud/AO.png", render_api);
+include_texture!(al, "pack_mud_normal", "../../../../resources/packs/pack_mud/Normal.png", render_api);
+include_model!(al, "pack_stick", "../../../../resources/packs/pack_stick/pack_stick.obj", render_api);
+include_texture!(al, "pack_stick_base_color", "../../../../resources/packs/pack_stick/BaseColor.png", render_api);
+include_texture!(al, "pack_stick_metallic", "../../../../resources/packs/pack_stick/Metallic.png", render_api);
+include_texture!(al, "pack_stick_roughness", "../../../../resources/packs/pack_stick/Roughness.png", render_api);
+include_texture!(al, "pack_stick_ao", "../../../../resources/packs/pack_stick/AO.png", render_api);
+include_texture!(al, "pack_stick_normal", "../../../../resources/packs/pack_stick/Normal.png", render_api);
+include_model!(al, "pack_water", "../../../../resources/packs/pack_water/pack_water.obj", render_api);
+include_texture!(al, "pack_water_base_color", "../../../../resources/packs/pack_water/BaseColor.png", render_api);
+include_texture!(al, "pack_water_metallic", "../../../../resources/packs/pack_water/Metallic.png", render_api);
+include_texture!(al, "pack_water_roughness", "../../../../resources/packs/pack_water/Roughness.png", render_api);
+include_texture!(al, "pack_water_ao", "../../../../resources/packs/pack_water/AO.png", render_api);
+include_texture!(al, "pack_water_normal", "../../../../resources/packs/pack_water/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }

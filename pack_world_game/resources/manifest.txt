@@ -43,6 +43,15 @@ tile_clam
 pack
 pack_starter
 
+pack
+pack_mud
+
+pack
+pack_stick
+
+pack
+pack_water
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

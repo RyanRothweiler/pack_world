@@ -124,7 +124,7 @@ impl Assets {
         }
 
         // build pack materials
-        for pack in vec![PackID::Starter] {
+        for pack in vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water] {
             self.pack_materials.insert(
                 pack,
                 Self::build_pbr_material(&pack.to_string_id(), &self.asset_library, pbr_shader),
