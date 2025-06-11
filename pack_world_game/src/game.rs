@@ -183,6 +183,8 @@ pub fn game_init(
         cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
         cam.pitch = 70.0;
         cam.yaw = 90.0;
+
+        gs.target_camera_pos = cam.transform.local_position;
     }
 
     // lights
@@ -903,45 +905,49 @@ pub fn game_loop(
                     .get_mut(&RenderPackID::Shop)
                     .unwrap();
 
-                let keyboard_speed = 30.0;
-                let mouse_scroll_speed = 400.0;
-                let drag_speed = gengar_engine::math::lerp(
-                    0.02,
-                    0.08,
-                    cam_pack.camera.transform.local_position.y / 100.0,
-                );
+                if gs.pack_selected.is_none() {
+                    let keyboard_speed = 30.0;
+                    let mouse_scroll_speed = 400.0;
+                    let drag_speed = gengar_engine::math::lerp(
+                        0.02,
+                        0.08,
+                        cam_pack.camera.transform.local_position.y / 100.0,
+                    );
 
-                if input.get_key(KeyCode::W).pressing {
-                    cam_pack.camera.transform.local_position.z -= keyboard_speed * prev_delta_time;
-                }
-                if input.get_key(KeyCode::S).pressing {
-                    cam_pack.camera.transform.local_position.z += keyboard_speed * prev_delta_time;
-                }
-                if input.get_key(KeyCode::A).pressing {
-                    cam_pack.camera.transform.local_position.x -= keyboard_speed * prev_delta_time;
-                }
-                if input.get_key(KeyCode::D).pressing {
-                    cam_pack.camera.transform.local_position.x += keyboard_speed * prev_delta_time;
-                }
-                if input.mouse.scroll_delta > 0 {
-                    cam_pack.camera.transform.local_position.y -=
-                        mouse_scroll_speed * prev_delta_time;
-                } else if input.mouse.scroll_delta < 0 {
-                    cam_pack.camera.transform.local_position.y +=
-                        mouse_scroll_speed * prev_delta_time
-                }
+                    if input.get_key(KeyCode::W).pressing {
+                        gs.target_camera_pos.z -= keyboard_speed * prev_delta_time;
+                    }
+                    if input.get_key(KeyCode::S).pressing {
+                        gs.target_camera_pos.z += keyboard_speed * prev_delta_time;
+                    }
+                    if input.get_key(KeyCode::A).pressing {
+                        gs.target_camera_pos.x -= keyboard_speed * prev_delta_time;
+                    }
+                    if input.get_key(KeyCode::D).pressing {
+                        gs.target_camera_pos.x += keyboard_speed * prev_delta_time;
+                    }
+                    if input.mouse.scroll_delta > 0 {
+                        gs.target_camera_pos.y -= mouse_scroll_speed * prev_delta_time;
+                    } else if input.mouse.scroll_delta < 0 {
+                        gs.target_camera_pos.y += mouse_scroll_speed * prev_delta_time
+                    }
 
-                // camera click dragging
-                {
-                    if input.mouse.button_left.pressing {
-                        if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
-                            cam_pack.camera.transform.local_position.x +=
-                                input.mouse.pos_delta.x * drag_speed;
-                            cam_pack.camera.transform.local_position.z +=
-                                input.mouse.pos_delta.y * drag_speed;
+                    // camera click dragging
+                    {
+                        if input.mouse.button_left.pressing {
+                            if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
+                                gs.target_camera_pos.x += input.mouse.pos_delta.x * drag_speed;
+                                gs.target_camera_pos.z += input.mouse.pos_delta.y * drag_speed;
+                            }
                         }
                     }
                 }
+
+                cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
+                    cam_pack.camera.transform.local_position,
+                    gs.target_camera_pos,
+                    0.2,
+                );
             } else {
                 // fly cam for testing
                 es.render_system
@@ -969,6 +975,13 @@ pub fn game_loop(
                         .unwrap()
                         .camera;
                     let screen_origin = cam.world_to_screen(world_origin, es.window_resolution);
+
+                    if let Some(pack_sel) = gs.pack_selected {
+                        if pack_sel == i {
+                            gs.target_camera_pos.x = world_origin.x;
+                            gs.target_camera_pos.z = world_origin.z;
+                        }
+                    }
 
                     // ui
                     let ui_context = &mut gs.ui_context.as_mut().unwrap();
@@ -1047,11 +1060,25 @@ pub fn game_loop(
                     }
                     end_panel(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
 
-                    let hovering = point_within_circle(
+                    let mut hovering = point_within_circle(
                         VecTwo::new(mouse_world.x, mouse_world.z),
                         VecTwo::new(world_origin.x, world_origin.z),
-                        2.0,
+                        3.0,
                     );
+
+                    if let Some(pack_sel) = gs.pack_selected {
+                        if pack_sel == i {
+                            hovering = true;
+                        }
+                    }
+
+                    if hovering && input.mouse.button_left.on_press {
+                        gs.pack_selected = Some(i);
+                    }
+
+                    if input.get_key(KeyCode::Escape).on_press {
+                        gs.pack_selected = None;
+                    }
 
                     // pack model
                     {
@@ -1082,17 +1109,23 @@ pub fn game_loop(
                                 .power = VecThreeFloat::new(white_p, white_p, white_p);
                         }
 
-                        let hover_scale: f64 = 1.4;
+                        let hover_scale: f64 = 1.5;
+                        let click_scale: f64 = 1.2;
+                        let mut scale_target: f64 = 1.0;
+
                         let hover_speed: f64 = 35.0;
 
                         let display_state = &mut gs.pack_display_state[i];
 
                         if hovering {
-                            display_state.hover_time += prev_delta_time * hover_speed;
-                        } else {
-                            display_state.hover_time -= prev_delta_time * hover_speed;
+                            scale_target = hover_scale;
+                            if input.mouse.button_left.pressing {
+                                scale_target = click_scale;
+                            }
                         }
-                        display_state.hover_time = display_state.hover_time.clamp(0.0, 1.0);
+
+                        display_state.scale =
+                            gengar_engine::math::lerp(display_state.scale, scale_target, 0.35);
 
                         let tile_asset_id = pack_id.to_string_id();
 
@@ -1110,11 +1143,18 @@ pub fn game_loop(
                             VecThreeFloat::lerp(display_state.rotation, target_rot, 0.1);
 
                         let mut trans = Transform::new();
+                        trans.local_scale = VecThreeFloat::new(
+                            display_state.scale,
+                            display_state.scale,
+                            display_state.scale,
+                        );
+                        /*
                         trans.local_scale = VecThreeFloat::lerp(
                             VecThreeFloat::new(1.0, 1.0, 1.0),
                             VecThreeFloat::new(hover_scale, hover_scale, hover_scale),
                             display_state.hover_time,
                         );
+                        */
 
                         // TODO chagne this to use delta_time
                         gs.rotate_time += 0.01;

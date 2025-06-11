@@ -40,6 +40,7 @@ pub enum WorldStatus {
 pub struct PackDisplayState {
     pub hover_time: f64,
     pub rotation: VecThreeFloat,
+    pub scale: f64,
 }
 
 pub struct State {
@@ -75,6 +76,9 @@ pub struct State {
     pub pack_light_trans_second: usize,
 
     pub pack_display_state: [PackDisplayState; 20],
+
+    pub target_camera_pos: VecThreeFloat,
+    pub pack_selected: Option<usize>,
 }
 
 impl State {
@@ -117,7 +121,11 @@ impl State {
             pack_display_state: [PackDisplayState {
                 hover_time: 0.0,
                 rotation: VecThreeFloat::new_zero(),
+                scale: 0.0,
             }; 20],
+
+            target_camera_pos: VecThreeFloat::new_zero(),
+            pack_selected: None,
         }
     }
 }
