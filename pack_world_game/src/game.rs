@@ -245,6 +245,22 @@ pub fn game_init(
                     .lights
                     .push(light);
             }
+
+            // third whilte light
+            {
+                let light = Light::new(es.components.new_transform());
+
+                let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                ct.parent = Some(gs.pack_light_origin);
+                ct.local_position.x = rad;
+                ct.local_position.z = -rad;
+                ct.local_position.y = 2.0;
+
+                es.render_system
+                    .get_pack(RenderPackID::Shop)
+                    .lights
+                    .push(light);
+            }
         }
     }
 
@@ -848,6 +864,7 @@ pub fn game_loop(
                     &mut es.components.transforms[gs.pack_light_origin];
                 // origin_trans.local_rotation.x = es.frame as f64 * spd;
                 origin_trans.local_rotation.y = es.frame as f64 * spd;
+                // origin_trans.local_rotation.x = es.frame as f64 * spd;
                 // origin_trans.local_rotation.z = es.frame as f64 * spd;
 
                 let cp = es
@@ -937,16 +954,13 @@ pub fn game_loop(
 
             // pack layout rendering
             {
-                let packs: Vec<PackID> = vec![PackID::Starter, PackID::Water];
+                let packs: Vec<PackID> =
+                    vec![PackID::Starter, PackID::Water, PackID::Water, PackID::Water];
 
                 for (i, pack_id) in packs.iter().enumerate() {
                     let pack_info = pack_id.get_pack_info();
 
                     let world_origin = VecThreeFloat::new(0.0, 0.0, i as f64 * 9.0);
-
-                    let p = 200.0;
-                    es.render_system.get_pack(RenderPackID::Shop).lights[0].power =
-                        VecThreeFloat::new(p, p, p);
 
                     let cam: &Camera = &es
                         .render_system
@@ -1043,7 +1057,8 @@ pub fn game_loop(
                     {
                         // light testing
                         {
-                            let p = 200.0;
+                            let p = 300.0;
+                            let white_p = 1000.0;
 
                             es.render_system
                                 .render_packs
@@ -1058,11 +1073,33 @@ pub fn game_loop(
                                 .unwrap()
                                 .lights[1]
                                 .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
+
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::Shop)
+                                .unwrap()
+                                .lights[2]
+                                .power = VecThreeFloat::new(white_p, white_p, white_p);
                         }
+
+                        let hover_scale: f64 = 1.4;
+                        let hover_speed: f64 = 35.0;
+
+                        if hovering {
+                            gs.pack_hovers[i] += prev_delta_time * hover_speed;
+                        } else {
+                            gs.pack_hovers[i] -= prev_delta_time * hover_speed;
+                        }
+                        gs.pack_hovers[i] = gs.pack_hovers[i].clamp(0.0, 1.0);
 
                         let tile_asset_id = PackID::Starter.to_string_id();
 
                         let mut trans = Transform::new();
+                        trans.local_scale = VecThreeFloat::lerp(
+                            VecThreeFloat::new(1.0, 1.0, 1.0),
+                            VecThreeFloat::new(hover_scale, hover_scale, hover_scale),
+                            gs.pack_hovers[i],
+                        );
                         trans.local_position = world_origin;
                         trans.local_rotation =
                             VecThreeFloat::new(0.0, -90.0_f64.to_radians(), -70.0_f64.to_radians());
@@ -1071,10 +1108,10 @@ pub fn game_loop(
                         let mut mat = gs.assets.get_pack_material(PackID::Starter).clone();
 
                         let ambient = {
-                            let v = 0.2;
+                            let v = 0.05;
                             let mut val = VecThreeFloat::new(v, v, v);
                             if hovering {
-                                val.x = 10.0;
+                                // val.x = 10.0;
                             }
                             val
                         };

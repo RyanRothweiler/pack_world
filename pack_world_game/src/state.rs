@@ -67,6 +67,8 @@ pub struct State {
     pub pack_light_origin: usize,
     pub pack_light_trans: usize,
     pub pack_light_trans_second: usize,
+
+    pub pack_hovers: [f64; 20],
 }
 
 impl State {
@@ -105,6 +107,8 @@ impl State {
             pack_light_origin: 0,
             pack_light_trans: 0,
             pack_light_trans_second: 0,
+
+            pack_hovers: [0.0; 20],
         }
     }
 }

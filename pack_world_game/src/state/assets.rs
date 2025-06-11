@@ -299,7 +299,7 @@ impl Assets {
         );
 
         mat.uniforms.insert(
-            "metallicTex    ".to_string(),
+            "metallicTex".to_string(),
             UniformData::Texture(TextureInfo {
                 image_id: asset_library
                     .get_texture(&format!("{}_metallic", name_base))

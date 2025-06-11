@@ -69,6 +69,10 @@ impl VecThreeFloat {
     pub fn dot(a: &Self, b: &Self) -> f64 {
         (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
     }
+
+    pub fn lerp(a: Self, b: Self, t: f64) -> Self {
+        a + (b - a) * t.clamp(0.0, 1.0)
+    }
 }
 
 impl Add for VecThreeFloat {

@@ -544,8 +544,18 @@ fn render_list(
                     .uniforms
                     .insert("lightColorTwo".to_string(), UniformData::VecThree(li.power));
             }
-        }
+            if let Some(li) = lights.get(2) {
+                command.uniforms.insert(
+                    "lightPosThree".to_string(),
+                    UniformData::VecThree(li.position),
+                );
 
+                command.uniforms.insert(
+                    "lightColorThree".to_string(),
+                    UniformData::VecThree(li.power),
+                );
+            }
+        }
         // upload uniform data
         for (key, value) in &command.uniforms {
             match value {

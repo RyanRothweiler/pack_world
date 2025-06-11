@@ -25,6 +25,9 @@ uniform vec3 lightColor;
 uniform vec3 lightPosTwo;
 uniform vec3 lightColorTwo;
 
+uniform vec3 lightPosThree;
+uniform vec3 lightColorThree;
+
 float PI = 3.14159265359;
 
 // Easy trick to get tangent-normals to world-space to keep PBR code simplified.
@@ -67,6 +70,31 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
     return nom / denom;
 }
 
+float TrowbridgeReitzAnisotropicNormalDistribution(
+    float anisotropy,
+    vec3 N,
+    vec3 H,
+    float HdotX,
+    float HdotY,
+    float roughness
+) {
+    float NdotH = max(dot(N, H), 0.0);
+
+    float aspect = sqrt(1.0 - anisotropy * 0.9); // keep in stable range
+    float alpha = roughness * roughness;
+
+    float ax = max(0.001, alpha / aspect);
+    float ay = max(0.001, alpha * aspect);
+
+    float denom = (HdotX / ax) * (HdotX / ax) +
+                  (HdotY / ay) * (HdotY / ay) +
+                  NdotH * NdotH;
+
+    float D = 1.0 / (PI * ax * ay * denom * denom);
+    return D;
+}
+
+
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = (roughness + 1.0);
@@ -88,24 +116,56 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
     return ggx1 * ggx2;
 }
 
+void getNormalAndTBN(out vec3 N, out vec3 T, out vec3 B)
+{
+    // Sample normal map in tangent space, remap from [0,1] to [-1,1]
+    vec3 tangentNormal = texture(normalTex, vTexCoord).xyz * 2.0 - 1.0;
+
+    // Calculate partial derivatives of position and UV
+    vec3 Q1  = dFdx(vFragPos);
+    vec3 Q2  = dFdy(vFragPos);
+    vec2 st1 = dFdx(vTexCoord);
+    vec2 st2 = dFdy(vTexCoord);
+
+    // Compute unperturbed basis vectors
+    vec3 N_ = normalize(vNormal);
+    vec3 T_ = normalize(Q1 * st2.t - Q2 * st1.t);
+    vec3 B_ = normalize(cross(N_, T_));
+
+    // Construct TBN matrix from unperturbed tangent space basis
+    mat3 TBN = mat3(T_, B_, N_);
+
+    // Transform tangent-space normal map vector to world space (or whatever space your shading uses)
+    N = normalize(TBN * tangentNormal);
+
+    // Now transform canonical tangent and bitangent vectors through TBN as well
+    // This is the key part so anisotropic calculations align with perturbed normal
+    T = normalize(TBN * vec3(1.0, 0.0, 0.0));
+    B = normalize(TBN * vec3(0.0, 1.0, 0.0));
+}
+
 void main()
 {
     // vec3 albedo = texture(tex, vTexCoord).rgb;
     vec3 albedo = vec3(pow(texture(tex, vTexCoord).r, 2.2), pow(texture(tex, vTexCoord).g, 2.2), pow(texture(tex, vTexCoord).b, 2.2));
-    float metallic = min(texture(metallicTex, vTexCoord).r, 0.9);
-    float roughness = min(texture(roughnessTex, vTexCoord).r, 0.9);
+    float metallic = clamp(texture(metallicTex, vTexCoord).r, 0.0, 1.0);
+    float roughness = clamp(texture(roughnessTex, vTexCoord).r, 0.0, 1.0);
     float ao = texture(aoTex, vTexCoord).r;
 
     // normal map
-    mat3 tbn = mat3(vNormalTan, vNormalBiTan, vNormal);
+    // mat3 tbn = mat3(vNormalTan, vNormalBiTan, vNormal);
 
     vec3 texNormal = texture(normalTex, vTexCoord).rgb;
     texNormal = (texNormal * 2.0) - 1.0;
-    vec3 norm = getNormalFromMap();
+    
+    // vec3 norm = getNormalFromMap();
+    // vec3 N = normalize(norm);
+    
+    vec3 N, T, B;
+    getNormalAndTBN(N, T, B);
 
-    vec3 N = normalize(norm);
     vec3 V = normalize(vViewPos - vFragPos);
-
+    
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
                
@@ -119,6 +179,9 @@ void main()
         if (i == 1) {
             lp = lightPosTwo;
             power = lightColorTwo;
+        } else if (i == 2) {
+            lp = lightPosThree;
+            power = lightColorThree;
         }
         
         // calculate per-light radiance
@@ -129,8 +192,14 @@ void main()
         float attenuation = 0.03;
         vec3 radiance     = power * attenuation;
         
+        float HdotX = dot(T, H);
+        float HdotY = dot(B, H);
+    
         // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, roughness);        
+        float NDF = DistributionGGX(N, H, roughness);
+        // float NDF = DistributionAnisoGGX(N, H, T, B, roughness, 1.0);
+        // float NDF = TrowbridgeReitzAnisotropicNormalDistribution(1.0, N, H, HdotX, HdotY, roughness);
+            
         float G   = GeometrySmith(N, V, L, roughness);      
         vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);       
         
