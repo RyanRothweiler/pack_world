@@ -16,7 +16,7 @@ pub enum PackShopDisplayState {
     Idle,
     Hidden,
     Hover,
-    MouseDown,
+    Selected,
 }
 
 #[derive(Copy, Clone)]
@@ -28,7 +28,6 @@ pub struct PackShopDisplay {
     pub rot_time: f64,
 
     state: PackShopDisplayState,
-    target_scale: f64,
 }
 
 impl PackShopDisplay {
@@ -40,7 +39,6 @@ impl PackShopDisplay {
             rot_time: 0.0,
 
             state: PackShopDisplayState::Idle,
-            target_scale: 0.0,
         };
 
         ret.set_state(PackShopDisplayState::Idle);
@@ -51,6 +49,7 @@ impl PackShopDisplay {
     pub fn set_state(&mut self, new_state: PackShopDisplayState) {
         self.state = new_state;
 
+        /*
         match new_state {
             PackShopDisplayState::Idle => {
                 self.target_scale = 1.0;
@@ -61,10 +60,11 @@ impl PackShopDisplay {
             PackShopDisplayState::Hover => {
                 self.target_scale = 1.5;
             }
-            PackShopDisplayState::MouseDown => {
+            PackShopDisplayState::Selected => {
                 self.target_scale = 1.2;
             }
         }
+        */
     }
 
     pub fn update(
@@ -93,22 +93,36 @@ impl PackShopDisplay {
                     ret.push(PackShopSignals::Hover { pack_id });
                 }
             }
-            PackShopDisplayState::MouseDown => {
+            PackShopDisplayState::Selected => {
+                /*
                 if !hovering {
                     ret.push(PackShopSignals::Idle { pack_id });
                 } else if !mouse_left.pressing {
                     ret.push(PackShopSignals::Hover { pack_id });
                 }
+                */
             }
             PackShopDisplayState::Hidden => {}
             PackShopDisplayState::Hover => {
                 if !hovering {
                     ret.push(PackShopSignals::Idle { pack_id });
                 } else if mouse_left.pressing {
-                    ret.push(PackShopSignals::MouseDown { pack_id });
+                    ret.push(PackShopSignals::Select { pack_id });
                 }
             }
         }
+
+        let scale_target = match self.state {
+            PackShopDisplayState::Hidden => 0.0,
+            PackShopDisplayState::Hover => 1.5,
+            PackShopDisplayState::Selected => 1.2,
+            PackShopDisplayState::Idle => 1.0,
+        };
+
+        let rot_max = match self.state {
+            PackShopDisplayState::Hover | PackShopDisplayState::Selected => 0.05,
+            _ => 0.45,
+        };
 
         /*
         if hovering {
@@ -127,12 +141,7 @@ impl PackShopDisplay {
         }
         */
 
-        self.scale = gengar_engine::math::lerp(self.scale, self.target_scale, 0.35);
-
-        let mut rot_max = 0.45;
-        if hovering || self_selected {
-            rot_max = 0.05;
-        }
+        self.scale = gengar_engine::math::lerp(self.scale, scale_target, 0.35);
 
         let target_rot = VecThreeFloat::new(
             f64::sin(self.rot_time) * rot_max,

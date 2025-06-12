@@ -73,7 +73,7 @@ pub struct State {
     pub pack_display_state: HashMap<PackID, PackShopDisplay>,
 
     pub target_camera_pos: VecThreeFloat,
-    pub pack_selected: Option<usize>,
+    pub pack_selected: Option<PackID>,
 }
 
 impl State {

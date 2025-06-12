@@ -953,9 +953,21 @@ pub fn game_loop(
                         || input.get_key(KeyCode::Escape).pressing
                         || input.mouse.scroll_delta != 0
                     {
+                        handle_pack_shop_signals(
+                            vec![PackShopSignals::DeselectAll],
+                            gs,
+                            es,
+                            platform_api,
+                        );
                         gs.pack_selected = None;
                     }
                 }
+
+                let cam_pack = es
+                    .render_system
+                    .render_packs
+                    .get_mut(&RenderPackID::Shop)
+                    .unwrap();
 
                 cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
                     cam_pack.camera.transform.local_position,

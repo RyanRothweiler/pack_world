@@ -5,7 +5,8 @@ use gengar_engine::{platform_api::*, state::State as EngineState};
 pub enum PackShopSignals {
     Hover { pack_id: PackID },
     Idle { pack_id: PackID },
-    MouseDown { pack_id: PackID },
+    Select { pack_id: PackID },
+    DeselectAll,
 }
 
 pub fn handle_pack_shop_signals(
@@ -30,11 +31,24 @@ pub fn handle_pack_shop_signals(
                     .unwrap()
                     .set_state(PackShopDisplayState::Idle);
             }
-            PackShopSignals::MouseDown { pack_id } => {
+            PackShopSignals::Select { pack_id } => {
+                gs.pack_selected = Some(pack_id);
+
+                gs.pack_display_state
+                    .iter_mut()
+                    .for_each(|p| p.1.set_state(PackShopDisplayState::Hidden));
+
                 gs.pack_display_state
                     .get_mut(&pack_id)
                     .unwrap()
-                    .set_state(PackShopDisplayState::MouseDown);
+                    .set_state(PackShopDisplayState::Selected);
+            }
+            PackShopSignals::DeselectAll => {
+                gs.pack_selected = None;
+
+                gs.pack_display_state
+                    .iter_mut()
+                    .for_each(|p| p.1.set_state(PackShopDisplayState::Idle));
             }
         }
     }
