@@ -45,6 +45,7 @@ pub mod grid;
 pub mod harvest_drop;
 pub mod item;
 pub mod pack;
+pub mod pack_shop_display;
 pub mod save_file;
 pub mod state;
 pub mod tile;
@@ -62,6 +63,7 @@ use harvest_drop::*;
 use harvest_timer::*;
 use item::*;
 use pack::*;
+use pack_shop_display::*;
 use save_file::*;
 use state::inventory::*;
 use tile::*;
@@ -941,6 +943,16 @@ pub fn game_loop(
                             }
                         }
                     }
+                } else {
+                    if input.get_key(KeyCode::W).pressing
+                        || input.get_key(KeyCode::S).pressing
+                        || input.get_key(KeyCode::A).pressing
+                        || input.get_key(KeyCode::D).pressing
+                        || input.get_key(KeyCode::Escape).pressing
+                        || input.mouse.scroll_delta != 0
+                    {
+                        gs.pack_selected = None;
+                    }
                 }
 
                 cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
@@ -963,8 +975,18 @@ pub fn game_loop(
                 let packs: Vec<PackID> =
                     vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
 
+                enum PackStateChange {
+                    Select { pack_id: PackID },
+                }
+
                 for (i, pack_id) in packs.iter().enumerate() {
                     let pack_info = pack_id.get_pack_info();
+
+                    let self_selected = if let Some(pack_sel) = gs.pack_selected {
+                        pack_sel == i
+                    } else {
+                        false
+                    };
 
                     let world_origin = VecThreeFloat::new(0.0, 0.0, i as f64 * 9.0);
 
@@ -974,91 +996,10 @@ pub fn game_loop(
                         .get(&RenderPackID::Shop)
                         .unwrap()
                         .camera;
-                    let screen_origin = cam.world_to_screen(world_origin, es.window_resolution);
-
-                    if let Some(pack_sel) = gs.pack_selected {
-                        if pack_sel == i {
-                            gs.target_camera_pos.x = world_origin.x;
-                            gs.target_camera_pos.z = world_origin.z;
-                        }
-                    }
-
-                    // ui
-                    let ui_context = &mut gs.ui_context.as_mut().unwrap();
-
-                    let info_rect =
-                        Rect::new_top_size(screen_origin + VecTwo::new(100.0, 0.0), 100.0, 100.0);
-                    begin_panel(
-                        info_rect,
-                        Color::new(0.0, 0.0, 0.0, 0.0),
-                        &mut ui_frame_state,
-                        ui_context,
+                    let screen_origin = cam.world_to_screen(
+                        world_origin + VecThreeFloat::new(2.5, 0.0, 0.0),
+                        es.window_resolution,
                     );
-                    {
-                        /*
-                        draw_text(
-                            &pack_info.display_name,
-                            VecTwo::new(00.0, 0.0),
-                            COLOR_WHITE,
-                            &gs.font_style_header,
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-                        */
-
-                        // cost
-                        {
-                            draw_text(
-                                "Cost",
-                                VecTwo::new(0.0, 30.0),
-                                COLOR_WHITE,
-                                &ui_context.font_body.clone(),
-                                &mut ui_frame_state,
-                                ui_context,
-                            );
-                            for (j, cost) in pack_info.cost.iter().enumerate() {
-                                let cost_origin = VecTwo::new(80.0 * j as f64, 35.0);
-                                let icon_size = 40.0;
-
-                                let icon = gs.assets.get_item_icon(&cost.0);
-                                let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
-
-                                let mut color = COLOR_WHITE;
-                                if !gs.inventory.has_atleast(cost.0, cost.1) {
-                                    color = COLOR_RED;
-                                }
-
-                                draw_image(r, icon, color, &mut ui_frame_state, ui_context);
-
-                                draw_text(
-                                    &format!("{}", cost.1),
-                                    cost_origin + VecTwo::new(40.0, 30.0),
-                                    color,
-                                    &ui_context.font_body.clone(),
-                                    &mut ui_frame_state,
-                                    ui_context,
-                                );
-                            }
-                        }
-
-                        /*
-                        if draw_text_button_id(
-                            i as i32,
-                            "Show Drop List",
-                            desc_origin + VecTwo::new(10.0, 110.0),
-                            &ui_context.font_body.clone(),
-                            false,
-                            Some(crate::BUTTON_BG),
-                            ui_state,
-                            std::line!(),
-                            ui_context,
-                        ) {
-                            let new_panel_data = CreatePanelData::PackDetails { pack_id: *pack_id };
-                            sigs.push(UpdateSignal::SetActivePage(new_panel_data));
-                        }
-                        */
-                    }
-                    end_panel(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
 
                     let mut hovering = point_within_circle(
                         VecTwo::new(mouse_world.x, mouse_world.z),
@@ -1066,21 +1007,129 @@ pub fn game_loop(
                         3.0,
                     );
 
-                    if let Some(pack_sel) = gs.pack_selected {
-                        if pack_sel == i {
-                            hovering = true;
+                    // we're the selected pack
+                    if self_selected {
+                        gs.target_camera_pos.x = world_origin.x + 5.0;
+                        gs.target_camera_pos.y = 20.0;
+
+                        // This 10 is becuse the camera is rotate a bit and not looking straight down
+                        gs.target_camera_pos.z = world_origin.z + 8.0;
+                    }
+
+                    // ui
+                    if hovering || self_selected {
+                        let ui_context = &mut gs.ui_context.as_mut().unwrap();
+
+                        let info_rect = Rect::new_top_size(screen_origin, 100.0, 100.0);
+                        begin_panel(
+                            info_rect,
+                            Color::new(0.0, 0.0, 0.0, 0.0),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+                        {
+                            /*
+                            draw_text(
+                                &pack_info.display_name,
+                                VecTwo::new(00.0, 0.0),
+                                COLOR_WHITE,
+                                &gs.font_style_header,
+                                &mut ui_frame_state,
+                                ui_context,
+                            );
+                            */
+
+                            // cost
+                            {
+                                draw_text(
+                                    "Cost",
+                                    VecTwo::new(0.0, 30.0),
+                                    COLOR_WHITE,
+                                    &ui_context.font_body.clone(),
+                                    &mut ui_frame_state,
+                                    ui_context,
+                                );
+                                for (j, cost) in pack_info.cost.iter().enumerate() {
+                                    let cost_origin = VecTwo::new(80.0 * j as f64, 35.0);
+                                    let icon_size = 40.0;
+
+                                    let icon = gs.assets.get_item_icon(&cost.0);
+                                    let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
+
+                                    let mut color = COLOR_WHITE;
+                                    if !gs.inventory.has_atleast(cost.0, cost.1) {
+                                        color = COLOR_RED;
+                                    }
+
+                                    draw_image(r, icon, color, &mut ui_frame_state, ui_context);
+
+                                    draw_text(
+                                        &format!("{}", cost.1),
+                                        cost_origin + VecTwo::new(40.0, 30.0),
+                                        color,
+                                        &ui_context.font_body.clone(),
+                                        &mut ui_frame_state,
+                                        ui_context,
+                                    );
+                                }
+                            }
+
+                            if self_selected {
+                                if draw_text_button_id(
+                                    i as i32,
+                                    "Show Drop List",
+                                    VecTwo::new(10.0, 110.0),
+                                    &ui_context.font_body.clone(),
+                                    false,
+                                    Some(crate::BUTTON_BG),
+                                    &mut ui_frame_state,
+                                    std::line!(),
+                                    ui_context,
+                                ) {
+                                    /*
+                                    handle_signals(
+                                        vec![UpdateSignal::SetActivePage(
+                                            CreatePanelData::PackDetails { pack_id: *pack_id },
+                                        )],
+                                        gs,
+                                        es,
+                                        platform_api,
+                                    );
+                                    */
+                                }
+
+                                if draw_text_button_id(
+                                    i as i32,
+                                    "Open Pack",
+                                    VecTwo::new(10.0, 180.0),
+                                    &&ui_context.font_header.clone(),
+                                    false,
+                                    Some(crate::BUTTON_BG),
+                                    &mut ui_frame_state,
+                                    std::line!(),
+                                    ui_context,
+                                ) {
+                                    /*
+                                    handle_signals(
+                                        vec![UpdateSignal::SetActivePage(
+                                            CreatePanelData::PackDetails { pack_id: *pack_id },
+                                        )],
+                                        gs,
+                                        es,
+                                        platform_api,
+                                    );
+                                    */
+                                }
+                            }
                         }
+                        end_panel(&mut ui_frame_state, &mut gs.ui_context.as_mut().unwrap());
                     }
 
                     if hovering && input.mouse.button_left.on_press {
                         gs.pack_selected = Some(i);
                     }
 
-                    if input.get_key(KeyCode::Escape).on_press {
-                        gs.pack_selected = None;
-                    }
-
-                    // pack model
+                    // pack models rendering
                     {
                         // light testing
                         {
@@ -1109,82 +1158,22 @@ pub fn game_loop(
                                 .power = VecThreeFloat::new(white_p, white_p, white_p);
                         }
 
-                        let hover_scale: f64 = 1.5;
-                        let click_scale: f64 = 1.2;
-                        let mut scale_target: f64 = 1.0;
-
-                        let hover_speed: f64 = 35.0;
-
-                        let display_state = &mut gs.pack_display_state[i];
-
-                        if hovering {
-                            scale_target = hover_scale;
-                            if input.mouse.button_left.pressing {
-                                scale_target = click_scale;
-                            }
+                        // pack state changes
+                        {
+                            gs.pack_display_state
+                                .entry(*pack_id)
+                                .or_insert(PackShopDisplay::new())
+                                .update(
+                                    *pack_id,
+                                    hovering,
+                                    self_selected,
+                                    gs.pack_selected.is_some(),
+                                    input.mouse.button_left.on_press,
+                                    world_origin,
+                                    &gs.assets,
+                                    &mut es.render_system,
+                                );
                         }
-
-                        display_state.scale =
-                            gengar_engine::math::lerp(display_state.scale, scale_target, 0.35);
-
-                        let tile_asset_id = pack_id.to_string_id();
-
-                        let mut rot_max = 0.45;
-                        if hovering {
-                            rot_max = 0.05;
-                        }
-
-                        let target_rot = VecThreeFloat::new(
-                            f64::sin(gs.rotate_time) * rot_max,
-                            -90.0_f64.to_radians() + (f64::sin(gs.rotate_time + 2.0) * rot_max),
-                            -70.0_f64.to_radians() + (f64::sin(gs.rotate_time + 1.0) * rot_max),
-                        );
-                        display_state.rotation =
-                            VecThreeFloat::lerp(display_state.rotation, target_rot, 0.1);
-
-                        let mut trans = Transform::new();
-                        trans.local_scale = VecThreeFloat::new(
-                            display_state.scale,
-                            display_state.scale,
-                            display_state.scale,
-                        );
-                        /*
-                        trans.local_scale = VecThreeFloat::lerp(
-                            VecThreeFloat::new(1.0, 1.0, 1.0),
-                            VecThreeFloat::new(hover_scale, hover_scale, hover_scale),
-                            display_state.hover_time,
-                        );
-                        */
-
-                        // TODO chagne this to use delta_time
-                        gs.rotate_time += 0.01;
-
-                        trans.local_position = world_origin;
-                        trans.local_rotation = display_state.rotation;
-                        trans.update_global_matrix(&M44::new_identity());
-
-                        let mut mat = gs.assets.get_pack_material(*pack_id).clone();
-
-                        let ambient = {
-                            let v = 0.00;
-                            let mut val = VecThreeFloat::new(v, v, v);
-                            if hovering {
-                                // val.x = 10.0;
-                            }
-                            val
-                        };
-
-                        mat.uniforms
-                            .insert("ambientColor".to_string(), UniformData::VecThree(ambient));
-
-                        es.render_system.add_command(
-                            RenderCommand::new_model(
-                                &trans,
-                                gs.assets.asset_library.get_model(&tile_asset_id),
-                                &mat,
-                            ),
-                            RenderPackID::Shop,
-                        );
                     }
                 }
             }

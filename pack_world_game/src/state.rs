@@ -1,8 +1,10 @@
 use crate::{
     harvest_drop::*,
+    pack_shop_display::*,
     tile::*,
     ui_panels::{debug_panel::*, *},
     world::*,
+    PackID,
 };
 use gengar_engine::{
     model::*,
@@ -34,13 +36,6 @@ pub struct DebugState {
 pub enum WorldStatus {
     World,
     Shop,
-}
-
-#[derive(Copy, Clone)]
-pub struct PackDisplayState {
-    pub hover_time: f64,
-    pub rotation: VecThreeFloat,
-    pub scale: f64,
 }
 
 pub struct State {
@@ -75,7 +70,7 @@ pub struct State {
     pub pack_light_trans: usize,
     pub pack_light_trans_second: usize,
 
-    pub pack_display_state: [PackDisplayState; 20],
+    pub pack_display_state: HashMap<PackID, PackShopDisplay>,
 
     pub target_camera_pos: VecThreeFloat,
     pub pack_selected: Option<usize>,
@@ -118,11 +113,7 @@ impl State {
             pack_light_trans: 0,
             pack_light_trans_second: 0,
 
-            pack_display_state: [PackDisplayState {
-                hover_time: 0.0,
-                rotation: VecThreeFloat::new_zero(),
-                scale: 0.0,
-            }; 20],
+            pack_display_state: HashMap::new(),
 
             target_camera_pos: VecThreeFloat::new_zero(),
             pack_selected: None,
