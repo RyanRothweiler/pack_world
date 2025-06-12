@@ -1,5 +1,7 @@
-use crate::{pack::*, pack::*, state::assets::*};
+use crate::{pack::*, pack::*, pack_shop_signals::*, state::assets::*};
 use gengar_engine::{
+    collisions::*,
+    input::*,
     matricies::*,
     state::render_system::*,
     transform::*,
@@ -11,12 +13,10 @@ use gengar_engine::{
 
 #[derive(Copy, Clone)]
 pub enum PackShopDisplayState {
-    Exiting,
-    Incoming,
-    Selected,
-    Hovering,
     Idle,
     Hidden,
+    Hover,
+    MouseDown,
 }
 
 #[derive(Copy, Clone)]
@@ -26,41 +26,91 @@ pub struct PackShopDisplay {
     pub scale: f64,
 
     pub rot_time: f64,
+
     state: PackShopDisplayState,
+    target_scale: f64,
 }
 
 impl PackShopDisplay {
     pub fn new() -> Self {
-        Self {
+        let mut ret = Self {
             hover_time: 0.0,
             rotation: VecThreeFloat::new_zero(),
             scale: 0.0,
             rot_time: 0.0,
+
             state: PackShopDisplayState::Idle,
-        }
+            target_scale: 0.0,
+        };
+
+        ret.set_state(PackShopDisplayState::Idle);
+
+        ret
     }
 
     pub fn set_state(&mut self, new_state: PackShopDisplayState) {
         self.state = new_state;
+
+        match new_state {
+            PackShopDisplayState::Idle => {
+                self.target_scale = 1.0;
+            }
+            PackShopDisplayState::Hidden => {
+                self.target_scale = 0.0;
+            }
+            PackShopDisplayState::Hover => {
+                self.target_scale = 1.5;
+            }
+            PackShopDisplayState::MouseDown => {
+                self.target_scale = 1.2;
+            }
+        }
     }
 
     pub fn update(
         &mut self,
         pack_id: PackID,
-        hovering: bool,
         self_selected: bool,
         something_selected: bool,
-        mouse_down: bool,
-        world_origin: VecThreeFloat,
+        mouse_left: &ButtonState,
+        mouse_world: VecThreeFloat,
         assets: &Assets,
         render_system: &mut RenderSystem,
-    ) {
-        let hover_scale: f64 = 1.5;
-        let click_scale: f64 = 1.2;
-        let mut scale_target: f64 = 1.0;
+    ) -> Vec<PackShopSignals> {
+        let mut ret: Vec<PackShopSignals> = vec![];
 
-        let hover_speed: f64 = 35.0;
+        let pack_info = pack_id.get_pack_info();
 
+        let mut hovering = point_within_circle(
+            VecTwo::new(mouse_world.x, mouse_world.z),
+            VecTwo::new(pack_info.shop_position.x, pack_info.shop_position.z),
+            3.0,
+        );
+
+        match self.state {
+            PackShopDisplayState::Idle => {
+                if hovering {
+                    ret.push(PackShopSignals::Hover { pack_id });
+                }
+            }
+            PackShopDisplayState::MouseDown => {
+                if !hovering {
+                    ret.push(PackShopSignals::Idle { pack_id });
+                } else if !mouse_left.pressing {
+                    ret.push(PackShopSignals::Hover { pack_id });
+                }
+            }
+            PackShopDisplayState::Hidden => {}
+            PackShopDisplayState::Hover => {
+                if !hovering {
+                    ret.push(PackShopSignals::Idle { pack_id });
+                } else if mouse_left.pressing {
+                    ret.push(PackShopSignals::MouseDown { pack_id });
+                }
+            }
+        }
+
+        /*
         if hovering {
             scale_target = hover_scale;
             if mouse_down {
@@ -75,8 +125,9 @@ impl PackShopDisplay {
         if something_selected && !self_selected {
             scale_target = 0.0;
         }
+        */
 
-        self.scale = gengar_engine::math::lerp(self.scale, scale_target, 0.35);
+        self.scale = gengar_engine::math::lerp(self.scale, self.target_scale, 0.35);
 
         let mut rot_max = 0.45;
         if hovering || self_selected {
@@ -91,23 +142,19 @@ impl PackShopDisplay {
         self.rotation = VecThreeFloat::lerp(self.rotation, target_rot, 0.1);
 
         if self.scale > 0.01 {
-            self.render(pack_id, world_origin, assets, render_system);
+            self.render(pack_id, assets, render_system);
         }
+
+        ret
     }
 
-    pub fn render(
-        &mut self,
-        pack_id: PackID,
-        world_origin: VecThreeFloat,
-        assets: &Assets,
-        render_system: &mut RenderSystem,
-    ) {
+    pub fn render(&mut self, pack_id: PackID, assets: &Assets, render_system: &mut RenderSystem) {
         self.rot_time += 0.04;
 
         let mut trans = Transform::new();
         trans.local_scale = VecThreeFloat::new(self.scale, self.scale, self.scale);
 
-        trans.local_position = world_origin;
+        trans.local_position = pack_id.get_pack_info().shop_position;
         trans.local_rotation = self.rotation;
         trans.update_global_matrix(&M44::new_identity());
 

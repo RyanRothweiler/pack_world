@@ -3,6 +3,7 @@ use crate::{
     item::ItemType,
     pack::{pack_id::PackID, Pack},
 };
+use gengar_engine::vectors::*;
 use std::sync::LazyLock;
 
 pub static WATER: LazyLock<Pack> = LazyLock::new(|| {
@@ -11,5 +12,6 @@ pub static WATER: LazyLock<Pack> = LazyLock::new(|| {
         vec![(ItemType::Dew, 10)],
         4,
         FixedTableID::Pack(PackID::Water),
+        VecThreeFloat::new(0.0, 0.0, 27.0),
     )
 });

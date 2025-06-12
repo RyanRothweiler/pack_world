@@ -46,6 +46,7 @@ pub mod harvest_drop;
 pub mod item;
 pub mod pack;
 pub mod pack_shop_display;
+pub mod pack_shop_signals;
 pub mod save_file;
 pub mod state;
 pub mod tile;
@@ -64,6 +65,7 @@ use harvest_timer::*;
 use item::*;
 use pack::*;
 use pack_shop_display::*;
+use pack_shop_signals::*;
 use save_file::*;
 use state::inventory::*;
 use tile::*;
@@ -972,13 +974,63 @@ pub fn game_loop(
 
             // pack layout rendering
             {
+                // light testing
+                {
+                    let p = 500.0;
+                    let white_p = 2000.0;
+
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::Shop)
+                        .unwrap()
+                        .lights[0]
+                        .power = VecThreeFloat::new(3.0 * p, 0.95 * p, 0.9 * p);
+
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::Shop)
+                        .unwrap()
+                        .lights[1]
+                        .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
+
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::Shop)
+                        .unwrap()
+                        .lights[2]
+                        .power = VecThreeFloat::new(white_p, white_p, white_p);
+                }
+
                 let packs: Vec<PackID> =
                     vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
 
-                enum PackStateChange {
-                    Select { pack_id: PackID },
+                // make sure all packs exist in the hashmap.
+                // Really means we don't need a hashmap probably
+                for pack_id in &packs {
+                    gs.pack_display_state
+                        .entry(*pack_id)
+                        .or_insert(PackShopDisplay::new());
                 }
 
+                for pack_id in &packs {
+                    let signals = gs
+                        .pack_display_state
+                        .entry(*pack_id)
+                        .or_insert(PackShopDisplay::new())
+                        .update(
+                            *pack_id,
+                            false,
+                            false,
+                            &input.mouse.button_left,
+                            mouse_world,
+                            &gs.assets,
+                            &mut es.render_system,
+                        );
+
+                    handle_pack_shop_signals(signals, gs, es, platform_api);
+                }
+
+                /*
                 for (i, pack_id) in packs.iter().enumerate() {
                     let pack_info = pack_id.get_pack_info();
 
@@ -1176,6 +1228,7 @@ pub fn game_loop(
                         }
                     }
                 }
+                */
             }
         }
     }

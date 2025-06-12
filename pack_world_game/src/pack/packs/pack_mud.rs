@@ -3,6 +3,7 @@ use crate::{
     item::ItemType,
     pack::{pack_id::PackID, Pack},
 };
+use gengar_engine::vectors::*;
 use std::sync::LazyLock;
 
 pub static MUD: LazyLock<Pack> = LazyLock::new(|| {
@@ -11,5 +12,6 @@ pub static MUD: LazyLock<Pack> = LazyLock::new(|| {
         vec![(ItemType::DirtClod, 20)],
         4,
         FixedTableID::Pack(PackID::Mud),
+        VecThreeFloat::new(0.0, 0.0, 9.0),
     )
 });

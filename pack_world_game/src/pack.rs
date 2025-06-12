@@ -1,5 +1,5 @@
 use crate::{drop_table::*, error::*, item::*, save_file::*, state::inventory::*, tile::*};
-use gengar_engine::platform_api::*;
+use gengar_engine::{platform_api::*, vectors::*};
 
 mod pack_id;
 mod packs;
@@ -15,6 +15,8 @@ pub struct Pack {
 
     // how many drops to pull from pack
     pub content_count: i32,
+
+    pub shop_position: VecThreeFloat,
 }
 
 impl Pack {
@@ -23,12 +25,14 @@ impl Pack {
         cost: Vec<(ItemType, i64)>,
         content_count: i32,
         table_id: FixedTableID,
+        shop_position: VecThreeFloat,
     ) -> Pack {
         Pack {
             display_name,
             cost,
             table_id,
             content_count,
+            shop_position,
         }
     }
 
