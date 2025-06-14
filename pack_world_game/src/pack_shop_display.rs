@@ -1,17 +1,25 @@
-use crate::{pack::*, pack::*, pack_shop_signals::*, state::assets::*};
+use crate::{inventory::*, pack::*, pack::*, pack_shop_signals::*, state::assets::*};
 use gengar_engine::{
     collisions::*,
+    color::*,
     input::*,
     matricies::*,
+    rect::*,
     state::render_system::*,
     transform::*,
+    ui::*,
     {
-        render::{render_command::*, render_pack::*, shader::*, *},
+        render::{
+            render_command::*,
+            render_pack::{RenderPackID::*, *},
+            shader::*,
+            *,
+        },
         vectors::*,
     },
 };
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PackShopDisplayState {
     Idle,
     Hidden,
@@ -70,16 +78,23 @@ impl PackShopDisplay {
     pub fn update(
         &mut self,
         pack_id: PackID,
-        self_selected: bool,
-        something_selected: bool,
-        mouse_left: &ButtonState,
+        mouse_left: &gengar_engine::input::ButtonState,
         mouse_world: VecThreeFloat,
-        assets: &Assets,
+        inventory: &Inventory,
+        assets: &mut Assets,
         render_system: &mut RenderSystem,
+        mut ui_frame_state: &mut UIFrameState,
+        ui_context: &mut UIContext,
+        window_resolution: VecTwo,
     ) -> Vec<PackShopSignals> {
         let mut ret: Vec<PackShopSignals> = vec![];
 
         let pack_info = pack_id.get_pack_info();
+        let cam = &render_system
+            .render_packs
+            .get(&RenderPackID::Shop)
+            .unwrap()
+            .camera;
 
         let mut hovering = point_within_circle(
             VecTwo::new(mouse_world.x, mouse_world.z),
@@ -112,46 +127,144 @@ impl PackShopDisplay {
             }
         }
 
-        let scale_target = match self.state {
-            PackShopDisplayState::Hidden => 0.0,
-            PackShopDisplayState::Hover => 1.5,
-            PackShopDisplayState::Selected => 1.2,
-            PackShopDisplayState::Idle => 1.0,
-        };
+        // ui
+        {
+            let screen_origin = cam.world_to_screen(
+                pack_info.shop_position + VecThreeFloat::new(2.5, 0.0, 0.0),
+                window_resolution,
+            );
 
-        let rot_max = match self.state {
-            PackShopDisplayState::Hover | PackShopDisplayState::Selected => 0.05,
-            _ => 0.45,
-        };
+            if hovering || self.state == PackShopDisplayState::Hover {
+                let info_rect = Rect::new_top_size(screen_origin, 100.0, 100.0);
+                begin_panel(
+                    info_rect,
+                    Color::new(0.0, 0.0, 0.0, 0.0),
+                    ui_frame_state,
+                    ui_context,
+                );
+                {
+                    /*
+                    draw_text(
+                        &pack_info.display_name,
+                        VecTwo::new(00.0, 0.0),
+                        COLOR_WHITE,
+                        &gs.font_style_header,
+                        &mut ui_frame_state,
+                        ui_context,
+                    );
+                    */
 
-        /*
-        if hovering {
-            scale_target = hover_scale;
-            if mouse_down {
-                scale_target = click_scale;
+                    // cost
+                    {
+                        draw_text(
+                            "Cost",
+                            VecTwo::new(0.0, 30.0),
+                            COLOR_WHITE,
+                            &ui_context.font_body.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+                        for (j, cost) in pack_info.cost.iter().enumerate() {
+                            let cost_origin = VecTwo::new(80.0 * j as f64, 35.0);
+                            let icon_size = 40.0;
+
+                            let icon = assets.get_item_icon(&cost.0);
+                            let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
+
+                            let mut color = COLOR_WHITE;
+                            if !inventory.has_atleast(cost.0, cost.1) {
+                                color = COLOR_RED;
+                            }
+
+                            draw_image(r, icon, color, &mut ui_frame_state, ui_context);
+
+                            draw_text(
+                                &format!("{}", cost.1),
+                                cost_origin + VecTwo::new(40.0, 30.0),
+                                color,
+                                &ui_context.font_body.clone(),
+                                &mut ui_frame_state,
+                                ui_context,
+                            );
+                        }
+                    }
+
+                    if self.state == PackShopDisplayState::Selected {
+                        if draw_text_button(
+                            "Show Drop List",
+                            VecTwo::new(10.0, 110.0),
+                            &ui_context.font_body.clone(),
+                            false,
+                            Some(crate::BUTTON_BG),
+                            &mut ui_frame_state,
+                            std::line!(),
+                            ui_context,
+                        ) {
+                            /*
+                            handle_signals(
+                                vec![UpdateSignal::SetActivePage(
+                                    CreatePanelData::PackDetails { pack_id: *pack_id },
+                                )],
+                                gs,
+                                es,
+                                platform_api,
+                            );
+                            */
+                        }
+
+                        if draw_text_button(
+                            "Open Pack",
+                            VecTwo::new(10.0, 180.0),
+                            &&ui_context.font_header.clone(),
+                            false,
+                            Some(crate::BUTTON_BG),
+                            &mut ui_frame_state,
+                            std::line!(),
+                            ui_context,
+                        ) {
+                            /*
+                            handle_signals(
+                                vec![UpdateSignal::SetActivePage(
+                                    CreatePanelData::PackDetails { pack_id: *pack_id },
+                                )],
+                                gs,
+                                es,
+                                platform_api,
+                            );
+                            */
+                        }
+                    }
+                }
+                end_panel(&mut ui_frame_state, ui_context);
             }
         }
 
-        if self_selected {
-            scale_target = hover_scale;
-        }
+        // pack rendering
+        {
+            let scale_target = match self.state {
+                PackShopDisplayState::Hidden => 0.0,
+                PackShopDisplayState::Hover => 1.5,
+                PackShopDisplayState::Selected => 1.2,
+                PackShopDisplayState::Idle => 1.0,
+            };
 
-        if something_selected && !self_selected {
-            scale_target = 0.0;
-        }
-        */
+            let rot_max = match self.state {
+                PackShopDisplayState::Hover | PackShopDisplayState::Selected => 0.05,
+                _ => 0.45,
+            };
 
-        self.scale = gengar_engine::math::lerp(self.scale, scale_target, 0.35);
+            self.scale = gengar_engine::math::lerp(self.scale, scale_target, 0.35);
 
-        let target_rot = VecThreeFloat::new(
-            f64::sin(self.rot_time) * rot_max,
-            -90.0_f64.to_radians() + (f64::sin(self.rot_time + 2.0) * rot_max),
-            -70.0_f64.to_radians() + (f64::sin(self.rot_time + 1.0) * rot_max),
-        );
-        self.rotation = VecThreeFloat::lerp(self.rotation, target_rot, 0.1);
+            let target_rot = VecThreeFloat::new(
+                f64::sin(self.rot_time) * rot_max,
+                -90.0_f64.to_radians() + (f64::sin(self.rot_time + 2.0) * rot_max),
+                -70.0_f64.to_radians() + (f64::sin(self.rot_time + 1.0) * rot_max),
+            );
+            self.rotation = VecThreeFloat::lerp(self.rotation, target_rot, 0.1);
 
-        if self.scale > 0.01 {
-            self.render(pack_id, assets, render_system);
+            if self.scale > 0.01 {
+                self.render(pack_id, assets, render_system);
+            }
         }
 
         ret

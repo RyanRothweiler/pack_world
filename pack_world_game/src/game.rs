@@ -1031,13 +1031,26 @@ pub fn game_loop(
                         .or_insert(PackShopDisplay::new())
                         .update(
                             *pack_id,
-                            false,
-                            false,
                             &input.mouse.button_left,
                             mouse_world,
-                            &gs.assets,
+                            &gs.inventory,
+                            &mut gs.assets,
                             &mut es.render_system,
+                            &mut ui_frame_state,
+                            &mut gs.ui_context.as_mut().unwrap(),
+                            es.window_resolution,
                         );
+                    /*
+                    .update(
+                        *pack_id,
+                        false,
+                        false,
+                        &input.mouse.button_left,
+                        mouse_world,
+                        &gs.assets,
+                        &mut es.render_system,
+                    );
+                    */
 
                     handle_pack_shop_signals(signals, gs, es, platform_api);
                 }
@@ -1052,7 +1065,7 @@ pub fn game_loop(
                         false
                     };
 
-                    let world_origin = VecThreeFloat::new(0.0, 0.0, i as f64 * 9.0);
+                    let p = VecThreeFloat::new(0.0, 0.0, i as f64 * 9.0);
 
                     let cam: &Camera = &es
                         .render_system
