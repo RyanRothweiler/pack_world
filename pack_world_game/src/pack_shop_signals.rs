@@ -32,6 +32,8 @@ pub fn handle_pack_shop_signals(
                     .set_state(PackShopDisplayState::Idle);
             }
             PackShopSignals::Select { pack_id } => {
+                let pack_info = pack_id.get_pack_info();
+
                 gs.pack_selected = Some(pack_id);
 
                 gs.pack_display_state
@@ -42,6 +44,15 @@ pub fn handle_pack_shop_signals(
                     .get_mut(&pack_id)
                     .unwrap()
                     .set_state(PackShopDisplayState::Selected);
+
+                // Update camera
+                {
+                    gs.target_camera_pos.x = pack_info.shop_position.x + 5.0;
+                    gs.target_camera_pos.y = 20.0;
+
+                    // This 10 is becuse the camera is rotate a bit and not looking straight down
+                    gs.target_camera_pos.z = pack_info.shop_position.z + 8.0;
+                }
             }
             PackShopSignals::DeselectAll => {
                 gs.pack_selected = None;

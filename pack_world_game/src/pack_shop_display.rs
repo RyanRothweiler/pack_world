@@ -134,7 +134,10 @@ impl PackShopDisplay {
                 window_resolution,
             );
 
-            if hovering || self.state == PackShopDisplayState::Hover {
+            if hovering
+                || self.state == PackShopDisplayState::Hover
+                || self.state == PackShopDisplayState::Selected
+            {
                 let info_rect = Rect::new_top_size(screen_origin, 100.0, 100.0);
                 begin_panel(
                     info_rect,
