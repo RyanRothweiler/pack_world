@@ -394,7 +394,7 @@ pub fn game_loop(
 
         for tile_type in tiles_to_render {
             gs.assets
-                .render_tile_thumbnail(tile_type, None, None, render_api, &es.components);
+                .render_tile_thumbnail(tile_type, None, None, render_api, &mut es.components);
         }
     }
 
@@ -557,7 +557,7 @@ pub fn game_loop(
                 Some(gs.debug_state.thumbnail_dist),
                 Some(gs.debug_state.thumbnail_height),
                 render_api,
-                &es.components,
+                &mut es.components,
             );
 
             println!("dist {:?}", gs.debug_state.thumbnail_dist);

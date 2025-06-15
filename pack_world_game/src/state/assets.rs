@@ -4,10 +4,11 @@ use gengar_engine::{
     color::*,
     model::*,
     render::{
-        camera::*, frame_buffer_pack::*, image::*, material::*, render_pack::*, shader::*,
-        RenderApi,
+        camera::*, frame_buffer_pack::*, image::*, light::*, material::*, render_pack::*,
+        shader::*, RenderApi,
     },
     state::components::*,
+    transform::*,
     vectors::*,
 };
 use std::collections::HashMap;
@@ -203,7 +204,7 @@ impl Assets {
         test_dist: Option<f64>,
         test_height: Option<f64>,
         render_api: &impl RenderApi,
-        components: &Components,
+        components: &mut Components,
     ) {
         let cam_dist = match tile_type {
             TileType::OakTree => 9.14,
@@ -231,6 +232,21 @@ impl Assets {
             ProjectionType::Perspective { focal_length: 0.95 },
             VecTwo::new(512.0, 512.0),
         );
+
+        // setup lights
+        {
+            let light = Light::new(components.new_transform());
+
+            let ct: &mut Transform = &mut components.transforms[light.transform];
+            ct.local_position.x = -2.0;
+            ct.local_position.z = 10.0;
+            ct.local_position.y = 15.0;
+
+            render_pack.lights.push(light);
+
+            // force the update of the new light transform
+            Transform::update_all(&mut components.transforms);
+        }
 
         let mut cam = &mut render_pack.camera;
         cam.transform.local_position = pos;
