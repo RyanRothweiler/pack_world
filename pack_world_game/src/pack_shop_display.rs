@@ -117,7 +117,7 @@ impl PackShopDisplay {
 
         match self.state {
             PackShopDisplayState::Idle => {
-                if hovering && mouse_left.pressing {
+                if hovering && mouse_left.on_press {
                     ret.push(PackShopSignals::Select { pack_id });
                 }
             }

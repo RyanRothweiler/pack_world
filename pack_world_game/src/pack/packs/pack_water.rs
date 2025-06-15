@@ -12,6 +12,6 @@ pub static WATER: LazyLock<Pack> = LazyLock::new(|| {
         vec![(ItemType::Dew, 10)],
         4,
         FixedTableID::Pack(PackID::Water),
-        VecThreeFloat::new(0.0, 0.0, 27.0),
+        VecThreeFloat::new(9.0, 0.0, 9.0),
     )
 });

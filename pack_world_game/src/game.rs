@@ -184,7 +184,7 @@ pub fn game_init(
     {
         let mut cam = &mut es.render_system.get_pack(RenderPackID::Shop).camera;
 
-        cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
+        cam.transform.local_position = VecThreeFloat::new(-5.0, 27.0, 10.0);
         cam.pitch = 70.0;
         cam.yaw = 90.0;
 
@@ -968,6 +968,8 @@ pub fn game_loop(
                     .render_packs
                     .get_mut(&RenderPackID::Shop)
                     .unwrap();
+
+                gs.target_camera_pos.y = gs.target_camera_pos.y.clamp(15.0, 100.0);
 
                 cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
                     cam_pack.camera.transform.local_position,
