@@ -1,5 +1,5 @@
-use crate::{pack::*, pack_shop_display::*, state::*};
-use gengar_engine::{platform_api::*, state::State as EngineState};
+use crate::{pack::*, pack_shop_display::*, state::*, update_signal::*};
+use gengar_engine::{analytics::*, platform_api::*, state::State as EngineState};
 
 #[derive(Debug)]
 pub enum PackShopSignals {
@@ -8,6 +8,8 @@ pub enum PackShopSignals {
     Open { pack_id: PackID },
     DeselectAll,
     OpenFinished,
+
+    StandardUpateSignal { sigs: Vec<UpdateSignal> },
 }
 
 pub fn handle_pack_shop_signals(
@@ -27,6 +29,11 @@ pub fn handle_pack_shop_signals(
                     .set_state(PackShopDisplayState::Idle);
             }
             PackShopSignals::Open { pack_id } => {
+                let pack_info = pack_id.get_pack_info();
+                pack_info.spend(&mut gs.inventory);
+
+                (platform_api.send_event)(AnalyticsEvent::PackOpen(format!("{:?}", pack_id)));
+
                 gs.opening_pack = true;
 
                 gs.pack_display_state
@@ -72,6 +79,9 @@ pub fn handle_pack_shop_signals(
                         .iter_mut()
                         .for_each(|p| p.1.set_state(PackShopDisplayState::Idle));
                 }
+            }
+            PackShopSignals::StandardUpateSignal { sigs } => {
+                handle_signals(sigs, gs, es, platform_api);
             }
         }
     }

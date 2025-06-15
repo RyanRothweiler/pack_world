@@ -1,4 +1,7 @@
-use crate::{inventory::*, pack::*, pack::*, pack_shop_signals::*, state::assets::*};
+use crate::{
+    drop_table::*, inventory::*, item::*, pack::*, pack::*, pack_shop_signals::*, state::assets::*,
+    ui_panels::*, update_signal::*,
+};
 use gengar_engine::{
     collisions::*,
     color::*,
@@ -24,6 +27,11 @@ mod pack_render_instance;
 
 use pack_render_instance::*;
 
+struct PullDisplay {
+    pub drop: Drop,
+    pub pos: VecTwo,
+}
+
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PackShopDisplayState {
     Idle,
@@ -38,6 +46,7 @@ pub struct PackShopDisplay {
     state: PackShopDisplayState,
     pack_instances: Vec<PackRenderInstance>,
 
+    pulls: Vec<PullDisplay>,
     items_remaining: i32,
 }
 
@@ -48,6 +57,7 @@ impl PackShopDisplay {
             pack_instances: vec![],
 
             items_remaining: 0,
+            pulls: vec![],
         };
 
         ret.set_state(PackShopDisplayState::Idle);
@@ -60,8 +70,12 @@ impl PackShopDisplay {
         self.state = new_state;
 
         match new_state {
+            PackShopDisplayState::Idle => {
+                self.pulls.clear();
+            }
             PackShopDisplayState::Opening => {
                 self.items_remaining = 4;
+                self.pulls.clear();
             }
             _ => {}
         }
@@ -89,6 +103,12 @@ impl PackShopDisplay {
             .unwrap()
             .camera;
 
+        let screen_origin = cam.world_to_screen(
+            pack_info.shop_position + VecThreeFloat::new(2.5, 0.0, 0.0),
+            window_resolution,
+        );
+        let pack_center_screen = cam.world_to_screen(pack_info.shop_position, window_resolution);
+
         let mut hovering = point_within_circle(
             VecTwo::new(mouse_world.x, mouse_world.z),
             VecTwo::new(pack_info.shop_position.x, pack_info.shop_position.z),
@@ -101,43 +121,32 @@ impl PackShopDisplay {
                     ret.push(PackShopSignals::Select { pack_id });
                 }
             }
-            PackShopDisplayState::Selected => {
-                /*
-                if !hovering {
-                    ret.push(PackShopSignals::Idle { pack_id });
-                } else if !mouse_left.pressing {
-                    ret.push(PackShopSignals::Hover { pack_id });
-                }
-                */
-            }
+            PackShopDisplayState::Selected => {}
             PackShopDisplayState::Hidden => {}
             PackShopDisplayState::Opening => {
-                if hovering && mouse_left.on_press {
+                if hovering && mouse_left.on_press && self.items_remaining > 0 {
+                    // pull item from pack and give
+                    let pull = pack_info.pull(platform_api);
+                    ret.push(PackShopSignals::StandardUpateSignal {
+                        sigs: vec![UpdateSignal::GiveDrop(pull)],
+                    });
+
                     self.items_remaining -= 1;
+
+                    self.pulls.push(PullDisplay {
+                        drop: pull,
+                        pos: pack_center_screen,
+                    });
+
                     if self.items_remaining == 0 {
                         self.pack_instances[0].change_state(PackInstanceState::Exiting);
                     }
-                    println!("give item");
                 }
             }
         }
 
-        /*
-        PackShopDisplayState::Hover => {
-            if !hovering {
-                ret.push(PackShopSignals::Idle { pack_id });
-            } else if mouse_left.pressing {
-                ret.push(PackShopSignals::Select { pack_id });
-            }
-        }*/
-
         // ui
         {
-            let screen_origin = cam.world_to_screen(
-                pack_info.shop_position + VecThreeFloat::new(2.5, 0.0, 0.0),
-                window_resolution,
-            );
-
             let info_rect = Rect::new_top_size(screen_origin, 100.0, 100.0);
             begin_panel(
                 info_rect,
@@ -146,17 +155,6 @@ impl PackShopDisplay {
                 ui_context,
             );
             {
-                /*
-                draw_text(
-                    &pack_info.display_name,
-                    VecTwo::new(00.0, 0.0),
-                    COLOR_WHITE,
-                    &gs.font_style_header,
-                    &mut ui_frame_state,
-                    ui_context,
-                );
-                */
-
                 // cost
                 {
                     let show_cost: bool = match self.state {
@@ -212,43 +210,37 @@ impl PackShopDisplay {
                         std::line!(),
                         ui_context,
                     ) {
-                        /*
-                        handle_signals(
-                            vec![UpdateSignal::SetActivePage(
-                                CreatePanelData::PackDetails { pack_id: *pack_id },
-                            )],
-                            gs,
-                            es,
-                            platform_api,
-                        );
-                        */
+                        let new_panel_data = CreatePanelData::PackDetails { pack_id: pack_id };
+                        ret.push(PackShopSignals::StandardUpateSignal {
+                            sigs: vec![UpdateSignal::SetActivePage(new_panel_data)],
+                        });
                     }
 
-                    if draw_text_button(
-                        "Open Pack",
-                        VecTwo::new(10.0, 180.0),
-                        &&ui_context.font_header.clone(),
-                        false,
-                        Some(crate::BUTTON_BG),
-                        &mut ui_frame_state,
-                        std::line!(),
-                        ui_context,
-                    ) {
-                        ret.push(PackShopSignals::Open { pack_id: pack_id });
-                        self.pack_instances[0].change_state(PackInstanceState::Opening);
-
-                        // self.pack_instances[0].change_state(PackInstanceState::Exiting);
-                        /*
-                        handle_signals(
-                            vec![UpdateSignal::SetActivePage(
-                                CreatePanelData::PackDetails { pack_id: *pack_id },
-                            )],
-                            gs,
-                            es,
-                            platform_api,
+                    if pack_info.can_afford(inventory) {
+                        if draw_text_button(
+                            "Open Pack",
+                            VecTwo::new(10.0, 180.0),
+                            &&ui_context.font_header.clone(),
+                            false,
+                            Some(crate::BUTTON_BG),
+                            &mut ui_frame_state,
+                            std::line!(),
+                            ui_context,
+                        ) {
+                            ret.push(PackShopSignals::Open { pack_id: pack_id });
+                            self.pack_instances[0].change_state(PackInstanceState::Opening);
+                        }
+                    } else {
+                        draw_text(
+                            "Can't Afford",
+                            VecTwo::new(0.0, 180.0),
+                            COLOR_WHITE,
+                            &ui_context.font_body.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
                         );
-                        */
                     }
+
                     if draw_text_button(
                         "Back",
                         VecTwo::new(10.0, 240.0),
@@ -285,8 +277,69 @@ impl PackShopDisplay {
             }
         }
 
-        // update pack instances
-        // let mut pack_removing: Option<usize> = None;
+        // draw pulls
+        {
+            let icon_size: f64 = 160.0;
+
+            let deg_between: f64 = 40.0;
+            let deg_needed: f64 = deg_between * (self.pulls.len() as f64 - 1.0);
+            let deg_start: f64 = 180.0 + (deg_needed * 0.5);
+
+            let radius = 300.0;
+
+            let mut i: i32 = 0;
+
+            for p in &mut self.pulls {
+                let deg: f64 = (deg_between * i as f64) - deg_start;
+                let target_pos = VecTwo::new(
+                    radius * f64::sin(deg.to_radians()),
+                    radius * f64::cos(deg.to_radians()),
+                ) + pack_center_screen;
+
+                p.pos = VecTwo::lerp(p.pos, target_pos, 0.25);
+
+                let icon = assets.get_drop_icon(&p.drop.drop_type);
+
+                let dfb = match p.drop.drop_type {
+                    DropType::Gold => false,
+                    DropType::Item { item_type } => match item_type {
+                        ItemType::Tile(_) => true,
+                        _ => false,
+                    },
+                };
+
+                if dfb {
+                    draw_framebuffer(
+                        Rect::new_center(p.pos, VecTwo::new(icon_size, icon_size)),
+                        icon,
+                        COLOR_WHITE,
+                        ui_frame_state,
+                        ui_context,
+                    );
+                } else {
+                    draw_image(
+                        Rect::new_center(p.pos, VecTwo::new(icon_size, icon_size)),
+                        icon,
+                        COLOR_WHITE,
+                        ui_frame_state,
+                        ui_context,
+                    );
+                }
+
+                if p.drop.amount > 1 {
+                    draw_text(
+                        &format!("{:?}", p.drop.amount),
+                        p.pos,
+                        COLOR_WHITE,
+                        &ui_context.font_body.clone(),
+                        ui_frame_state,
+                        ui_context,
+                    );
+                }
+
+                i += 1;
+            }
+        }
 
         for (i, inst) in &mut self.pack_instances.iter_mut().enumerate() {
             inst.update_and_render(
@@ -297,18 +350,7 @@ impl PackShopDisplay {
                 assets,
                 platform_api,
             );
-            /*
-            if inst.is_dead() {
-                pack_removing = Some(i);
-            }
-            */
         }
-        /*
-        if let Some(idx) = pack_removing {
-            self.pack_instances.remove(idx);
-            self.pack_instances.push(PackRenderInstance::new());
-        }
-        */
 
         ret
     }
