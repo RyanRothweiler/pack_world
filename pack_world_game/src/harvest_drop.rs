@@ -68,7 +68,7 @@ impl HarvestDrop {
             // move to inventory
 
             let mut circle_t: f64 = (self.time / CIRCLE_LEN).clamp(0.0, 1.0);
-            circle_t = eas_out_quint(circle_t);
+            circle_t = ease_out_quint(circle_t);
 
             self.pos = VecTwo::lerp(self.origin, self.circle_target, circle_t);
 

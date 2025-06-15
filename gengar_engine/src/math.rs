@@ -1,8 +1,6 @@
-// https://easings.net/#easeOutQuint
-pub fn eas_out_quint(i: f64) -> f64 {
-    // originally was 5.0. modified to 2
-    1.0 - f64::powf(1.0 - i, 2.0)
-}
+pub mod ease;
+
+pub use ease::*;
 
 pub fn lerp(a: f64, b: f64, t: f64) -> f64 {
     a + (b - a) * t.clamp(0.0, 1.0)

@@ -19,6 +19,10 @@ use gengar_engine::{
     },
 };
 
+mod pack_render_instance;
+
+use pack_render_instance::*;
+
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PackShopDisplayState {
     Idle,
@@ -27,29 +31,22 @@ pub enum PackShopDisplayState {
     Selected,
 }
 
-#[derive(Copy, Clone)]
+/// Handles the display of a pack "node"
+/// Should be rename to ShopPackNode
 pub struct PackShopDisplay {
-    pub hover_time: f64,
-    pub rotation: VecThreeFloat,
-    pub scale: f64,
-
-    pub rot_time: f64,
-
     state: PackShopDisplayState,
+    pack_instances: Vec<PackRenderInstance>,
 }
 
 impl PackShopDisplay {
     pub fn new() -> Self {
         let mut ret = Self {
-            hover_time: 0.0,
-            rotation: VecThreeFloat::new_zero(),
-            scale: 0.0,
-            rot_time: 0.0,
-
             state: PackShopDisplayState::Idle,
+            pack_instances: vec![],
         };
 
         ret.set_state(PackShopDisplayState::Idle);
+        ret.pack_instances.push(PackRenderInstance::new());
 
         ret
     }
@@ -225,6 +222,7 @@ impl PackShopDisplay {
                             std::line!(),
                             ui_context,
                         ) {
+                            self.pack_instances[0].change_state(PackInstanceState::Exiting);
                             /*
                             handle_signals(
                                 vec![UpdateSignal::SetActivePage(
@@ -242,61 +240,20 @@ impl PackShopDisplay {
             }
         }
 
-        // pack rendering
-        {
-            let scale_target = match self.state {
-                PackShopDisplayState::Hidden => 0.0,
-                PackShopDisplayState::Hover => 1.5,
-                PackShopDisplayState::Selected => 1.2,
-                PackShopDisplayState::Idle => 1.0,
-            };
+        // update pack instances
+        let mut pack_removing: Option<usize> = None;
 
-            let rot_max = match self.state {
-                PackShopDisplayState::Hover | PackShopDisplayState::Selected => 0.05,
-                _ => 0.45,
-            };
-
-            self.scale = gengar_engine::math::lerp(self.scale, scale_target, 0.35);
-
-            let target_rot = VecThreeFloat::new(
-                f64::sin(self.rot_time) * rot_max,
-                -90.0_f64.to_radians() + (f64::sin(self.rot_time + 2.0) * rot_max),
-                -70.0_f64.to_radians() + (f64::sin(self.rot_time + 1.0) * rot_max),
-            );
-            self.rotation = VecThreeFloat::lerp(self.rotation, target_rot, 0.1);
-
-            if self.scale > 0.01 {
-                self.render(pack_id, assets, render_system);
+        for (i, inst) in &mut self.pack_instances.iter_mut().enumerate() {
+            inst.update_and_render(pack_id, self.state, render_system, assets);
+            if inst.is_dead() {
+                pack_removing = Some(i);
             }
+        }
+        if let Some(idx) = pack_removing {
+            self.pack_instances.remove(idx);
+            self.pack_instances.push(PackRenderInstance::new());
         }
 
         ret
-    }
-
-    pub fn render(&mut self, pack_id: PackID, assets: &Assets, render_system: &mut RenderSystem) {
-        self.rot_time += 0.04;
-
-        let mut trans = Transform::new();
-        trans.local_scale = VecThreeFloat::new(self.scale, self.scale, self.scale);
-
-        trans.local_position = pack_id.get_pack_info().shop_position;
-        trans.local_rotation = self.rotation;
-        trans.update_global_matrix(&M44::new_identity());
-
-        let mut mat = assets.get_pack_material(pack_id).clone();
-
-        mat.uniforms.insert(
-            "ambientColor".to_string(),
-            UniformData::VecThree(VecThreeFloat::new_zero()),
-        );
-
-        render_system.add_command(
-            RenderCommand::new_model(
-                &trans,
-                assets.asset_library.get_model(&pack_id.to_string_id()),
-                &mat,
-            ),
-            RenderPackID::Shop,
-        );
     }
 }
