@@ -3,10 +3,11 @@ use gengar_engine::{platform_api::*, state::State as EngineState};
 
 #[derive(Debug)]
 pub enum PackShopSignals {
-    Hover { pack_id: PackID },
     Idle { pack_id: PackID },
     Select { pack_id: PackID },
+    Open { pack_id: PackID },
     DeselectAll,
+    OpenFinished,
 }
 
 pub fn handle_pack_shop_signals(
@@ -19,17 +20,26 @@ pub fn handle_pack_shop_signals(
         println!("{:?}", sig);
 
         match sig {
-            PackShopSignals::Hover { pack_id } => {
-                gs.pack_display_state
-                    .get_mut(&pack_id)
-                    .unwrap()
-                    .set_state(PackShopDisplayState::Hover);
-            }
             PackShopSignals::Idle { pack_id } => {
                 gs.pack_display_state
                     .get_mut(&pack_id)
                     .unwrap()
                     .set_state(PackShopDisplayState::Idle);
+            }
+            PackShopSignals::Open { pack_id } => {
+                gs.opening_pack = true;
+
+                gs.pack_display_state
+                    .get_mut(&pack_id)
+                    .unwrap()
+                    .set_state(PackShopDisplayState::Opening);
+            }
+            PackShopSignals::OpenFinished => {
+                gs.opening_pack = false;
+
+                gs.pack_display_state
+                    .iter_mut()
+                    .for_each(|p| p.1.set_state(PackShopDisplayState::Idle));
             }
             PackShopSignals::Select { pack_id } => {
                 let pack_info = pack_id.get_pack_info();
@@ -47,7 +57,7 @@ pub fn handle_pack_shop_signals(
 
                 // Update camera
                 {
-                    gs.target_camera_pos.x = pack_info.shop_position.x + 5.0;
+                    gs.target_camera_pos.x = pack_info.shop_position.x;
                     gs.target_camera_pos.y = 20.0;
 
                     // This 10 is becuse the camera is rotate a bit and not looking straight down
@@ -55,11 +65,13 @@ pub fn handle_pack_shop_signals(
                 }
             }
             PackShopSignals::DeselectAll => {
-                gs.pack_selected = None;
+                if !gs.opening_pack {
+                    gs.pack_selected = None;
 
-                gs.pack_display_state
-                    .iter_mut()
-                    .for_each(|p| p.1.set_state(PackShopDisplayState::Idle));
+                    gs.pack_display_state
+                        .iter_mut()
+                        .for_each(|p| p.1.set_state(PackShopDisplayState::Idle));
+                }
             }
         }
     }

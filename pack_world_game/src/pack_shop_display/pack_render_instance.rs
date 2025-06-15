@@ -2,6 +2,7 @@ use crate::{pack::*, pack_shop_display::PackShopDisplayState, state::assets::*};
 use gengar_engine::{
     math::*,
     matricies::*,
+    platform_api::*,
     render::{render_command::*, render_pack::*, shader::*, *},
     state::render_system::*,
     transform::*,
@@ -12,6 +13,7 @@ use gengar_engine::{
 pub enum PackInstanceState {
     Idle,
     Exiting,
+    Opening,
 
     /// This one is dead and needs to be removed.
     Remove,
@@ -49,33 +51,31 @@ impl PackRenderInstance {
         self.time = 0.0;
     }
 
-    pub fn is_dead(&self) -> bool {
-        self.state == PackInstanceState::Remove
-    }
-
     pub fn update_and_render(
         &mut self,
+        hovering: bool,
         pack_id: PackID,
         node_state: PackShopDisplayState,
         render_system: &mut RenderSystem,
         assets: &Assets,
+        platform_api: &PlatformApi,
     ) {
         let pack_info = pack_id.get_pack_info();
 
         match self.state {
             PackInstanceState::Exiting => {
+                /*
                 self.position_offset = VecThreeFloat::lerp(
                     VecThreeFloat::new_zero(),
                     VecThreeFloat::new(30.0, 0.0, 0.0),
                     ease_in_quint(self.time.clamp(0.0, 1.0)),
                 );
-                /*
+                */
                 self.scale = gengar_engine::math::lerp(
                     self.scale,
                     0.0,
                     ease_out_quint(self.time.clamp(0.0, 1.0)),
                 );
-                */
 
                 self.time += 0.02;
 
@@ -83,13 +83,26 @@ impl PackRenderInstance {
                     self.change_state(PackInstanceState::Remove);
                 }
             }
-            PackInstanceState::Idle => {
-                let scale_target = match node_state {
+            PackInstanceState::Idle | PackInstanceState::Opening => {
+                let mut scale_target = match node_state {
                     PackShopDisplayState::Hidden => 0.0,
-                    PackShopDisplayState::Hover => 1.5,
+                    // PackShopDisplayState::Hover => 1.0,
                     PackShopDisplayState::Selected => 1.2,
                     PackShopDisplayState::Idle => 1.0,
+                    PackShopDisplayState::Opening => 1.0,
                 };
+
+                match node_state {
+                    PackShopDisplayState::Idle | PackShopDisplayState::Opening => {
+                        if hovering {
+                            scale_target += 0.45;
+                        }
+                    }
+                    _ => {
+                        // no hovering for all other states
+                    }
+                }
+
                 self.scale = gengar_engine::math::lerp(self.scale, scale_target, 0.35);
             }
             PackInstanceState::Remove => {
@@ -98,9 +111,22 @@ impl PackRenderInstance {
         };
         let position = pack_info.shop_position + self.position_offset;
 
-        let rot_max = match node_state {
-            PackShopDisplayState::Hover | PackShopDisplayState::Selected => 0.05,
+        let mut rot_max = match node_state {
+            PackShopDisplayState::Selected => 0.05,
+            PackShopDisplayState::Opening => 0.2,
+            PackShopDisplayState::Idle => {
+                if hovering {
+                    0.1
+                } else {
+                    0.45
+                }
+            }
             _ => 0.45,
+        };
+
+        self.rot_time += match self.state {
+            PackInstanceState::Opening => 0.7,
+            _ => 0.04,
         };
 
         let target_rot = VecThreeFloat::new(
@@ -111,8 +137,6 @@ impl PackRenderInstance {
         self.rotation = VecThreeFloat::lerp(self.rotation, target_rot, 0.1);
 
         if self.scale > 0.01 {
-            self.rot_time += 0.04;
-
             let mut trans = Transform::new();
             trans.local_scale = VecThreeFloat::new(self.scale, self.scale, self.scale);
 

@@ -909,7 +909,7 @@ pub fn game_loop(
                     .get_mut(&RenderPackID::Shop)
                     .unwrap();
 
-                if gs.pack_selected.is_none() {
+                if gs.pack_selected.is_none() && !gs.opening_pack {
                     let keyboard_speed = 30.0;
                     let mouse_scroll_speed = 400.0;
                     let drag_speed = gengar_engine::math::lerp(
@@ -1039,6 +1039,7 @@ pub fn game_loop(
                             &mut ui_frame_state,
                             &mut gs.ui_context.as_mut().unwrap(),
                             es.window_resolution,
+                            platform_api,
                         );
 
                     handle_pack_shop_signals(signals, gs, es, platform_api);

@@ -4,6 +4,7 @@ use gengar_engine::{
     color::*,
     input::*,
     matricies::*,
+    platform_api::*,
     rect::*,
     state::render_system::*,
     transform::*,
@@ -27,8 +28,8 @@ use pack_render_instance::*;
 pub enum PackShopDisplayState {
     Idle,
     Hidden,
-    Hover,
     Selected,
+    Opening,
 }
 
 /// Handles the display of a pack "node"
@@ -36,6 +37,8 @@ pub enum PackShopDisplayState {
 pub struct PackShopDisplay {
     state: PackShopDisplayState,
     pack_instances: Vec<PackRenderInstance>,
+
+    items_remaining: i32,
 }
 
 impl PackShopDisplay {
@@ -43,6 +46,8 @@ impl PackShopDisplay {
         let mut ret = Self {
             state: PackShopDisplayState::Idle,
             pack_instances: vec![],
+
+            items_remaining: 0,
         };
 
         ret.set_state(PackShopDisplayState::Idle);
@@ -54,22 +59,12 @@ impl PackShopDisplay {
     pub fn set_state(&mut self, new_state: PackShopDisplayState) {
         self.state = new_state;
 
-        /*
         match new_state {
-            PackShopDisplayState::Idle => {
-                self.target_scale = 1.0;
+            PackShopDisplayState::Opening => {
+                self.items_remaining = 4;
             }
-            PackShopDisplayState::Hidden => {
-                self.target_scale = 0.0;
-            }
-            PackShopDisplayState::Hover => {
-                self.target_scale = 1.5;
-            }
-            PackShopDisplayState::Selected => {
-                self.target_scale = 1.2;
-            }
+            _ => {}
         }
-        */
     }
 
     pub fn update(
@@ -83,6 +78,7 @@ impl PackShopDisplay {
         mut ui_frame_state: &mut UIFrameState,
         ui_context: &mut UIContext,
         window_resolution: VecTwo,
+        platform_api: &PlatformApi,
     ) -> Vec<PackShopSignals> {
         let mut ret: Vec<PackShopSignals> = vec![];
 
@@ -101,8 +97,8 @@ impl PackShopDisplay {
 
         match self.state {
             PackShopDisplayState::Idle => {
-                if hovering {
-                    ret.push(PackShopSignals::Hover { pack_id });
+                if hovering && mouse_left.pressing {
+                    ret.push(PackShopSignals::Select { pack_id });
                 }
             }
             PackShopDisplayState::Selected => {
@@ -115,14 +111,25 @@ impl PackShopDisplay {
                 */
             }
             PackShopDisplayState::Hidden => {}
-            PackShopDisplayState::Hover => {
-                if !hovering {
-                    ret.push(PackShopSignals::Idle { pack_id });
-                } else if mouse_left.pressing {
-                    ret.push(PackShopSignals::Select { pack_id });
+            PackShopDisplayState::Opening => {
+                if hovering && mouse_left.on_press {
+                    self.items_remaining -= 1;
+                    if self.items_remaining == 0 {
+                        self.pack_instances[0].change_state(PackInstanceState::Exiting);
+                    }
+                    println!("give item");
                 }
             }
         }
+
+        /*
+        PackShopDisplayState::Hover => {
+            if !hovering {
+                ret.push(PackShopSignals::Idle { pack_id });
+            } else if mouse_left.pressing {
+                ret.push(PackShopSignals::Select { pack_id });
+            }
+        }*/
 
         // ui
         {
@@ -131,31 +138,34 @@ impl PackShopDisplay {
                 window_resolution,
             );
 
-            if hovering
-                || self.state == PackShopDisplayState::Hover
-                || self.state == PackShopDisplayState::Selected
+            let info_rect = Rect::new_top_size(screen_origin, 100.0, 100.0);
+            begin_panel(
+                info_rect,
+                Color::new(0.0, 0.0, 0.0, 0.0),
+                ui_frame_state,
+                ui_context,
+            );
             {
-                let info_rect = Rect::new_top_size(screen_origin, 100.0, 100.0);
-                begin_panel(
-                    info_rect,
-                    Color::new(0.0, 0.0, 0.0, 0.0),
-                    ui_frame_state,
+                /*
+                draw_text(
+                    &pack_info.display_name,
+                    VecTwo::new(00.0, 0.0),
+                    COLOR_WHITE,
+                    &gs.font_style_header,
+                    &mut ui_frame_state,
                     ui_context,
                 );
-                {
-                    /*
-                    draw_text(
-                        &pack_info.display_name,
-                        VecTwo::new(00.0, 0.0),
-                        COLOR_WHITE,
-                        &gs.font_style_header,
-                        &mut ui_frame_state,
-                        ui_context,
-                    );
-                    */
+                */
 
-                    // cost
-                    {
+                // cost
+                {
+                    let show_cost: bool = match self.state {
+                        PackShopDisplayState::Selected => true,
+                        PackShopDisplayState::Idle => hovering,
+                        _ => false,
+                    };
+
+                    if show_cost {
                         draw_text(
                             "Cost",
                             VecTwo::new(0.0, 30.0),
@@ -188,71 +198,117 @@ impl PackShopDisplay {
                             );
                         }
                     }
+                }
 
-                    if self.state == PackShopDisplayState::Selected {
-                        if draw_text_button(
-                            "Show Drop List",
-                            VecTwo::new(10.0, 110.0),
-                            &ui_context.font_body.clone(),
-                            false,
-                            Some(crate::BUTTON_BG),
-                            &mut ui_frame_state,
-                            std::line!(),
-                            ui_context,
-                        ) {
-                            /*
-                            handle_signals(
-                                vec![UpdateSignal::SetActivePage(
-                                    CreatePanelData::PackDetails { pack_id: *pack_id },
-                                )],
-                                gs,
-                                es,
-                                platform_api,
-                            );
-                            */
-                        }
+                // drop and open buttons
+                if self.state == PackShopDisplayState::Selected {
+                    if draw_text_button(
+                        "Show Drop List",
+                        VecTwo::new(10.0, 110.0),
+                        &ui_context.font_body.clone(),
+                        false,
+                        Some(crate::BUTTON_BG),
+                        &mut ui_frame_state,
+                        std::line!(),
+                        ui_context,
+                    ) {
+                        /*
+                        handle_signals(
+                            vec![UpdateSignal::SetActivePage(
+                                CreatePanelData::PackDetails { pack_id: *pack_id },
+                            )],
+                            gs,
+                            es,
+                            platform_api,
+                        );
+                        */
+                    }
 
-                        if draw_text_button(
-                            "Open Pack",
-                            VecTwo::new(10.0, 180.0),
-                            &&ui_context.font_header.clone(),
-                            false,
-                            Some(crate::BUTTON_BG),
-                            &mut ui_frame_state,
-                            std::line!(),
-                            ui_context,
-                        ) {
-                            self.pack_instances[0].change_state(PackInstanceState::Exiting);
-                            /*
-                            handle_signals(
-                                vec![UpdateSignal::SetActivePage(
-                                    CreatePanelData::PackDetails { pack_id: *pack_id },
-                                )],
-                                gs,
-                                es,
-                                platform_api,
-                            );
-                            */
-                        }
+                    if draw_text_button(
+                        "Open Pack",
+                        VecTwo::new(10.0, 180.0),
+                        &&ui_context.font_header.clone(),
+                        false,
+                        Some(crate::BUTTON_BG),
+                        &mut ui_frame_state,
+                        std::line!(),
+                        ui_context,
+                    ) {
+                        ret.push(PackShopSignals::Open { pack_id: pack_id });
+                        self.pack_instances[0].change_state(PackInstanceState::Opening);
+
+                        // self.pack_instances[0].change_state(PackInstanceState::Exiting);
+                        /*
+                        handle_signals(
+                            vec![UpdateSignal::SetActivePage(
+                                CreatePanelData::PackDetails { pack_id: *pack_id },
+                            )],
+                            gs,
+                            es,
+                            platform_api,
+                        );
+                        */
+                    }
+                    if draw_text_button(
+                        "Back",
+                        VecTwo::new(10.0, 240.0),
+                        &ui_context.font_body.clone(),
+                        false,
+                        Some(crate::BUTTON_BG),
+                        &mut ui_frame_state,
+                        std::line!(),
+                        ui_context,
+                    ) {
+                        ret.push(PackShopSignals::DeselectAll);
                     }
                 }
+
+                // Open again buttons
+                if self.state == PackShopDisplayState::Opening && self.items_remaining == 0 {
+                    if draw_text_button(
+                        "Open Another",
+                        VecTwo::new(10.0, 180.0),
+                        &&ui_context.font_header.clone(),
+                        false,
+                        Some(crate::BUTTON_BG),
+                        &mut ui_frame_state,
+                        std::line!(),
+                        ui_context,
+                    ) {
+                        ret.push(PackShopSignals::OpenFinished);
+                        ret.push(PackShopSignals::Select { pack_id: pack_id });
+                        self.pack_instances[0].change_state(PackInstanceState::Idle);
+                    }
+                }
+
                 end_panel(&mut ui_frame_state, ui_context);
             }
         }
 
         // update pack instances
-        let mut pack_removing: Option<usize> = None;
+        // let mut pack_removing: Option<usize> = None;
 
         for (i, inst) in &mut self.pack_instances.iter_mut().enumerate() {
-            inst.update_and_render(pack_id, self.state, render_system, assets);
+            inst.update_and_render(
+                hovering,
+                pack_id,
+                self.state,
+                render_system,
+                assets,
+                platform_api,
+            );
+            /*
             if inst.is_dead() {
                 pack_removing = Some(i);
             }
+            */
         }
+        /*
         if let Some(idx) = pack_removing {
             self.pack_instances.remove(idx);
             self.pack_instances.push(PackRenderInstance::new());
         }
+        */
 
         ret
     }
