@@ -347,7 +347,7 @@ impl EngineRenderApiTrait for OglRenderApi {
             );
             self.platform_api.tex_parameter_i(
                 GL_TEXTURE_2D as u32,
-                TextureParameter::MagFilter,
+                TextureParameter::MinFilter,
                 TextureFilterParameter::Linear,
             );
 

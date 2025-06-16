@@ -68,6 +68,13 @@ impl WebGlRenderMethods {
             ImageFormat::RGB => WebGl2RenderingContext::RGB,
         }
     }
+
+    fn capability_to_gl(cap: Capability) -> u32 {
+        match cap {
+            Capability::DepthTest => WebGl2RenderingContext::DEPTH_TEST,
+            Capability::Blend => gl_types::GL_BLEND,
+        }
+    }
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
@@ -370,9 +377,13 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
             .unwrap();
     }
 
-    fn enable(&self, cap: Capability) {}
+    fn enable(&self, cap: Capability) {
+        self.context.enable(Self::capability_to_gl(cap));
+    }
 
-    fn disable(&self, cap: Capability) {}
+    fn disable(&self, cap: Capability) {
+        self.context.disable(Self::capability_to_gl(cap));
+    }
 
     fn blend_func(&self, func: u32, setting: u32) {}
 
