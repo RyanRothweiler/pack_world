@@ -263,7 +263,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         Ok(buf_id)
     }
 
-    fn upload_texture(&self, data: &Image, gamma_correct: bool) -> Result<u32, EngineError> {
+    fn upload_texture(&mut self, data: &Image, gamma_correct: bool) -> Result<u32, EngineError> {
         let context = unsafe { GL_CONTEXT.as_mut().unwrap() };
 
         let tex: WebGlTexture = context

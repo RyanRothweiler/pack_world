@@ -37,6 +37,19 @@ pub enum BufferUsage {
     StaticDraw,
 }
 
+pub enum TextureTarget {
+    Texture2D,
+}
+
+pub enum TextureParameter {
+    MinFilter,
+    MagFilter,
+}
+
+pub enum TextureFilterParameter {
+    Linear,
+}
+
 // Adjust the viewport to take into account the windows titlebar area.
 // Really not a great solution and obviously will break on other platforms.
 const WINDOWS_TITLE_BAR_ADJ: i32 = 40;
@@ -61,13 +74,13 @@ pub trait OGLPlatformImpl {
     fn bind_vertex_array(&self, vao_id: u32);
     fn gen_buffers(&mut self, count: i32, buffers: *mut u32);
     fn bind_buffer(&self, typ: BufferType, buf_id: u32);
-    fn gen_textures(&self, count: i32, id: *mut u32);
-    fn bind_texture(&self, typ: i32, id: u32);
-    fn tex_parameter_i(&self, target: u32, pname: u32, param: i32);
+    fn gen_textures(&mut self, count: i32, id: *mut u32);
+    fn bind_texture(&self, target: TextureTarget, id: u32);
+    fn tex_parameter_i(&self, target: u32, pname: TextureParameter, param: TextureFilterParameter);
     fn tex_image_2d(
         &self,
         target: u32,
-        gl_storage_format: i32,
+        gl_storage_format: ImageFormat,
         image_format: u32,
         image_pixel_type: u32,
         width: i32,
@@ -103,7 +116,7 @@ pub trait OGLPlatformImpl {
     fn uniform_1f(&self, loc: i32, data: f32);
     fn uniform_1i(&self, loc: i32, data: i32);
 
-    fn gen_frame_buffers(&self, count: i32, id: *mut u32);
+    fn gen_frame_buffers(&mut self, count: i32, id: *mut u32);
     fn bind_frame_buffer(&self, ty: u32, id: u32);
     fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32);
     fn check_frame_buffer_status(&self, ty: u32) -> u32;
@@ -251,20 +264,21 @@ impl EngineRenderApiTrait for OglRenderApi {
         Ok(buf_id)
     }
 
-    fn upload_texture(&self, image: &Image, gamma_correct: bool) -> Result<u32, EngineError> {
+    fn upload_texture(&mut self, image: &Image, gamma_correct: bool) -> Result<u32, EngineError> {
         let mut tex_id: u32 = 0;
         self.platform_api.gen_textures(1, &mut tex_id);
-        self.platform_api.bind_texture(GL_TEXTURE_2D, tex_id);
+        self.platform_api
+            .bind_texture(TextureTarget::Texture2D, tex_id);
 
         self.platform_api.tex_parameter_i(
             GL_TEXTURE_2D as u32,
-            GL_TEXTURE_MAG_FILTER,
-            GL_LINEAR as i32,
+            TextureParameter::MagFilter,
+            TextureFilterParameter::Linear,
         );
         self.platform_api.tex_parameter_i(
             GL_TEXTURE_2D as u32,
-            GL_TEXTURE_MIN_FILTER,
-            GL_LINEAR as i32,
+            TextureParameter::MinFilter,
+            TextureFilterParameter::Linear,
         );
 
         let image_format = match image.format {
@@ -280,7 +294,7 @@ impl EngineRenderApiTrait for OglRenderApi {
 
         self.platform_api.tex_image_2d(
             GL_TEXTURE_2D as u32,
-            RGBA,
+            image.format,
             image_format as u32,
             UNSIGNED_BYTE as u32,
             image.width as i32,
@@ -311,10 +325,10 @@ impl EngineRenderApiTrait for OglRenderApi {
         {
             self.platform_api.gen_textures(1, &mut pack.color_buffer);
             self.platform_api
-                .bind_texture(GL_TEXTURE_2D, pack.color_buffer);
+                .bind_texture(TextureTarget::Texture2D, pack.color_buffer);
             self.platform_api.tex_image_2d(
                 GL_TEXTURE_2D as u32,
-                RGBA,
+                ImageFormat::RGBA,
                 RGBA as u32,
                 UNSIGNED_BYTE as u32,
                 width,
@@ -323,13 +337,13 @@ impl EngineRenderApiTrait for OglRenderApi {
             );
             self.platform_api.tex_parameter_i(
                 GL_TEXTURE_2D as u32,
-                GL_TEXTURE_MAG_FILTER,
-                GL_LINEAR as i32,
+                TextureParameter::MagFilter,
+                TextureFilterParameter::Linear,
             );
             self.platform_api.tex_parameter_i(
                 GL_TEXTURE_2D as u32,
-                GL_TEXTURE_MIN_FILTER,
-                GL_LINEAR as i32,
+                TextureParameter::MagFilter,
+                TextureFilterParameter::Linear,
             );
 
             // attach to framebuffer object
@@ -341,7 +355,7 @@ impl EngineRenderApiTrait for OglRenderApi {
                 0,
             );
 
-            self.platform_api.bind_texture(GL_TEXTURE_2D, 0);
+            self.platform_api.bind_texture(TextureTarget::Texture2D, 0);
         }
 
         // depth and stencil buffers
@@ -618,7 +632,7 @@ fn render_list(
 
                     render_api
                         .platform_api
-                        .bind_texture(GL_TEXTURE_2D, data.image_id);
+                        .bind_texture(TextureTarget::Texture2D, data.image_id);
                 }
             }
         }

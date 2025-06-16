@@ -34,7 +34,7 @@ impl Typeface {
         weight: TypeWeight,
         metrics: String,
         image_bytes: impl std::io::Read,
-        render_api: &impl RenderApi,
+        render_api: &mut impl RenderApi,
     ) {
         let font = font::load(image_bytes, &metrics, self.shader, render_api).unwrap();
         self.fonts.insert(weight, font);

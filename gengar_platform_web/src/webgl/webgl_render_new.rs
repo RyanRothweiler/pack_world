@@ -3,7 +3,9 @@
 /// This should work, but I realized I didn't really need it.
 /// Once all the methods here have been implemented then webgl_render can be swapped with this
 /// Then we don't need two gl rendering backends.
-use gengar_engine::{matricies::matrix_four_four::*, util::incrementing_map::*, vectors::*};
+use gengar_engine::{
+    matricies::matrix_four_four::*, render::image::*, util::incrementing_map::*, vectors::*,
+};
 use gengar_render_opengl::*;
 
 use web_sys::{
@@ -24,6 +26,7 @@ pub struct WebGlRenderMethods {
     vertex_arrays: IncrementingMap<WebGlVertexArrayObject>,
     buffers: IncrementingMap<WebGlBuffer>,
     framebuffers: IncrementingMap<WebGlFramebuffer>,
+    textures: IncrementingMap<WebGlTexture>,
 }
 
 impl WebGlRenderMethods {
@@ -37,6 +40,32 @@ impl WebGlRenderMethods {
     fn usage_type_to_gl(usage: BufferUsage) -> u32 {
         match usage {
             BufferUsage::StaticDraw => WebGl2RenderingContext::STATIC_DRAW,
+        }
+    }
+
+    fn texture_target_to_gl(tar: TextureTarget) -> u32 {
+        match tar {
+            TextureTarget::Texture2D => WebGl2RenderingContext::TEXTURE_2D,
+        }
+    }
+
+    fn texture_parameter_to_gl(tar: TextureParameter) -> u32 {
+        match tar {
+            TextureParameter::MagFilter => WebGl2RenderingContext::TEXTURE_MAG_FILTER,
+            TextureParameter::MinFilter => WebGl2RenderingContext::TEXTURE_MIN_FILTER,
+        }
+    }
+
+    fn texture_filter_parameter_to_gl(tar: TextureFilterParameter) -> u32 {
+        match tar {
+            TextureFilterParameter::Linear => WebGl2RenderingContext::LINEAR,
+        }
+    }
+
+    fn image_format_to_gl(img: ImageFormat) -> u32 {
+        match img {
+            ImageFormat::RGBA => WebGl2RenderingContext::RGBA,
+            ImageFormat::RGB => WebGl2RenderingContext::RGB,
         }
     }
 }
@@ -183,42 +212,162 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         );
     }
 
-    fn buffer_data_v2(&self, buf_id: BufferType, data: &Vec<VecTwo>, usage: BufferUsage) {}
+    fn buffer_data_v2(&self, target: BufferType, data: &Vec<VecTwo>, usage: BufferUsage) {
+        let bytes_total = size_of::<f32>() * 2 * data.len();
 
-    fn buffer_data_u32(&self, buf_id: BufferType, data: &Vec<u32>, usage: BufferUsage) {}
+        let buf = js_sys::ArrayBuffer::new(bytes_total as u32);
+        let buf_view = js_sys::DataView::new(&buf, 0, bytes_total);
 
-    fn enable_vertex_attrib_array(&self, location: u32) {}
+        for i in 0..data.len() {
+            let byte_offset = size_of::<f32>() * 2 * i;
+            buf_view.set_float32_endian(byte_offset, data[i].x as f32, true);
+            buf_view.set_float32_endian(byte_offset + size_of::<f32>(), data[i].y as f32, true);
+        }
 
-    fn vertex_attrib_pointer_v3(&self, location: u32) {}
+        self.context.buffer_data_with_opt_array_buffer(
+            Self::buf_type_to_gl(target),
+            Some(&buf),
+            Self::usage_type_to_gl(usage),
+        );
+    }
 
-    fn vertex_attrib_pointer_v2(&self, location: u32) {}
+    fn buffer_data_u32(&self, target: BufferType, data: &Vec<u32>, usage: BufferUsage) {
+        let bytes_total = size_of::<u16>() * data.len();
 
-    fn gen_textures(&self, count: i32, id: *mut u32) {}
+        let buf = js_sys::ArrayBuffer::new(bytes_total as u32);
+        let buf_view = js_sys::DataView::new(&buf, 0, bytes_total);
 
-    fn gen_frame_buffers(&self, count: i32, id: *mut u32) {}
+        for i in 0..data.len() {
+            let byte_offset = size_of::<u16>() * i;
+            buf_view.set_uint16_endian(byte_offset, u16::try_from(data[i]).unwrap(), true);
+        }
 
-    fn bind_texture(&self, typ: i32, id: u32) {}
+        self.context.buffer_data_with_opt_array_buffer(
+            Self::buf_type_to_gl(target),
+            Some(&buf),
+            Self::usage_type_to_gl(usage),
+        );
+    }
 
-    fn bind_frame_buffer(&self, typ: u32, id: u32) {}
+    fn enable_vertex_attrib_array(&self, location: u32) {
+        self.context.enable_vertex_attrib_array(location);
+    }
 
-    fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32) {}
+    fn vertex_attrib_pointer_v3(&self, location: u32) {
+        self.context.vertex_attrib_pointer_with_i32(
+            location,
+            3,
+            WebGl2RenderingContext::FLOAT,
+            false,
+            0,
+            0,
+        );
+    }
+
+    fn vertex_attrib_pointer_v2(&self, location: u32) {
+        self.context.vertex_attrib_pointer_with_i32(
+            location,
+            2,
+            WebGl2RenderingContext::FLOAT,
+            false,
+            0,
+            0,
+        );
+    }
+
+    fn gen_textures(&mut self, count: i32, id: *mut u32) {
+        assert!(count == 0, "Only count of 1 supported");
+
+        unsafe {
+            let tex: WebGlTexture = self
+                .context
+                .create_texture()
+                .expect("Error creating texture");
+            *id = self.textures.push(tex) as u32;
+        }
+    }
+
+    fn gen_frame_buffers(&mut self, count: i32, id: *mut u32) {
+        assert!(count == 0, "Only count of 1 supported");
+
+        unsafe {
+            let buf: WebGlFramebuffer = self
+                .context
+                .create_framebuffer()
+                .expect("Error creating framebuffer");
+            *id = self.framebuffers.push(buf) as u32;
+        }
+    }
+
+    fn bind_texture(&self, typ: TextureTarget, id: u32) {
+        let tex = self.textures.get(id as usize);
+        self.context
+            .bind_texture(Self::texture_target_to_gl(typ), Some(&tex));
+    }
+
+    fn bind_frame_buffer(&self, typ: u32, id: u32) {
+        let fb = self.framebuffers.get(id as usize);
+        self.context
+            .bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, Some(fb));
+    }
+
+    fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32) {
+        let texture = self.textures.get(textarget as usize);
+
+        self.context.framebuffer_texture_2d(
+            WebGl2RenderingContext::FRAMEBUFFER,
+            WebGl2RenderingContext::COLOR_ATTACHMENT0,
+            WebGl2RenderingContext::TEXTURE_2D,
+            Some(&texture),
+            level,
+        );
+    }
 
     fn check_frame_buffer_status(&self, ty: u32) -> u32 {
+        let status = self
+            .context
+            .check_framebuffer_status(WebGl2RenderingContext::FRAMEBUFFER);
+        if status != WebGl2RenderingContext::FRAMEBUFFER_COMPLETE {
+            panic!("Framebuffer is incomplete");
+        }
+
         0
     }
 
-    fn tex_parameter_i(&self, target: u32, pname: u32, param: i32) {}
+    fn tex_parameter_i(&self, target: u32, pname: TextureParameter, param: TextureFilterParameter) {
+        self.context.tex_parameteri(
+            WebGl2RenderingContext::TEXTURE_2D,
+            Self::texture_parameter_to_gl(pname),
+            Self::texture_filter_parameter_to_gl(param) as i32,
+        );
+    }
 
     fn tex_image_2d(
         &self,
         target: u32,
-        gl_storage_format: i32,
+        storage_format: ImageFormat,
         image_format: u32,
         image_pixel_type: u32,
         width: i32,
         height: i32,
         image_data: Option<&Vec<u8>>,
     ) {
+        let mip_level: i32 = 0;
+        let border = 0;
+
+        self.context
+            .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
+                WebGl2RenderingContext::TEXTURE_2D,
+                mip_level,
+                Self::image_format_to_gl(storage_format) as i32,
+                width as i32,
+                height as i32,
+                border,
+                image_format,
+                WebGl2RenderingContext::UNSIGNED_BYTE as u32,
+                Some(image_data.unwrap()),
+            )
+            .unwrap();
     }
 
     fn enable(&self, feature: u32) {}

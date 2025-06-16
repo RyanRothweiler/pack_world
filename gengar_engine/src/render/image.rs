@@ -1,4 +1,4 @@
-#[derive(Clone, Default)]
+#[derive(Clone, Copy, Default)]
 pub enum ImageFormat {
     #[default]
     RGBA,

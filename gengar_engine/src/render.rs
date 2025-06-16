@@ -31,7 +31,7 @@ pub trait RenderApi {
     fn create_vao(&mut self) -> Result<u32, Error>;
 
     // if gamma_correct is true then we'll pass srgb color space so that the image is gamma corrected by the graphics card.
-    fn upload_texture(&self, image: &Image, gamma_correct: bool) -> Result<u32, Error>;
+    fn upload_texture(&mut self, image: &Image, gamma_correct: bool) -> Result<u32, Error>;
 
     fn vao_upload_v3(
         &mut self,
@@ -63,7 +63,7 @@ pub enum ShaderType {
     Fragment,
 }
 
-pub fn load_image_cursor(bytes: &[u8], render_api: &impl RenderApi) -> Result<Image, Error> {
+pub fn load_image_cursor(bytes: &[u8], render_api: &mut impl RenderApi) -> Result<Image, Error> {
     let cursor = Cursor::new(bytes);
     let mut img = load_image(cursor).unwrap();
     img.gl_id = Some(render_api.upload_texture(&img, false).unwrap());

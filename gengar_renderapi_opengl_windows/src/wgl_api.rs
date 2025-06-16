@@ -8,7 +8,7 @@
     clippy::all
 )]
 
-use gengar_engine::{matricies::matrix_four_four::*, vectors::*};
+use gengar_engine::{matricies::matrix_four_four::*, render::image::*, vectors::*};
 use gengar_render_opengl::{gl_types::*, *};
 
 use libc;
@@ -127,6 +127,25 @@ impl WglMethods {
     fn buffer_usage_to_gl(usage: BufferUsage) -> i32 {
         match usage {
             BufferUsage::StaticDraw => GL_STATIC_DRAW,
+        }
+    }
+
+    fn texture_target_to_gl(tar: TextureTarget) -> i32 {
+        match tar {
+            TextureTarget::Texture2D => gl_types::GL_TEXTURE_2D,
+        }
+    }
+
+    fn texture_parameter_to_gl(tar: TextureParameter) -> u32 {
+        match tar {
+            TextureParameter::MagFilter => gl_types::GL_TEXTURE_MAG_FILTER,
+            TextureParameter::MinFilter => gl_types::GL_TEXTURE_MIN_FILTER,
+        }
+    }
+
+    fn texture_filter_parameter_to_gl(tar: TextureFilterParameter) -> u32 {
+        match tar {
+            TextureFilterParameter::Linear => gl_types::GL_LINEAR,
         }
     }
 }
@@ -263,16 +282,16 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glVertexAttribPointer)(location, 2, GL_FLOAT, false, stride, std::ptr::null());
     }
 
-    fn gen_textures(&self, count: i32, id: *mut u32) {
+    fn gen_textures(&mut self, count: i32, id: *mut u32) {
         (self.glGenTextures)(count, id);
     }
 
-    fn gen_frame_buffers(&self, count: i32, id: *mut u32) {
+    fn gen_frame_buffers(&mut self, count: i32, id: *mut u32) {
         (self.glGenFramebuffers)(count, id);
     }
 
-    fn bind_texture(&self, typ: i32, id: u32) {
-        (self.glBindTexture)(typ, id);
+    fn bind_texture(&self, typ: TextureTarget, id: u32) {
+        (self.glBindTexture)(Self::texture_target_to_gl(typ), id);
     }
 
     fn bind_frame_buffer(&self, typ: u32, id: u32) {
@@ -287,16 +306,20 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glCheckFrameBufferStatus)(ty)
     }
 
-    fn tex_parameter_i(&self, target: u32, pname: u32, param: i32) {
+    fn tex_parameter_i(&self, target: u32, pname: TextureParameter, param: TextureFilterParameter) {
         unsafe {
-            glTexParameteri(target, pname, param);
+            glTexParameteri(
+                target,
+                Self::texture_parameter_to_gl(pname),
+                Self::texture_filter_parameter_to_gl(param) as i32,
+            );
         }
     }
 
     fn tex_image_2d(
         &self,
         target: u32,
-        gl_storage_format: i32,
+        storage_format: ImageFormat,
         image_format: u32,
         image_pixel_type: u32,
         width: i32,
@@ -310,6 +333,11 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         let data_ptr = match image_data {
             Some(v) => v.as_ptr() as *const libc::c_void,
             None => std::ptr::null(),
+        };
+
+        let gl_storage_format = match storage_format {
+            ImageFormat::RGBA => RGBA,
+            ImageFormat::RGB => RGB,
         };
 
         unsafe {

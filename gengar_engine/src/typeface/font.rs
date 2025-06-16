@@ -18,7 +18,7 @@ pub fn load(
     image_read: impl std::io::Read,
     font_data: &str,
     shader: Shader,
-    render_api: &impl RenderApi,
+    render_api: &mut impl RenderApi,
 ) -> Result<Font, Error> {
     let mut typeface: Font = Default::default();
 
