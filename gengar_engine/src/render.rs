@@ -28,13 +28,13 @@ pub mod vao;
 // Render backend independent calls. This abstracts over all render backend. That is the hope.
 pub trait RenderApi {
     fn make_shader_program(&mut self, vert_shader: &str, frag_shader: &str) -> Result<u32, Error>;
-    fn create_vao(&self) -> Result<u32, Error>;
+    fn create_vao(&mut self) -> Result<u32, Error>;
 
     // if gamma_correct is true then we'll pass srgb color space so that the image is gamma corrected by the graphics card.
     fn upload_texture(&self, image: &Image, gamma_correct: bool) -> Result<u32, Error>;
 
     fn vao_upload_v3(
-        &self,
+        &mut self,
         vao: &vao::Vao,
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
@@ -42,16 +42,16 @@ pub trait RenderApi {
     ) -> Result<u32, Error>;
 
     fn vao_upload_v2(
-        &self,
+        &mut self,
         vao: &vao::Vao,
         data: &Vec<VecTwo>,
         location: u32,
     ) -> Result<u32, Error>;
 
-    fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, Error>;
+    fn build_frame_buffer(&mut self, width: i32, height: i32) -> Result<FrameBufferPack, Error>;
 
     fn draw_frame_buffer(
-        &self,
+        &mut self,
         frame_buffer: u32,
         render_pack: &mut RenderPack,
         components: &Components,

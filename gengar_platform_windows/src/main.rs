@@ -75,7 +75,7 @@ static GAME_TO_LOAD: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec!
 type FuncGameInit = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
-    &gengar_render_opengl::OglRenderApi,
+    &mut gengar_render_opengl::OglRenderApi,
     &PlatformApi,
 );
 type FuncGameLoop = fn(
@@ -83,7 +83,7 @@ type FuncGameLoop = fn(
     &mut game::state::State,
     &mut gengar_engine::state::State,
     &mut gengar_engine::input::Input,
-    &gengar_render_opengl::OglRenderApi,
+    &mut gengar_render_opengl::OglRenderApi,
     &PlatformApi,
 );
 
@@ -349,14 +349,14 @@ fn main() {
             (game_dll.proc_init)(
                 &mut game_state,
                 &mut engine_state,
-                &render_api,
+                &mut render_api,
                 &platform_api,
             );
         } else {
             game::game_init(
                 &mut game_state,
                 &mut engine_state,
-                &render_api,
+                &mut render_api,
                 &platform_api,
             );
         }
@@ -444,7 +444,7 @@ fn main() {
                     &mut game_state,
                     &mut engine_state,
                     &mut input,
-                    &render_api,
+                    &mut render_api,
                     &platform_api,
                 );
             } else {
@@ -453,14 +453,14 @@ fn main() {
                     &mut game_state,
                     &mut engine_state,
                     &mut input,
-                    &render_api,
+                    &mut render_api,
                     &platform_api,
                 );
             }
 
             gengar_engine::engine_frame_end(&mut engine_state);
 
-            render(&mut engine_state, &resolution, &render_api);
+            render(&mut engine_state, &resolution, &mut render_api);
 
             wglSwapLayerBuffers(device_context, gl::WGL_SWAP_MAIN_PLANE).unwrap();
 

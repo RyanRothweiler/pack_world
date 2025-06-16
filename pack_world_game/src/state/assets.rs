@@ -203,7 +203,7 @@ impl Assets {
         tile_type: TileType,
         test_dist: Option<f64>,
         test_height: Option<f64>,
-        render_api: &impl RenderApi,
+        render_api: &mut impl RenderApi,
         components: &mut Components,
     ) {
         let cam_dist = match tile_type {

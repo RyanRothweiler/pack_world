@@ -11,7 +11,7 @@ use web_sys::WebGl2RenderingContext;
 
 pub fn render(
     es: &mut EngineState,
-    render_api: &WebGLRenderApi,
+    render_api: &mut WebGLRenderApi,
     resolution: &VecTwo,
     context: &WebGl2RenderingContext,
     light_pos: VecThreeFloat,
@@ -37,7 +37,7 @@ pub fn render(
             .render_packs
             .get_mut(&RenderPackID::NewWorld)
             .unwrap(),
-        &render_api,
+        render_api,
         context,
     );
     render_render_pack(
@@ -46,7 +46,7 @@ pub fn render(
             .render_packs
             .get_mut(&RenderPackID::World)
             .unwrap(),
-        &render_api,
+        render_api,
         context,
     );
     render_render_pack(
@@ -55,7 +55,7 @@ pub fn render(
             .render_packs
             .get_mut(&RenderPackID::UI)
             .unwrap(),
-        &render_api,
+        render_api,
         context,
     );
     /*
@@ -95,7 +95,7 @@ pub fn render(
 pub fn render_render_pack(
     light_pos: VecThreeFloat,
     pack: &mut RenderPack,
-    render_api: &WebGLRenderApi,
+    render_api: &mut WebGLRenderApi,
     context: &WebGl2RenderingContext,
 ) {
     render_list(
@@ -111,7 +111,7 @@ pub fn render_list(
     light_pos: VecThreeFloat,
     render_commands: &mut Vec<RenderCommand>,
     camera: &Camera,
-    render_api: &WebGLRenderApi,
+    render_api: &mut WebGLRenderApi,
     context: &WebGl2RenderingContext,
 ) {
     for command in render_commands {

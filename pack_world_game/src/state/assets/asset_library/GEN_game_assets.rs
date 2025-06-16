@@ -6,7 +6,7 @@ use gengar_engine::{
 use crate::{AssetLibrary, include_model, include_texture};
 use std::collections::HashMap;
 
-pub fn load_game_assets(al: &mut AssetLibrary, render_api: &impl RenderApi) {
+pub fn load_game_assets(al: &mut AssetLibrary, render_api: &mut impl RenderApi) {
 include_model!(al, "tile_water", "../../../../resources/tiles/tile_water/tile_water.obj", render_api);
 include_texture!(al, "tile_water_base_color", "../../../../resources/tiles/tile_water/BaseColor.png", render_api);
 include_texture!(al, "tile_water_metallic", "../../../../resources/tiles/tile_water/Metallic.png", render_api);

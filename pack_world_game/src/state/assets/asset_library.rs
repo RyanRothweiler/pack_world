@@ -71,7 +71,7 @@ macro_rules! include_texture {
     };
 }
 
-pub fn load_game_assets(al: &mut AssetLibrary, render_api: &impl RenderApi) {
+pub fn load_game_assets(al: &mut AssetLibrary, render_api: &mut impl RenderApi) {
     GEN_game_assets::load_game_assets(al, render_api);
 
     // build tile materials

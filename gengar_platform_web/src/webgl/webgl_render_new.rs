@@ -4,6 +4,7 @@
 /// Once all the methods here have been implemented then webgl_render can be swapped with this
 /// Then we don't need two gl rendering backends.
 use gengar_engine::{matricies::matrix_four_four::*, util::incrementing_map::*, vectors::*};
+use gengar_render_opengl::*;
 
 use web_sys::{
     WebGl2RenderingContext, WebGlBuffer, WebGlFramebuffer, WebGlProgram, WebGlShader, WebGlTexture,
@@ -20,6 +21,24 @@ pub struct WebGlRenderMethods {
 
     shaders: IncrementingMap<WebGlShader>,
     programs: IncrementingMap<WebGlProgram>,
+    vertex_arrays: IncrementingMap<WebGlVertexArrayObject>,
+    buffers: IncrementingMap<WebGlBuffer>,
+    framebuffers: IncrementingMap<WebGlFramebuffer>,
+}
+
+impl WebGlRenderMethods {
+    fn buf_type_to_gl(buf_type: BufferType) -> u32 {
+        match buf_type {
+            BufferType::ArrayBuffer => WebGl2RenderingContext::ARRAY_BUFFER,
+            BufferType::ElementArrayBuffer => WebGl2RenderingContext::ELEMENT_ARRAY_BUFFER,
+        }
+    }
+
+    fn usage_type_to_gl(usage: BufferUsage) -> u32 {
+        match usage {
+            BufferUsage::StaticDraw => WebGl2RenderingContext::STATIC_DRAW,
+        }
+    }
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
@@ -84,27 +103,89 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         self.programs.push(prog) as u32
     }
 
-    fn attach_shader(&self, prog_id: u32, shader_id: u32) {}
+    fn attach_shader(&self, prog_id: u32, shader_id: u32) {
+        let shader: &WebGlShader = self.shaders.get(shader_id as usize);
+        let prog: &WebGlProgram = self.programs.get(prog_id as usize);
 
-    fn link_program(&self, prog_id: u32) {}
+        self.context.attach_shader(&prog, &shader);
+    }
 
-    fn gen_vertex_arrays(&self, count: i32, vao: *mut u32) {}
+    fn link_program(&self, prog_id: u32) {
+        let prog: &WebGlProgram = self.programs.get(prog_id as usize);
+        self.context.link_program(&prog);
+    }
 
-    fn delete_vertex_arrays(&self, count: i32, vao: u32) {}
+    fn gen_vertex_arrays(&mut self, count: i32, vao: *mut u32) {
+        let new_vao: WebGlVertexArrayObject = self
+            .context
+            .create_vertex_array()
+            .expect("Error creating vertex array");
+        unsafe {
+            *vao = self.vertex_arrays.push(new_vao) as u32;
+        }
+    }
 
-    fn delete_buffers(&self, count: i32, buf_id: u32) {}
+    fn delete_vertex_arrays(&self, count: i32, vao_id: u32) {
+        let vao: &WebGlVertexArrayObject = self.vertex_arrays.get(vao_id as usize);
+        self.context.delete_vertex_array(Some(&vao));
+    }
 
-    fn bind_vertex_array(&self, vao_id: u32) {}
+    fn delete_buffers(&self, count: i32, buf_id: u32) {
+        let buf: &WebGlBuffer = self.buffers.get(buf_id as usize);
+        self.context.delete_buffer(Some(buf));
+    }
 
-    fn gen_buffers(&self, count: i32, buffers: *mut u32) {}
+    fn bind_vertex_array(&self, vao_id: u32) {
+        let vao = self.vertex_arrays.get(vao_id as usize);
+        self.context.bind_vertex_array(Some(vao));
+    }
 
-    fn bind_buffer(&self, typ: i32, buf_id: u32) {}
+    fn gen_buffers(&mut self, count: i32, buffers: *mut u32) {
+        assert!(count == 1, "Only count of 1 suported on webgl");
 
-    fn buffer_data_v3(&self, buf_id: i32, data: &Vec<VecThreeFloat>, usage: i32) {}
+        let buf: WebGlBuffer = self
+            .context
+            .create_buffer()
+            .expect("Error generating buffer");
+        unsafe {
+            *buffers = self.buffers.push(buf) as u32;
+        }
+    }
 
-    fn buffer_data_v2(&self, buf_id: i32, data: &Vec<VecTwo>, usage: i32) {}
+    fn bind_buffer(&self, typ: BufferType, buf_id: u32) {
+        let buf = self.buffers.get(buf_id as usize);
+        self.context
+            .bind_buffer(Self::buf_type_to_gl(typ), Some(&buf));
+    }
 
-    fn buffer_data_u32(&self, buf_id: i32, data: &Vec<u32>, usage: i32) {}
+    fn buffer_data_v3(&self, target: BufferType, data: &Vec<VecThreeFloat>, usage: BufferUsage) {
+        let bytes_total = size_of::<f32>() * 3 * data.len();
+
+        let buf = js_sys::ArrayBuffer::new(bytes_total as u32);
+        let buf_view = js_sys::DataView::new(&buf, 0, bytes_total);
+
+        for i in 0..data.len() {
+            let byte_offset = size_of::<f32>() * 3 * i;
+
+            buf_view.set_float32_endian(byte_offset, data[i].x as f32, true);
+            buf_view.set_float32_endian(byte_offset + size_of::<f32>(), data[i].y as f32, true);
+            buf_view.set_float32_endian(
+                byte_offset + (size_of::<f32>() * 2),
+                data[i].z as f32,
+                true,
+            );
+        }
+
+        self.context.buffer_data_with_opt_array_buffer(
+            Self::buf_type_to_gl(target),
+            Some(&buf),
+            Self::usage_type_to_gl(usage),
+        );
+    }
+
+    fn buffer_data_v2(&self, buf_id: BufferType, data: &Vec<VecTwo>, usage: BufferUsage) {}
+
+    fn buffer_data_u32(&self, buf_id: BufferType, data: &Vec<u32>, usage: BufferUsage) {}
 
     fn enable_vertex_attrib_array(&self, location: u32) {}
 

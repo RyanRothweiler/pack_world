@@ -14,7 +14,7 @@ impl Vao {
         }
     }
 
-    pub fn new(render_api: &impl super::RenderApi) -> Self {
+    pub fn new(render_api: &mut impl super::RenderApi) -> Self {
         let mut ret = Self::new_empty();
         ret.id = render_api.create_vao().unwrap();
         ret
@@ -22,7 +22,7 @@ impl Vao {
 
     pub fn upload_v3(
         &self,
-        render_api: &impl super::RenderApi,
+        render_api: &mut impl super::RenderApi,
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
         location: u32,
@@ -32,7 +32,7 @@ impl Vao {
 
     pub fn upload_v2(
         &self,
-        render_api: &impl super::RenderApi,
+        render_api: &mut impl super::RenderApi,
         data: &Vec<VecTwo>,
         location: u32,
     ) -> Result<u32, Error> {

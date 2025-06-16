@@ -91,7 +91,7 @@ const BUTTON_BG: Color = Color {
 pub fn game_init_ogl(
     gs: &mut State,
     es: &mut EngineState,
-    render_api: &OglRenderApi,
+    render_api: &mut OglRenderApi,
     platform_api: &PlatformApi,
 ) {
     game_init(gs, es, render_api, platform_api)
@@ -100,7 +100,7 @@ pub fn game_init_ogl(
 pub fn game_init(
     gs: &mut State,
     es: &mut EngineState,
-    render_api: &impl RenderApi,
+    render_api: &mut impl RenderApi,
     platform_api: &PlatformApi,
 ) {
     (platform_api.send_event)(AnalyticsEvent::AppStart);
@@ -335,7 +335,7 @@ pub fn game_loop_ogl(
     gs: &mut State,
     es: &mut EngineState,
     input: &mut Input,
-    render_api: &OglRenderApi,
+    render_api: &mut OglRenderApi,
     platform_api: &PlatformApi,
 ) {
     game_loop(prev_delta_time, gs, es, input, render_api, platform_api);
@@ -347,7 +347,7 @@ pub fn game_loop(
     gs: &mut State,
     es: &mut EngineState,
     input: &mut Input,
-    render_api: &impl RenderApi,
+    render_api: &mut impl RenderApi,
     platform_api: &PlatformApi,
 ) {
     gengar_engine::debug::init_context(

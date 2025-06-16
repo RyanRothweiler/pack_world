@@ -33,7 +33,7 @@ impl Model {
 
     // This assumes locations for shader layout data.
     // If the layout locations in the shader changes this will break
-    pub fn load_upload(data: &str, render_api: &impl RenderApi) -> Result<Self, Error> {
+    pub fn load_upload(data: &str, render_api: &mut impl RenderApi) -> Result<Self, Error> {
         let mut model = obj::load(data)?;
 
         model.vao = Vao::new(render_api);

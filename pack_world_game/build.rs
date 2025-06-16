@@ -20,7 +20,7 @@ use std::collections::HashMap;
 
     writeln!(
         output_file,
-        "pub fn load_game_assets(al: &mut AssetLibrary, render_api: &impl RenderApi) {{"
+        "pub fn load_game_assets(al: &mut AssetLibrary, render_api: &mut impl RenderApi) {{"
     )
     .unwrap();
 

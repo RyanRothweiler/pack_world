@@ -9,7 +9,7 @@
 )]
 
 use gengar_engine::{matricies::matrix_four_four::*, vectors::*};
-use gengar_render_opengl::*;
+use gengar_render_opengl::{gl_types::*, *};
 
 use libc;
 
@@ -116,6 +116,21 @@ pub struct WglMethods {
     glFramebufferRenderbuffer: func_FramebufferRenderbuffer,
 }
 
+impl WglMethods {
+    fn buffer_type_to_gl(buf_type: BufferType) -> i32 {
+        match buf_type {
+            BufferType::ArrayBuffer => GL_ARRAY_BUFFER,
+            BufferType::ElementArrayBuffer => GL_ELEMENT_ARRAY_BUFFER,
+        }
+    }
+
+    fn buffer_usage_to_gl(usage: BufferUsage) -> i32 {
+        match usage {
+            BufferUsage::StaticDraw => GL_STATIC_DRAW,
+        }
+    }
+}
+
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
     fn create_shader(&mut self, id: i32) -> u32 {
         return (self.glCreateShader)(id);
@@ -165,7 +180,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glLinkProgram)(prog_id);
     }
 
-    fn gen_vertex_arrays(&self, count: i32, vao: *mut u32) {
+    fn gen_vertex_arrays(&mut self, count: i32, vao: *mut u32) {
         (self.glGenVertexArrays)(count, vao);
     }
 
@@ -181,38 +196,53 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glBindVertexArray)(vao_id);
     }
 
-    fn gen_buffers(&self, count: i32, buffers: *mut u32) {
+    fn gen_buffers(&mut self, count: i32, buffers: *mut u32) {
         (self.glGenBuffers)(count, buffers);
     }
 
-    fn bind_buffer(&self, typ: i32, buf_id: u32) {
-        (self.glBindBuffer)(typ, buf_id);
+    fn bind_buffer(&self, typ: BufferType, buf_id: u32) {
+        (self.glBindBuffer)(Self::buffer_type_to_gl(typ), buf_id);
     }
 
-    fn buffer_data_v3(&self, buf_id: i32, data: &Vec<VecThreeFloat>, usage: i32) {
+    fn buffer_data_v3(&self, typ: BufferType, data: &Vec<VecThreeFloat>, usage: BufferUsage) {
         let mut list_c: Vec<VecThreeFloatC> = data
             .into_iter()
             .map(|input| VecThreeFloatC::from(input))
             .collect();
         let ptr = list_c.as_mut_ptr() as *mut libc::c_void;
         let size: usize = std::mem::size_of::<VecThreeFloatC>() * list_c.len();
-        (self.glBufferData)(buf_id, i32::try_from(size).unwrap(), ptr, usage);
+        (self.glBufferData)(
+            Self::buffer_type_to_gl(typ),
+            i32::try_from(size).unwrap(),
+            ptr,
+            Self::buffer_usage_to_gl(usage),
+        );
     }
 
-    fn buffer_data_v2(&self, buf_id: i32, data: &Vec<VecTwo>, usage: i32) {
+    fn buffer_data_v2(&self, buf_type: BufferType, data: &Vec<VecTwo>, usage: BufferUsage) {
         let mut list_c: Vec<VecTwoC> = data.into_iter().map(|input| VecTwoC::from(input)).collect();
         let ptr = list_c.as_mut_ptr() as *mut libc::c_void;
         let size: usize = std::mem::size_of::<VecTwoC>() * list_c.len();
-        (self.glBufferData)(buf_id, i32::try_from(size).unwrap(), ptr, usage);
+        (self.glBufferData)(
+            Self::buffer_type_to_gl(buf_type),
+            i32::try_from(size).unwrap(),
+            ptr,
+            Self::buffer_usage_to_gl(usage),
+        );
     }
 
-    fn buffer_data_u32(&self, buf_id: i32, data: &Vec<u32>, usage: i32) {
+    fn buffer_data_u32(&self, buf_type: BufferType, data: &Vec<u32>, usage: BufferUsage) {
         let mut list_c: Vec<u32> = data.clone();
 
         let ptr = list_c.as_mut_ptr() as *mut libc::c_void;
         let size: usize = std::mem::size_of::<u32>() * data.len();
 
-        (self.glBufferData)(buf_id, i32::try_from(size).unwrap(), ptr, usage);
+        (self.glBufferData)(
+            Self::buffer_type_to_gl(buf_type),
+            i32::try_from(size).unwrap(),
+            ptr,
+            Self::buffer_usage_to_gl(usage),
+        );
     }
 
     fn enable_vertex_attrib_array(&self, location: u32) {

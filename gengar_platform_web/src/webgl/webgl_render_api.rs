@@ -155,7 +155,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         Ok(prog_id)
     }
 
-    fn create_vao(&self) -> Result<u32, EngineError> {
+    fn create_vao(&mut self) -> Result<u32, EngineError> {
         let context = unsafe { GL_CONTEXT.as_mut().ok_or(EngineError::WebGlNoContext)? };
 
         let vao = context
@@ -171,7 +171,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
     }
 
     fn vao_upload_v3(
-        &self,
+        &mut self,
         vao: &Vao,
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
@@ -225,7 +225,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
     }
 
     fn vao_upload_v2(
-        &self,
+        &mut self,
         vao: &Vao,
         data: &Vec<VecTwo>,
         location: u32,
@@ -326,7 +326,11 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         Ok(tex_id)
     }
 
-    fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, EngineError> {
+    fn build_frame_buffer(
+        &mut self,
+        width: i32,
+        height: i32,
+    ) -> Result<FrameBufferPack, EngineError> {
         let context = unsafe { GL_CONTEXT.as_mut().unwrap() };
         let gl_state: &mut WebGLState = unsafe { GL_STATE.as_mut().unwrap() };
 
@@ -443,7 +447,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
     }
 
     fn draw_frame_buffer(
-        &self,
+        &mut self,
         frame_buffer: u32,
         render_pack: &mut RenderPack,
         components: &Components,

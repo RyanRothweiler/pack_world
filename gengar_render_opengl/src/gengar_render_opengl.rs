@@ -18,7 +18,7 @@ use gengar_engine::{
     vectors::*,
 };
 
-mod gl_types;
+pub mod gl_types;
 
 use gl_types::*;
 
@@ -26,6 +26,15 @@ use gl_types::*;
 struct LightRenderInfo {
     pub position: VecThreeFloat,
     pub power: VecThreeFloat,
+}
+
+pub enum BufferType {
+    ArrayBuffer,
+    ElementArrayBuffer,
+}
+
+pub enum BufferUsage {
+    StaticDraw,
 }
 
 // Adjust the viewport to take into account the windows titlebar area.
@@ -48,10 +57,10 @@ pub trait OGLPlatformImpl {
     fn create_program(&mut self) -> u32;
     fn attach_shader(&self, prog_id: u32, shader_id: u32);
     fn link_program(&self, prog_id: u32);
-    fn gen_vertex_arrays(&self, count: i32, vao: *mut u32);
+    fn gen_vertex_arrays(&mut self, count: i32, vao: *mut u32);
     fn bind_vertex_array(&self, vao_id: u32);
-    fn gen_buffers(&self, count: i32, buffers: *mut u32);
-    fn bind_buffer(&self, typ: i32, buf_id: u32);
+    fn gen_buffers(&mut self, count: i32, buffers: *mut u32);
+    fn bind_buffer(&self, typ: BufferType, buf_id: u32);
     fn gen_textures(&self, count: i32, id: *mut u32);
     fn bind_texture(&self, typ: i32, id: u32);
     fn tex_parameter_i(&self, target: u32, pname: u32, param: i32);
@@ -79,9 +88,9 @@ pub trait OGLPlatformImpl {
     fn delete_vertex_arrays(&self, count: i32, vao: u32);
     fn delete_buffers(&self, count: i32, buf_id: u32);
 
-    fn buffer_data_v3(&self, buf_id: i32, data: &Vec<VecThreeFloat>, usage: i32);
-    fn buffer_data_v2(&self, buf_id: i32, data: &Vec<VecTwo>, usage: i32);
-    fn buffer_data_u32(&self, buf_id: i32, data: &Vec<u32>, usaage: i32);
+    fn buffer_data_v3(&self, target: BufferType, data: &Vec<VecThreeFloat>, usage: BufferUsage);
+    fn buffer_data_v2(&self, target: BufferType, data: &Vec<VecTwo>, usage: BufferUsage);
+    fn buffer_data_u32(&self, target: BufferType, data: &Vec<u32>, usage: BufferUsage);
 
     fn enable_vertex_attrib_array(&self, location: u32);
     fn vertex_attrib_pointer_v3(&self, location: u32);
@@ -184,14 +193,14 @@ impl EngineRenderApiTrait for OglRenderApi {
         Ok(prog_id)
     }
 
-    fn create_vao(&self) -> Result<u32, EngineError> {
+    fn create_vao(&mut self) -> Result<u32, EngineError> {
         let mut vao_id: u32 = 0;
         self.platform_api.gen_vertex_arrays(1, &mut vao_id);
         Ok(vao_id)
     }
 
     fn vao_upload_v3(
-        &self,
+        &mut self,
         vao: &Vao,
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
@@ -203,13 +212,14 @@ impl EngineRenderApiTrait for OglRenderApi {
         let mut buf_id: u32 = 0;
         self.platform_api.gen_buffers(1, &mut buf_id);
 
-        self.platform_api.bind_buffer(GL_ARRAY_BUFFER, buf_id);
         self.platform_api
-            .buffer_data_v3(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
+            .bind_buffer(BufferType::ArrayBuffer, buf_id);
+        self.platform_api
+            .buffer_data_v3(BufferType::ArrayBuffer, data, BufferUsage::StaticDraw);
         self.platform_api.vertex_attrib_pointer_v3(location);
         self.platform_api.enable_vertex_attrib_array(location);
 
-        self.platform_api.bind_buffer(GL_ARRAY_BUFFER, 0);
+        self.platform_api.bind_buffer(BufferType::ArrayBuffer, 0);
 
         self.platform_api.bind_vertex_array(0);
 
@@ -217,7 +227,7 @@ impl EngineRenderApiTrait for OglRenderApi {
     }
 
     fn vao_upload_v2(
-        &self,
+        &mut self,
         vao: &Vao,
         data: &Vec<VecTwo>,
         location: u32,
@@ -227,13 +237,14 @@ impl EngineRenderApiTrait for OglRenderApi {
         let mut buf_id: u32 = 0;
         self.platform_api.gen_buffers(1, &mut buf_id);
 
-        self.platform_api.bind_buffer(GL_ARRAY_BUFFER, buf_id);
         self.platform_api
-            .buffer_data_v2(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
+            .bind_buffer(BufferType::ArrayBuffer, buf_id);
+        self.platform_api
+            .buffer_data_v2(BufferType::ArrayBuffer, data, BufferUsage::StaticDraw);
         self.platform_api.vertex_attrib_pointer_v2(location);
         self.platform_api.enable_vertex_attrib_array(location);
 
-        self.platform_api.bind_buffer(GL_ARRAY_BUFFER, 0);
+        self.platform_api.bind_buffer(BufferType::ArrayBuffer, 0);
 
         self.platform_api.bind_vertex_array(0);
 
@@ -280,7 +291,11 @@ impl EngineRenderApiTrait for OglRenderApi {
         Ok(tex_id)
     }
 
-    fn build_frame_buffer(&self, width: i32, height: i32) -> Result<FrameBufferPack, EngineError> {
+    fn build_frame_buffer(
+        &mut self,
+        width: i32,
+        height: i32,
+    ) -> Result<FrameBufferPack, EngineError> {
         let mut pack = FrameBufferPack {
             frame_buffer: 0,
             color_buffer: 0,
@@ -371,7 +386,7 @@ impl EngineRenderApiTrait for OglRenderApi {
     }
 
     fn draw_frame_buffer(
-        &self,
+        &mut self,
         frame_buffer: u32,
         render_pack: &mut RenderPack,
         components: &Components,
@@ -408,7 +423,7 @@ impl EngineRenderApiTrait for OglRenderApi {
     }
 }
 
-pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &OglRenderApi) {
+pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &mut OglRenderApi) {
     render_api.platform_api.viewport(
         0,
         -WINDOWS_TITLE_BAR_ADJ,
@@ -430,22 +445,22 @@ pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &OglRenderA
     render_render_pack(
         es.render_system.get_pack(RenderPackID::NewWorld),
         &es.components,
-        &render_api,
+        render_api,
     );
     render_render_pack(
         es.render_system.get_pack(RenderPackID::Shop),
         &es.components,
-        &render_api,
+        render_api,
     );
     render_render_pack(
         es.render_system.get_pack(RenderPackID::World),
         &es.components,
-        &render_api,
+        render_api,
     );
     render_render_pack(
         es.render_system.get_pack(RenderPackID::UI),
         &es.components,
-        &render_api,
+        render_api,
     );
     /*
     if es.render_packs.len() > 4 {
@@ -484,7 +499,11 @@ pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &OglRenderA
     */
 }
 
-fn render_render_pack(pack: &mut RenderPack, components: &Components, render_api: &OglRenderApi) {
+fn render_render_pack(
+    pack: &mut RenderPack,
+    components: &Components,
+    render_api: &mut OglRenderApi,
+) {
     let mut lights: Vec<LightRenderInfo> = vec![];
     for l in &pack.lights {
         lights.push(LightRenderInfo {
@@ -501,7 +520,7 @@ fn render_list(
     lights: Vec<LightRenderInfo>,
     render_commands: &mut Vec<RenderCommand>,
     camera: &Camera,
-    render_api: &OglRenderApi,
+    render_api: &mut OglRenderApi,
 ) {
     for command in render_commands {
         render_api.platform_api.use_program(command.prog_id);
