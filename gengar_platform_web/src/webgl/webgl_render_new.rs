@@ -9,8 +9,8 @@ use gengar_engine::{
 use gengar_render_opengl::*;
 
 use web_sys::{
-    WebGl2RenderingContext, WebGlBuffer, WebGlFramebuffer, WebGlProgram, WebGlShader, WebGlTexture,
-    WebGlUniformLocation, WebGlVertexArrayObject,
+    WebGl2RenderingContext, WebGlBuffer, WebGlFramebuffer, WebGlProgram, WebGlRenderbuffer,
+    WebGlShader, WebGlTexture, WebGlUniformLocation, WebGlVertexArrayObject,
 };
 
 use js_sys;
@@ -27,6 +27,8 @@ pub struct WebGlRenderMethods {
     buffers: IncrementingMap<WebGlBuffer>,
     framebuffers: IncrementingMap<WebGlFramebuffer>,
     textures: IncrementingMap<WebGlTexture>,
+    uniform_locations: IncrementingMap<WebGlUniformLocation>,
+    render_buffers: IncrementingMap<WebGlRenderbuffer>,
 }
 
 impl WebGlRenderMethods {
@@ -73,6 +75,24 @@ impl WebGlRenderMethods {
         match cap {
             Capability::DepthTest => WebGl2RenderingContext::DEPTH_TEST,
             Capability::Blend => gl_types::GL_BLEND,
+        }
+    }
+
+    fn blend_func_source_factor_to_gl(sf: BlendFuncSourceFactor) -> u32 {
+        match sf {
+            BlendFuncSourceFactor::SourceAlpha => WebGl2RenderingContext::SRC_ALPHA,
+        }
+    }
+
+    fn blend_func_dest_factor_to_gl(df: BlendFuncDestFactor) -> u32 {
+        match df {
+            BlendFuncDestFactor::OneMinusSourceAlpha => WebGl2RenderingContext::ONE_MINUS_SRC_ALPHA,
+        }
+    }
+
+    fn depth_comparison_to_gl(comp: DepthComparison) -> u32 {
+        match comp {
+            DepthComparison::LessThanOrEqualTo => WebGl2RenderingContext::LEQUAL,
         }
     }
 }
@@ -385,41 +405,132 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         self.context.disable(Self::capability_to_gl(cap));
     }
 
-    fn blend_func(&self, func: u32, setting: u32) {}
-
-    fn depth_func(&self, func: u32) {}
-
-    fn clear_color(&self, r: f32, g: f32, b: f32, a: f32) {}
-
-    fn clear(&self) {}
-
-    fn use_program(&self, prog_id: u32) {}
-
-    fn get_uniform_location(&self, prog_id: u32, uniform_name: &str) -> i32 {
-        0
+    fn blend_func(&self, sf: BlendFuncSourceFactor, df: BlendFuncDestFactor) {
+        self.context.blend_func(
+            Self::blend_func_source_factor_to_gl(sf),
+            Self::blend_func_dest_factor_to_gl(df),
+        );
     }
 
-    fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44) {}
+    fn depth_func(&self, comp: DepthComparison) {
+        self.context.depth_func(Self::depth_comparison_to_gl(comp));
+    }
 
-    fn uniform_4fv(&self, loc: i32, count: i32, data: &VecFour) {}
+    fn clear_color(&self, r: f32, g: f32, b: f32, a: f32) {
+        self.context.clear_color(r, g, b, a);
+    }
 
-    fn uniform_3fv(&self, loc: i32, count: i32, data: &VecThreeFloat) {}
+    fn clear(&self) {
+        self.context.clear(
+            WebGl2RenderingContext::COLOR_BUFFER_BIT
+                | WebGl2RenderingContext::DEPTH_BUFFER_BIT
+                | WebGl2RenderingContext::STENCIL_BUFFER_BIT,
+        );
+    }
 
-    fn uniform_1f(&self, loc: i32, data: f32) {}
+    fn use_program(&self, prog_id: u32) {
+        let gl_prog = self.programs.get(prog_id as usize);
+        self.context.use_program(Some(gl_prog));
+    }
 
-    fn uniform_1i(&self, loc: i32, data: i32) {}
+    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> i32 {
+        let gl_prog = self.programs.get(prog_id as usize);
 
-    fn active_texture(&self, id: i32) {}
+        if let Some(gl_uniform_loc) = self.context.get_uniform_location(gl_prog, uniform_name) {
+            return self.uniform_locations.push(gl_uniform_loc) as i32;
+        }
 
-    fn draw_elements(&self, mode: i32, indecies: &Vec<u32>) {}
+        // -1 as default invalid. Should return a result here in stead
+        -1
+    }
 
-    fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {}
+    fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44) {
+        let gl_loc = self.uniform_locations.get(loc as usize);
 
-    fn gen_render_buffers(&self, count: i32, id: *mut u32) {}
+        let mut elems: [f32; 16] = [0.0; 16];
+        for i in 0..data.elements.len() {
+            elems[i] = data.elements[i] as f32;
+        }
+        self.context
+            .uniform_matrix4fv_with_f32_array(Some(gl_loc), transpose, &elems);
+    }
 
-    fn bind_render_buffer(&self, ty: u32, id: u32) {}
+    fn uniform_4fv(&self, loc: i32, count: i32, data: &VecFour) {
+        let gl_loc = self.uniform_locations.get(loc as usize);
 
-    fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32) {}
+        let elems: [f32; 4] = [data.x as f32, data.y as f32, data.z as f32, data.w as f32];
+        self.context.uniform4fv_with_f32_array(Some(gl_loc), &elems);
+    }
 
-    fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32) {}
+    fn uniform_3fv(&self, loc: i32, count: i32, data: &VecThreeFloat) {
+        let gl_loc = self.uniform_locations.get(loc as usize);
+
+        let elems: [f32; 3] = [data.x as f32, data.y as f32, data.z as f32];
+        self.context.uniform3fv_with_f32_array(Some(gl_loc), &elems);
+    }
+
+    fn uniform_1f(&self, loc: i32, data: f32) {
+        let gl_loc = self.uniform_locations.get(loc as usize);
+        self.context.uniform1f(Some(gl_loc), data);
+    }
+
+    fn uniform_1i(&self, loc: i32, data: i32) {
+        let gl_loc = self.uniform_locations.get(loc as usize);
+        self.context.uniform1i(Some(gl_loc), data);
+    }
+
+    fn active_texture(&self, id: i32) {
+        self.context
+            .active_texture(WebGl2RenderingContext::TEXTURE0 + id as u32);
+    }
+
+    fn draw_elements(&self, mode: i32, indices: &Vec<u32>) {
+        self.context.draw_elements_with_i32(
+            WebGl2RenderingContext::TRIANGLES,
+            indices.len() as i32,
+            WebGl2RenderingContext::UNSIGNED_SHORT,
+            0,
+        )
+    }
+
+    fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {
+        self.context.viewport(x, y, width, height);
+    }
+
+    fn gen_render_buffers(&mut self, count: i32, id: *mut u32) {
+        assert!(count == 1, "Only 1 render buffer suppored currently.");
+        let rbo = self
+            .context
+            .create_renderbuffer()
+            .expect("Error generating render buffer");
+        unsafe {
+            *id = self.render_buffers.push(rbo) as u32;
+        }
+    }
+
+    // todo ID needs to chave to an option to allow unbinding
+    fn bind_render_buffer(&self, ty: u32, id: u32) {
+        let gl_rbo = self.render_buffers.get(id as usize);
+        self.context
+            .bind_renderbuffer(WebGl2RenderingContext::RENDERBUFFER, Some(&gl_rbo));
+    }
+
+    fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32) {
+        self.context.renderbuffer_storage(
+            WebGl2RenderingContext::RENDERBUFFER,
+            WebGl2RenderingContext::DEPTH24_STENCIL8,
+            width,
+            height,
+        );
+    }
+
+    fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32) {
+        let gl_rbo = self.render_buffers.get(rbid as usize);
+        self.context.framebuffer_renderbuffer(
+            WebGl2RenderingContext::FRAMEBUFFER,
+            WebGl2RenderingContext::DEPTH_STENCIL_ATTACHMENT,
+            WebGl2RenderingContext::RENDERBUFFER,
+            Some(&gl_rbo),
+        );
+    }
 }

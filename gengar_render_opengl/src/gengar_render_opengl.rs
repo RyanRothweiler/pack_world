@@ -55,6 +55,18 @@ pub enum Capability {
     Blend,
 }
 
+pub enum BlendFuncSourceFactor {
+    SourceAlpha,
+}
+
+pub enum BlendFuncDestFactor {
+    OneMinusSourceAlpha,
+}
+
+pub enum DepthComparison {
+    LessThanOrEqualTo,
+}
+
 // Adjust the viewport to take into account the windows titlebar area.
 // Really not a great solution and obviously will break on other platforms.
 const WINDOWS_TITLE_BAR_ADJ: i32 = 40;
@@ -94,8 +106,8 @@ pub trait OGLPlatformImpl {
     );
     fn enable(&self, cap: Capability);
     fn disable(&self, cap: Capability);
-    fn depth_func(&self, func: u32);
-    fn blend_func(&self, func: u32, setting: u32);
+    fn depth_func(&self, comp: DepthComparison);
+    fn blend_func(&self, source_func: BlendFuncSourceFactor, desc_func: BlendFuncDestFactor);
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32);
     fn clear(&self);
     fn use_program(&self, prog_id: u32);
@@ -114,7 +126,7 @@ pub trait OGLPlatformImpl {
     fn vertex_attrib_pointer_v3(&self, location: u32);
     fn vertex_attrib_pointer_v2(&self, location: u32);
 
-    fn get_uniform_location(&self, prog_id: u32, uniform_name: &str) -> i32;
+    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> i32;
     fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44);
     fn uniform_4fv(&self, loc: i32, count: i32, data: &VecFour);
     fn uniform_3fv(&self, loc: i32, count: i32, data: &VecThreeFloat);
@@ -127,7 +139,7 @@ pub trait OGLPlatformImpl {
     fn check_frame_buffer_status(&self, ty: u32) -> u32;
     fn draw_buffers(&self, ty: i32, attachments: Vec<u32>);
 
-    fn gen_render_buffers(&self, count: i32, id: *mut u32);
+    fn gen_render_buffers(&mut self, count: i32, id: *mut u32);
     fn bind_render_buffer(&self, ty: u32, id: u32);
     fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32);
     fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32);
@@ -422,10 +434,13 @@ impl EngineRenderApiTrait for OglRenderApi {
 
         self.platform_api.enable(Capability::DepthTest);
         self.platform_api.enable(Capability::Blend);
-        self.platform_api
-            .blend_func(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        self.platform_api.blend_func(
+            BlendFuncSourceFactor::SourceAlpha,
+            BlendFuncDestFactor::OneMinusSourceAlpha,
+        );
 
-        self.platform_api.depth_func(GL_LEQUAL);
+        self.platform_api
+            .depth_func(DepthComparison::LessThanOrEqualTo);
 
         self.platform_api.clear_color(0.0, 0.0, 0.0, 0.0);
         self.platform_api.clear();
@@ -453,11 +468,14 @@ pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &mut OglRen
     render_api.platform_api.enable(Capability::DepthTest);
     render_api.platform_api.enable(Capability::Blend);
 
+    render_api.platform_api.blend_func(
+        BlendFuncSourceFactor::SourceAlpha,
+        BlendFuncDestFactor::OneMinusSourceAlpha,
+    );
+
     render_api
         .platform_api
-        .blend_func(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    render_api.platform_api.depth_func(GL_LEQUAL);
+        .depth_func(DepthComparison::LessThanOrEqualTo);
 
     render_api.platform_api.clear_color(0.0, 0.0, 0.0, 1.0);
     render_api.platform_api.clear();

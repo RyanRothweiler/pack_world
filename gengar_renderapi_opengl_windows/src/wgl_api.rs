@@ -155,6 +155,24 @@ impl WglMethods {
             Capability::Blend => gl_types::GL_BLEND,
         }
     }
+
+    fn blend_func_source_factor_to_gl(sf: BlendFuncSourceFactor) -> u32 {
+        match sf {
+            BlendFuncSourceFactor::SourceAlpha => gl_types::GL_SRC_ALPHA,
+        }
+    }
+
+    fn blend_func_dest_factor_to_gl(df: BlendFuncDestFactor) -> u32 {
+        match df {
+            BlendFuncDestFactor::OneMinusSourceAlpha => gl_types::GL_ONE_MINUS_SRC_ALPHA,
+        }
+    }
+
+    fn depth_comparison_to_gl(comp: DepthComparison) -> u32 {
+        match comp {
+            DepthComparison::LessThanOrEqualTo => gl_types::GL_LEQUAL,
+        }
+    }
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
@@ -374,15 +392,18 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         }
     }
 
-    fn blend_func(&self, func: u32, setting: u32) {
+    fn blend_func(&self, sf: BlendFuncSourceFactor, df: BlendFuncDestFactor) {
         unsafe {
-            glBlendFunc(func, setting);
+            glBlendFunc(
+                Self::blend_func_source_factor_to_gl(sf),
+                Self::blend_func_dest_factor_to_gl(df),
+            );
         }
     }
 
-    fn depth_func(&self, func: u32) {
+    fn depth_func(&self, comp: DepthComparison) {
         unsafe {
-            glDepthFunc(func);
+            glDepthFunc(Self::depth_comparison_to_gl(comp));
         }
     }
 
@@ -398,7 +419,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glUseProgram)(prog_id);
     }
 
-    fn get_uniform_location(&self, prog_id: u32, uniform_name: &str) -> i32 {
+    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> i32 {
         let name_c = std::ffi::CString::new(uniform_name).unwrap();
         return (self.glGetUniformLocation)(prog_id, name_c.as_ptr());
     }
@@ -445,7 +466,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         }
     }
 
-    fn gen_render_buffers(&self, count: i32, id: *mut u32) {
+    fn gen_render_buffers(&mut self, count: i32, id: *mut u32) {
         (self.glGenRenderbuffers)(count, id);
     }
 
