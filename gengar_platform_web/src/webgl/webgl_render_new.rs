@@ -370,9 +370,9 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
             .unwrap();
     }
 
-    fn enable(&self, feature: u32) {}
+    fn enable(&self, cap: Capability) {}
 
-    fn disable(&self, feature: u32) {}
+    fn disable(&self, cap: Capability) {}
 
     fn blend_func(&self, func: u32, setting: u32) {}
 

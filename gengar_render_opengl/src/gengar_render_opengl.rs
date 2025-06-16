@@ -50,6 +50,11 @@ pub enum TextureFilterParameter {
     Linear,
 }
 
+pub enum Capability {
+    DepthTest,
+    Blend,
+}
+
 // Adjust the viewport to take into account the windows titlebar area.
 // Really not a great solution and obviously will break on other platforms.
 const WINDOWS_TITLE_BAR_ADJ: i32 = 40;
@@ -87,8 +92,8 @@ pub trait OGLPlatformImpl {
         height: i32,
         image_data: Option<&Vec<u8>>,
     );
-    fn enable(&self, feature: u32);
-    fn disable(&self, feature: u32);
+    fn enable(&self, cap: Capability);
+    fn disable(&self, cap: Capability);
     fn depth_func(&self, func: u32);
     fn blend_func(&self, func: u32, setting: u32);
     fn clear_color(&self, r: f32, g: f32, b: f32, a: f32);
@@ -415,8 +420,8 @@ impl EngineRenderApiTrait for OglRenderApi {
             render_pack.camera.resolution.y as i32,
         );
 
-        self.platform_api.enable(GL_DEPTH_TEST);
-        self.platform_api.enable(GL_BLEND);
+        self.platform_api.enable(Capability::DepthTest);
+        self.platform_api.enable(Capability::Blend);
         self.platform_api
             .blend_func(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -445,8 +450,9 @@ pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &mut OglRen
         resolution.y as i32,
     );
 
-    render_api.platform_api.enable(GL_DEPTH_TEST);
-    render_api.platform_api.enable(GL_BLEND);
+    render_api.platform_api.enable(Capability::DepthTest);
+    render_api.platform_api.enable(Capability::Blend);
+
     render_api
         .platform_api
         .blend_func(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

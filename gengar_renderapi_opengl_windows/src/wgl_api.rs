@@ -148,6 +148,13 @@ impl WglMethods {
             TextureFilterParameter::Linear => gl_types::GL_LINEAR,
         }
     }
+
+    fn capability_to_gl(cap: Capability) -> u32 {
+        match cap {
+            Capability::DepthTest => gl_types::GL_DEPTH_TEST,
+            Capability::Blend => gl_types::GL_BLEND,
+        }
+    }
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
@@ -355,15 +362,15 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         }
     }
 
-    fn enable(&self, feature: u32) {
+    fn enable(&self, cap: Capability) {
         unsafe {
-            glEnable(feature);
+            glEnable(Self::capability_to_gl(cap));
         }
     }
 
-    fn disable(&self, feature: u32) {
+    fn disable(&self, cap: Capability) {
         unsafe {
-            glDisable(feature);
+            glDisable(Self::capability_to_gl(cap));
         }
     }
 
