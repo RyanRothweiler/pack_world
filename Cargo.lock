@@ -97,6 +97,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "engine_render_test"
+version = "0.1.0"
+dependencies = [
+ "gengar_engine",
+ "gengar_render_opengl",
+]
+
+[[package]]
 name = "fdeflate"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -127,10 +135,10 @@ name = "gengar_platform_web"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
+ "engine_render_test",
  "gengar_engine",
  "gengar_render_opengl",
  "js-sys",
- "pack_world_game",
  "rexie",
  "serde",
  "serde-wasm-bindgen",
