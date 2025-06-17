@@ -1,6 +1,6 @@
 #![allow(
     unused_variables,
-    // unused_imports,
+    unused_imports,
     dead_code,
     unused_assignments,
     static_mut_refs,
@@ -13,6 +13,7 @@ use gengar_engine::{
     analytics::*, error::Error, input::*, platform_api::PlatformApi, state::State as EngineState,
     vectors::*,
 };
+use gengar_render_opengl::*;
 use js_sys::{Date, Math};
 use std::{
     collections::HashMap,
@@ -30,12 +31,11 @@ mod supabase;
 mod webgl;
 
 use idb::*;
-//webgl_render::*,
-use webgl::webgl_render_api::*;
+use webgl::{webgl_render::*, webgl_render_api::*};
 
 static mut ENGINE_STATE: Option<EngineState> = None;
 static mut GAME_STATE: Option<game::state::State> = None;
-static mut RENDER_API: Option<WebGLRenderApi> = None;
+static mut RENDER_API: Option<OglRenderApi> = None;
 static mut INPUT: Option<Input> = None;
 
 static KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
@@ -199,9 +199,11 @@ pub fn start() {
 
     unsafe {
         webgl::webgl_render_api::GL_STATE = Some(gl_state);
-        webgl::webgl_render_api::GL_CONTEXT = Some(gl_context);
+        webgl::webgl_render_api::GL_CONTEXT = Some(gl_context.clone());
 
-        RENDER_API = Some(get_render_api());
+        RENDER_API = Some(gengar_render_opengl::OglRenderApi {
+            platform_api: Box::new(crate::webgl::webgl_api::WebGlRenderMethods::new(gl_context)),
+        });
         INPUT = Some(Input::new());
 
         ENGINE_STATE = Some(gengar_engine::state::State::new(resolution));
@@ -357,21 +359,11 @@ pub fn main_loop() {
         );
         gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
 
-        todo!("fix rendering with new light system");
-        /*
-            let light_trans = ENGINE_STATE.as_mut().unwrap().transforms
-                [GAME_STATE.as_mut().unwrap().light_trans.unwrap()]
-            .global_matrix
-            .get_position();
-
         render(
             ENGINE_STATE.as_mut().unwrap(),
-            RENDER_API.as_mut().unwrap(),
             &resolution,
-            &gl_context,
-            light_trans,
+            RENDER_API.as_mut().unwrap(),
         );
-        */
     }
 }
 

@@ -6,6 +6,13 @@ pub struct IncrementingMap<T> {
 }
 
 impl<T> IncrementingMap<T> {
+    pub fn new() -> IncrementingMap<T> {
+        Self {
+            data: HashMap::new(),
+            id: 0,
+        }
+    }
+
     pub fn push(&mut self, item: T) -> usize {
         let id = self.data.len();
         self.data.insert(id, item);

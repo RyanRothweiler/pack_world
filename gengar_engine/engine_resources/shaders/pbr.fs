@@ -172,7 +172,7 @@ void main()
     // reflectance equation
     vec3 Lo = vec3(0.0);
     
-    for (int i = 0; i < lightsCount; ++i) 
+    for (int i = 0; i < int(lightsCount); ++i) 
     {
         vec3 lp = lightPos;
         vec3 power = lightColor;

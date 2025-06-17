@@ -9,7 +9,7 @@ use gengar_engine::{
 };
 use web_sys::WebGl2RenderingContext;
 
-pub fn render(
+pub fn render_old(
     es: &mut EngineState,
     render_api: &mut WebGLRenderApi,
     resolution: &VecTwo,

@@ -1,3 +1,4 @@
+use crate::webgl::webgl_api::WebGlRenderMethods;
 use gengar_engine::{
     error::Error as EngineError,
     matricies::matrix_four_four::*,
@@ -11,18 +12,18 @@ use gengar_engine::{
     state::components::*,
     vectors::*,
 };
-
+use gengar_render_opengl::OglRenderApi;
+use js_sys;
+use std::{collections::HashMap, mem::size_of, sync::LazyLock};
 use web_sys::{
     WebGl2RenderingContext, WebGlBuffer, WebGlFramebuffer, WebGlProgram, WebGlShader, WebGlTexture,
     WebGlUniformLocation, WebGlVertexArrayObject,
 };
 
-use js_sys;
-use std::collections::HashMap;
-use std::mem::size_of;
-
 pub static mut GL_CONTEXT: Option<WebGl2RenderingContext> = None;
 pub static mut GL_STATE: Option<WebGLState> = None;
+
+// pub static mut RAPI: Option<OglRenderApi> = None;
 
 pub struct WebGLState {
     pub programs: HashMap<u32, WebGlProgram>,
@@ -63,9 +64,10 @@ pub struct WebGLRenderApi {
     pub gl_uniform_matrix_4fv: fn(&WebGlUniformLocation, bool, &M44),
     pub gl_uniform_4fv: fn(&WebGlUniformLocation, &VecFour),
     pub gl_uniform_3fv: fn(&WebGlUniformLocation, &VecThreeFloat),
+    // pub new_render_api: OglRenderApi,
 }
 
-pub fn get_render_api() -> WebGLRenderApi {
+pub fn get_render_api(context: WebGl2RenderingContext) -> WebGLRenderApi {
     WebGLRenderApi {
         gl_bind_vertex_array_engine: gl_bind_vertex_array_engine,
         gl_use_program: gl_use_program,
@@ -79,6 +81,11 @@ pub fn get_render_api() -> WebGLRenderApi {
         gl_uniform_matrix_4fv: gl_uniform_matrix_4fv,
         gl_uniform_4fv: gl_uniform_4fv,
         gl_uniform_3fv: gl_uniform_3fv,
+        /*
+        new_render_api: OglRenderApi {
+            platform_api: Box::new(WebGlRenderMethods::new(context)),
+        },
+        */
     }
 }
 

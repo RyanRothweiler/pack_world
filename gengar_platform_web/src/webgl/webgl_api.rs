@@ -19,7 +19,6 @@ use std::mem::size_of;
 
 pub struct WebGlRenderMethods {
     context: WebGl2RenderingContext,
-    state: crate::webgl::webgl_render_api::WebGLState,
 
     shaders: IncrementingMap<WebGlShader>,
     programs: IncrementingMap<WebGlProgram>,
@@ -32,6 +31,20 @@ pub struct WebGlRenderMethods {
 }
 
 impl WebGlRenderMethods {
+    pub fn new(context: WebGl2RenderingContext) -> Self {
+        Self {
+            context,
+            shaders: IncrementingMap::new(),
+            programs: IncrementingMap::new(),
+            vertex_arrays: IncrementingMap::new(),
+            buffers: IncrementingMap::new(),
+            framebuffers: IncrementingMap::new(),
+            textures: IncrementingMap::new(),
+            uniform_locations: IncrementingMap::new(),
+            render_buffers: IncrementingMap::new(),
+        }
+    }
+
     fn buf_type_to_gl(buf_type: BufferType) -> u32 {
         match buf_type {
             BufferType::ArrayBuffer => WebGl2RenderingContext::ARRAY_BUFFER,
@@ -97,6 +110,7 @@ impl WebGlRenderMethods {
     }
 }
 
+// Implement opengl render
 impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     fn create_shader(&mut self, id: i32) -> u32 {
         let prog: WebGlShader = self.context.create_shader(id as u32).unwrap();
@@ -303,7 +317,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn gen_textures(&mut self, count: i32, id: *mut u32) {
-        assert!(count == 0, "Only count of 1 supported");
+        assert!(count == 1, "Only count of 1 supported");
 
         unsafe {
             let tex: WebGlTexture = self
@@ -315,7 +329,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn gen_frame_buffers(&mut self, count: i32, id: *mut u32) {
-        assert!(count == 0, "Only count of 1 supported");
+        assert!(count == 1, "Only count of 1 supported");
 
         unsafe {
             let buf: WebGlFramebuffer = self

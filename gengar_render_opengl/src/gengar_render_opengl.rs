@@ -174,7 +174,8 @@ impl OglRenderApi {
             ShaderType::Fragment => GL_FRAGMENT_SHADER,
         };
 
-        let source: String = "#version 330 core \n ".to_string() + shader_source;
+        let source: String = "#version 300 es \n ".to_string() + shader_source;
+        // let source: String = "#version 330 core \n ".to_string() + shader_source;
 
         let id: u32 = self.platform_api.create_shader(gl_shader_type);
 
