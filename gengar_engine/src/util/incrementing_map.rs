@@ -19,8 +19,8 @@ impl<T> IncrementingMap<T> {
         id
     }
 
-    pub fn get(&self, id: usize) -> &T {
-        self.data.get(&id).unwrap()
+    pub fn get(&self, id: usize) -> Option<&T> {
+        self.data.get(&id)
     }
 }
 

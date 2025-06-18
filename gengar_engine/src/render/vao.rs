@@ -26,7 +26,7 @@ impl Vao {
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
         location: u32,
-    ) -> Result<u32, Error> {
+    ) -> Result<Vec<u32>, Error> {
         render_api.vao_upload_v3(self, data, indices, location)
     }
 

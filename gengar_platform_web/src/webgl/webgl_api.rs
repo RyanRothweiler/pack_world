@@ -118,17 +118,17 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn shader_source(&self, id: u32, source: &str) {
-        let shader: &WebGlShader = self.shaders.get(id as usize);
+        let shader: &WebGlShader = self.shaders.get(id as usize).unwrap();
         self.context.shader_source(shader, &source);
     }
 
     fn compile_shader(&self, id: u32) {
-        let shader: &WebGlShader = self.shaders.get(id as usize);
+        let shader: &WebGlShader = self.shaders.get(id as usize).unwrap();
         self.context.compile_shader(shader);
     }
 
     fn get_shader_iv(&self, id: u32, info_type: i32, output: *mut i32) {
-        let shader: &WebGlShader = self.shaders.get(id as usize);
+        let shader: &WebGlShader = self.shaders.get(id as usize).unwrap();
         match self.context.get_shader_info_log(&shader) {
             Some(v) => {
                 if v.len() > 0 {
@@ -174,14 +174,14 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn attach_shader(&self, prog_id: u32, shader_id: u32) {
-        let shader: &WebGlShader = self.shaders.get(shader_id as usize);
-        let prog: &WebGlProgram = self.programs.get(prog_id as usize);
+        let shader: &WebGlShader = self.shaders.get(shader_id as usize).unwrap();
+        let prog: &WebGlProgram = self.programs.get(prog_id as usize).unwrap();
 
         self.context.attach_shader(&prog, &shader);
     }
 
     fn link_program(&self, prog_id: u32) {
-        let prog: &WebGlProgram = self.programs.get(prog_id as usize);
+        let prog: &WebGlProgram = self.programs.get(prog_id as usize).unwrap();
         self.context.link_program(&prog);
     }
 
@@ -196,17 +196,17 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn delete_vertex_arrays(&self, count: i32, vao_id: u32) {
-        let vao: &WebGlVertexArrayObject = self.vertex_arrays.get(vao_id as usize);
+        let vao: &WebGlVertexArrayObject = self.vertex_arrays.get(vao_id as usize).unwrap();
         self.context.delete_vertex_array(Some(&vao));
     }
 
     fn delete_buffers(&self, count: i32, buf_id: u32) {
-        let buf: &WebGlBuffer = self.buffers.get(buf_id as usize);
+        let buf: &WebGlBuffer = self.buffers.get(buf_id as usize).unwrap();
         self.context.delete_buffer(Some(buf));
     }
 
     fn bind_vertex_array(&self, vao_id: u32) {
-        let vao = self.vertex_arrays.get(vao_id as usize);
+        let vao = self.vertex_arrays.get(vao_id as usize).unwrap();
         self.context.bind_vertex_array(Some(vao));
     }
 
@@ -222,10 +222,14 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         }
     }
 
-    fn bind_buffer(&self, typ: BufferType, buf_id: u32) {
-        let buf = self.buffers.get(buf_id as usize);
-        self.context
-            .bind_buffer(Self::buf_type_to_gl(typ), Some(&buf));
+    fn bind_buffer(&self, typ: BufferType, buf_id: Option<u32>) {
+        if let Some(bid) = buf_id {
+            let buf = self.buffers.get(bid as usize).unwrap();
+            self.context
+                .bind_buffer(Self::buf_type_to_gl(typ), Some(&buf));
+        } else {
+            self.context.bind_buffer(Self::buf_type_to_gl(typ), None);
+        }
     }
 
     fn buffer_data_v3(&self, target: BufferType, data: &Vec<VecThreeFloat>, usage: BufferUsage) {
@@ -340,20 +344,30 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         }
     }
 
-    fn bind_texture(&self, typ: TextureTarget, id: u32) {
-        let tex = self.textures.get(id as usize);
-        self.context
-            .bind_texture(Self::texture_target_to_gl(typ), Some(&tex));
+    fn bind_texture(&self, typ: TextureTarget, id: Option<u32>) {
+        if let Some(tid) = id {
+            let tex = self.textures.get(tid as usize).unwrap();
+            self.context
+                .bind_texture(Self::texture_target_to_gl(typ), Some(&tex));
+        } else {
+            self.context
+                .bind_texture(Self::texture_target_to_gl(typ), None);
+        }
     }
 
-    fn bind_frame_buffer(&self, typ: u32, id: u32) {
-        let fb = self.framebuffers.get(id as usize);
-        self.context
-            .bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, Some(fb));
+    fn bind_frame_buffer(&self, typ: u32, id: Option<u32>) {
+        if let Some(fbid) = id {
+            let fb = self.framebuffers.get(fbid as usize).unwrap();
+            self.context
+                .bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, Some(fb));
+        } else {
+            self.context
+                .bind_framebuffer(WebGl2RenderingContext::FRAMEBUFFER, None);
+        }
     }
 
     fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32) {
-        let texture = self.textures.get(textarget as usize);
+        let texture = self.textures.get(textarget as usize).unwrap();
 
         self.context.framebuffer_texture_2d(
             WebGl2RenderingContext::FRAMEBUFFER,
@@ -364,15 +378,13 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         );
     }
 
-    fn check_frame_buffer_status(&self, ty: u32) -> u32 {
+    fn check_frame_buffer_status(&self, ty: u32) {
         let status = self
             .context
             .check_framebuffer_status(WebGl2RenderingContext::FRAMEBUFFER);
         if status != WebGl2RenderingContext::FRAMEBUFFER_COMPLETE {
             panic!("Framebuffer is incomplete");
         }
-
-        0
     }
 
     fn tex_parameter_i(&self, target: u32, pname: TextureParameter, param: TextureFilterParameter) {
@@ -396,19 +408,35 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         let mip_level: i32 = 0;
         let border = 0;
 
-        self.context
-            .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
-                WebGl2RenderingContext::TEXTURE_2D,
-                mip_level,
-                Self::image_format_to_gl(storage_format) as i32,
-                width as i32,
-                height as i32,
-                border,
-                image_format,
-                WebGl2RenderingContext::UNSIGNED_BYTE as u32,
-                Some(image_data.unwrap()),
-            )
-            .unwrap();
+        if let Some(img) = image_data {
+            self.context
+                .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
+                    WebGl2RenderingContext::TEXTURE_2D,
+                    mip_level,
+                    Self::image_format_to_gl(storage_format) as i32,
+                    width as i32,
+                    height as i32,
+                    border,
+                    image_format,
+                    WebGl2RenderingContext::UNSIGNED_BYTE as u32,
+                    Some(img),
+                )
+                .unwrap();
+        } else {
+            self.context
+                .tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
+                    WebGl2RenderingContext::TEXTURE_2D,
+                    mip_level,
+                    Self::image_format_to_gl(storage_format) as i32,
+                    width as i32,
+                    height as i32,
+                    border,
+                    image_format,
+                    WebGl2RenderingContext::UNSIGNED_BYTE as u32,
+                    None,
+                )
+                .unwrap();
+        }
     }
 
     fn enable(&self, cap: Capability) {
@@ -443,23 +471,22 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn use_program(&self, prog_id: u32) {
-        let gl_prog = self.programs.get(prog_id as usize);
+        let gl_prog = self.programs.get(prog_id as usize).unwrap();
         self.context.use_program(Some(gl_prog));
     }
 
-    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> i32 {
-        let gl_prog = self.programs.get(prog_id as usize);
+    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> Option<i32> {
+        let gl_prog = self.programs.get(prog_id as usize).unwrap();
 
         if let Some(gl_uniform_loc) = self.context.get_uniform_location(gl_prog, uniform_name) {
-            return self.uniform_locations.push(gl_uniform_loc) as i32;
+            return Some(self.uniform_locations.push(gl_uniform_loc) as i32);
         }
 
-        // -1 as default invalid. Should return a result here in stead
-        -1
+        None
     }
 
     fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44) {
-        let gl_loc = self.uniform_locations.get(loc as usize);
+        let gl_loc = self.uniform_locations.get(loc as usize).unwrap();
 
         let mut elems: [f32; 16] = [0.0; 16];
         for i in 0..data.elements.len() {
@@ -470,26 +497,26 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn uniform_4fv(&self, loc: i32, count: i32, data: &VecFour) {
-        let gl_loc = self.uniform_locations.get(loc as usize);
+        let gl_loc = self.uniform_locations.get(loc as usize).unwrap();
 
         let elems: [f32; 4] = [data.x as f32, data.y as f32, data.z as f32, data.w as f32];
         self.context.uniform4fv_with_f32_array(Some(gl_loc), &elems);
     }
 
     fn uniform_3fv(&self, loc: i32, count: i32, data: &VecThreeFloat) {
-        let gl_loc = self.uniform_locations.get(loc as usize);
+        let gl_loc = self.uniform_locations.get(loc as usize).unwrap();
 
         let elems: [f32; 3] = [data.x as f32, data.y as f32, data.z as f32];
         self.context.uniform3fv_with_f32_array(Some(gl_loc), &elems);
     }
 
     fn uniform_1f(&self, loc: i32, data: f32) {
-        let gl_loc = self.uniform_locations.get(loc as usize);
+        let gl_loc = self.uniform_locations.get(loc as usize).unwrap();
         self.context.uniform1f(Some(gl_loc), data);
     }
 
     fn uniform_1i(&self, loc: i32, data: i32) {
-        let gl_loc = self.uniform_locations.get(loc as usize);
+        let gl_loc = self.uniform_locations.get(loc as usize).unwrap();
         self.context.uniform1i(Some(gl_loc), data);
     }
 
@@ -523,10 +550,15 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     // todo ID needs to chave to an option to allow unbinding
-    fn bind_render_buffer(&self, ty: u32, id: u32) {
-        let gl_rbo = self.render_buffers.get(id as usize);
-        self.context
-            .bind_renderbuffer(WebGl2RenderingContext::RENDERBUFFER, Some(&gl_rbo));
+    fn bind_render_buffer(&self, ty: u32, id: Option<u32>) {
+        if let Some(rbid) = id {
+            let gl_rbo = self.render_buffers.get(rbid as usize).unwrap();
+            self.context
+                .bind_renderbuffer(WebGl2RenderingContext::RENDERBUFFER, Some(&gl_rbo));
+        } else {
+            self.context
+                .bind_renderbuffer(WebGl2RenderingContext::RENDERBUFFER, None);
+        }
     }
 
     fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32) {
@@ -539,7 +571,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32) {
-        let gl_rbo = self.render_buffers.get(rbid as usize);
+        let gl_rbo = self.render_buffers.get(rbid as usize).unwrap();
         self.context.framebuffer_renderbuffer(
             WebGl2RenderingContext::FRAMEBUFFER,
             WebGl2RenderingContext::DEPTH_STENCIL_ATTACHMENT,

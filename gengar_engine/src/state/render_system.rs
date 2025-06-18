@@ -17,6 +17,6 @@ impl RenderSystem {
     }
 
     pub fn add_command(&mut self, command: RenderCommand, pack_id: RenderPackID) {
-        self.get_pack(RenderPackID::Shop).commands.push(command);
+        self.get_pack(pack_id).commands.push(command);
     }
 }

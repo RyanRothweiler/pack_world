@@ -90,9 +90,9 @@ pub trait OGLPlatformImpl {
     fn gen_vertex_arrays(&mut self, count: i32, vao: *mut u32);
     fn bind_vertex_array(&self, vao_id: u32);
     fn gen_buffers(&mut self, count: i32, buffers: *mut u32);
-    fn bind_buffer(&self, typ: BufferType, buf_id: u32);
+    fn bind_buffer(&self, typ: BufferType, buf_id: Option<u32>);
     fn gen_textures(&mut self, count: i32, id: *mut u32);
-    fn bind_texture(&self, target: TextureTarget, id: u32);
+    fn bind_texture(&self, target: TextureTarget, id: Option<u32>);
     fn tex_parameter_i(&self, target: u32, pname: TextureParameter, param: TextureFilterParameter);
     fn tex_image_2d(
         &self,
@@ -126,7 +126,7 @@ pub trait OGLPlatformImpl {
     fn vertex_attrib_pointer_v3(&self, location: u32);
     fn vertex_attrib_pointer_v2(&self, location: u32);
 
-    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> i32;
+    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> Option<i32>;
     fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44);
     fn uniform_4fv(&self, loc: i32, count: i32, data: &VecFour);
     fn uniform_3fv(&self, loc: i32, count: i32, data: &VecThreeFloat);
@@ -134,13 +134,13 @@ pub trait OGLPlatformImpl {
     fn uniform_1i(&self, loc: i32, data: i32);
 
     fn gen_frame_buffers(&mut self, count: i32, id: *mut u32);
-    fn bind_frame_buffer(&self, ty: u32, id: u32);
+    fn bind_frame_buffer(&self, ty: u32, id: Option<u32>);
     fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32);
-    fn check_frame_buffer_status(&self, ty: u32) -> u32;
+    fn check_frame_buffer_status(&self, ty: u32);
     fn draw_buffers(&self, ty: i32, attachments: Vec<u32>);
 
     fn gen_render_buffers(&mut self, count: i32, id: *mut u32);
-    fn bind_render_buffer(&self, ty: u32, id: u32);
+    fn bind_render_buffer(&self, ty: u32, id: Option<u32>);
     fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32);
     fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32);
 }
@@ -236,25 +236,44 @@ impl EngineRenderApiTrait for OglRenderApi {
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
         location: u32,
-    ) -> Result<u32, EngineError> {
+    ) -> Result<Vec<u32>, EngineError> {
         self.platform_api.bind_vertex_array(vao.id);
+        let mut ret: Vec<u32> = vec![];
 
         // setup the vertex buffer
-        let mut buf_id: u32 = 0;
-        self.platform_api.gen_buffers(1, &mut buf_id);
+        let mut vert_buf_id: u32 = 0;
+        self.platform_api.gen_buffers(1, &mut vert_buf_id);
 
         self.platform_api
-            .bind_buffer(BufferType::ArrayBuffer, buf_id);
+            .bind_buffer(BufferType::ArrayBuffer, Some(vert_buf_id));
         self.platform_api
             .buffer_data_v3(BufferType::ArrayBuffer, data, BufferUsage::StaticDraw);
         self.platform_api.vertex_attrib_pointer_v3(location);
         self.platform_api.enable_vertex_attrib_array(location);
 
-        self.platform_api.bind_buffer(BufferType::ArrayBuffer, 0);
+        self.platform_api.bind_buffer(BufferType::ArrayBuffer, None);
+
+        // setup the index buffer
+        {
+            let mut buf_id: u32 = 0;
+            self.platform_api.gen_buffers(1, &mut buf_id);
+            self.platform_api
+                .bind_buffer(BufferType::ElementArrayBuffer, Some(buf_id));
+            self.platform_api.buffer_data_u32(
+                BufferType::ElementArrayBuffer,
+                indices,
+                BufferUsage::StaticDraw,
+            );
+
+            ret.push(buf_id);
+        }
+
+        self.platform_api.bind_buffer(BufferType::ArrayBuffer, None);
 
         self.platform_api.bind_vertex_array(0);
 
-        Ok(buf_id)
+        ret.push(vert_buf_id);
+        Ok(ret)
     }
 
     fn vao_upload_v2(
@@ -269,13 +288,13 @@ impl EngineRenderApiTrait for OglRenderApi {
         self.platform_api.gen_buffers(1, &mut buf_id);
 
         self.platform_api
-            .bind_buffer(BufferType::ArrayBuffer, buf_id);
+            .bind_buffer(BufferType::ArrayBuffer, Some(buf_id));
         self.platform_api
             .buffer_data_v2(BufferType::ArrayBuffer, data, BufferUsage::StaticDraw);
         self.platform_api.vertex_attrib_pointer_v2(location);
         self.platform_api.enable_vertex_attrib_array(location);
 
-        self.platform_api.bind_buffer(BufferType::ArrayBuffer, 0);
+        self.platform_api.bind_buffer(BufferType::ArrayBuffer, None);
 
         self.platform_api.bind_vertex_array(0);
 
@@ -286,7 +305,7 @@ impl EngineRenderApiTrait for OglRenderApi {
         let mut tex_id: u32 = 0;
         self.platform_api.gen_textures(1, &mut tex_id);
         self.platform_api
-            .bind_texture(TextureTarget::Texture2D, tex_id);
+            .bind_texture(TextureTarget::Texture2D, Some(tex_id));
 
         self.platform_api.tex_parameter_i(
             GL_TEXTURE_2D as u32,
@@ -337,13 +356,13 @@ impl EngineRenderApiTrait for OglRenderApi {
         self.platform_api
             .gen_frame_buffers(1, &mut pack.frame_buffer);
         self.platform_api
-            .bind_frame_buffer(GL_FRAMEBUFFER, pack.frame_buffer);
+            .bind_frame_buffer(GL_FRAMEBUFFER, Some(pack.frame_buffer));
 
         // color texture
         {
             self.platform_api.gen_textures(1, &mut pack.color_buffer);
             self.platform_api
-                .bind_texture(TextureTarget::Texture2D, pack.color_buffer);
+                .bind_texture(TextureTarget::Texture2D, Some(pack.color_buffer));
             self.platform_api.tex_image_2d(
                 GL_TEXTURE_2D as u32,
                 ImageFormat::RGBA,
@@ -373,7 +392,8 @@ impl EngineRenderApiTrait for OglRenderApi {
                 0,
             );
 
-            self.platform_api.bind_texture(TextureTarget::Texture2D, 0);
+            self.platform_api
+                .bind_texture(TextureTarget::Texture2D, None);
         }
 
         // depth and stencil buffers
@@ -381,14 +401,15 @@ impl EngineRenderApiTrait for OglRenderApi {
             let mut rbo: u32 = 0;
 
             self.platform_api.gen_render_buffers(1, &mut rbo);
-            self.platform_api.bind_render_buffer(GL_RENDERBUFFER, rbo);
+            self.platform_api
+                .bind_render_buffer(GL_RENDERBUFFER, Some(rbo));
             self.platform_api.render_buffer_storage(
                 GL_RENDERBUFFER,
                 GL_DEPTH24_STENCIL8,
                 width,
                 height,
             );
-            self.platform_api.bind_render_buffer(GL_RENDERBUFFER, 0);
+            self.platform_api.bind_render_buffer(GL_RENDERBUFFER, None);
 
             self.platform_api.frame_buffer_render_buffer(
                 GL_FRAMEBUFFER,
@@ -407,12 +428,9 @@ impl EngineRenderApiTrait for OglRenderApi {
             ],
         );
 
-        let status = self.platform_api.check_frame_buffer_status(GL_FRAMEBUFFER);
-        if status != GL_FRAMEBUFFER_COMPLETE {
-            panic!("Framebuffer is incomplete");
-        }
+        self.platform_api.check_frame_buffer_status(GL_FRAMEBUFFER);
 
-        self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, 0);
+        self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, None);
 
         Ok(pack)
     }
@@ -424,7 +442,7 @@ impl EngineRenderApiTrait for OglRenderApi {
         components: &Components,
     ) {
         self.platform_api
-            .bind_frame_buffer(GL_FRAMEBUFFER, frame_buffer);
+            .bind_frame_buffer(GL_FRAMEBUFFER, Some(frame_buffer));
 
         self.platform_api.viewport(
             0,
@@ -454,7 +472,7 @@ impl EngineRenderApiTrait for OglRenderApi {
 
         render_render_pack(render_pack, components, self);
 
-        self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, 0);
+        self.platform_api.bind_frame_buffer(GL_FRAMEBUFFER, None);
     }
 }
 
@@ -618,46 +636,55 @@ fn render_list(
         for (key, value) in &command.uniforms {
             match value {
                 UniformData::M44(data) => {
-                    let loc = render_api
+                    if let Some(loc) = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
-                    render_api
-                        .platform_api
-                        .uniform_matrix_4fv(loc, 1, false, data);
+                        .get_uniform_location(command.prog_id, key)
+                    {
+                        render_api
+                            .platform_api
+                            .uniform_matrix_4fv(loc, 1, false, data);
+                    }
                 }
                 UniformData::VecFour(data) => {
-                    let loc = render_api
+                    if let Some(loc) = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
-                    render_api.platform_api.uniform_4fv(loc, 1, data);
+                        .get_uniform_location(command.prog_id, key)
+                    {
+                        render_api.platform_api.uniform_4fv(loc, 1, data);
+                    }
                 }
                 UniformData::VecThree(data) => {
-                    let loc = render_api
+                    if let Some(loc) = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
-                    render_api.platform_api.uniform_3fv(loc, 1, data);
+                        .get_uniform_location(command.prog_id, key)
+                    {
+                        render_api.platform_api.uniform_3fv(loc, 1, data);
+                    }
                 }
                 UniformData::Float(data) => {
-                    let loc = render_api
+                    if let Some(loc) = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
-                    render_api.platform_api.uniform_1f(loc, *data as f32);
+                        .get_uniform_location(command.prog_id, key)
+                    {
+                        render_api.platform_api.uniform_1f(loc, *data as f32);
+                    }
                 }
                 UniformData::Texture(data) => {
-                    let loc = render_api
+                    if let Some(loc) = render_api
                         .platform_api
-                        .get_uniform_location(command.prog_id, key);
+                        .get_uniform_location(command.prog_id, key)
+                    {
+                        render_api
+                            .platform_api
+                            .uniform_1i(loc, data.texture_slot as i32);
+                        render_api
+                            .platform_api
+                            .active_texture(data.texture_slot as i32);
 
-                    render_api
-                        .platform_api
-                        .uniform_1i(loc, data.texture_slot as i32);
-                    render_api
-                        .platform_api
-                        .active_texture(GL_TEXTURE0 + data.texture_slot as i32);
-
-                    render_api
-                        .platform_api
-                        .bind_texture(TextureTarget::Texture2D, data.image_id);
+                        render_api
+                            .platform_api
+                            .bind_texture(TextureTarget::Texture2D, Some(data.image_id));
+                    }
                 }
             }
         }
@@ -669,8 +696,9 @@ fn render_list(
                 let vao = Vao::new(render_api);
 
                 // location is assumed 0. All shaders vertex positions are at location 0... for now.
-                dynamic_mesh_buffers.push(
-                    vao.upload_v3(render_api, mesh, &command.indices, 0)
+                dynamic_mesh_buffers.append(
+                    &mut vao
+                        .upload_v3(render_api, mesh, &command.indices, 0)
                         .unwrap(),
                 );
 

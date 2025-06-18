@@ -183,7 +183,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         data: &Vec<VecThreeFloat>,
         indices: &Vec<u32>,
         location: u32,
-    ) -> Result<u32, EngineError> {
+    ) -> Result<Vec<u32>, EngineError> {
         let gl_state: &mut WebGLState =
             unsafe { GL_STATE.as_mut().ok_or(EngineError::WebGlNoState)? };
         let context = unsafe { GL_CONTEXT.as_mut().ok_or(EngineError::WebGlNoContext)? };
@@ -228,7 +228,7 @@ impl EngineRenderApiTrait for WebGLRenderApi {
         context.bind_vertex_array(None);
 
         let buf_id = unsafe { GL_STATE.as_mut().unwrap().push_buffer(buf) };
-        Ok(buf_id)
+        Ok(vec![buf_id])
     }
 
     fn vao_upload_v2(

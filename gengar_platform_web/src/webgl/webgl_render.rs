@@ -195,8 +195,9 @@ pub fn render_list(
                 let vao = Vao::new(render_api);
 
                 // location is assumed 0. All shaders vertex positions are at location 0... for now.
-                dynamic_mesh_buffers.push(
-                    vao.upload_v3(render_api, mesh, &command.indices, 0)
+                dynamic_mesh_buffers.append(
+                    &mut vao
+                        .upload_v3(render_api, mesh, &command.indices, 0)
                         .unwrap(),
                 );
 

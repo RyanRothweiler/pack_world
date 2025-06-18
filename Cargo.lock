@@ -135,10 +135,10 @@ name = "gengar_platform_web"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
- "engine_render_test",
  "gengar_engine",
  "gengar_render_opengl",
  "js-sys",
+ "pack_world_game",
  "rexie",
  "serde",
  "serde-wasm-bindgen",

@@ -244,8 +244,8 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glGenBuffers)(count, buffers);
     }
 
-    fn bind_buffer(&self, typ: BufferType, buf_id: u32) {
-        (self.glBindBuffer)(Self::buffer_type_to_gl(typ), buf_id);
+    fn bind_buffer(&self, typ: BufferType, buf_id: Option<u32>) {
+        (self.glBindBuffer)(Self::buffer_type_to_gl(typ), buf_id.unwrap_or(0));
     }
 
     fn buffer_data_v3(&self, typ: BufferType, data: &Vec<VecThreeFloat>, usage: BufferUsage) {
@@ -315,20 +315,23 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glGenFramebuffers)(count, id);
     }
 
-    fn bind_texture(&self, typ: TextureTarget, id: u32) {
-        (self.glBindTexture)(Self::texture_target_to_gl(typ), id);
+    fn bind_texture(&self, typ: TextureTarget, id: Option<u32>) {
+        (self.glBindTexture)(Self::texture_target_to_gl(typ), id.unwrap_or(0));
     }
 
-    fn bind_frame_buffer(&self, typ: u32, id: u32) {
-        (self.glBindFramebuffer)(typ, id);
+    fn bind_frame_buffer(&self, typ: u32, id: Option<u32>) {
+        (self.glBindFramebuffer)(typ, id.unwrap_or(0));
     }
 
     fn frame_buffer_2d(&self, target: u32, attachment: u32, ty: u32, textarget: u32, level: i32) {
         (self.glFramebufferTexture2D)(target, attachment, ty, textarget, level);
     }
 
-    fn check_frame_buffer_status(&self, ty: u32) -> u32 {
-        (self.glCheckFrameBufferStatus)(ty)
+    fn check_frame_buffer_status(&self, ty: u32) {
+        let status = (self.glCheckFrameBufferStatus)(ty);
+        if status != GL_FRAMEBUFFER_COMPLETE {
+            panic!("Framebuffer is incomplete");
+        }
     }
 
     fn tex_parameter_i(&self, target: u32, pname: TextureParameter, param: TextureFilterParameter) {
@@ -419,9 +422,9 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glUseProgram)(prog_id);
     }
 
-    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> i32 {
+    fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> Option<i32> {
         let name_c = std::ffi::CString::new(uniform_name).unwrap();
-        return (self.glGetUniformLocation)(prog_id, name_c.as_ptr());
+        return Some((self.glGetUniformLocation)(prog_id, name_c.as_ptr()));
     }
 
     fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44) {
@@ -452,7 +455,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
     }
 
     fn active_texture(&self, id: i32) {
-        (self.glActiveTexture)(id);
+        (self.glActiveTexture)(GL_TEXTURE0 + id);
     }
 
     fn draw_elements(&self, mode: i32, indecies: &Vec<u32>) {
@@ -470,8 +473,8 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glGenRenderbuffers)(count, id);
     }
 
-    fn bind_render_buffer(&self, ty: u32, id: u32) {
-        (self.glBindRenderbuffer)(ty, id);
+    fn bind_render_buffer(&self, ty: u32, id: Option<u32>) {
+        (self.glBindRenderbuffer)(ty, id.unwrap_or(0));
     }
 
     fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32) {

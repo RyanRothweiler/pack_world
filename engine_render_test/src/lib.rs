@@ -41,6 +41,8 @@ pub mod state;
 
 use state::*;
 
+pub const PACKAGE_NAME: &str = "engine_test";
+
 pub fn game_init(
     gs: &mut State,
     es: &mut EngineState,
@@ -57,4 +59,18 @@ pub fn game_loop(
     render_api: &mut impl RenderApi,
     platform_api: &PlatformApi,
 ) {
+    // draw fill
+    {
+        let rect = Rect::new_center(VecTwo::new(500.0, 500.0), VecTwo::new(20.0, 20.0));
+
+        let mut mat = Material::new();
+        mat.shader = Some(es.shader_color);
+        mat.uniforms
+            .insert("color".to_string(), UniformData::VecFour(COLOR_RED.into()));
+
+        es.render_system.add_command(
+            RenderCommand::new_rect(&rect, -1.0, 0.0, &mat),
+            RenderPackID::UI,
+        );
+    }
 }

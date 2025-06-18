@@ -333,7 +333,7 @@ fn main() {
 
         wglMakeCurrent(device_context, wgl_context).unwrap();
 
-        let mut game_dll = load_game_dll().unwrap();
+        // let mut game_dll = load_game_dll().unwrap();
 
         // after context is setup, get the render api calls
         let mut render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
@@ -346,12 +346,14 @@ fn main() {
 
         gengar_engine::load_resources(&mut engine_state, &mut render_api);
         if cfg!(feature = "hotreloading_dll") {
+            /*
             (game_dll.proc_init)(
                 &mut game_state,
                 &mut engine_state,
                 &mut render_api,
                 &platform_api,
             );
+            */
         } else {
             game::game_init(
                 &mut game_state,
@@ -384,6 +386,7 @@ fn main() {
             }
 
             // check hot relaod game dll
+            /*
             if cfg!(feature = "hotreloading_dll") {
                 match get_file_write_time(GAME_DLL_PATH) {
                     Ok(v) => {
@@ -394,6 +397,7 @@ fn main() {
                     Err(v) => {}
                 };
             }
+            */
 
             // Update input
             {
@@ -439,6 +443,7 @@ fn main() {
             // Run game / engine loops
             gengar_engine::engine_frame_start(&mut engine_state, &input, &render_api);
             if cfg!(feature = "hotreloading_dll") {
+                /*
                 (game_dll.proc_loop)(
                     prev_frame_dur.as_secs_f64(),
                     &mut game_state,
@@ -447,6 +452,7 @@ fn main() {
                     &mut render_api,
                     &platform_api,
                 );
+                */
             } else {
                 game::game_loop(
                     prev_frame_dur.as_secs_f64(),

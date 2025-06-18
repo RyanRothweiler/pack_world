@@ -21,7 +21,7 @@ rexie = "0.6.2"
 gengar_engine = { path = "../gengar_engine" }
 gengar_render_opengl = { path = "../gengar_render_opengl" }
 
-game = { path = "../engine_render_test", package = "engine_render_test" }
+game = { path = "../pack_world_game", package = "pack_world_game" }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
