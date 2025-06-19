@@ -25,7 +25,7 @@ use gengar_engine::{
 #[derive(Debug)]
 pub enum UpdateSignal {
     /// set the active_page var
-    SetActivePage(CreatePanelData),
+    SetActivePage(Option<CreatePanelData>),
 
     /// Add an item to inventory
     GiveItem { item_type: ItemType, count: i64 },
@@ -83,8 +83,12 @@ pub fn handle_signals(
 
             let mut sigs: Vec<UpdateSignal> = match us {
                 UpdateSignal::SetActivePage(new_panel_data) => {
-                    let panel = new_panel_data.create_panel();
-                    gs.active_page = Some(panel);
+                    if let Some(p) = new_panel_data {
+                        let panel = p.create_panel();
+                        gs.active_page = Some(panel);
+                    } else {
+                        gs.active_page = None;
+                    }
                     vec![]
                 }
 
@@ -133,7 +137,7 @@ pub fn handle_signals(
 
                     let new_panel_data = CreatePanelData::OpenPack { pack_id: *pack_id };
                     vec![
-                        UpdateSignal::SetActivePage(new_panel_data),
+                        UpdateSignal::SetActivePage(Some(new_panel_data)),
                         UpdateSignal::SaveGame,
                     ]
                 }

@@ -166,14 +166,14 @@ impl PackShopDisplay {
                     if show_cost {
                         draw_text(
                             "Cost",
-                            VecTwo::new(0.0, 30.0),
+                            VecTwo::new(0.0, 50.0),
                             COLOR_WHITE,
                             &ui_context.font_body.clone(),
                             &mut ui_frame_state,
                             ui_context,
                         );
                         for (j, cost) in pack_info.cost.iter().enumerate() {
-                            let cost_origin = VecTwo::new(80.0 * j as f64, 35.0);
+                            let cost_origin = VecTwo::new(70.0 * j as f64, 60.0);
                             let icon_size = 40.0;
 
                             let icon = assets.get_item_icon(&cost.0);
@@ -200,26 +200,10 @@ impl PackShopDisplay {
 
                 // drop and open buttons
                 if self.state == PackShopDisplayState::Selected {
-                    if draw_text_button(
-                        "Show Drop List",
-                        VecTwo::new(10.0, 110.0),
-                        &ui_context.font_body.clone(),
-                        false,
-                        Some(crate::BUTTON_BG),
-                        &mut ui_frame_state,
-                        std::line!(),
-                        ui_context,
-                    ) {
-                        let new_panel_data = CreatePanelData::PackDetails { pack_id: pack_id };
-                        ret.push(PackShopSignals::StandardUpateSignal {
-                            sigs: vec![UpdateSignal::SetActivePage(new_panel_data)],
-                        });
-                    }
-
                     if pack_info.can_afford(inventory) {
                         if draw_text_button(
                             "Open Pack",
-                            VecTwo::new(10.0, 180.0),
+                            VecTwo::new(10.0, 0.0),
                             &&ui_context.font_header.clone(),
                             false,
                             Some(crate::BUTTON_BG),
@@ -233,7 +217,7 @@ impl PackShopDisplay {
                     } else {
                         draw_text(
                             "Can't Afford",
-                            VecTwo::new(0.0, 180.0),
+                            VecTwo::new(0.0, 0.0),
                             COLOR_WHITE,
                             &ui_context.font_body.clone(),
                             &mut ui_frame_state,
@@ -242,8 +226,24 @@ impl PackShopDisplay {
                     }
 
                     if draw_text_button(
+                        "Show Drop List",
+                        VecTwo::new(10.0, 140.0),
+                        &ui_context.font_body.clone(),
+                        false,
+                        Some(crate::BUTTON_BG),
+                        &mut ui_frame_state,
+                        std::line!(),
+                        ui_context,
+                    ) {
+                        let new_panel_data = CreatePanelData::PackDetails { pack_id: pack_id };
+                        ret.push(PackShopSignals::StandardUpateSignal {
+                            sigs: vec![UpdateSignal::SetActivePage(Some(new_panel_data))],
+                        });
+                    }
+
+                    if draw_text_button(
                         "Back",
-                        VecTwo::new(10.0, 240.0),
+                        VecTwo::new(10.0, 190.0),
                         &ui_context.font_body.clone(),
                         false,
                         Some(crate::BUTTON_BG),
@@ -259,7 +259,7 @@ impl PackShopDisplay {
                 if self.state == PackShopDisplayState::Opening && self.items_remaining == 0 {
                     if draw_text_button(
                         "Open Another",
-                        VecTwo::new(10.0, 180.0),
+                        VecTwo::new(10.0, 0.0),
                         &&ui_context.font_header.clone(),
                         false,
                         Some(crate::BUTTON_BG),
@@ -298,44 +298,14 @@ impl PackShopDisplay {
 
                 p.pos = VecTwo::lerp(p.pos, target_pos, 0.25);
 
-                let icon = assets.get_drop_icon(&p.drop.drop_type);
-
-                let dfb = match p.drop.drop_type {
-                    DropType::Gold => false,
-                    DropType::Item { item_type } => match item_type {
-                        ItemType::Tile(_) => true,
-                        _ => false,
-                    },
-                };
-
-                if dfb {
-                    draw_framebuffer(
-                        Rect::new_center(p.pos, VecTwo::new(icon_size, icon_size)),
-                        icon,
-                        COLOR_WHITE,
-                        ui_frame_state,
-                        ui_context,
-                    );
-                } else {
-                    draw_image(
-                        Rect::new_center(p.pos, VecTwo::new(icon_size, icon_size)),
-                        icon,
-                        COLOR_WHITE,
-                        ui_frame_state,
-                        ui_context,
-                    );
-                }
-
-                if p.drop.amount > 1 {
-                    draw_text(
-                        &format!("{:?}", p.drop.amount),
-                        p.pos,
-                        COLOR_WHITE,
-                        &ui_context.font_body.clone(),
-                        ui_frame_state,
-                        ui_context,
-                    );
-                }
+                draw_drop_icon(
+                    icon_size,
+                    p.pos,
+                    &p.drop,
+                    ui_frame_state,
+                    ui_context,
+                    assets,
+                );
 
                 i += 1;
             }

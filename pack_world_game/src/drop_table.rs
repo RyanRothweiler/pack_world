@@ -1,5 +1,9 @@
-use crate::{item::*, state::inventory::*, tile::*};
-use gengar_engine::platform_api::*;
+use crate::{
+    item::*,
+    state::{assets::*, inventory::*},
+    tile::*,
+};
+use gengar_engine::{color::*, platform_api::*, rect::*, ui::*, vectors::*};
 use std::{collections::HashMap, sync::LazyLock};
 
 mod fixed_tables;
@@ -48,6 +52,54 @@ impl Drop {
             ret.push(Drop::new(self.drop_type, 1));
         }
         ret
+    }
+}
+
+pub fn draw_drop_icon(
+    icon_size: f64,
+    pos: VecTwo,
+    drop: &Drop,
+    ui_frame_state: &mut UIFrameState,
+    ui_context: &mut UIContext,
+    assets: &mut Assets,
+) {
+    let icon = assets.get_drop_icon(&drop.drop_type);
+
+    let dfb = match drop.drop_type {
+        DropType::Gold => false,
+        DropType::Item { item_type } => match item_type {
+            ItemType::Tile(_) => true,
+            _ => false,
+        },
+    };
+
+    if dfb {
+        draw_framebuffer(
+            Rect::new_center(pos, VecTwo::new(icon_size, icon_size)),
+            icon,
+            COLOR_WHITE,
+            ui_frame_state,
+            ui_context,
+        );
+    } else {
+        draw_image(
+            Rect::new_center(pos, VecTwo::new(icon_size, icon_size)),
+            icon,
+            COLOR_WHITE,
+            ui_frame_state,
+            ui_context,
+        );
+    }
+
+    if drop.amount > 1 {
+        draw_text(
+            &format!("{:?}", drop.amount),
+            pos,
+            COLOR_WHITE,
+            &ui_context.font_body.clone(),
+            ui_frame_state,
+            ui_context,
+        );
     }
 }
 

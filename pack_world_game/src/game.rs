@@ -289,7 +289,8 @@ pub fn game_init(
     }
 
     // setup initial UI
-    gs.active_page = Some(CreatePanelData::Home.create_panel());
+    gs.active_ui_panels
+        .push(CreatePanelData::Home.create_panel());
 
     // setup first map
     {
@@ -821,230 +822,232 @@ pub fn game_loop(
             }
         }
         WorldStatus::Shop => {
-            let mouse_world: VecThreeFloat = {
-                let mut val = VecThreeFloat::new_zero();
+            if gs.active_page.is_none() {
+                let mouse_world: VecThreeFloat = {
+                    let mut val = VecThreeFloat::new_zero();
 
-                let cam: &Camera = &es
-                    .render_system
-                    .render_packs
-                    .get(&RenderPackID::Shop)
-                    .unwrap()
-                    .camera;
-                let pos = cam.screen_to_world(input.mouse.pos);
+                    let cam: &Camera = &es
+                        .render_system
+                        .render_packs
+                        .get(&RenderPackID::Shop)
+                        .unwrap()
+                        .camera;
+                    let pos = cam.screen_to_world(input.mouse.pos);
 
-                let dir = (pos - cam.transform.local_position).normalize();
+                    let dir = (pos - cam.transform.local_position).normalize();
 
-                if let Some(len) = plane_intersection_distance(
-                    cam.transform.local_position,
-                    dir,
-                    VecThreeFloat::new(0.0, 0.0, 0.0),
-                    VecThreeFloat::new(0.0, -1.0, 0.0),
-                ) {
-                    val = cam.transform.local_position + (dir * len);
+                    if let Some(len) = plane_intersection_distance(
+                        cam.transform.local_position,
+                        dir,
+                        VecThreeFloat::new(0.0, 0.0, 0.0),
+                        VecThreeFloat::new(0.0, -1.0, 0.0),
+                    ) {
+                        val = cam.transform.local_position + (dir * len);
+                    }
+
+                    val
+                };
+
+                // lighting
+                {
+                    let light_trans: &mut Transform =
+                        &mut es.components.transforms[gs.pack_light_trans];
+
+                    /*
+                    draw_tile_world_pos(
+                        TileType::Dirt,
+                        0.0,
+                        &light_trans.global_matrix.get_position(),
+                        true,
+                        es.render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap(),
+                        &gs.assets,
+                    );
+                    */
+
+                    let spd = 0.007;
+                    let origin_trans: &mut Transform =
+                        &mut es.components.transforms[gs.pack_light_origin];
+                    // origin_trans.local_rotation.x = es.frame as f64 * spd;
+                    origin_trans.local_rotation.y = es.frame as f64 * spd;
+                    // origin_trans.local_rotation.x = es.frame as f64 * spd;
+                    // origin_trans.local_rotation.z = es.frame as f64 * spd;
+
+                    let cp = es
+                        .render_system
+                        .render_packs
+                        .get(&RenderPackID::Shop)
+                        .unwrap()
+                        .camera
+                        .transform
+                        .local_position;
+
+                    origin_trans.local_position.x = cp.x;
+                    origin_trans.local_position.z = cp.z;
+
+                    /*
+                    let light = Light::new(es.components.new_transform());
+
+                    let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                    ct.parent = Some(gs.pack_light_origin);
+                    ct.local_position.x = -2.0;
+                    ct.local_position.z = 10.0;
+                    ct.local_position.y = 15.0;
+
+                    es.render_system
+                        .get_pack(RenderPackID::Shop)
+                        .lights
+                        .push(light);
+                    */
                 }
 
-                val
-            };
-
-            // lighting
-            {
-                let light_trans: &mut Transform =
-                    &mut es.components.transforms[gs.pack_light_trans];
-
-                /*
-                draw_tile_world_pos(
-                    TileType::Dirt,
-                    0.0,
-                    &light_trans.global_matrix.get_position(),
-                    true,
-                    es.render_system
+                // camera controls
+                if true {
+                    let cam_pack = es
+                        .render_system
                         .render_packs
                         .get_mut(&RenderPackID::Shop)
-                        .unwrap(),
-                    &gs.assets,
-                );
-                */
+                        .unwrap();
 
-                let spd = 0.007;
-                let origin_trans: &mut Transform =
-                    &mut es.components.transforms[gs.pack_light_origin];
-                // origin_trans.local_rotation.x = es.frame as f64 * spd;
-                origin_trans.local_rotation.y = es.frame as f64 * spd;
-                // origin_trans.local_rotation.x = es.frame as f64 * spd;
-                // origin_trans.local_rotation.z = es.frame as f64 * spd;
+                    if gs.pack_selected.is_none() && !gs.opening_pack {
+                        let keyboard_speed = 30.0;
+                        let mouse_scroll_speed = 400.0;
+                        let drag_speed = gengar_engine::math::lerp(
+                            0.02,
+                            0.08,
+                            cam_pack.camera.transform.local_position.y / 100.0,
+                        );
 
-                let cp = es
-                    .render_system
-                    .render_packs
-                    .get(&RenderPackID::Shop)
-                    .unwrap()
-                    .camera
-                    .transform
-                    .local_position;
+                        if input.get_key(KeyCode::W).pressing {
+                            gs.target_camera_pos.z -= keyboard_speed * prev_delta_time;
+                        }
+                        if input.get_key(KeyCode::S).pressing {
+                            gs.target_camera_pos.z += keyboard_speed * prev_delta_time;
+                        }
+                        if input.get_key(KeyCode::A).pressing {
+                            gs.target_camera_pos.x -= keyboard_speed * prev_delta_time;
+                        }
+                        if input.get_key(KeyCode::D).pressing {
+                            gs.target_camera_pos.x += keyboard_speed * prev_delta_time;
+                        }
+                        if input.mouse.scroll_delta > 0 {
+                            gs.target_camera_pos.y -= mouse_scroll_speed * prev_delta_time;
+                        } else if input.mouse.scroll_delta < 0 {
+                            gs.target_camera_pos.y += mouse_scroll_speed * prev_delta_time
+                        }
 
-                origin_trans.local_position.x = cp.x;
-                origin_trans.local_position.z = cp.z;
-
-                /*
-                let light = Light::new(es.components.new_transform());
-
-                let ct: &mut Transform = &mut es.components.transforms[light.transform];
-                ct.parent = Some(gs.pack_light_origin);
-                ct.local_position.x = -2.0;
-                ct.local_position.z = 10.0;
-                ct.local_position.y = 15.0;
-
-                es.render_system
-                    .get_pack(RenderPackID::Shop)
-                    .lights
-                    .push(light);
-                */
-            }
-
-            // camera controls
-            if true {
-                let cam_pack = es
-                    .render_system
-                    .render_packs
-                    .get_mut(&RenderPackID::Shop)
-                    .unwrap();
-
-                if gs.pack_selected.is_none() && !gs.opening_pack {
-                    let keyboard_speed = 30.0;
-                    let mouse_scroll_speed = 400.0;
-                    let drag_speed = gengar_engine::math::lerp(
-                        0.02,
-                        0.08,
-                        cam_pack.camera.transform.local_position.y / 100.0,
-                    );
-
-                    if input.get_key(KeyCode::W).pressing {
-                        gs.target_camera_pos.z -= keyboard_speed * prev_delta_time;
-                    }
-                    if input.get_key(KeyCode::S).pressing {
-                        gs.target_camera_pos.z += keyboard_speed * prev_delta_time;
-                    }
-                    if input.get_key(KeyCode::A).pressing {
-                        gs.target_camera_pos.x -= keyboard_speed * prev_delta_time;
-                    }
-                    if input.get_key(KeyCode::D).pressing {
-                        gs.target_camera_pos.x += keyboard_speed * prev_delta_time;
-                    }
-                    if input.mouse.scroll_delta > 0 {
-                        gs.target_camera_pos.y -= mouse_scroll_speed * prev_delta_time;
-                    } else if input.mouse.scroll_delta < 0 {
-                        gs.target_camera_pos.y += mouse_scroll_speed * prev_delta_time
-                    }
-
-                    // camera click dragging
-                    {
-                        if input.mouse.button_left.pressing {
-                            if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
-                                gs.target_camera_pos.x += input.mouse.pos_delta.x * drag_speed;
-                                gs.target_camera_pos.z += input.mouse.pos_delta.y * drag_speed;
+                        // camera click dragging
+                        {
+                            if input.mouse.button_left.pressing {
+                                if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
+                                    gs.target_camera_pos.x += input.mouse.pos_delta.x * drag_speed;
+                                    gs.target_camera_pos.z += input.mouse.pos_delta.y * drag_speed;
+                                }
                             }
                         }
+                    } else {
+                        if input.get_key(KeyCode::W).pressing
+                            || input.get_key(KeyCode::S).pressing
+                            || input.get_key(KeyCode::A).pressing
+                            || input.get_key(KeyCode::D).pressing
+                            || input.get_key(KeyCode::Escape).pressing
+                            || input.mouse.scroll_delta != 0
+                        {
+                            handle_pack_shop_signals(
+                                vec![PackShopSignals::DeselectAll],
+                                gs,
+                                es,
+                                platform_api,
+                            );
+                            gs.pack_selected = None;
+                        }
                     }
+
+                    let cam_pack = es
+                        .render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::Shop)
+                        .unwrap();
+
+                    gs.target_camera_pos.y = gs.target_camera_pos.y.clamp(15.0, 100.0);
+
+                    cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
+                        cam_pack.camera.transform.local_position,
+                        gs.target_camera_pos,
+                        0.2,
+                    );
                 } else {
-                    if input.get_key(KeyCode::W).pressing
-                        || input.get_key(KeyCode::S).pressing
-                        || input.get_key(KeyCode::A).pressing
-                        || input.get_key(KeyCode::D).pressing
-                        || input.get_key(KeyCode::Escape).pressing
-                        || input.mouse.scroll_delta != 0
-                    {
-                        handle_pack_shop_signals(
-                            vec![PackShopSignals::DeselectAll],
-                            gs,
-                            es,
-                            platform_api,
-                        );
-                        gs.pack_selected = None;
-                    }
+                    // fly cam for testing
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::Shop)
+                        .unwrap()
+                        .camera
+                        .move_fly(0.3, input);
                 }
 
-                let cam_pack = es
-                    .render_system
-                    .render_packs
-                    .get_mut(&RenderPackID::Shop)
-                    .unwrap();
-
-                gs.target_camera_pos.y = gs.target_camera_pos.y.clamp(15.0, 100.0);
-
-                cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
-                    cam_pack.camera.transform.local_position,
-                    gs.target_camera_pos,
-                    0.2,
-                );
-            } else {
-                // fly cam for testing
-                es.render_system
-                    .render_packs
-                    .get_mut(&RenderPackID::Shop)
-                    .unwrap()
-                    .camera
-                    .move_fly(0.3, input);
-            }
-
-            // pack layout rendering
-            {
-                // light testing
+                // pack layout rendering
                 {
-                    let p = 500.0;
-                    let white_p = 2000.0;
+                    // light testing
+                    {
+                        let p = 500.0;
+                        let white_p = 2000.0;
 
-                    es.render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::Shop)
-                        .unwrap()
-                        .lights[0]
-                        .power = VecThreeFloat::new(3.0 * p, 0.95 * p, 0.9 * p);
+                        es.render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap()
+                            .lights[0]
+                            .power = VecThreeFloat::new(3.0 * p, 0.95 * p, 0.9 * p);
 
-                    es.render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::Shop)
-                        .unwrap()
-                        .lights[1]
-                        .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
+                        es.render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap()
+                            .lights[1]
+                            .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
 
-                    es.render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::Shop)
-                        .unwrap()
-                        .lights[2]
-                        .power = VecThreeFloat::new(white_p, white_p, white_p);
-                }
+                        es.render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap()
+                            .lights[2]
+                            .power = VecThreeFloat::new(white_p, white_p, white_p);
+                    }
 
-                let packs: Vec<PackID> =
-                    vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
+                    let packs: Vec<PackID> =
+                        vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
 
-                // make sure all packs exist in the hashmap.
-                // Really means we don't need a hashmap probably
-                for pack_id in &packs {
-                    gs.pack_display_state
-                        .entry(*pack_id)
-                        .or_insert(PackShopDisplay::new());
-                }
+                    // make sure all packs exist in the hashmap.
+                    // Really means we don't need a hashmap probably
+                    for pack_id in &packs {
+                        gs.pack_display_state
+                            .entry(*pack_id)
+                            .or_insert(PackShopDisplay::new());
+                    }
 
-                for pack_id in &packs {
-                    let signals = gs
-                        .pack_display_state
-                        .entry(*pack_id)
-                        .or_insert(PackShopDisplay::new())
-                        .update(
-                            *pack_id,
-                            &input.mouse.button_left,
-                            mouse_world,
-                            &gs.inventory,
-                            &mut gs.assets,
-                            &mut es.render_system,
-                            &mut ui_frame_state,
-                            &mut gs.ui_context.as_mut().unwrap(),
-                            es.window_resolution,
-                            platform_api,
-                        );
+                    for pack_id in &packs {
+                        let signals = gs
+                            .pack_display_state
+                            .entry(*pack_id)
+                            .or_insert(PackShopDisplay::new())
+                            .update(
+                                *pack_id,
+                                &input.mouse.button_left,
+                                mouse_world,
+                                &gs.inventory,
+                                &mut gs.assets,
+                                &mut es.render_system,
+                                &mut ui_frame_state,
+                                &mut gs.ui_context.as_mut().unwrap(),
+                                es.window_resolution,
+                                platform_api,
+                            );
 
-                    handle_pack_shop_signals(signals, gs, es, platform_api);
+                        handle_pack_shop_signals(signals, gs, es, platform_api);
+                    }
                 }
             }
         }

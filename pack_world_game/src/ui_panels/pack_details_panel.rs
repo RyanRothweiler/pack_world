@@ -61,6 +61,7 @@ impl PackDetailsData {
         {
             let y: f64 = 90.0;
             let desc_origin = VecTwo::new(10.0, 20.0);
+            let icon_size = 70.0;
 
             draw_text(
                 "Possible Drops",
@@ -73,28 +74,12 @@ impl PackDetailsData {
             let list = get_fixed_table(pack_info.table_id).list_drops();
 
             for (j, drop) in list.iter().enumerate() {
-                let cost_origin = desc_origin + VecTwo::new(80.0 * j as f64, y + 40.0);
-                let icon_size = 40.0;
+                let mut cost_origin =
+                    desc_origin + VecTwo::new((icon_size + 30.0) * j as f64, y + 40.0);
+                cost_origin.x += 40.0;
+                cost_origin.y += 40.0;
 
-                let mut icon: u32;
-                if inventory.drop_seen(drop) {
-                    icon = assets.get_drop_icon(&drop.drop_type);
-                } else {
-                    icon = assets.image_question_mark.gl_id.unwrap();
-                }
-
-                let r = Rect::new_top_size(cost_origin, icon_size, icon_size);
-
-                draw_image(r, icon, COLOR_WHITE, ui_state, ui_context);
-
-                draw_text(
-                    &format!("{}", drop.amount),
-                    cost_origin + VecTwo::new(40.0, 30.0),
-                    COLOR_WHITE,
-                    &ui_context.font_body.clone(),
-                    ui_state,
-                    ui_context,
-                );
+                draw_drop_icon(icon_size, cost_origin, &drop, ui_state, ui_context, assets);
             }
         }
 
@@ -110,7 +95,7 @@ impl PackDetailsData {
                 std::line!(),
                 ui_context,
             ) {
-                update_signals.push(UpdateSignal::SetActivePage(CreatePanelData::Home));
+                update_signals.push(UpdateSignal::SetActivePage(None));
             }
         }
 

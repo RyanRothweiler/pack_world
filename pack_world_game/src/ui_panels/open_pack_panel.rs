@@ -85,7 +85,7 @@ impl OpenPackPanel {
                 std::line!(),
                 ui_context,
             ) {
-                update_signals.push(UpdateSignal::SetActivePage(CreatePanelData::Home));
+                update_signals.push(UpdateSignal::SetActivePage(None));
             }
         }
 
