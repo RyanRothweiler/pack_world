@@ -67,10 +67,6 @@ pub enum DepthComparison {
     LessThanOrEqualTo,
 }
 
-// Adjust the viewport to take into account the windows titlebar area.
-// Really not a great solution and obviously will break on other platforms.
-const WINDOWS_TITLE_BAR_ADJ: i32 = 40;
-
 // Platformm specific opengl calls. This abstracts over the platforms.
 pub trait OGLPlatformImpl {
     fn create_shader(&mut self, id: i32) -> u32;
@@ -481,7 +477,7 @@ impl EngineRenderApiTrait for OglRenderApi {
 pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &mut OglRenderApi) {
     render_api.platform_api.viewport(
         0,
-        -WINDOWS_TITLE_BAR_ADJ,
+        -es.title_bar_height,
         resolution.x as i32,
         resolution.y as i32,
     );

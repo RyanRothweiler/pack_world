@@ -43,6 +43,8 @@ pub struct State {
 
     pub components: Components,
     pub render_system: RenderSystem,
+
+    pub title_bar_height: i32,
 }
 
 impl State {
@@ -73,6 +75,8 @@ impl State {
 
             components: Components::new(),
             render_system: RenderSystem::new(),
+
+            title_bar_height: 0,
         };
 
         state.render_system.render_packs.insert(

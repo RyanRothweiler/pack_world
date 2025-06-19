@@ -71,9 +71,13 @@ pub fn draw_text_button_id(
     context: &mut UIContext,
 ) -> bool {
     let origin = ui_state.get_origin();
+    let text_bounding_outline = 5.0;
 
     let mut bounding = text_bounding_box(display, pos, style, ui_state);
     bounding.translate(origin);
+
+    let mut hitbox = bounding.clone();
+    hitbox.shrink(-text_bounding_outline);
 
     let button_on_down;
 
@@ -83,11 +87,11 @@ pub fn draw_text_button_id(
         .button_state
         .entry(id.clone())
         .or_insert(ButtonData::new());
-    button_state.update(bounding, &context.mouse, context.delta_time);
+    button_state.update(hitbox, &context.mouse, context.delta_time);
 
     button_on_down = button_state.on_down;
 
-    let contains = bounding.contains(context.mouse.pos);
+    let contains = hitbox.contains(context.mouse.pos);
     if contains {
         ui_state.mouse_left = false;
     }
@@ -107,7 +111,7 @@ pub fn draw_text_button_id(
     // draw hover
     {
         let mut r = bounding;
-        r.shrink(-5.0);
+        r.shrink(-text_bounding_outline);
         r.top_left.y -= 0.0;
 
         let mut y_target = r.top_left.y;
