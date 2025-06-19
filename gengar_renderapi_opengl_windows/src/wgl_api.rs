@@ -26,50 +26,49 @@ macro_rules! wgl_get_proc_address {
     }};
 }
 
-type func_glCreateShader = extern "stdcall" fn(i32) -> u32;
-type func_glShaderSource = extern "stdcall" fn(u32, i32, *const *const libc::c_char, *const i32);
-type func_glCompileShader = extern "stdcall" fn(u32);
-type func_glGetShaderiv = extern "stdcall" fn(u32, i32, *mut i32);
-type func_glShaderInfoLog = extern "stdcall" fn(u32, i32, *mut i32, *mut u8);
-type func_glCreateProgram = extern "stdcall" fn() -> u32;
-type func_glAttachShader = extern "stdcall" fn(u32, u32);
-type func_glLinkProgram = extern "stdcall" fn(u32);
-type func_glGenVertexArrays = extern "stdcall" fn(i32, *mut u32);
-type func_glBindVertexArray = extern "stdcall" fn(u32);
-type func_glGenBuffers = extern "stdcall" fn(i32, *mut u32);
-type func_glBindBuffer = extern "stdcall" fn(i32, u32);
-type func_glBufferData = extern "stdcall" fn(i32, i32, *const libc::c_void, i32);
-type func_glUseProgram = extern "stdcall" fn(u32);
-type func_glDrawElements = extern "stdcall" fn(i32, i32, i32, *const libc::c_void);
-type func_glDrawArrays = extern "stdcall" fn(i32, i32, i32);
-type func_glEnableVertexAttribArray = extern "stdcall" fn(u32);
-type func_glGenTextures = extern "stdcall" fn(i32, *mut u32);
-type func_glBindTexture = extern "stdcall" fn(i32, u32);
-type func_glActiveTexture = extern "stdcall" fn(i32);
-type func_glVertexAttribPointer =
-    extern "stdcall" fn(u32, u32, i32, bool, i32, *const libc::c_void);
-type func_glDeleteVertexArrays = extern "stdcall" fn(i32, *const u32);
-type func_glDeleteBuffers = extern "stdcall" fn(i32, *const u32);
+type func_glCreateShader = extern "system" fn(i32) -> u32;
+type func_glShaderSource = extern "system" fn(u32, i32, *const *const libc::c_char, *const i32);
+type func_glCompileShader = extern "system" fn(u32);
+type func_glGetShaderiv = extern "system" fn(u32, i32, *mut i32);
+type func_glShaderInfoLog = extern "system" fn(u32, i32, *mut i32, *mut u8);
+type func_glCreateProgram = extern "system" fn() -> u32;
+type func_glAttachShader = extern "system" fn(u32, u32);
+type func_glLinkProgram = extern "system" fn(u32);
+type func_glGenVertexArrays = extern "system" fn(i32, *mut u32);
+type func_glBindVertexArray = extern "system" fn(u32);
+type func_glGenBuffers = extern "system" fn(i32, *mut u32);
+type func_glBindBuffer = extern "system" fn(i32, u32);
+type func_glBufferData = extern "system" fn(i32, isize, *const libc::c_void, i32);
+type func_glUseProgram = extern "system" fn(u32);
+type func_glDrawElements = extern "system" fn(i32, i32, i32, *const libc::c_void);
+type func_glDrawArrays = extern "system" fn(i32, i32, i32);
+type func_glEnableVertexAttribArray = extern "system" fn(u32);
+type func_glGenTextures = extern "system" fn(i32, *mut u32);
+type func_glBindTexture = extern "system" fn(i32, u32);
+type func_glActiveTexture = extern "system" fn(i32);
+type func_glVertexAttribPointer = extern "system" fn(u32, u32, i32, bool, i32, *const libc::c_void);
+type func_glDeleteVertexArrays = extern "system" fn(i32, *const u32);
+type func_glDeleteBuffers = extern "system" fn(i32, *const u32);
 
-type func_glGetUniformLocation = extern "stdcall" fn(u32, *const libc::c_char) -> i32;
-type func_glUniform1f = extern "stdcall" fn(i32, f32);
-type func_glUniform1i = extern "stdcall" fn(i32, i32);
-type func_glUniform3fv = extern "stdcall" fn(i32, i32, *const f32);
-type func_glUniform4fv = extern "stdcall" fn(i32, i32, *const f32);
-type func_glUniformMatrix4fv = extern "stdcall" fn(i32, i32, bool, *const f32);
+type func_glGetUniformLocation = extern "system" fn(u32, *const libc::c_char) -> i32;
+type func_glUniform1f = extern "system" fn(i32, f32);
+type func_glUniform1i = extern "system" fn(i32, i32);
+type func_glUniform3fv = extern "system" fn(i32, i32, *const f32);
+type func_glUniform4fv = extern "system" fn(i32, i32, *const f32);
+type func_glUniformMatrix4fv = extern "system" fn(i32, i32, bool, *const f32);
 
-type func_glGenFramebuffers = extern "stdcall" fn(i32, *mut u32);
-type func_glBindFramebuffer = extern "stdcall" fn(u32, u32);
-type func_glFrameBufferTexture2D = extern "stdcall" fn(u32, u32, u32, u32, i32);
+type func_glGenFramebuffers = extern "system" fn(i32, *mut u32);
+type func_glBindFramebuffer = extern "system" fn(u32, u32);
+type func_glFrameBufferTexture2D = extern "system" fn(u32, u32, u32, u32, i32);
 
-type func_glCheckFramebufferStatus = extern "stdcall" fn(u32) -> u32;
+type func_glCheckFramebufferStatus = extern "system" fn(u32) -> u32;
 
-type func_glDrawBuffers = extern "stdcall" fn(i32, *const u32);
+type func_glDrawBuffers = extern "system" fn(i32, *const u32);
 
-type func_GenRenderbuffers = extern "stdcall" fn(i32, *mut u32);
-type func_BindRenderbuffer = extern "stdcall" fn(u32, u32);
-type func_RenderbufferStorage = extern "stdcall" fn(u32, u32, i32, i32);
-type func_FramebufferRenderbuffer = extern "stdcall" fn(u32, u32, u32, u32);
+type func_GenRenderbuffers = extern "system" fn(i32, *mut u32);
+type func_BindRenderbuffer = extern "system" fn(u32, u32);
+type func_RenderbufferStorage = extern "system" fn(u32, u32, i32, i32);
+type func_FramebufferRenderbuffer = extern "system" fn(u32, u32, u32, u32);
 
 pub struct WglMethods {
     glActiveTexture: func_glActiveTexture,
@@ -257,7 +256,7 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         let size: usize = std::mem::size_of::<VecThreeFloatC>() * list_c.len();
         (self.glBufferData)(
             Self::buffer_type_to_gl(typ),
-            i32::try_from(size).unwrap(),
+            isize::try_from(size).unwrap(),
             ptr,
             Self::buffer_usage_to_gl(usage),
         );
@@ -269,21 +268,26 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         let size: usize = std::mem::size_of::<VecTwoC>() * list_c.len();
         (self.glBufferData)(
             Self::buffer_type_to_gl(buf_type),
-            i32::try_from(size).unwrap(),
+            isize::try_from(size).unwrap(),
             ptr,
             Self::buffer_usage_to_gl(usage),
         );
     }
 
     fn buffer_data_u32(&self, buf_type: BufferType, data: &Vec<u32>, usage: BufferUsage) {
-        let mut list_c: Vec<u32> = data.clone();
+        #[repr(C)]
+        pub struct UC {
+            pub v: u32,
+        }
+
+        let mut list_c: Vec<UC> = data.into_iter().map(|input| UC { v: *input }).collect();
 
         let ptr = list_c.as_mut_ptr() as *mut libc::c_void;
         let size: usize = std::mem::size_of::<u32>() * data.len();
 
         (self.glBufferData)(
             Self::buffer_type_to_gl(buf_type),
-            i32::try_from(size).unwrap(),
+            isize::try_from(size).unwrap(),
             ptr,
             Self::buffer_usage_to_gl(usage),
         );
@@ -459,8 +463,12 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
     }
 
     fn draw_elements(&self, mode: i32, indecies: &Vec<u32>) {
-        let ptr = indecies.as_ptr() as *const libc::c_void;
-        (self.glDrawElements)(mode, indecies.len() as i32, GL_UNSIGNED_INT, ptr);
+        (self.glDrawElements)(
+            mode,
+            indecies.len() as i32,
+            GL_UNSIGNED_INT,
+            std::ptr::null(),
+        );
     }
 
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32) {

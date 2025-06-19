@@ -271,6 +271,8 @@ impl EngineRenderApiTrait for OglRenderApi {
         self.platform_api.bind_buffer(BufferType::ArrayBuffer, None);
 
         self.platform_api.bind_vertex_array(0);
+        self.platform_api
+            .bind_buffer(BufferType::ElementArrayBuffer, None);
 
         ret.push(vert_buf_id);
         Ok(ret)

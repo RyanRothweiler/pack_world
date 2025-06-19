@@ -28,10 +28,10 @@ use web_sys::{
 
 mod idb;
 mod supabase;
-mod webgl;
+mod webgl_api;
 
 use idb::*;
-use webgl::{webgl_render::*, webgl_render_api::*};
+use webgl_api::*;
 
 static mut ENGINE_STATE: Option<EngineState> = None;
 static mut GAME_STATE: Option<game::state::State> = None;
@@ -157,23 +157,6 @@ pub fn start() {
     let platform_api = get_platform_api();
     console_error_panic_hook::set_once();
 
-    let gl_state = webgl::webgl_render_api::WebGLState {
-        programs: HashMap::new(),
-        next_prog_id: 0,
-
-        vaos: HashMap::new(),
-        next_vao_id: 0,
-
-        textures: HashMap::new(),
-        next_texture_id: 0,
-
-        buffers: HashMap::new(),
-        next_buffer_id: 0,
-
-        frame_buffers: HashMap::new(),
-        next_frame_buffer_id: 0,
-    };
-
     let performance = window
         .performance()
         .expect("performance should be available");
@@ -198,11 +181,8 @@ pub fn start() {
         .unwrap();
 
     unsafe {
-        webgl::webgl_render_api::GL_STATE = Some(gl_state);
-        webgl::webgl_render_api::GL_CONTEXT = Some(gl_context.clone());
-
         RENDER_API = Some(gengar_render_opengl::OglRenderApi {
-            platform_api: Box::new(crate::webgl::webgl_api::WebGlRenderMethods::new(gl_context)),
+            platform_api: Box::new(WebGlRenderMethods::new(gl_context)),
         });
         INPUT = Some(Input::new());
 
