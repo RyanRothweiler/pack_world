@@ -1,42 +1,25 @@
 use crate::vectors::*;
 use std::collections::HashMap;
 
+pub mod key_code;
+pub mod keyboard;
 pub mod mouse;
 
+pub use key_code::*;
+pub use keyboard::*;
 pub use mouse::*;
 
 pub struct Input {
     pub mouse: Mouse,
-    pub keyboard: HashMap<KeyCode, ButtonState>,
+    pub keyboard: Keyboard,
 }
 
 impl Input {
     pub fn new() -> Self {
         Input {
             mouse: Mouse::new(),
-            keyboard: HashMap::new(),
+            keyboard: Keyboard::new(),
         }
-    }
-
-    pub fn key_pressed(&self) -> Option<KeyCode> {
-        for (key, value) in &self.keyboard {
-            if value.on_press {
-                return Some(*key);
-            }
-        }
-
-        return None;
-    }
-
-    pub fn get_key(&self, key_code: KeyCode) -> ButtonState {
-        // this returns an emtpy button state, if the button is missing from the hashmap.
-        // once the button is pressed it'll be added to the hashmap
-        // this avoids needing to pass a mutable self here
-        if !self.keyboard.contains_key(&key_code) {
-            return ButtonState::new();
-        }
-
-        return *self.keyboard.get(&key_code).unwrap();
     }
 }
 
@@ -77,51 +60,6 @@ impl ButtonState {
 
         self.pressing = new_state;
     }
-}
-
-#[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
-pub enum KeyCode {
-    A,
-    B,
-    C,
-    D,
-    E,
-    F,
-    G,
-    H,
-    I,
-    J,
-    K,
-    L,
-    M,
-    N,
-    O,
-    P,
-    Q,
-    R,
-    S,
-    T,
-    U,
-    V,
-    W,
-    X,
-    Y,
-    Z,
-
-    One,
-    Two,
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
-    Nine,
-    Zero,
-
-    Spacebar,
-    Tab,
-    Escape,
 }
 
 mod test {

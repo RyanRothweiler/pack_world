@@ -75,6 +75,8 @@ pub struct State {
     pub target_camera_pos: VecThreeFloat,
     pub pack_selected: Option<PackID>,
     pub opening_pack: bool,
+
+    pub email_input: String,
 }
 
 impl State {
@@ -119,6 +121,8 @@ impl State {
             target_camera_pos: VecThreeFloat::new_zero(),
             pack_selected: None,
             opening_pack: false,
+
+            email_input: "testing".into(),
         }
     }
 }

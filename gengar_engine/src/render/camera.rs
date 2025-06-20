@@ -207,24 +207,24 @@ impl Camera {
         let mut up = VecThreeFloat::cross(self.forward, right);
         up.normalize_self();
 
-        if input.get_key(KeyCode::A).pressing {
+        if input.keyboard.get_key(KeyCode::A).pressing {
             self.transform.local_position = self.transform.local_position + (right * mov_speed);
         }
-        if input.get_key(KeyCode::D).pressing {
+        if input.keyboard.get_key(KeyCode::D).pressing {
             self.transform.local_position = self.transform.local_position - (right * mov_speed);
         }
-        if input.get_key(KeyCode::S).pressing {
+        if input.keyboard.get_key(KeyCode::S).pressing {
             self.transform.local_position =
                 self.transform.local_position + (self.forward * mov_speed);
         }
-        if input.get_key(KeyCode::W).pressing {
+        if input.keyboard.get_key(KeyCode::W).pressing {
             self.transform.local_position =
                 self.transform.local_position - (self.forward * mov_speed);
         }
-        if input.get_key(KeyCode::Q).pressing {
+        if input.keyboard.get_key(KeyCode::Q).pressing {
             self.transform.local_position = self.transform.local_position + (up * mov_speed);
         }
-        if input.get_key(KeyCode::E).pressing {
+        if input.keyboard.get_key(KeyCode::E).pressing {
             self.transform.local_position = self.transform.local_position - (up * mov_speed);
         }
 

@@ -363,6 +363,7 @@ pub fn game_loop(
     {
         let ui_context = gs.ui_context.get_or_insert(UIContext {
             mouse: input.mouse.clone(),
+            keyboard: input.keyboard.clone(),
 
             color_shader: es.shader_color_ui,
             color_shader_texture: es.color_texture_shader,
@@ -372,12 +373,15 @@ pub fn game_loop(
             font_nav: gs.font_style_nav.clone(),
 
             render_commands: vec![],
+
             button_state: HashMap::new(),
+            input_fields: HashMap::new(),
 
             delta_time: prev_delta_time,
         });
 
         ui_context.mouse = input.mouse.clone();
+        ui_context.keyboard = input.keyboard.clone();
         ui_context.delta_time = prev_delta_time;
     }
 
@@ -399,17 +403,32 @@ pub fn game_loop(
         }
     }
 
+    // input field testing
+    {
+        InputField::draw(
+            "Email",
+            &mut gs.email_input,
+            VecTwo::new(100.0, 100.0),
+            300.0,
+            &gs.font_style_nav,
+            &gs.font_style_body,
+            &mut ui_frame_state,
+            &mut gs.ui_context.as_mut().unwrap(),
+            std::line!(),
+        );
+    }
+
     // save game
     {
         // manual save for testing
         #[cfg(feature = "dev")]
         {
-            if input.get_key(KeyCode::Q).on_press {
+            if input.keyboard.get_key(KeyCode::Q).on_press {
                 save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
                 println!("Game manually saved");
             }
 
-            if input.get_key(KeyCode::L).on_press {
+            if input.keyboard.get_key(KeyCode::L).on_press {
                 (platform_api.fetch_game_save)();
             }
         }
@@ -516,7 +535,7 @@ pub fn game_loop(
 
         // debug panel
         {
-            if input.get_key(KeyCode::Tab).on_press {
+            if input.keyboard.get_key(KeyCode::Tab).on_press {
                 gs.debug_state.showing_debug_panel = !gs.debug_state.showing_debug_panel;
             }
 
@@ -539,16 +558,16 @@ pub fn game_loop(
         if false {
             let spd = 0.05;
 
-            if input.get_key(KeyCode::U).pressing {
+            if input.keyboard.get_key(KeyCode::U).pressing {
                 gs.debug_state.thumbnail_dist -= spd;
             }
-            if input.get_key(KeyCode::M).pressing {
+            if input.keyboard.get_key(KeyCode::M).pressing {
                 gs.debug_state.thumbnail_dist += spd;
             }
-            if input.get_key(KeyCode::Y).pressing {
+            if input.keyboard.get_key(KeyCode::Y).pressing {
                 gs.debug_state.thumbnail_height += spd;
             }
-            if input.get_key(KeyCode::N).pressing {
+            if input.keyboard.get_key(KeyCode::N).pressing {
                 gs.debug_state.thumbnail_height -= spd;
             }
 
@@ -571,7 +590,7 @@ pub fn game_loop(
         let mut frame_delta: f64 = prev_delta_time;
 
         #[cfg(feature = "dev")]
-        if input.get_key(KeyCode::One).on_press {
+        if input.keyboard.get_key(KeyCode::One).on_press {
             frame_delta = 100.0;
         }
 
@@ -696,7 +715,7 @@ pub fn game_loop(
             // placing tiles
             if let Some(tile) = gs.tile_placing {
                 // escape key reseting
-                if input.get_key(KeyCode::Escape).on_press {
+                if input.keyboard.get_key(KeyCode::Escape).on_press {
                     gs.tile_placing = None;
                 }
 
@@ -920,16 +939,16 @@ pub fn game_loop(
                             cam_pack.camera.transform.local_position.y / 100.0,
                         );
 
-                        if input.get_key(KeyCode::W).pressing {
+                        if input.keyboard.get_key(KeyCode::W).pressing {
                             gs.target_camera_pos.z -= keyboard_speed * prev_delta_time;
                         }
-                        if input.get_key(KeyCode::S).pressing {
+                        if input.keyboard.get_key(KeyCode::S).pressing {
                             gs.target_camera_pos.z += keyboard_speed * prev_delta_time;
                         }
-                        if input.get_key(KeyCode::A).pressing {
+                        if input.keyboard.get_key(KeyCode::A).pressing {
                             gs.target_camera_pos.x -= keyboard_speed * prev_delta_time;
                         }
-                        if input.get_key(KeyCode::D).pressing {
+                        if input.keyboard.get_key(KeyCode::D).pressing {
                             gs.target_camera_pos.x += keyboard_speed * prev_delta_time;
                         }
                         if input.mouse.scroll_delta > 0 {
@@ -948,11 +967,11 @@ pub fn game_loop(
                             }
                         }
                     } else {
-                        if input.get_key(KeyCode::W).pressing
-                            || input.get_key(KeyCode::S).pressing
-                            || input.get_key(KeyCode::A).pressing
-                            || input.get_key(KeyCode::D).pressing
-                            || input.get_key(KeyCode::Escape).pressing
+                        if input.keyboard.get_key(KeyCode::W).pressing
+                            || input.keyboard.get_key(KeyCode::S).pressing
+                            || input.keyboard.get_key(KeyCode::A).pressing
+                            || input.keyboard.get_key(KeyCode::D).pressing
+                            || input.keyboard.get_key(KeyCode::Escape).pressing
                             || input.mouse.scroll_delta != 0
                         {
                             handle_pack_shop_signals(

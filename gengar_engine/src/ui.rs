@@ -1,25 +1,33 @@
 use crate::{
     color::*,
     font::*,
-    input::{mouse::*, Input},
+    input::{keyboard::*, mouse::*, Input},
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
     vectors::*,
+    KeyCode,
 };
 use std::{cell::RefCell, collections::HashMap, sync::Mutex};
 
 pub mod button;
+pub mod input_field;
+pub mod theme;
 
 pub use button::*;
+pub use input_field::*;
+pub use theme::*;
 
 pub struct UIContext {
     pub mouse: Mouse,
+    pub keyboard: Keyboard,
 
     pub color_shader: Shader,
     pub color_shader_texture: Shader,
 
     pub render_commands: Vec<RenderCommand>,
+
     pub button_state: HashMap<String, ButtonData>,
+    pub input_fields: HashMap<String, InputFieldData>,
 
     pub font_body: FontStyle,
     pub font_header: FontStyle,

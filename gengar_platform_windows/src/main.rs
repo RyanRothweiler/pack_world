@@ -425,6 +425,7 @@ fn main() {
                 for (key, value) in key_states {
                     input
                         .keyboard
+                        .keys
                         .entry(*key)
                         .or_insert(ButtonState::new())
                         .update(*value);
@@ -698,6 +699,8 @@ pub fn vk_to_keycode(vk: usize) -> Option<KeyCode> {
         0x09 => Some(KeyCode::Tab),
         0x1B => Some(KeyCode::Escape),
         0x20 => Some(KeyCode::Spacebar),
+
+        0x08 => Some(KeyCode::Backspace),
 
         _ => {
             println!("Unknown keycode {:?}", vk);

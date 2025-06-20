@@ -308,6 +308,7 @@ pub fn main_loop() {
             for (key, value) in key_states {
                 input
                     .keyboard
+                    .keys
                     .entry(*key)
                     .or_insert(ButtonState::new())
                     .update(*value);
