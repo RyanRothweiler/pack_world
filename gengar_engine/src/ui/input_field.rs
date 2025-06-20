@@ -33,7 +33,8 @@ impl InputField {
         let selected = state.selected;
 
         let contains = hitbox.contains(context.mouse.pos);
-        if contains {
+        if contains && ui_state.mouse_left {
+            context.selected_input_field = Some(id);
             ui_state.mouse_left = false;
         }
 

@@ -29,6 +29,8 @@ pub struct UIContext {
     pub button_state: HashMap<String, ButtonData>,
     pub input_fields: HashMap<String, InputFieldData>,
 
+    pub selected_input_field: Option<String>,
+
     pub font_body: FontStyle,
     pub font_header: FontStyle,
     pub font_nav: FontStyle,

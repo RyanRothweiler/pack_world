@@ -378,6 +378,8 @@ pub fn game_loop(
             input_fields: HashMap::new(),
 
             delta_time: prev_delta_time,
+
+            selected_input_field: None,
         });
 
         ui_context.mouse = input.mouse.clone();
@@ -491,6 +493,17 @@ pub fn game_loop(
 
         // Update input
         input.mouse.button_left.on_press = ui_frame_state.mouse_left;
+
+        // Selected input field updating
+        if input.keyboard.get_key(KeyCode::Escape).on_press {
+            let ui_cont = gs.ui_context.as_mut().unwrap();
+
+            if ui_cont.selected_input_field.is_some() {
+                let id: String = ui_cont.selected_input_field.as_ref().unwrap().clone();
+                ui_cont.input_fields.get_mut(&id).unwrap().selected = false;
+            }
+            ui_cont.selected_input_field = None;
+        }
     }
 
     // debug developer stuff
