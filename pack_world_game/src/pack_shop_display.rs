@@ -314,6 +314,7 @@ impl PackShopDisplay {
         for (i, inst) in &mut self.pack_instances.iter_mut().enumerate() {
             inst.update_and_render(
                 hovering,
+                pack_info.can_afford(inventory),
                 pack_id,
                 self.state,
                 render_system,

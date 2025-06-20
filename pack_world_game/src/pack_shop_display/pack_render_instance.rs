@@ -54,6 +54,7 @@ impl PackRenderInstance {
     pub fn update_and_render(
         &mut self,
         hovering: bool,
+        can_afford: bool,
         pack_id: PackID,
         node_state: PackShopDisplayState,
         render_system: &mut RenderSystem,
@@ -88,14 +89,20 @@ impl PackRenderInstance {
                     PackShopDisplayState::Hidden => 0.0,
                     // PackShopDisplayState::Hover => 1.0,
                     PackShopDisplayState::Selected => 1.2,
-                    PackShopDisplayState::Idle => 1.0,
+                    PackShopDisplayState::Idle => {
+                        if !can_afford {
+                            0.9
+                        } else {
+                            1.2
+                        }
+                    }
                     PackShopDisplayState::Opening => 1.0,
                 };
 
                 match node_state {
                     PackShopDisplayState::Idle | PackShopDisplayState::Opening => {
                         if hovering {
-                            scale_target += 0.45;
+                            scale_target = 1.7;
                         }
                     }
                     _ => {
@@ -126,7 +133,13 @@ impl PackRenderInstance {
 
         self.rot_time += match self.state {
             PackInstanceState::Opening => 0.7,
-            _ => 0.04,
+            _ => {
+                if !can_afford {
+                    0.01
+                } else {
+                    0.04
+                }
+            }
         };
 
         let target_rot = VecThreeFloat::new(
