@@ -150,7 +150,7 @@ impl FontStyle {
     pub fn get_word_width(&self, word: &str) -> f64 {
         let mut ret: f64 = 0.0;
         for c in word.chars() {
-            let glyph: &Glyph = self.typeface.glyphs.get(&c).unwrap();
+            let glyph: &Glyph = self.typeface.get_glyph(c);
             ret += glyph.advance * EM_SCALE * KERNING_ADJ * self.size;
         }
 
@@ -161,7 +161,7 @@ impl FontStyle {
         let mut height_max: f64 = 0.0;
 
         for c in word.chars() {
-            let glyph: &Glyph = self.typeface.glyphs.get(&c).unwrap();
+            let glyph: &Glyph = self.typeface.get_glyph(c);
             let acc_h = glyph.plane.height() * EM_SCALE * self.size;
             if acc_h > height_max {
                 height_max = acc_h;
@@ -182,6 +182,19 @@ pub struct Font {
     pub atlas_id: u32,
     pub material: Material,
     pub line_height: f64,
+}
+
+impl Font {
+    pub fn get_glyph(&self, ch: char) -> &Glyph {
+        if self.glyphs.contains_key(&ch) {
+            return self.glyphs.get(&ch).unwrap();
+        } else {
+            return self
+                .glyphs
+                .get(&'?')
+                .expect("Font missing fallback ? character.");
+        }
+    }
 }
 
 #[derive(Default, Debug, Clone)]
@@ -244,7 +257,7 @@ fn accumulate_draw_word(
     for c in word.chars() {
         accumulate_draw_letter(c, style, cursor, accum_draw);
 
-        let glyph: &Glyph = style.typeface.glyphs.get(&c).unwrap();
+        let glyph: &Glyph = style.typeface.get_glyph(c);
         cursor.x += glyph.advance * EM_SCALE * KERNING_ADJ * style.size;
     }
 }
@@ -256,7 +269,7 @@ fn accumulate_draw_letter(
     bottom_left: VecTwo,
     draw: &mut AccumulateDraw,
 ) {
-    let glyph: &Glyph = style.typeface.glyphs.get(&letter).unwrap();
+    let glyph: &Glyph = style.typeface.get_glyph(letter);
 
     let mut r = glyph.plane.clone() * EM_SCALE * style.size;
 

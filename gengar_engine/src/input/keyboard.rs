@@ -4,12 +4,14 @@ use std::collections::HashMap;
 #[derive(Clone)]
 pub struct Keyboard {
     pub keys: HashMap<KeyCode, ButtonState>,
+    pub char_down: Option<char>,
 }
 
 impl Keyboard {
     pub fn new() -> Self {
         Self {
             keys: HashMap::new(),
+            char_down: None,
         }
     }
 

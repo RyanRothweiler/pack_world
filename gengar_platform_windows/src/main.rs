@@ -69,6 +69,7 @@ static mut MOUSE_RIGHT_DOWN: bool = false;
 static mut SCROLL_DELTA: i32 = 0;
 static KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
+static mut CHAR_DOWN: Option<char> = None;
 
 static GAME_TO_LOAD: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec![]));
 
@@ -373,6 +374,7 @@ fn main() {
             let mut message = MSG::default();
 
             if PeekMessageA(&mut message, None, 0, 0, PM_REMOVE).into() {
+                TranslateMessage(&message);
                 DispatchMessageA(&message);
             }
 
@@ -430,6 +432,9 @@ fn main() {
                         .or_insert(ButtonState::new())
                         .update(*value);
                 }
+
+                input.keyboard.char_down = CHAR_DOWN;
+                CHAR_DOWN = None;
 
                 // mouse scrolling
                 input.mouse.scroll_delta = 0;
@@ -527,6 +532,15 @@ extern "system" fn windows_callback(
 
                 LRESULT(0)
             }
+            WM_CHAR => {
+                if let Some(ch) = std::char::from_u32(wparam.0 as u32) {
+                    if !ch.is_control() {
+                        CHAR_DOWN = Some(ch);
+                    }
+                }
+                LRESULT(0)
+            }
+
             WM_KEYDOWN => {
                 match vk_to_keycode(wparam.0) {
                     Some(keycode) => {
@@ -703,7 +717,6 @@ pub fn vk_to_keycode(vk: usize) -> Option<KeyCode> {
         0x08 => Some(KeyCode::Backspace),
 
         _ => {
-            println!("Unknown keycode {:?}", vk);
             return None;
         }
     }

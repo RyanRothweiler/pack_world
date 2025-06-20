@@ -139,11 +139,12 @@ impl InputField {
         if selected {
             if let Some(key) = context.keyboard.key_pressed() {
                 if key == KeyCode::Backspace && !content.is_empty() {
-                    println!("removing");
                     content.remove(content.len() - 1);
-                } else if let Some(char) = key.to_char() {
-                    content.push(char);
                 }
+            }
+
+            if let Some(ch) = context.keyboard.char_down {
+                content.push(ch);
             }
         }
     }
