@@ -19,7 +19,7 @@ void main()
     vec3 msd = texture(tex, vTexCoord).rgb;
     float sd = median(msd.r, msd.g, msd.b);
     float screenPxDistance = vPxRange * (sd - 0.5);
-    float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+    float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0) * vColor.a;
 			
     FragColor = vec4(vColor.rgb, opacity);
 }

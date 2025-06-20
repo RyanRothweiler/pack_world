@@ -409,6 +409,7 @@ pub fn game_loop(
     {
         InputField::draw(
             "Email",
+            "email",
             &mut gs.email_input,
             VecTwo::new(100.0, 100.0),
             300.0,

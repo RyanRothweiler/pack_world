@@ -9,6 +9,7 @@ pub struct InputField {}
 impl InputField {
     pub fn draw(
         title: &str,
+        placeholder: &str,
         content: &mut String,
         top_left: VecTwo,
         width: f64,
@@ -103,14 +104,25 @@ impl InputField {
             );
 
             // content
-            draw_text(
-                content,
-                content_pos,
-                COLOR_WHITE,
-                body_style,
-                ui_state,
-                context,
-            );
+            if !content.is_empty() {
+                draw_text(
+                    content,
+                    content_pos,
+                    COLOR_WHITE,
+                    body_style,
+                    ui_state,
+                    context,
+                );
+            } else {
+                draw_text(
+                    placeholder,
+                    content_pos,
+                    Color::new(1.0, 1.0, 1.0, 0.4),
+                    body_style,
+                    ui_state,
+                    context,
+                );
+            }
         }
 
         // cursor
