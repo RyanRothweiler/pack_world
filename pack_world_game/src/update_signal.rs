@@ -27,6 +27,13 @@ pub enum UpdateSignal {
     /// set the active_page var
     SetActivePage(Option<CreatePanelData>),
 
+    /// Push panel onto stack
+    PushPanel(CreatePanelData),
+
+    /// Go to the previous panel on the stack.
+    /// Pop panel from stack
+    PreviousPanel(),
+
     /// Add an item to inventory
     GiveItem { item_type: ItemType, count: i64 },
 
@@ -89,6 +96,16 @@ pub fn handle_signals(
                     } else {
                         gs.active_page = None;
                     }
+                    vec![]
+                }
+
+                UpdateSignal::PushPanel(new_panel) => {
+                    gs.ui_panel_stack.push(new_panel.create_panel());
+                    vec![]
+                }
+
+                UpdateSignal::PreviousPanel() => {
+                    gs.ui_panel_stack.pop();
                     vec![]
                 }
 

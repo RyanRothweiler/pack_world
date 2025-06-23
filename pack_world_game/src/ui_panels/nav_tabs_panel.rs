@@ -1,6 +1,7 @@
 use crate::{
     state::*,
     ui_panels::{home_panel::*, *},
+    user_account::*,
     UpdateSignal,
 };
 use gengar_engine::{
@@ -11,7 +12,9 @@ use gengar_engine::{
     vectors::*,
 };
 
-pub struct NavTabsPanel {}
+pub struct NavTabsPanel {
+    pub user_account: Option<UserAccount>,
+}
 
 impl NavTabsPanel {
     pub fn update(
@@ -101,6 +104,32 @@ impl NavTabsPanel {
                 ret.push(UpdateSignal::OpenURL {
                     url: "https://mailchi.mp/932d23a45465/packworld".into(),
                 })
+            }
+
+            if let Some(user_account) = &self.user_account {
+            } else {
+                draw_text(
+                    "!! No cloud save !!",
+                    VecTwo::new(ui_state.resolution.x - 690.0, 35.0),
+                    Color::new(1.0, 0.0, 0.0, 0.7),
+                    &ui_context.font_body.clone(),
+                    ui_state,
+                    ui_context,
+                );
+
+                if draw_text_button(
+                    "Create Account / Sign in",
+                    VecTwo::new(ui_state.resolution.x - 510.0, 35.0),
+                    &ui_context.font_body.clone(),
+                    false,
+                    Some(crate::BUTTON_BG),
+                    ui_state,
+                    std::line!(),
+                    ui_context,
+                ) {
+                    let new_panel = CreatePanelData::CreateAccount;
+                    ret.push(UpdateSignal::PushPanel(new_panel));
+                }
             }
         }
 

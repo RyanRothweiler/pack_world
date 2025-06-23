@@ -6,6 +6,7 @@ use crate::{
 };
 use gengar_engine::{color::*, platform_api::*, typeface::*, ui::*, vectors::*};
 
+pub mod create_account_panel;
 pub mod debug_panel;
 pub mod home_panel;
 pub mod nav_tabs_panel;
@@ -14,6 +15,7 @@ pub mod pack_details_panel;
 pub mod shop_panel;
 pub mod tile_library_panel;
 
+use create_account_panel::*;
 use debug_panel::*;
 use home_panel::*;
 use nav_tabs_panel::*;
@@ -37,6 +39,7 @@ pub enum UIPanel {
     OpenPack(OpenPackPanel),
     DebugPanel(DebugPanel),
     PackDetails(PackDetailsData),
+    CreateAccount(CreateAccountPanel),
 }
 
 impl UIPanel {
@@ -62,6 +65,7 @@ impl UIPanel {
             }
             UIPanel::DebugPanel(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::PackDetails(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::CreateAccount(state) => state.update(ui_state, inventory, assets, ui_context),
         }
     }
 }
@@ -85,12 +89,13 @@ pub enum CreatePanelData {
     Home,
     OpenPack { pack_id: PackID },
     PackDetails { pack_id: PackID },
+    CreateAccount,
 }
 
 impl CreatePanelData {
     pub fn create_panel(&self) -> UIPanel {
         match self {
-            CreatePanelData::NavTabs => UIPanel::NavTabs(NavTabsPanel {}),
+            CreatePanelData::NavTabs => UIPanel::NavTabs(NavTabsPanel { user_account: None }),
             CreatePanelData::TileLibrary => UIPanel::TileLibrary(TileLibraryPanel::new()),
             CreatePanelData::Shop => UIPanel::Shop(ShopPanel {}),
             CreatePanelData::Home => UIPanel::Home(HomePanel {
@@ -106,6 +111,7 @@ impl CreatePanelData {
             CreatePanelData::PackDetails { pack_id } => {
                 UIPanel::PackDetails(PackDetailsData::new(*pack_id))
             }
+            CreatePanelData::CreateAccount => UIPanel::CreateAccount(CreateAccountPanel::new()),
         }
     }
 }

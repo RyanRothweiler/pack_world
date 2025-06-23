@@ -19,7 +19,11 @@ impl InputField {
         context: &mut UIContext,
         line: u32,
     ) {
-        let hitbox = Rect::new_top_size(top_left, width, 38.0);
+        let origin = ui_state.get_origin();
+        // top_left = top_left + origin;
+
+        let mut hitbox = Rect::new_top_size(top_left, width, 38.0);
+        hitbox.translate(origin);
 
         let id = format!("{}", line);
         let state = context
@@ -130,9 +134,10 @@ impl InputField {
             if cursor_show {
                 let mut text_bounding =
                     text_bounding_box(content, content_pos, body_style, ui_state);
+                text_bounding.translate(origin);
                 text_bounding.top_left.x = text_bounding.bottom_right.x - 2.0;
 
-                let shift = 0.0;
+                let shift = -2.0;
                 text_bounding.top_left.x += shift;
                 text_bounding.bottom_right.x += shift;
 

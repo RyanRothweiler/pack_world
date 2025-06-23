@@ -3,6 +3,7 @@ use crate::{
     pack_shop_display::*,
     tile::*,
     ui_panels::{debug_panel::*, *},
+    user_account::*,
     world::*,
     PackID,
 };
@@ -50,6 +51,7 @@ pub struct State {
 
     pub active_ui_panels: Vec<UIPanel>,
     pub active_page: Option<UIPanel>,
+    pub ui_panel_stack: Vec<UIPanel>,
 
     pub tile_placing: Option<TileType>,
 
@@ -76,7 +78,7 @@ pub struct State {
     pub pack_selected: Option<PackID>,
     pub opening_pack: bool,
 
-    pub email_input: String,
+    pub user_account: Option<UserAccount>,
 }
 
 impl State {
@@ -91,6 +93,7 @@ impl State {
             },
 
             active_ui_panels: vec![],
+            ui_panel_stack: vec![],
 
             assets: Assets::new(),
 
@@ -122,7 +125,7 @@ impl State {
             pack_selected: None,
             opening_pack: false,
 
-            email_input: "testing".into(),
+            user_account: None,
         }
     }
 }

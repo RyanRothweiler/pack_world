@@ -31,6 +31,7 @@ mod supabase;
 mod webgl_api;
 
 use idb::*;
+use supabase::*;
 use webgl_api::*;
 
 static mut ENGINE_STATE: Option<EngineState> = None;
@@ -150,6 +151,8 @@ pub fn start() {
         log(&format!("user_id {}", user_id));
         *USER_ID.lock().unwrap() = user_id;
     }
+
+    wasm_bindgen_futures::spawn_local(send_otp("ryanrothweiler@gmail.com"));
 
     // load game save
     fetch_game_save();

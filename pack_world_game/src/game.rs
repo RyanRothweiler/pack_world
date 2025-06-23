@@ -52,6 +52,7 @@ pub mod state;
 pub mod tile;
 pub mod ui_panels;
 pub mod update_signal;
+pub mod user_account;
 pub mod world;
 
 #[cfg(test)]
@@ -71,6 +72,7 @@ use state::inventory::*;
 use tile::*;
 use ui_panels::{debug_panel::*, nav_tabs_panel::*, tile_library_panel::*, *};
 use update_signal::*;
+use user_account::*;
 use world::*;
 
 // Used for windows platform loading dlls
@@ -289,8 +291,7 @@ pub fn game_init(
     }
 
     // setup initial UI
-    gs.active_ui_panels
-        .push(CreatePanelData::Home.create_panel());
+    gs.ui_panel_stack.push(CreatePanelData::Home.create_panel());
 
     // setup first map
     {
@@ -405,22 +406,6 @@ pub fn game_loop(
         }
     }
 
-    // input field testing
-    {
-        InputField::draw(
-            "Email",
-            "email",
-            &mut gs.email_input,
-            VecTwo::new(100.0, 100.0),
-            300.0,
-            &gs.font_style_nav,
-            &gs.font_style_body,
-            &mut ui_frame_state,
-            &mut gs.ui_context.as_mut().unwrap(),
-            std::line!(),
-        );
-    }
-
     // save game
     {
         // manual save for testing
@@ -487,6 +472,16 @@ pub fn game_loop(
                 platform_api,
             )),
             None => {}
+        }
+
+        if let Some(top_panel) = gs.ui_panel_stack.last_mut() {
+            update_signals.append(&mut top_panel.update(
+                &mut ui_frame_state,
+                &gs.inventory,
+                &mut gs.assets,
+                &mut gs.ui_context.as_mut().unwrap(),
+                platform_api,
+            ))
         }
 
         // Handle signals
