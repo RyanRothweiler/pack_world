@@ -83,6 +83,15 @@ pub enum JsonData {
     Class(JsonNode),
 }
 
+impl JsonData {
+    pub fn as_string(&self) -> Result<String, Error> {
+        match self {
+            JsonData::String(st) => Ok(st.into()),
+            _ => Err(Error::JsonDataWrongTypeExpected),
+        }
+    }
+}
+
 #[derive(PartialEq, Debug, Clone)]
 pub struct JsonNode {
     pub entries: HashMap<String, JsonData>,

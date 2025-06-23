@@ -8,6 +8,7 @@
 
 use std::{include_str, io::Cursor};
 
+pub mod account_call;
 pub mod analytics;
 pub mod ascii;
 pub mod binary_file_system;

@@ -4,7 +4,9 @@ use crate::{
     ui_panels::*,
     UpdateSignal,
 };
-use gengar_engine::{rect::*, render::material::*, typeface::*, ui::*, vectors::*};
+use gengar_engine::{
+    account_call::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
+};
 
 pub struct CreateAccountPanel {
     email: String,
@@ -62,7 +64,13 @@ impl CreateAccountPanel {
             ui_state,
             std::line!(),
             ui_context,
-        ) {}
+        ) {
+            ret.push(UpdateSignal::SendAccountCall {
+                call: AccountCall::SendOTP {
+                    email: self.email.clone(),
+                },
+            });
+        }
 
         if draw_text_button(
             "Close",
@@ -81,4 +89,6 @@ impl CreateAccountPanel {
 
         return ret;
     }
+
+    pub fn handle_error(&mut self, error: AccountError) {}
 }

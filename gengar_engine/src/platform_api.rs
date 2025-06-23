@@ -1,4 +1,4 @@
-use crate::{analytics::*, error::Error};
+use crate::{account_call::*, analytics::*, error::Error};
 use std::path::*;
 
 pub struct PlatformApi {
@@ -9,4 +9,6 @@ pub struct PlatformApi {
 
     pub write_save_game_data: fn(data: Vec<u8>) -> Result<(), Error>,
     pub fetch_game_save: fn(),
+
+    pub send_account_call: fn(call: AccountCall),
 }

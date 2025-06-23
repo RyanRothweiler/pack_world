@@ -11,6 +11,7 @@ use crate::{
     world::world_layer::*,
 };
 use gengar_engine::{
+    account_call::*,
     analytics::*,
     platform_api::*,
     render::{camera::*, render_pack::*},
@@ -70,6 +71,9 @@ pub enum UpdateSignal {
 
     /// Trigger rendering a tile thumbnail
     TriggerRenderTileThumbnail { tile_type: TileType },
+
+    /// Send AccountCall
+    SendAccountCall { call: AccountCall },
 }
 
 pub fn handle_signals(
@@ -101,6 +105,11 @@ pub fn handle_signals(
 
                 UpdateSignal::PushPanel(new_panel) => {
                     gs.ui_panel_stack.push(new_panel.create_panel());
+                    vec![]
+                }
+
+                UpdateSignal::SendAccountCall { call } => {
+                    (platform_api.send_account_call)(call.clone());
                     vec![]
                 }
 

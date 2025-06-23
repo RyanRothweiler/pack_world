@@ -18,8 +18,8 @@ mod gl;
 
 use game;
 use gengar_engine::{
-    analytics::*, error::Error as EngineError, input::*, platform_api::PlatformApi, vectors::*,
-    vol_mem::*,
+    account_call::*, analytics::*, error::Error as EngineError, input::*,
+    platform_api::PlatformApi, vectors::*, vol_mem::*,
 };
 use gengar_render_opengl::*;
 use std::{
@@ -134,6 +134,10 @@ fn open_url(url: String) {
     println!("Open url {url}");
 }
 
+fn send_account_call(call: AccountCall) {
+    println!("Send account call {:?}", call);
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: random,
@@ -142,6 +146,7 @@ pub fn get_platform_api() -> PlatformApi {
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
         open_url: open_url,
+        send_account_call: send_account_call,
     }
 }
 

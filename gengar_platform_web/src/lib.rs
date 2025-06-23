@@ -10,8 +10,8 @@
 
 use game::{game_init, game_loop};
 use gengar_engine::{
-    analytics::*, error::Error, input::*, platform_api::PlatformApi, state::State as EngineState,
-    vectors::*,
+    account_call::*, analytics::*, error::Error, input::*, platform_api::PlatformApi,
+    state::State as EngineState, vectors::*,
 };
 use gengar_render_opengl::*;
 use js_sys::{Date, Math};
@@ -41,6 +41,7 @@ static mut INPUT: Option<Input> = None;
 
 static KEYBOARD: LazyLock<Mutex<HashMap<KeyCode, bool>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
+static mut CHAR_DOWN: Option<char> = None;
 
 static mut MOUSE_POS: VecTwo = VecTwo { x: 0.0, y: 0.0 };
 static mut MOUSE_LEFT_DOWN: bool = false;
@@ -119,6 +120,14 @@ fn open_url(url: String) {
     let _ = web_sys::window().unwrap().open_with_url(&url);
 }
 
+fn send_account_call(call: AccountCall) {
+    match call {
+        AccountCall::SendOTP { email } => {
+            wasm_bindgen_futures::spawn_local(send_otp(email.clone()));
+        }
+    }
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: rand,
@@ -127,6 +136,7 @@ pub fn get_platform_api() -> PlatformApi {
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
         open_url: open_url,
+        send_account_call: send_account_call,
     }
 }
 
@@ -151,8 +161,6 @@ pub fn start() {
         log(&format!("user_id {}", user_id));
         *USER_ID.lock().unwrap() = user_id;
     }
-
-    wasm_bindgen_futures::spawn_local(send_otp("ryanrothweiler@gmail.com"));
 
     // load game save
     fetch_game_save();
@@ -210,6 +218,11 @@ pub fn start() {
 
 #[wasm_bindgen]
 pub fn key_down(vent: KeyboardEvent) {
+    if vent.key().len() == 1 {
+        let c: Vec<char> = vent.key().chars().collect();
+        unsafe { CHAR_DOWN = Some(c[0]) };
+    }
+
     if let Some(key) = to_keycode(vent.key()) {
         KEYBOARD.lock().unwrap().insert(key, true);
     }
@@ -316,6 +329,9 @@ pub fn main_loop() {
                     .or_insert(ButtonState::new())
                     .update(*value);
             }
+
+            input.keyboard.char_down = CHAR_DOWN;
+            CHAR_DOWN = None;
         }
 
         // check for game load
@@ -396,7 +412,7 @@ pub fn to_keycode(key: String) -> Option<KeyCode> {
         "Escape" => Some(KeyCode::Escape),
         " " => Some(KeyCode::Spacebar),
         _ => {
-            log(&format!("Unknown keycode {:?}", key));
+            // log(&format!("Unknown keycode {:?}", key));
             return None;
         }
     }

@@ -27,7 +27,12 @@ pub enum Error {
     WebGlNoState,
 
     // json
+    /// Invalid token when parsing the string into a json structure
     JsonInvalidToken,
+    /// The JsonData was the wrong type. An invoker somewhere expected the JsonData as a certain type which it was not.
+    JsonDataWrongTypeExpected,
+    /// Missing an expected json field
+    JsonMissingEntry,
 
     // font
     FontErrorLoading,

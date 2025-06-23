@@ -1,4 +1,5 @@
 use crate::{
+    account_call::*,
     input::*,
     model::*,
     render::{camera::*, render_command::*, render_pack::*, shader::*, vao::*},
@@ -45,6 +46,8 @@ pub struct State {
     pub render_system: RenderSystem,
 
     pub title_bar_height: i32,
+
+    pub account_error: Option<AccountError>,
 }
 
 impl State {
@@ -77,6 +80,8 @@ impl State {
             render_system: RenderSystem::new(),
 
             title_bar_height: 0,
+
+            account_error: None,
         };
 
         state.render_system.render_packs.insert(

@@ -108,6 +108,7 @@ impl NavTabsPanel {
 
             if let Some(user_account) = &self.user_account {
             } else {
+                /*
                 draw_text(
                     "!! No cloud save !!",
                     VecTwo::new(ui_state.resolution.x - 690.0, 35.0),
@@ -116,6 +117,7 @@ impl NavTabsPanel {
                     ui_state,
                     ui_context,
                 );
+                */
 
                 if draw_text_button(
                     "Create Account / Sign in",
