@@ -8,3 +8,12 @@ pub enum AccountError {
     EmailInvalid,
     UnknownError { response: String },
 }
+
+impl AccountError {
+    pub fn display(&self) -> String {
+        match self {
+            AccountError::EmailInvalid => "Email Invalid".into(),
+            AccountError::UnknownError { response } => format!("Unknown error: {}", response),
+        }
+    }
+}

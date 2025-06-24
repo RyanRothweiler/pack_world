@@ -1,33 +1,8 @@
 use crate::{account_call::*, util::incrementing_map::*};
 
-/// State of the network call.
-/// This does not say if the call was successful or not, only that it was indeed sent.
-#[derive(Clone, Debug)]
-pub enum NetworkCallStatus {
-    /// Waiting for engine to send call
-    Waiting,
+pub mod network_call_status;
 
-    /// Platform is sending call
-    Sending,
-
-    /// Call has been sent successfully
-    Success,
-
-    /// Call was sent but resulted in an error
-    Error { error: AccountError },
-}
-
-/*
-/// Status of the network call.
-/// Error or successful?
-#[derive(Clone)]
-pub enum NetworkCallStatus {
-    Success,
-
-    // todo generalize this past account errors
-    Error { error: AccountError },
-}
-    */
+pub use network_call_status::*;
 
 pub struct NetworkCall {
     pub status: NetworkCallStatus,

@@ -9,6 +9,4 @@ pub struct PlatformApi {
 
     pub write_save_game_data: fn(data: Vec<u8>) -> Result<(), Error>,
     pub fetch_game_save: fn(),
-
-    pub send_account_call: fn(call: AccountCall),
 }

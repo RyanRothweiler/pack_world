@@ -12,6 +12,7 @@ pub static ACCOUNT_ERROR: LazyLock<Mutex<Option<AccountError>>> =
 const API_KEY: &str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTc1MTUsImV4cCI6MjA1Nzg5MzUxNX0.wYCDHY5jXVIex2E6ZmzU16DQC5GtqMiPV974N7TQKUM";
 
 fn supa_to_account_error(input: String) -> Result<AccountError, Error> {
+    super::log(&format!("json checking {}", input));
     let json = gengar_engine::json::load(&input)?;
     let error_code = json
         .get(vec!["error_code".to_string()])
@@ -19,6 +20,8 @@ fn supa_to_account_error(input: String) -> Result<AccountError, Error> {
         .as_string()?;
 
     if error_code == "validation_failed" {
+        Ok(AccountError::EmailInvalid)
+    } else if error_code == "email_address_invalid" {
         Ok(AccountError::EmailInvalid)
     } else {
         Ok(AccountError::UnknownError { response: input })

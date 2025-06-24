@@ -146,7 +146,6 @@ pub fn get_platform_api() -> PlatformApi {
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
         open_url: open_url,
-        send_account_call: send_account_call,
     }
 }
 

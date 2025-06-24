@@ -90,10 +90,16 @@ impl CreateAccountPanel {
         if let Some(call_id) = self.create_account_call {
             let status = networking_system.get_status(call_id);
 
+            let col = if status.is_error() {
+                COLOR_RED
+            } else {
+                COLOR_WHITE
+            };
+
             draw_text(
-                &format!("call status {:?}", status),
-                VecTwo::new(margin_l, 300.0),
-                COLOR_WHITE,
+                &status.display(),
+                VecTwo::new(margin_l, 350.0),
+                col,
                 &ui_context.font_body.clone(),
                 ui_state,
                 ui_context,

@@ -345,7 +345,17 @@ impl Tokenizer {
                 self.advance();
 
                 let start = self.index;
-                self.move_to_char('"');
+                loop {
+                    self.move_to_char('"');
+
+                    // check for char break
+                    if self.data[self.index - 1] == '\\' {
+                        // move past break char and then continue
+                        self.advance();
+                    } else {
+                        break;
+                    }
+                }
                 let end = self.index;
 
                 self.advance();
@@ -490,4 +500,22 @@ mod test {
 
         assert_eq!(data.get(vec!["left".into()]), Some(JsonData::Float(0.0)));
     }
+
+    #[test]
+    fn quote_break() {
+        let input =
+            "{\"code\":400,\"error_code\":\"email_address_invalid\",\"msg\":\"Email address \\\"bb@gmail.com\\\" is invalid\"}";
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 3);
+
+        assert_eq!(
+            data.get(vec!["msg".into()]),
+            Some(JsonData::String(
+                "Email address \\\"bb@gmail.com\\\" is invalid".into()
+            ))
+        );
+    }
+
+    //
 }

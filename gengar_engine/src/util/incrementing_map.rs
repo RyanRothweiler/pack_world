@@ -49,7 +49,7 @@ mod test {
         let id = holder.push(10.0);
         let second = holder.push(123.0);
 
-        assert_eq!(*holder.get(id), 10.0);
-        assert_eq!(*holder.get(second), 123.0);
+        assert_eq!(*holder.get(id).unwrap(), 10.0);
+        assert_eq!(*holder.get(second).unwrap(), 123.0);
     }
 }

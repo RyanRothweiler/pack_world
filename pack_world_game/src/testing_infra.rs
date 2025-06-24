@@ -29,6 +29,8 @@ fn open_url(url: String) {
     unimplemented!()
 }
 
+
+
 //For testing use the windows platform api. Tests don't run on any other platform.s
 pub fn windows_plaform_api() -> PlatformApi {
     PlatformApi {
