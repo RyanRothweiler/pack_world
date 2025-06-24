@@ -2,10 +2,12 @@ use crate::{
     account_call::*,
     input::*,
     model::*,
+    networking::*,
     render::{camera::*, render_command::*, render_pack::*, shader::*, vao::*},
     transform::*,
     typeface::*,
     ui::*,
+    util::incrementing_map::*,
     vectors::*,
 };
 use std::{cell::RefCell, collections::HashMap};
@@ -44,6 +46,7 @@ pub struct State {
 
     pub components: Components,
     pub render_system: RenderSystem,
+    pub networking_system: NetworkingSystem,
 
     pub title_bar_height: i32,
 
@@ -78,6 +81,7 @@ impl State {
 
             components: Components::new(),
             render_system: RenderSystem::new(),
+            networking_system: NetworkingSystem::new(),
 
             title_bar_height: 0,
 

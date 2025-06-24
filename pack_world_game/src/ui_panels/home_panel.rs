@@ -24,6 +24,7 @@ pub struct HomePanel {
 impl HomePanel {
     pub fn update(
         &mut self,
+        networking_system: &mut NetworkingSystem,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &mut Assets,
@@ -77,6 +78,7 @@ impl HomePanel {
             )),
             */
             WorldStatus::World => update_signals.append(&mut self.ui_inventory.update(
+                networking_system,
                 ui_state,
                 inventory,
                 assets,

@@ -322,7 +322,7 @@ pub fn game_init(
     }
 }
 
-fn sim_world(gs: &mut State, es: &EngineState, ms: f64, platform_api: &PlatformApi) {
+fn sim_world(gs: &mut State, es: &mut EngineState, ms: f64, platform_api: &PlatformApi) {
     let mut update_signals: Vec<UpdateSignal> = vec![];
     for (eid, entity) in &mut gs.world.entities {
         update_signals.append(&mut entity.sim_update(ms));
@@ -454,6 +454,7 @@ pub fn game_loop(
         // Render and update active UI
         for panel in &mut gs.active_ui_panels {
             update_signals.append(&mut panel.update(
+                &mut es.networking_system,
                 &mut ui_frame_state,
                 &gs.inventory,
                 &mut gs.assets,
@@ -465,6 +466,7 @@ pub fn game_loop(
         // update active page
         match &mut gs.active_page {
             Some(page) => update_signals.append(&mut page.update(
+                &mut es.networking_system,
                 &mut ui_frame_state,
                 &gs.inventory,
                 &mut gs.assets,
@@ -476,6 +478,7 @@ pub fn game_loop(
 
         if let Some(top_panel) = gs.ui_panel_stack.last_mut() {
             update_signals.append(&mut top_panel.update(
+                &mut es.networking_system,
                 &mut ui_frame_state,
                 &gs.inventory,
                 &mut gs.assets,
@@ -551,6 +554,7 @@ pub fn game_loop(
             if gs.debug_state.showing_debug_panel {
                 if let Some(panel) = &mut gs.debug_state.debug_panel {
                     let sigs = panel.update(
+                        &mut es.networking_system,
                         &mut ui_frame_state,
                         &gs.inventory,
                         &mut gs.assets,

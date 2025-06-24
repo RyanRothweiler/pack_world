@@ -15,7 +15,7 @@ pub enum PackShopSignals {
 pub fn handle_pack_shop_signals(
     mut signals: Vec<PackShopSignals>,
     gs: &mut State,
-    es: &EngineState,
+    es: &mut EngineState,
     platform_api: &PlatformApi,
 ) {
     for sig in signals {

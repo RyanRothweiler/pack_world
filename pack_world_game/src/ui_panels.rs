@@ -4,7 +4,7 @@ use crate::{
     tile::*,
     UpdateSignal,
 };
-use gengar_engine::{color::*, platform_api::*, typeface::*, ui::*, vectors::*};
+use gengar_engine::{color::*, networking::*, platform_api::*, typeface::*, ui::*, vectors::*};
 
 pub mod create_account_panel;
 pub mod debug_panel;
@@ -45,6 +45,7 @@ pub enum UIPanel {
 impl UIPanel {
     pub fn update(
         &mut self,
+        networking_system: &mut NetworkingSystem,
         ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &mut Assets,
@@ -57,15 +58,22 @@ impl UIPanel {
             }
             UIPanel::TileLibrary(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::Shop(state) => state.update(ui_state, inventory, assets, ui_context),
-            UIPanel::Home(state) => {
-                state.update(ui_state, inventory, assets, ui_context, platform_api)
-            }
+            UIPanel::Home(state) => state.update(
+                networking_system,
+                ui_state,
+                inventory,
+                assets,
+                ui_context,
+                platform_api,
+            ),
             UIPanel::OpenPack(state) => {
                 state.update(ui_state, inventory, assets, ui_context, platform_api)
             }
             UIPanel::DebugPanel(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::PackDetails(state) => state.update(ui_state, inventory, assets, ui_context),
-            UIPanel::CreateAccount(state) => state.update(ui_state, inventory, assets, ui_context),
+            UIPanel::CreateAccount(state) => {
+                state.update(networking_system, ui_state, inventory, assets, ui_context)
+            }
         }
     }
 }

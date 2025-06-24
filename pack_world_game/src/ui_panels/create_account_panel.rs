@@ -5,22 +5,26 @@ use crate::{
     UpdateSignal,
 };
 use gengar_engine::{
-    account_call::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
+    account_call::*, networking::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
 };
 
 pub struct CreateAccountPanel {
     email: String,
+
+    create_account_call: Option<usize>,
 }
 
 impl CreateAccountPanel {
     pub fn new() -> Self {
         Self {
+            create_account_call: None,
             email: String::new(),
         }
     }
 
     pub fn update(
         &mut self,
+        networking_system: &mut NetworkingSystem,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
         assets: &mut Assets,
@@ -65,11 +69,9 @@ impl CreateAccountPanel {
             std::line!(),
             ui_context,
         ) {
-            ret.push(UpdateSignal::SendAccountCall {
-                call: AccountCall::SendOTP {
-                    email: self.email.clone(),
-                },
-            });
+            self.create_account_call = Some(networking_system.start_call(AccountCall::SendOTP {
+                email: self.email.clone(),
+            }));
         }
 
         if draw_text_button(
@@ -85,10 +87,21 @@ impl CreateAccountPanel {
             ret.push(UpdateSignal::PreviousPanel());
         }
 
+        if let Some(call_id) = self.create_account_call {
+            let status = networking_system.get_status(call_id);
+
+            draw_text(
+                &format!("call status {:?}", status),
+                VecTwo::new(margin_l, 300.0),
+                COLOR_WHITE,
+                &ui_context.font_body.clone(),
+                ui_state,
+                ui_context,
+            );
+        }
+
         end_panel(&mut ui_state, ui_context);
 
         return ret;
     }
-
-    pub fn handle_error(&mut self, error: AccountError) {}
 }

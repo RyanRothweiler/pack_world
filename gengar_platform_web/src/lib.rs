@@ -10,8 +10,8 @@
 
 use game::{game_init, game_loop};
 use gengar_engine::{
-    account_call::*, analytics::*, error::Error, input::*, platform_api::PlatformApi,
-    state::State as EngineState, vectors::*,
+    account_call::*, analytics::*, error::Error, input::*, networking::*,
+    platform_api::PlatformApi, state::State as EngineState, vectors::*,
 };
 use gengar_render_opengl::*;
 use js_sys::{Date, Math};
@@ -34,6 +34,11 @@ use idb::*;
 use supabase::*;
 use webgl_api::*;
 
+struct FinishedNetworkCall {
+    pub id: usize,
+    pub status: NetworkCallStatus,
+}
+
 static mut ENGINE_STATE: Option<EngineState> = None;
 static mut GAME_STATE: Option<game::state::State> = None;
 static mut RENDER_API: Option<OglRenderApi> = None;
@@ -49,6 +54,9 @@ static mut MOUSE_RIGHT_DOWN: bool = false;
 
 static USER_ID: LazyLock<Mutex<String>> = LazyLock::new(|| Mutex::new("".into()));
 const USER_ID_KEY: &str = "USER_ID_KEY";
+
+static mut NETWORK_CALL_RESPONSES: LazyLock<Mutex<Vec<FinishedNetworkCall>>> =
+    LazyLock::new(|| Mutex::new(vec![]));
 
 #[wasm_bindgen]
 extern "C" {
@@ -121,11 +129,13 @@ fn open_url(url: String) {
 }
 
 fn send_account_call(call: AccountCall) {
+    /*
     match call {
         AccountCall::SendOTP { email } => {
             wasm_bindgen_futures::spawn_local(send_otp(email.clone()));
         }
     }
+    */
 }
 
 pub fn get_platform_api() -> PlatformApi {
@@ -334,6 +344,62 @@ pub fn main_loop() {
             CHAR_DOWN = None;
         }
 
+        // check for account errors
+        /*
+        {
+            let account_error: Option<AccountError> =
+                supabase::ACCOUNT_ERROR.lock().unwrap().clone();
+            ENGINE_STATE.as_mut().unwrap().account_error = account_error;
+            *supabase::ACCOUNT_ERROR.lock().unwrap() = None;
+        }
+        */
+
+        // handle network calls
+        {
+            let engine_state: &mut EngineState = ENGINE_STATE.as_mut().unwrap();
+
+            for (id, network_call) in &mut engine_state.networking_system.network_calls.data {
+                match network_call.status {
+                    NetworkCallStatus::Waiting => {
+                        network_call.status = NetworkCallStatus::Sending;
+
+                        // Send the network call
+                        match &network_call.call {
+                            AccountCall::SendOTP { email } => {
+                                let e = email.clone();
+                                let i = *id;
+                                wasm_bindgen_futures::spawn_local(async move {
+                                    let status = send_otp(e).await;
+
+                                    // this could panic if multiple network calls finish at the same time.
+                                    // this isn't a proper async network manager.
+                                    NETWORK_CALL_RESPONSES.lock().unwrap().push(
+                                        FinishedNetworkCall {
+                                            id: i,
+                                            status: status,
+                                        },
+                                    );
+                                });
+                            }
+                        }
+                    }
+                    _ => {
+                        // do nothing
+                    }
+                }
+            }
+
+            // Handle finished calls
+            while let Some(resp) = NETWORK_CALL_RESPONSES.lock().unwrap().pop() {
+                engine_state
+                    .networking_system
+                    .network_calls
+                    .get_mut(resp.id)
+                    .unwrap()
+                    .status = resp.status;
+            }
+        }
+
         // check for game load
         {
             let mut loaded_data = idb::LOADED_DATA.lock().unwrap();
@@ -410,6 +476,7 @@ pub fn to_keycode(key: String) -> Option<KeyCode> {
 
         "Tab" => Some(KeyCode::Tab),
         "Escape" => Some(KeyCode::Escape),
+        "Backspace" => Some(KeyCode::Backspace),
         " " => Some(KeyCode::Spacebar),
         _ => {
             // log(&format!("Unknown keycode {:?}", key));

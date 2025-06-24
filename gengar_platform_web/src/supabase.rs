@@ -1,11 +1,12 @@
-use gengar_engine::{account_call::*, error::*, json::*};
+use gengar_engine::{account_call::*, error::*, json::*, networking::*};
 use js_sys::Reflect;
-use std::sync::Mutex;
+use std::sync::{Arc, LazyLock, Mutex};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Headers, Request, RequestInit, Response};
 
-static ACCOUNT_ERROR: Mutex<Option<AccountError>> = Mutex::new(None);
+pub static ACCOUNT_ERROR: LazyLock<Mutex<Option<AccountError>>> =
+    LazyLock::new(|| Mutex::new(None));
 
 // !!!!!
 const API_KEY: &str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTc1MTUsImV4cCI6MjA1Nzg5MzUxNX0.wYCDHY5jXVIex2E6ZmzU16DQC5GtqMiPV974N7TQKUM";
@@ -127,7 +128,7 @@ async fn download_data(user_id: String) {
     super::log("download successful ");
 }
 
-pub async fn send_otp(email: String) {
+pub async fn send_otp(email: String) -> NetworkCallStatus {
     let json_str = format!("{{\"email\":\"{}\"}}", email);
     super::log(&json_str);
 
@@ -161,10 +162,18 @@ pub async fn send_otp(email: String) {
 
     let status: u16 = resp.status();
 
+    super::log("otp sent ");
+
     if status == 400 {
         let account_error = supa_to_account_error(resp_str).unwrap();
         super::log(&format!("Error sending OTP. {:?}", account_error));
-    }
+        // *ACCOUNT_ERROR.lock().unwrap() = Some(account_error);
 
-    super::log("otp sent ");
+        return NetworkCallStatus::Error {
+            error: account_error,
+        };
+    } else {
+        // super::NETWORK_CALL_RESPONSES.lock();
+        return NetworkCallStatus::Success;
+    }
 }
