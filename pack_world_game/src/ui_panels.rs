@@ -1,4 +1,5 @@
 use crate::{
+    account_system::*,
     pack::*,
     state::{assets::*, inventory::*, *},
     tile::*,
@@ -12,6 +13,7 @@ pub mod home_panel;
 pub mod nav_tabs_panel;
 pub mod open_pack_panel;
 pub mod pack_details_panel;
+pub mod pairing_code_panel;
 pub mod shop_panel;
 pub mod tile_library_panel;
 
@@ -21,6 +23,7 @@ use home_panel::*;
 use nav_tabs_panel::*;
 use open_pack_panel::*;
 use pack_details_panel::*;
+pub use pairing_code_panel::*;
 use shop_panel::*;
 use tile_library_panel::*;
 
@@ -40,11 +43,13 @@ pub enum UIPanel {
     DebugPanel(DebugPanel),
     PackDetails(PackDetailsData),
     CreateAccount(CreateAccountPanel),
+    PairingCode(PairingCodePanel),
 }
 
 impl UIPanel {
     pub fn update(
         &mut self,
+        account_system: &AccountSystem,
         networking_system: &mut NetworkingSystem,
         ui_state: &mut UIFrameState,
         inventory: &Inventory,
@@ -59,6 +64,7 @@ impl UIPanel {
             UIPanel::TileLibrary(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::Shop(state) => state.update(ui_state, inventory, assets, ui_context),
             UIPanel::Home(state) => state.update(
+                account_system,
                 networking_system,
                 ui_state,
                 inventory,
@@ -74,6 +80,16 @@ impl UIPanel {
             UIPanel::CreateAccount(state) => {
                 state.update(networking_system, ui_state, inventory, assets, ui_context)
             }
+            UIPanel::PairingCode(state) => {
+                state.update(networking_system, ui_state, inventory, assets, ui_context)
+            }
+        }
+    }
+
+    pub fn owns_screen(&mut self) -> bool {
+        match self {
+            UIPanel::CreateAccount(_) | UIPanel::PairingCode(_) => true,
+            _ => false,
         }
     }
 }
@@ -89,7 +105,7 @@ pub enum PanelID {
     PackDetails,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum CreatePanelData {
     NavTabs,
     TileLibrary,
@@ -98,12 +114,13 @@ pub enum CreatePanelData {
     OpenPack { pack_id: PackID },
     PackDetails { pack_id: PackID },
     CreateAccount,
+    PairingCode { email: String },
 }
 
 impl CreatePanelData {
     pub fn create_panel(&self) -> UIPanel {
         match self {
-            CreatePanelData::NavTabs => UIPanel::NavTabs(NavTabsPanel { user_account: None }),
+            CreatePanelData::NavTabs => UIPanel::NavTabs(NavTabsPanel {}),
             CreatePanelData::TileLibrary => UIPanel::TileLibrary(TileLibraryPanel::new()),
             CreatePanelData::Shop => UIPanel::Shop(ShopPanel {}),
             CreatePanelData::Home => UIPanel::Home(HomePanel {
@@ -120,6 +137,9 @@ impl CreatePanelData {
                 UIPanel::PackDetails(PackDetailsData::new(*pack_id))
             }
             CreatePanelData::CreateAccount => UIPanel::CreateAccount(CreateAccountPanel::new()),
+            CreatePanelData::PairingCode { email } => {
+                UIPanel::PairingCode(PairingCodePanel::new(email.clone()))
+            }
         }
     }
 }

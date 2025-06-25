@@ -1,6 +1,7 @@
 #[derive(Debug, Clone)]
 pub enum AccountCall {
     SendOTP { email: String },
+    VerifyPairingCode { pairing_code: String, email: String },
 }
 
 #[derive(Debug, Clone)]

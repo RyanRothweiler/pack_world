@@ -1,4 +1,5 @@
 use crate::{
+    account_system::*,
     state::*,
     ui_panels::{home_panel::*, *},
     user_account::*,
@@ -12,14 +13,13 @@ use gengar_engine::{
     vectors::*,
 };
 
-pub struct NavTabsPanel {
-    pub user_account: Option<UserAccount>,
-}
+pub struct NavTabsPanel {}
 
 impl NavTabsPanel {
     pub fn update(
         &mut self,
         mut ui_state: &mut UIFrameState,
+        account_system: &AccountSystem,
         inventory: &Inventory,
         assets: &Assets,
         ui_context: &mut UIContext,
@@ -106,7 +106,15 @@ impl NavTabsPanel {
                 })
             }
 
-            if let Some(user_account) = &self.user_account {
+            if let Some(user_account) = &account_system.user_account {
+                draw_text(
+                    &user_account.email,
+                    VecTwo::new(ui_state.resolution.x - 690.0, 35.0),
+                    Color::new(1.0, 1.0, 1.0, 0.5),
+                    &ui_context.font_body.clone(),
+                    ui_state,
+                    ui_context,
+                );
             } else {
                 /*
                 draw_text(
@@ -129,8 +137,7 @@ impl NavTabsPanel {
                     std::line!(),
                     ui_context,
                 ) {
-                    let new_panel = CreatePanelData::CreateAccount;
-                    ret.push(UpdateSignal::PushPanel(new_panel));
+                    ret.push(UpdateSignal::PushPanel(CreatePanelData::CreateAccount));
                 }
             }
         }

@@ -8,6 +8,7 @@ use crate::{
     state::{inventory::*, *},
     tile::*,
     ui_panels::{home_panel::*, *},
+    user_account::*,
     world::world_layer::*,
 };
 use gengar_engine::{
@@ -72,6 +73,9 @@ pub enum UpdateSignal {
 
     /// Trigger rendering a tile thumbnail
     TriggerRenderTileThumbnail { tile_type: TileType },
+
+    /// Set current account from supabase account info
+    LoginUserFromSupabase { user_json: String },
 }
 
 pub fn handle_signals(
@@ -201,6 +205,12 @@ pub fn handle_signals(
 
                 UpdateSignal::TriggerRenderTileThumbnail { tile_type } => {
                     gs.assets.tile_thumbnails.insert(*tile_type, None);
+
+                    vec![]
+                }
+
+                UpdateSignal::LoginUserFromSupabase { user_json } => {
+                    gs.account_system.login_supabase(user_json.clone());
 
                     vec![]
                 }

@@ -8,16 +8,19 @@ use gengar_engine::{
     account_call::*, networking::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
 };
 
-pub struct CreateAccountPanel {
+pub struct PairingCodePanel {
     email: String,
-    create_account_call: Option<usize>,
+
+    pairing_code: String,
+    network_call: Option<usize>,
 }
 
-impl CreateAccountPanel {
-    pub fn new() -> Self {
+impl PairingCodePanel {
+    pub fn new(email: String) -> Self {
         Self {
-            create_account_call: None,
-            email: String::new(),
+            email,
+            network_call: None,
+            pairing_code: String::new(),
         }
     }
 
@@ -31,13 +34,13 @@ impl CreateAccountPanel {
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
-        let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(500.0, 700.0));
+        let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(500.0, 600.0));
         begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
 
         let margin_l = 30.0;
 
         draw_text(
-            "Create Account",
+            "Enter Pairing Code",
             VecTwo::new(margin_l, 50.0),
             COLOR_WHITE,
             &&ui_context.font_header.clone(),
@@ -46,9 +49,9 @@ impl CreateAccountPanel {
         );
 
         InputField::draw(
-            "Email",
-            "email",
-            &mut self.email,
+            "Pairing Code",
+            "pairing code",
+            &mut self.pairing_code,
             VecTwo::new(margin_l, 100.0),
             300.0,
             &ui_context.font_nav.clone(),
@@ -68,13 +71,16 @@ impl CreateAccountPanel {
             std::line!(),
             ui_context,
         ) {
-            self.create_account_call = Some(networking_system.start_call(AccountCall::SendOTP {
-                email: self.email.clone(),
-            }));
+            self.network_call = Some(networking_system.start_call(
+                AccountCall::VerifyPairingCode {
+                    email: self.email.clone(),
+                    pairing_code: self.pairing_code.clone(),
+                },
+            ));
         }
 
         if draw_text_button(
-            "Close",
+            "Back",
             VecTwo::new(margin_l, 260.0),
             &ui_context.font_nav.clone(),
             false,
@@ -84,16 +90,25 @@ impl CreateAccountPanel {
             ui_context,
         ) {
             ret.push(UpdateSignal::PreviousPanel());
+            ret.push(UpdateSignal::PushPanel(CreatePanelData::CreateAccount));
         }
 
-        if let Some(call_id) = self.create_account_call {
+        if let Some(call_id) = self.network_call {
             let status = networking_system.get_status(call_id);
+            let mut col = COLOR_WHITE;
 
-            let col = if status.is_error() {
-                COLOR_RED
-            } else {
-                COLOR_WHITE
-            };
+            match &status {
+                NetworkCallStatus::Error { error } => col = COLOR_RED,
+                NetworkCallStatus::Waiting | NetworkCallStatus::Sending => {
+                    // do nothing
+                }
+                NetworkCallStatus::Success { response } => {
+                    ret.push(UpdateSignal::PreviousPanel());
+                    ret.push(UpdateSignal::LoginUserFromSupabase {
+                        user_json: response.clone(),
+                    });
+                }
+            }
 
             draw_text(
                 &status.display(),
@@ -103,13 +118,6 @@ impl CreateAccountPanel {
                 ui_state,
                 ui_context,
             );
-
-            if status.is_success() {
-                ret.push(UpdateSignal::PreviousPanel());
-                ret.push(UpdateSignal::PushPanel(CreatePanelData::PairingCode {
-                    email: self.email.clone(),
-                }));
-            }
         }
 
         end_panel(&mut ui_state, ui_context);

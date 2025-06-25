@@ -380,6 +380,26 @@ pub fn main_loop() {
                                     );
                                 });
                             }
+                            AccountCall::VerifyPairingCode {
+                                pairing_code,
+                                email,
+                            } => {
+                                let pc = pairing_code.clone();
+                                let em = email.clone();
+                                let i = *id;
+                                wasm_bindgen_futures::spawn_local(async move {
+                                    let status = verify_pairing_code(pc, em).await;
+
+                                    // this could panic if multiple network calls finish at the same time.
+                                    // this isn't a proper async network manager.
+                                    NETWORK_CALL_RESPONSES.lock().unwrap().push(
+                                        FinishedNetworkCall {
+                                            id: i,
+                                            status: status,
+                                        },
+                                    );
+                                });
+                            }
                         }
                     }
                     _ => {

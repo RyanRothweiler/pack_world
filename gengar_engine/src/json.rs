@@ -45,6 +45,11 @@ fn get_data(tokenizer: &mut Tokenizer) -> Result<JsonData, Error> {
             return Ok(JsonData::String(data));
         }
 
+        // Bool
+        Token::Boolean(data) => {
+            return Ok(JsonData::Boolean(data));
+        }
+
         // Float
         Token::Float(data) => {
             return Ok(JsonData::Float(data));
@@ -81,6 +86,7 @@ pub enum JsonData {
     Float(f64),
     Array(Vec<JsonData>),
     Class(JsonNode),
+    Boolean(bool),
 }
 
 impl JsonData {
@@ -112,6 +118,16 @@ impl JsonNode {
         match JsonNode::get_queue(self, VecDeque::from(path)) {
             Some(d) => match d {
                 JsonData::Float(v) => return Some(v),
+                _ => return None,
+            },
+            None => return None,
+        }
+    }
+
+    pub fn get_string(&self, path: Vec<String>) -> Option<String> {
+        match JsonNode::get_queue(self, VecDeque::from(path)) {
+            Some(d) => match d {
+                JsonData::String(v) => return Some(v),
                 _ => return None,
             },
             None => return None,
@@ -169,6 +185,7 @@ enum Token {
     Float(f64),
     Colon,
     End,
+    Boolean(bool),
 }
 
 impl Token {
@@ -300,6 +317,27 @@ impl Tokenizer {
                 return Ok(Token::Colon);
 
                 //
+            } else if c == 't' {
+                // boolean true
+
+                self.advance();
+                self.advance();
+                self.advance();
+
+                return Ok(Token::Boolean(true));
+
+                //
+            } else if c == 'f' {
+                // boolean false
+
+                self.advance();
+                self.advance();
+                self.advance();
+                self.advance();
+
+                return Ok(Token::Boolean(false));
+
+                //
             } else if c.is_numeric() || c == '-' {
                 // float
 
@@ -362,7 +400,7 @@ impl Tokenizer {
 
                 let sub = match self.extract(start, end) {
                     Some(v) => v,
-                    None => return Ok(Token::End),
+                    None => String::new(),
                 };
 
                 return Ok(Token::String(sub));
@@ -399,7 +437,7 @@ mod test {
 
     #[test]
     fn tokens() {
-        let input = "{ \"first_idea\" : 123 }";
+        let input = r#"{ "first_idea" : 123 }"#;
         let mut tokenizer = Tokenizer::new(&input);
 
         assert_eq!(tokenizer.get_next_token().unwrap(), Token::OpenCurly);
@@ -492,8 +530,7 @@ mod test {
 
     #[test]
     fn scientific_notation() {
-        let input =
-            "{\"left\":-6.1643480066450249e-05,\"bottom\":-0.073089700996677734,\"right\":0.87701476848006643,\"top\":0.60465116279069775}";
+        let input = r#"{"left":-6.1643480066450249e-05,"bottom":-0.073089700996677734,"right":0.87701476848006643,"top":0.60465116279069775}"#;
         let data = load(&input).unwrap();
 
         assert_eq!(data.entries.keys().len(), 4);
@@ -502,9 +539,8 @@ mod test {
     }
 
     #[test]
-    fn quote_break() {
-        let input =
-            "{\"code\":400,\"error_code\":\"email_address_invalid\",\"msg\":\"Email address \\\"bb@gmail.com\\\" is invalid\"}";
+    fn quote_escape() {
+        let input = r#"{"code":400,"error_code":"email_address_invalid","msg":"Email address \"bb@gmail.com\" is invalid"}"#;
         let data = load(&input).unwrap();
 
         assert_eq!(data.entries.keys().len(), 3);
@@ -512,10 +548,38 @@ mod test {
         assert_eq!(
             data.get(vec!["msg".into()]),
             Some(JsonData::String(
-                "Email address \\\"bb@gmail.com\\\" is invalid".into()
+                r#"Email address \"bb@gmail.com\" is invalid"#.into()
             ))
         );
     }
 
-    //
+    #[test]
+    fn boolean() {
+        let input = r#"{"data" : false, "second": true}"#;
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 2);
+
+        assert_eq!(
+            data.get(vec!["data".into()]),
+            Some(JsonData::Boolean(false))
+        );
+        assert_eq!(
+            data.get(vec!["second".into()]),
+            Some(JsonData::Boolean(true))
+        );
+    }
+
+    #[test]
+    fn empty_string() {
+        let input = r#"{"data" : ""}"#;
+        let data = load(&input).unwrap();
+
+        assert_eq!(data.entries.keys().len(), 1);
+
+        assert_eq!(
+            data.get(vec!["data".into()]),
+            Some(JsonData::String("".into()))
+        );
+    }
 }

@@ -1,4 +1,5 @@
 use crate::{
+    account_system::*,
     harvest_drop::*,
     pack_shop_display::*,
     tile::*,
@@ -78,7 +79,7 @@ pub struct State {
     pub pack_selected: Option<PackID>,
     pub opening_pack: bool,
 
-    pub user_account: Option<UserAccount>,
+    pub account_system: AccountSystem,
 }
 
 impl State {
@@ -125,7 +126,7 @@ impl State {
             pack_selected: None,
             opening_pack: false,
 
-            user_account: None,
+            account_system: AccountSystem { user_account: None },
         }
     }
 }

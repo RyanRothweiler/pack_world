@@ -1,4 +1,5 @@
 use crate::{
+    account_system::*,
     pack::*,
     state::{assets, *},
     ui_panels::{nav_tabs_panel::*, *},
@@ -24,6 +25,7 @@ pub struct HomePanel {
 impl HomePanel {
     pub fn update(
         &mut self,
+        account_system: &AccountSystem,
         networking_system: &mut NetworkingSystem,
         mut ui_state: &mut UIFrameState,
         inventory: &Inventory,
@@ -58,9 +60,14 @@ impl HomePanel {
         */
 
         let mut nav_update_sigs = match self.ui_nav_tabs.as_mut() {
-            UIPanel::NavTabs(state) => {
-                state.update(ui_state, inventory, assets, ui_context, self.tab)
-            }
+            UIPanel::NavTabs(state) => state.update(
+                ui_state,
+                account_system,
+                inventory,
+                assets,
+                ui_context,
+                self.tab,
+            ),
             _ => {
                 panic!("Only nav tab panel shoul be here");
             }
@@ -78,6 +85,7 @@ impl HomePanel {
             )),
             */
             WorldStatus::World => update_signals.append(&mut self.ui_inventory.update(
+                account_system,
                 networking_system,
                 ui_state,
                 inventory,

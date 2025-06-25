@@ -38,6 +38,7 @@ use std::{
     sync::{LazyLock, Mutex},
 };
 
+pub mod account_system;
 pub mod constants;
 pub mod drop_table;
 pub mod error;
@@ -58,6 +59,7 @@ pub mod world;
 #[cfg(test)]
 pub mod testing_infra;
 
+use account_system::*;
 use assets::*;
 pub use constants::*;
 use grid::*;
@@ -454,6 +456,7 @@ pub fn game_loop(
         // Render and update active UI
         for panel in &mut gs.active_ui_panels {
             update_signals.append(&mut panel.update(
+                &gs.account_system,
                 &mut es.networking_system,
                 &mut ui_frame_state,
                 &gs.inventory,
@@ -466,6 +469,7 @@ pub fn game_loop(
         // update active page
         match &mut gs.active_page {
             Some(page) => update_signals.append(&mut page.update(
+                &gs.account_system,
                 &mut es.networking_system,
                 &mut ui_frame_state,
                 &gs.inventory,
@@ -478,6 +482,7 @@ pub fn game_loop(
 
         if let Some(top_panel) = gs.ui_panel_stack.last_mut() {
             update_signals.append(&mut top_panel.update(
+                &gs.account_system,
                 &mut es.networking_system,
                 &mut ui_frame_state,
                 &gs.inventory,
@@ -554,6 +559,7 @@ pub fn game_loop(
             if gs.debug_state.showing_debug_panel {
                 if let Some(panel) = &mut gs.debug_state.debug_panel {
                     let sigs = panel.update(
+                        &gs.account_system,
                         &mut es.networking_system,
                         &mut ui_frame_state,
                         &gs.inventory,
@@ -656,212 +662,65 @@ pub fn game_loop(
         handle_signals(update_sigs, gs, es, platform_api);
     }
 
-    match gs.world_status {
-        WorldStatus::World => {
-            // camera controls
-            {
-                es.render_system
-                    .render_packs
-                    .get_mut(&RenderPackID::NewWorld)
-                    .unwrap()
-                    .camera
-                    .move_fly(0.3, input);
-            }
+    let show_game = {
+        if let Some(top_panel) = gs.ui_panel_stack.last_mut() {
+            !top_panel.owns_screen()
+        } else {
+            true
+        }
+    };
 
-            // render tiles
-            {
-                // TODO chagne this to use delta_time
-                gs.rotate_time += 0.08;
+    if show_game {
+        match gs.world_status {
+            WorldStatus::World => {
+                // camera controls
+                {
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::NewWorld)
+                        .unwrap()
+                        .camera
+                        .move_fly(0.3, input);
+                }
 
-                for (grid_pos, world_cell) in &gs.world.entity_map {
-                    for (layer, eid) in &world_cell.layers {
-                        // Skip ground tils if there is a floor
-                        if *layer == WorldLayer::Ground {
-                            if world_cell.layers.contains_key(&WorldLayer::Floor) {
-                                continue;
+                // render tiles
+                {
+                    // TODO chagne this to use delta_time
+                    gs.rotate_time += 0.08;
+
+                    for (grid_pos, world_cell) in &gs.world.entity_map {
+                        for (layer, eid) in &world_cell.layers {
+                            // Skip ground tils if there is a floor
+                            if *layer == WorldLayer::Ground {
+                                if world_cell.layers.contains_key(&WorldLayer::Floor) {
+                                    continue;
+                                }
                             }
-                        }
 
-                        let entity = &gs.world.get_entity(&eid);
+                            let entity = &gs.world.get_entity(&eid);
 
-                        entity.render(
-                            gs.rotate_time,
-                            &entity.grid_pos,
-                            es.color_texture_shader,
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::NewWorld)
-                                .unwrap(),
-                            &gs.assets,
-                        );
-                    }
-                }
-            }
-
-            // Get mouse grid position
-            let mouse_grid: GridPos = {
-                let mut val = GridPos::new(0, 0);
-
-                let cam: &Camera = &es
-                    .render_system
-                    .render_packs
-                    .get(&RenderPackID::NewWorld)
-                    .unwrap()
-                    .camera;
-                let pos = cam.screen_to_world(input.mouse.pos);
-
-                let dir = (pos - cam.transform.local_position).normalize();
-
-                if let Some(len) = plane_intersection_distance(
-                    cam.transform.local_position,
-                    dir,
-                    VecThreeFloat::new(0.0, 0.0, 0.0),
-                    VecThreeFloat::new(0.0, -1.0, 0.0),
-                ) {
-                    let world_pos = cam.transform.local_position + (dir * len);
-                    val = world_to_grid(&world_pos.xz());
-                }
-
-                val
-            };
-
-            // placing tiles
-            if let Some(tile) = gs.tile_placing {
-                // escape key reseting
-                if input.keyboard.get_key(KeyCode::Escape).on_press {
-                    gs.tile_placing = None;
-                }
-
-                // render tile placing
-                if tile.get_definition().placing_draw_footprint {
-                    let footprint = &tile.get_definition().footprint;
-
-                    for p in footprint {
-                        let pos = mouse_grid + *p;
-
-                        let can_place = tile.pos_passes_placement_constraints(pos, &gs.world);
-
-                        draw_tile_grid_pos(
-                            tile,
-                            0.0,
-                            &pos,
-                            can_place,
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::NewWorld)
-                                .unwrap(),
-                            &gs.assets,
-                        );
-                    }
-                } else {
-                    let can_place = tile.can_place_here(mouse_grid, &gs.world);
-
-                    draw_tile_grid_pos(
-                        tile,
-                        0.0,
-                        &mouse_grid,
-                        can_place,
-                        es.render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::NewWorld)
-                            .unwrap(),
-                        &gs.assets,
-                    );
-                }
-
-                // place tile
-                let can_place = tile.can_place_here(mouse_grid, &gs.world);
-                if input.mouse.button_left.on_press && can_place {
-                    if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
-                        let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
-                        if count == 0 {
-                            gs.tile_placing = None;
-                        }
-
-                        handle_signals(update_sigs, gs, es, platform_api);
-                    }
-                }
-            }
-
-            // tile hovering
-            {
-                let mut update_signals: Vec<UpdateSignal> = vec![];
-                let world_snapshot = gs.world.get_world_snapshot();
-
-                if gs.tile_placing.is_none() {
-                    let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
-
-                    for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
-                        let tile = gs.world.get_entity_mut(eid);
-
-                        // Harvesting
-                        if input.mouse.button_left.pressing && tile.can_harvest() {
-                            tile.harvest(&world_snapshot, platform_api);
-                        }
-
-                        // render hover rect
-                        {
-                            let mut mat = Material::new();
-                            mat.shader = Some(es.shader_color);
-                            mat.set_color(Color::new(1.0, 1.0, 1.0, 0.8));
-
-                            let mut trans = Transform::new();
-                            trans.local_position = grid_to_world(&mouse_grid);
-                            trans.update_global_matrix(&M44::new_identity());
-
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::NewWorld)
-                                .unwrap()
-                                .commands
-                                .push(RenderCommand::new_model(
-                                    &trans,
-                                    gs.assets.asset_library.get_model("tile_outline"),
-                                    &mat,
-                                ));
-                        }
-
-                        // render info
-                        {
-                            let mut ui_frame_state =
-                                UIFrameState::new(&input, es.window_resolution);
-
-                            let y = layer.to_index() as f64 * 40.0;
-
-                            draw_text(
-                                &format!("{:?}", tile.tile_type),
-                                VecTwo::new(450.0, 100.0 + y),
-                                COLOR_WHITE,
-                                &gs.font_style_body,
-                                &mut ui_frame_state,
-                                &mut gs.ui_context.as_mut().unwrap(),
-                            );
-
-                            tile.render_hover_info(
-                                tile.get_component_harvestable(),
-                                y,
-                                es.shader_color.clone(),
+                            entity.render(
+                                gs.rotate_time,
+                                &entity.grid_pos,
+                                es.color_texture_shader,
                                 es.render_system
                                     .render_packs
-                                    .get_mut(&RenderPackID::UI)
+                                    .get_mut(&RenderPackID::NewWorld)
                                     .unwrap(),
+                                &gs.assets,
                             );
                         }
                     }
                 }
 
-                handle_signals(update_signals, gs, es, platform_api);
-            }
-        }
-        WorldStatus::Shop => {
-            if gs.active_page.is_none() {
-                let mouse_world: VecThreeFloat = {
-                    let mut val = VecThreeFloat::new_zero();
+                // Get mouse grid position
+                let mouse_grid: GridPos = {
+                    let mut val = GridPos::new(0, 0);
 
                     let cam: &Camera = &es
                         .render_system
                         .render_packs
-                        .get(&RenderPackID::Shop)
+                        .get(&RenderPackID::NewWorld)
                         .unwrap()
                         .camera;
                     let pos = cam.screen_to_world(input.mouse.pos);
@@ -874,211 +733,371 @@ pub fn game_loop(
                         VecThreeFloat::new(0.0, 0.0, 0.0),
                         VecThreeFloat::new(0.0, -1.0, 0.0),
                     ) {
-                        val = cam.transform.local_position + (dir * len);
+                        let world_pos = cam.transform.local_position + (dir * len);
+                        val = world_to_grid(&world_pos.xz());
                     }
 
                     val
                 };
 
-                // lighting
-                {
-                    let light_trans: &mut Transform =
-                        &mut es.components.transforms[gs.pack_light_trans];
+                // placing tiles
+                if let Some(tile) = gs.tile_placing {
+                    // escape key reseting
+                    if input.keyboard.get_key(KeyCode::Escape).on_press {
+                        gs.tile_placing = None;
+                    }
 
-                    /*
-                    draw_tile_world_pos(
-                        TileType::Dirt,
-                        0.0,
-                        &light_trans.global_matrix.get_position(),
-                        true,
-                        es.render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap(),
-                        &gs.assets,
-                    );
-                    */
+                    // render tile placing
+                    if tile.get_definition().placing_draw_footprint {
+                        let footprint = &tile.get_definition().footprint;
 
-                    let spd = 0.007;
-                    let origin_trans: &mut Transform =
-                        &mut es.components.transforms[gs.pack_light_origin];
-                    // origin_trans.local_rotation.x = es.frame as f64 * spd;
-                    origin_trans.local_rotation.y = es.frame as f64 * spd;
-                    // origin_trans.local_rotation.x = es.frame as f64 * spd;
-                    // origin_trans.local_rotation.z = es.frame as f64 * spd;
+                        for p in footprint {
+                            let pos = mouse_grid + *p;
 
-                    let cp = es
-                        .render_system
-                        .render_packs
-                        .get(&RenderPackID::Shop)
-                        .unwrap()
-                        .camera
-                        .transform
-                        .local_position;
+                            let can_place = tile.pos_passes_placement_constraints(pos, &gs.world);
 
-                    origin_trans.local_position.x = cp.x;
-                    origin_trans.local_position.z = cp.z;
-
-                    /*
-                    let light = Light::new(es.components.new_transform());
-
-                    let ct: &mut Transform = &mut es.components.transforms[light.transform];
-                    ct.parent = Some(gs.pack_light_origin);
-                    ct.local_position.x = -2.0;
-                    ct.local_position.z = 10.0;
-                    ct.local_position.y = 15.0;
-
-                    es.render_system
-                        .get_pack(RenderPackID::Shop)
-                        .lights
-                        .push(light);
-                    */
-                }
-
-                // camera controls
-                if true {
-                    let cam_pack = es
-                        .render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::Shop)
-                        .unwrap();
-
-                    if gs.pack_selected.is_none() && !gs.opening_pack {
-                        let keyboard_speed = 30.0;
-                        let mouse_scroll_speed = 400.0;
-                        let drag_speed = gengar_engine::math::lerp(
-                            0.02,
-                            0.08,
-                            cam_pack.camera.transform.local_position.y / 100.0,
-                        );
-
-                        if input.keyboard.get_key(KeyCode::W).pressing {
-                            gs.target_camera_pos.z -= keyboard_speed * prev_delta_time;
-                        }
-                        if input.keyboard.get_key(KeyCode::S).pressing {
-                            gs.target_camera_pos.z += keyboard_speed * prev_delta_time;
-                        }
-                        if input.keyboard.get_key(KeyCode::A).pressing {
-                            gs.target_camera_pos.x -= keyboard_speed * prev_delta_time;
-                        }
-                        if input.keyboard.get_key(KeyCode::D).pressing {
-                            gs.target_camera_pos.x += keyboard_speed * prev_delta_time;
-                        }
-                        if input.mouse.scroll_delta > 0 {
-                            gs.target_camera_pos.y -= mouse_scroll_speed * prev_delta_time;
-                        } else if input.mouse.scroll_delta < 0 {
-                            gs.target_camera_pos.y += mouse_scroll_speed * prev_delta_time
-                        }
-
-                        // camera click dragging
-                        {
-                            if input.mouse.button_left.pressing {
-                                if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
-                                    gs.target_camera_pos.x += input.mouse.pos_delta.x * drag_speed;
-                                    gs.target_camera_pos.z += input.mouse.pos_delta.y * drag_speed;
-                                }
-                            }
+                            draw_tile_grid_pos(
+                                tile,
+                                0.0,
+                                &pos,
+                                can_place,
+                                es.render_system
+                                    .render_packs
+                                    .get_mut(&RenderPackID::NewWorld)
+                                    .unwrap(),
+                                &gs.assets,
+                            );
                         }
                     } else {
-                        if input.keyboard.get_key(KeyCode::W).pressing
-                            || input.keyboard.get_key(KeyCode::S).pressing
-                            || input.keyboard.get_key(KeyCode::A).pressing
-                            || input.keyboard.get_key(KeyCode::D).pressing
-                            || input.keyboard.get_key(KeyCode::Escape).pressing
-                            || input.mouse.scroll_delta != 0
-                        {
-                            handle_pack_shop_signals(
-                                vec![PackShopSignals::DeselectAll],
-                                gs,
-                                es,
-                                platform_api,
-                            );
-                            gs.pack_selected = None;
+                        let can_place = tile.can_place_here(mouse_grid, &gs.world);
+
+                        draw_tile_grid_pos(
+                            tile,
+                            0.0,
+                            &mouse_grid,
+                            can_place,
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::NewWorld)
+                                .unwrap(),
+                            &gs.assets,
+                        );
+                    }
+
+                    // place tile
+                    let can_place = tile.can_place_here(mouse_grid, &gs.world);
+                    if input.mouse.button_left.on_press && can_place {
+                        if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
+                            let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
+                            if count == 0 {
+                                gs.tile_placing = None;
+                            }
+
+                            handle_signals(update_sigs, gs, es, platform_api);
+                        }
+                    }
+                }
+
+                // tile hovering
+                {
+                    let mut update_signals: Vec<UpdateSignal> = vec![];
+                    let world_snapshot = gs.world.get_world_snapshot();
+
+                    if gs.tile_placing.is_none() {
+                        let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
+
+                        for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
+                            let tile = gs.world.get_entity_mut(eid);
+
+                            // Harvesting
+                            if input.mouse.button_left.pressing && tile.can_harvest() {
+                                tile.harvest(&world_snapshot, platform_api);
+                            }
+
+                            // render hover rect
+                            {
+                                let mut mat = Material::new();
+                                mat.shader = Some(es.shader_color);
+                                mat.set_color(Color::new(1.0, 1.0, 1.0, 0.8));
+
+                                let mut trans = Transform::new();
+                                trans.local_position = grid_to_world(&mouse_grid);
+                                trans.update_global_matrix(&M44::new_identity());
+
+                                es.render_system
+                                    .render_packs
+                                    .get_mut(&RenderPackID::NewWorld)
+                                    .unwrap()
+                                    .commands
+                                    .push(RenderCommand::new_model(
+                                        &trans,
+                                        gs.assets.asset_library.get_model("tile_outline"),
+                                        &mat,
+                                    ));
+                            }
+
+                            // render info
+                            {
+                                let mut ui_frame_state =
+                                    UIFrameState::new(&input, es.window_resolution);
+
+                                let y = layer.to_index() as f64 * 40.0;
+
+                                draw_text(
+                                    &format!("{:?}", tile.tile_type),
+                                    VecTwo::new(450.0, 100.0 + y),
+                                    COLOR_WHITE,
+                                    &gs.font_style_body,
+                                    &mut ui_frame_state,
+                                    &mut gs.ui_context.as_mut().unwrap(),
+                                );
+
+                                tile.render_hover_info(
+                                    tile.get_component_harvestable(),
+                                    y,
+                                    es.shader_color.clone(),
+                                    es.render_system
+                                        .render_packs
+                                        .get_mut(&RenderPackID::UI)
+                                        .unwrap(),
+                                );
+                            }
                         }
                     }
 
-                    let cam_pack = es
-                        .render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::Shop)
-                        .unwrap();
-
-                    gs.target_camera_pos.y = gs.target_camera_pos.y.clamp(15.0, 100.0);
-
-                    cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
-                        cam_pack.camera.transform.local_position,
-                        gs.target_camera_pos,
-                        0.2,
-                    );
-                } else {
-                    // fly cam for testing
-                    es.render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::Shop)
-                        .unwrap()
-                        .camera
-                        .move_fly(0.3, input);
+                    handle_signals(update_signals, gs, es, platform_api);
                 }
+            }
+            WorldStatus::Shop => {
+                if gs.active_page.is_none() {
+                    let mouse_world: VecThreeFloat = {
+                        let mut val = VecThreeFloat::new_zero();
 
-                // pack layout rendering
-                {
-                    // light testing
+                        let cam: &Camera = &es
+                            .render_system
+                            .render_packs
+                            .get(&RenderPackID::Shop)
+                            .unwrap()
+                            .camera;
+                        let pos = cam.screen_to_world(input.mouse.pos);
+
+                        let dir = (pos - cam.transform.local_position).normalize();
+
+                        if let Some(len) = plane_intersection_distance(
+                            cam.transform.local_position,
+                            dir,
+                            VecThreeFloat::new(0.0, 0.0, 0.0),
+                            VecThreeFloat::new(0.0, -1.0, 0.0),
+                        ) {
+                            val = cam.transform.local_position + (dir * len);
+                        }
+
+                        val
+                    };
+
+                    // lighting
                     {
-                        let p = 500.0;
-                        let white_p = 2000.0;
+                        let light_trans: &mut Transform =
+                            &mut es.components.transforms[gs.pack_light_trans];
+
+                        /*
+                        draw_tile_world_pos(
+                            TileType::Dirt,
+                            0.0,
+                            &light_trans.global_matrix.get_position(),
+                            true,
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::Shop)
+                                .unwrap(),
+                            &gs.assets,
+                        );
+                        */
+
+                        let spd = 0.007;
+                        let origin_trans: &mut Transform =
+                            &mut es.components.transforms[gs.pack_light_origin];
+                        // origin_trans.local_rotation.x = es.frame as f64 * spd;
+                        origin_trans.local_rotation.y = es.frame as f64 * spd;
+                        // origin_trans.local_rotation.x = es.frame as f64 * spd;
+                        // origin_trans.local_rotation.z = es.frame as f64 * spd;
+
+                        let cp = es
+                            .render_system
+                            .render_packs
+                            .get(&RenderPackID::Shop)
+                            .unwrap()
+                            .camera
+                            .transform
+                            .local_position;
+
+                        origin_trans.local_position.x = cp.x;
+                        origin_trans.local_position.z = cp.z;
+
+                        /*
+                        let light = Light::new(es.components.new_transform());
+
+                        let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                        ct.parent = Some(gs.pack_light_origin);
+                        ct.local_position.x = -2.0;
+                        ct.local_position.z = 10.0;
+                        ct.local_position.y = 15.0;
 
                         es.render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap()
-                            .lights[0]
-                            .power = VecThreeFloat::new(3.0 * p, 0.95 * p, 0.9 * p);
-
-                        es.render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap()
-                            .lights[1]
-                            .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
-
-                        es.render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap()
-                            .lights[2]
-                            .power = VecThreeFloat::new(white_p, white_p, white_p);
+                            .get_pack(RenderPackID::Shop)
+                            .lights
+                            .push(light);
+                        */
                     }
 
-                    let packs: Vec<PackID> =
-                        vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
+                    // camera controls
+                    if true {
+                        let cam_pack = es
+                            .render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap();
 
-                    // make sure all packs exist in the hashmap.
-                    // Really means we don't need a hashmap probably
-                    for pack_id in &packs {
-                        gs.pack_display_state
-                            .entry(*pack_id)
-                            .or_insert(PackShopDisplay::new());
-                    }
-
-                    for pack_id in &packs {
-                        let signals = gs
-                            .pack_display_state
-                            .entry(*pack_id)
-                            .or_insert(PackShopDisplay::new())
-                            .update(
-                                *pack_id,
-                                &input.mouse.button_left,
-                                mouse_world,
-                                &gs.inventory,
-                                &mut gs.assets,
-                                &mut es.render_system,
-                                &mut ui_frame_state,
-                                &mut gs.ui_context.as_mut().unwrap(),
-                                es.window_resolution,
-                                platform_api,
+                        if gs.pack_selected.is_none() && !gs.opening_pack {
+                            let keyboard_speed = 30.0;
+                            let mouse_scroll_speed = 400.0;
+                            let drag_speed = gengar_engine::math::lerp(
+                                0.02,
+                                0.08,
+                                cam_pack.camera.transform.local_position.y / 100.0,
                             );
 
-                        handle_pack_shop_signals(signals, gs, es, platform_api);
+                            if input.keyboard.get_key(KeyCode::W).pressing {
+                                gs.target_camera_pos.z -= keyboard_speed * prev_delta_time;
+                            }
+                            if input.keyboard.get_key(KeyCode::S).pressing {
+                                gs.target_camera_pos.z += keyboard_speed * prev_delta_time;
+                            }
+                            if input.keyboard.get_key(KeyCode::A).pressing {
+                                gs.target_camera_pos.x -= keyboard_speed * prev_delta_time;
+                            }
+                            if input.keyboard.get_key(KeyCode::D).pressing {
+                                gs.target_camera_pos.x += keyboard_speed * prev_delta_time;
+                            }
+                            if input.mouse.scroll_delta > 0 {
+                                gs.target_camera_pos.y -= mouse_scroll_speed * prev_delta_time;
+                            } else if input.mouse.scroll_delta < 0 {
+                                gs.target_camera_pos.y += mouse_scroll_speed * prev_delta_time
+                            }
+
+                            // camera click dragging
+                            {
+                                if input.mouse.button_left.pressing {
+                                    if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0
+                                    {
+                                        gs.target_camera_pos.x +=
+                                            input.mouse.pos_delta.x * drag_speed;
+                                        gs.target_camera_pos.z +=
+                                            input.mouse.pos_delta.y * drag_speed;
+                                    }
+                                }
+                            }
+                        } else {
+                            if input.keyboard.get_key(KeyCode::W).pressing
+                                || input.keyboard.get_key(KeyCode::S).pressing
+                                || input.keyboard.get_key(KeyCode::A).pressing
+                                || input.keyboard.get_key(KeyCode::D).pressing
+                                || input.keyboard.get_key(KeyCode::Escape).pressing
+                                || input.mouse.scroll_delta != 0
+                            {
+                                handle_pack_shop_signals(
+                                    vec![PackShopSignals::DeselectAll],
+                                    gs,
+                                    es,
+                                    platform_api,
+                                );
+                                gs.pack_selected = None;
+                            }
+                        }
+
+                        let cam_pack = es
+                            .render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap();
+
+                        gs.target_camera_pos.y = gs.target_camera_pos.y.clamp(15.0, 100.0);
+
+                        cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
+                            cam_pack.camera.transform.local_position,
+                            gs.target_camera_pos,
+                            0.2,
+                        );
+                    } else {
+                        // fly cam for testing
+                        es.render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::Shop)
+                            .unwrap()
+                            .camera
+                            .move_fly(0.3, input);
+                    }
+
+                    // pack layout rendering
+                    {
+                        // light testing
+                        {
+                            let p = 500.0;
+                            let white_p = 2000.0;
+
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::Shop)
+                                .unwrap()
+                                .lights[0]
+                                .power = VecThreeFloat::new(3.0 * p, 0.95 * p, 0.9 * p);
+
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::Shop)
+                                .unwrap()
+                                .lights[1]
+                                .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
+
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::Shop)
+                                .unwrap()
+                                .lights[2]
+                                .power = VecThreeFloat::new(white_p, white_p, white_p);
+                        }
+
+                        let packs: Vec<PackID> =
+                            vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
+
+                        // make sure all packs exist in the hashmap.
+                        // Really means we don't need a hashmap probably
+                        for pack_id in &packs {
+                            gs.pack_display_state
+                                .entry(*pack_id)
+                                .or_insert(PackShopDisplay::new());
+                        }
+
+                        for pack_id in &packs {
+                            let signals = gs
+                                .pack_display_state
+                                .entry(*pack_id)
+                                .or_insert(PackShopDisplay::new())
+                                .update(
+                                    *pack_id,
+                                    &input.mouse.button_left,
+                                    mouse_world,
+                                    &gs.inventory,
+                                    &mut gs.assets,
+                                    &mut es.render_system,
+                                    &mut ui_frame_state,
+                                    &mut gs.ui_context.as_mut().unwrap(),
+                                    es.window_resolution,
+                                    platform_api,
+                                );
+
+                            handle_pack_shop_signals(signals, gs, es, platform_api);
+                        }
                     }
                 }
             }

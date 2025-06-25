@@ -11,7 +11,7 @@ pub enum NetworkCallStatus {
     Sending,
 
     /// Call has been sent successfully
-    Success,
+    Success { response: String },
 
     /// Call was sent but resulted in an error
     Error { error: AccountError },
@@ -21,7 +21,7 @@ impl NetworkCallStatus {
     pub fn display(&self) -> String {
         match self {
             NetworkCallStatus::Waiting | NetworkCallStatus::Sending => "Sending...".into(),
-            NetworkCallStatus::Success => "Success".into(),
+            NetworkCallStatus::Success { response: _ } => "Success".into(),
             NetworkCallStatus::Error { error } => format!("Error: {}", error.display()),
         }
     }
@@ -30,8 +30,17 @@ impl NetworkCallStatus {
         match self {
             NetworkCallStatus::Waiting
             | NetworkCallStatus::Sending
-            | NetworkCallStatus::Success => false,
+            | NetworkCallStatus::Success { response: _ } => false,
             NetworkCallStatus::Error { error } => true,
+        }
+    }
+
+    pub fn is_success(&self) -> bool {
+        match self {
+            NetworkCallStatus::Waiting
+            | NetworkCallStatus::Sending
+            | NetworkCallStatus::Error { error: _ } => false,
+            NetworkCallStatus::Success { response: _ } => true,
         }
     }
 }
