@@ -28,11 +28,19 @@ impl AccountSystem {
         networking_system: &mut NetworkingSystem,
     ) {
         if let Some(refresh_token) = (platform_api.local_persist_get)(REFRESH_KEY) {
-            let call_id = networking_system.start_call(AccountCall::ExchangeRefreshToken {
-                refresh_token: refresh_token,
-            });
-            self.user_fetch_network_id = Some(call_id);
+            if refresh_token.len() > 0 {
+                let call_id = networking_system.start_call(AccountCall::ExchangeRefreshToken {
+                    refresh_token: refresh_token,
+                });
+                self.user_fetch_network_id = Some(call_id);
+            }
         }
+    }
+
+    pub fn logout(&mut self, platform_api: &PlatformApi) {
+        self.user_account = None;
+        self.user_fetch_network_id = None;
+        (platform_api.local_persist_set)(REFRESH_KEY, "");
     }
 
     /// Handle networking checks and updating refresh tokens and such

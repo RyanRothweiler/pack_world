@@ -115,6 +115,19 @@ impl NavTabsPanel {
                     ui_state,
                     ui_context,
                 );
+
+                if draw_text_button(
+                    "Logout",
+                    VecTwo::new(ui_state.resolution.x - 360.0, 35.0),
+                    &ui_context.font_body.clone(),
+                    false,
+                    Some(crate::BUTTON_BG),
+                    ui_state,
+                    std::line!(),
+                    ui_context,
+                ) {
+                    ret.push(UpdateSignal::Logout);
+                }
             } else {
                 /*
                 draw_text(

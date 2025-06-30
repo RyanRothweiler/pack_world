@@ -76,6 +76,9 @@ pub enum UpdateSignal {
 
     /// Set current account from supabase account info
     LoginUserFromSupabase { user_json: String },
+
+    /// Logout
+    Logout,
 }
 
 pub fn handle_signals(
@@ -211,6 +214,12 @@ pub fn handle_signals(
 
                 UpdateSignal::LoginUserFromSupabase { user_json } => {
                     gs.account_system.login_supabase(&user_json, platform_api);
+
+                    vec![]
+                }
+
+                UpdateSignal::Logout => {
+                    gs.account_system.logout(platform_api);
 
                     vec![]
                 }

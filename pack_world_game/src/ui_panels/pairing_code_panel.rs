@@ -48,11 +48,19 @@ impl PairingCodePanel {
             ui_context,
         );
 
+        draw_paragraph(
+            "A pairing code email has been sent. Check your email and input the pairing code here.",
+            Rect::new_top_size(VecTwo::new(margin_l, 75.0), 300.0, 1000.0),
+            COLOR_WHITE,
+            ui_state,
+            ui_context,
+        );
+
         InputField::draw(
             "Pairing Code",
             "pairing code",
             &mut self.pairing_code,
-            VecTwo::new(margin_l, 100.0),
+            VecTwo::new(margin_l, 200.0),
             300.0,
             &ui_context.font_nav.clone(),
             &ui_context.font_body.clone(),
@@ -63,7 +71,7 @@ impl PairingCodePanel {
 
         if draw_text_button(
             "Submit",
-            VecTwo::new(margin_l, 200.0),
+            VecTwo::new(margin_l, 300.0),
             &ui_context.font_nav.clone(),
             false,
             Some(crate::BUTTON_BG),
@@ -81,7 +89,7 @@ impl PairingCodePanel {
 
         if draw_text_button(
             "Back",
-            VecTwo::new(margin_l, 260.0),
+            VecTwo::new(margin_l, 360.0),
             &ui_context.font_nav.clone(),
             false,
             Some(crate::BUTTON_BG),
@@ -112,7 +120,7 @@ impl PairingCodePanel {
 
             draw_text(
                 &status.display(),
-                VecTwo::new(margin_l, 350.0),
+                VecTwo::new(margin_l, 450.0),
                 col,
                 &ui_context.font_body.clone(),
                 ui_state,
