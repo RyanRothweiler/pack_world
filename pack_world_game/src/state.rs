@@ -126,7 +126,7 @@ impl State {
             pack_selected: None,
             opening_pack: false,
 
-            account_system: AccountSystem { user_account: None },
+            account_system: AccountSystem::new(),
         }
     }
 }

@@ -9,4 +9,8 @@ pub struct PlatformApi {
 
     pub write_save_game_data: fn(data: Vec<u8>) -> Result<(), Error>,
     pub fetch_game_save: fn(),
+
+    pub local_persist_get: fn(key: &str) -> Option<String>,
+    pub local_persist_set: fn(key: &str, data: &str),
+    pub local_persist_delete: fn(key: &str),
 }

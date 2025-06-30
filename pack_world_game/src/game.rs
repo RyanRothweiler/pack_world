@@ -322,6 +322,9 @@ pub fn game_init(
     {
         gs.debug_state.debug_panel = Some(UIPanel::DebugPanel(DebugPanel {}));
     }
+
+    gs.account_system
+        .start_try_login_existing(platform_api, &mut es.networking_system);
 }
 
 fn sim_world(gs: &mut State, es: &mut EngineState, ms: f64, platform_api: &PlatformApi) {
@@ -361,6 +364,9 @@ pub fn game_loop(
         es.model_plane.clone(),
     );
     gengar_engine::debug::frame_start();
+
+    gs.account_system
+        .update(platform_api, &mut es.networking_system);
 
     // update ui_context
     {

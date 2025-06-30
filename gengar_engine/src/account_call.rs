@@ -2,6 +2,7 @@
 pub enum AccountCall {
     SendOTP { email: String },
     VerifyPairingCode { pairing_code: String, email: String },
+    ExchangeRefreshToken { refresh_token: String },
 }
 
 #[derive(Debug, Clone)]

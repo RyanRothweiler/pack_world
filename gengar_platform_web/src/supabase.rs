@@ -216,3 +216,47 @@ pub async fn verify_pairing_code(pairing_code: String, email: String) -> Network
         return NetworkCallStatus::Success { response: resp_str };
     }
 }
+
+pub async fn exchange_refresh_token(refresh_token: String) -> NetworkCallStatus {
+    super::log("exchanging resfresh token");
+
+    let json_str = format!("{{\"refresh_token\":\"{}\"}}", refresh_token);
+
+    let opts = RequestInit::new();
+    opts.set_method("POST");
+    opts.set_body(&JsValue::from_str(&json_str));
+
+    let headers = Headers::new().unwrap();
+    headers.set("apikey", API_KEY).unwrap();
+
+    opts.set_headers(&headers);
+
+    // generate random string to force invalidate the cache
+    // let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
+
+    let url = "https://qqibqjlgvkhzyrjaabvg.supabase.co/auth/v1/token?grant_type=refresh_token";
+
+    let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request))
+        .await
+        .unwrap();
+
+    assert!(resp_value.is_instance_of::<Response>());
+    let resp: Response = resp_value.dyn_into().unwrap();
+
+    let text_promise = resp.text().unwrap();
+    let text_jsvalue = JsFuture::from(text_promise).await.unwrap();
+    let resp_str = text_jsvalue.as_string().unwrap();
+
+    let status: u16 = resp.status();
+
+    if status == 400 {
+        return NetworkCallStatus::Error {
+            error: supa_to_account_error(resp_str).unwrap(),
+        };
+    } else {
+        return NetworkCallStatus::Success { response: resp_str };
+    }
+}

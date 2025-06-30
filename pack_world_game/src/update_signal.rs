@@ -210,7 +210,7 @@ pub fn handle_signals(
                 }
 
                 UpdateSignal::LoginUserFromSupabase { user_json } => {
-                    gs.account_system.login_supabase(user_json.clone());
+                    gs.account_system.login_supabase(&user_json, platform_api);
 
                     vec![]
                 }

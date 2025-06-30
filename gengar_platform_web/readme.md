@@ -4,6 +4,7 @@ The web platform implementation for the Ghostly game
 # Build
 "wasm-pack build --target web"
 
+
 # Run server
 "python3 -m http.server"
 

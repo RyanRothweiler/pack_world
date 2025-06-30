@@ -49,8 +49,6 @@ pub struct State {
     pub networking_system: NetworkingSystem,
 
     pub title_bar_height: i32,
-
-    pub account_error: Option<AccountError>,
 }
 
 impl State {
@@ -84,8 +82,6 @@ impl State {
             networking_system: NetworkingSystem::new(),
 
             title_bar_height: 0,
-
-            account_error: None,
         };
 
         state.render_system.render_packs.insert(

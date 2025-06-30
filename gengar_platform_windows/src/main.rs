@@ -18,8 +18,8 @@ mod gl;
 
 use game;
 use gengar_engine::{
-    account_call::*, analytics::*, error::Error as EngineError, input::*,
-    platform_api::PlatformApi, vectors::*, vol_mem::*,
+    analytics::*, error::Error as EngineError, input::*, platform_api::PlatformApi, vectors::*,
+    vol_mem::*,
 };
 use gengar_render_opengl::*;
 use std::{
@@ -134,8 +134,17 @@ fn open_url(url: String) {
     println!("Open url {url}");
 }
 
-fn send_account_call(call: AccountCall) {
-    println!("Send account call {:?}", call);
+fn local_persist_get(id: &str) -> Option<String> {
+    println!("TODO Local persist get");
+    None
+}
+
+fn local_persist_set(id: &str, data: &str) {
+    println!("TODO Local persist get");
+}
+
+fn local_persist_delete(key: &str) {
+    println!("TODO");
 }
 
 pub fn get_platform_api() -> PlatformApi {
@@ -146,6 +155,10 @@ pub fn get_platform_api() -> PlatformApi {
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
         open_url: open_url,
+
+        local_persist_get: local_persist_get,
+        local_persist_set: local_persist_set,
+        local_persist_delete: local_persist_delete,
     }
 }
 

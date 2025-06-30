@@ -128,14 +128,22 @@ fn open_url(url: String) {
     let _ = web_sys::window().unwrap().open_with_url(&url);
 }
 
-fn send_account_call(call: AccountCall) {
-    /*
-    match call {
-        AccountCall::SendOTP { email } => {
-            wasm_bindgen_futures::spawn_local(send_otp(email.clone()));
-        }
-    }
-    */
+fn local_persist_get(key: &str) -> Option<String> {
+    let window = web_sys::window().unwrap();
+    let ls = window.local_storage().unwrap().unwrap();
+    ls.get_item(key).unwrap()
+}
+
+fn local_persist_set(key: &str, data: &str) {
+    let window = web_sys::window().unwrap();
+    let ls = window.local_storage().unwrap().unwrap();
+    ls.set_item(key, data).unwrap();
+}
+
+fn local_persist_delete(key: &str) {
+    let window = web_sys::window().unwrap();
+    let ls = window.local_storage().unwrap().unwrap();
+    ls.remove_item(key).unwrap()
 }
 
 pub fn get_platform_api() -> PlatformApi {
@@ -146,6 +154,10 @@ pub fn get_platform_api() -> PlatformApi {
         fetch_game_save: fetch_game_save,
         epoch_time_ms: epoch_time_ms,
         open_url: open_url,
+
+        local_persist_get: local_persist_get,
+        local_persist_set: local_persist_set,
+        local_persist_delete: local_persist_delete,
     }
 }
 
@@ -389,6 +401,22 @@ pub fn main_loop() {
                                 let i = *id;
                                 wasm_bindgen_futures::spawn_local(async move {
                                     let status = verify_pairing_code(pc, em).await;
+
+                                    // this could panic if multiple network calls finish at the same time.
+                                    // this isn't a proper async network manager.
+                                    NETWORK_CALL_RESPONSES.lock().unwrap().push(
+                                        FinishedNetworkCall {
+                                            id: i,
+                                            status: status,
+                                        },
+                                    );
+                                });
+                            }
+                            AccountCall::ExchangeRefreshToken { refresh_token } => {
+                                let rt = refresh_token.clone();
+                                let i = *id;
+                                wasm_bindgen_futures::spawn_local(async move {
+                                    let status = exchange_refresh_token(rt).await;
 
                                     // this could panic if multiple network calls finish at the same time.
                                     // this isn't a proper async network manager.
