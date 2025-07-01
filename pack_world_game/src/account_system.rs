@@ -5,20 +5,40 @@ pub const REFRESH_KEY: &str = "last_refresh";
 
 pub struct AccountSystem {
     pub user_account: Option<UserAccount>,
-    pub user_fetch_network_id: Option<usize>,
+
+    user_login_call: Option<usize>,
+    user_fetch_call: Option<usize>,
 }
 
 impl AccountSystem {
     pub fn new() -> Self {
         Self {
             user_account: None,
-            user_fetch_network_id: None,
+            user_login_call: None,
+            user_fetch_call: None,
         }
     }
 
-    pub fn login_supabase(&mut self, user_json: &str, platform_api: &PlatformApi) {
+    pub fn login_supabase(
+        &mut self,
+        user_json: &str,
+        networking_system: &mut NetworkingSystem,
+        platform_api: &PlatformApi,
+    ) {
         let user_account = UserAccount::from_supabase_json(user_json, platform_api).unwrap();
         self.user_account = Some(user_account);
+
+        self.start_account_fetch(networking_system);
+    }
+
+    pub fn start_account_fetch(&mut self, networking_system: &mut NetworkingSystem) {
+        // Can't fetch accout if we're not logged in
+        if let Some(user_account) = &self.user_account {
+            self.user_fetch_call =
+                Some(networking_system.start_call(AccountCall::FetchUserAccount {
+                    user_auth_token: user_account.access_token.clone(),
+                }))
+        }
     }
 
     /// Checking for an existing refresh token and login using that
@@ -32,29 +52,55 @@ impl AccountSystem {
                 let call_id = networking_system.start_call(AccountCall::ExchangeRefreshToken {
                     refresh_token: refresh_token,
                 });
-                self.user_fetch_network_id = Some(call_id);
+                self.user_login_call = Some(call_id);
             }
         }
     }
 
     pub fn logout(&mut self, platform_api: &PlatformApi) {
         self.user_account = None;
-        self.user_fetch_network_id = None;
+        self.user_login_call = None;
         (platform_api.local_persist_set)(REFRESH_KEY, "");
     }
 
     /// Handle networking checks and updating refresh tokens and such
     pub fn update(&mut self, platform_api: &PlatformApi, networking_system: &mut NetworkingSystem) {
-        // check for account fetch
-        if let Some(call_id) = self.user_fetch_network_id {
+        // check for login
+        if let Some(call_id) = self.user_login_call {
             let status = networking_system.get_status(call_id);
             match &status {
                 NetworkCallStatus::Success { response } => {
-                    self.login_supabase(&response, platform_api);
+                    self.login_supabase(&response, networking_system, platform_api);
+                    self.user_login_call = None;
+                }
+
+                NetworkCallStatus::Error { error } => {
+                    self.user_login_call = None;
                 }
 
                 // log error somewhere?
                 _ => {}
+            }
+        }
+
+        // check for account fetch
+        if let Some(user_account) = &mut self.user_account {
+            if let Some(call_id) = self.user_fetch_call {
+                let status = networking_system.get_status(call_id);
+                match &status {
+                    NetworkCallStatus::Success { response } => {
+                        user_account.user_info =
+                            Some(UserInfo::from_supabase_json(response).unwrap());
+                        self.user_fetch_call = None;
+                    }
+
+                    NetworkCallStatus::Error { error } => {
+                        self.user_fetch_call = None;
+                    }
+
+                    // log error somewhere?
+                    _ => {}
+                }
             }
         }
     }

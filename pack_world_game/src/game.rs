@@ -8,6 +8,7 @@
 
 use crate::state::*;
 use gengar_engine::{
+    account_call::*,
     analytics::*,
     ascii::*,
     collisions::*,
@@ -48,6 +49,7 @@ pub mod item;
 pub mod pack;
 pub mod pack_shop_display;
 pub mod pack_shop_signals;
+pub mod purchase_flow;
 pub mod save_file;
 pub mod state;
 pub mod tile;
@@ -69,6 +71,7 @@ use item::*;
 use pack::*;
 use pack_shop_display::*;
 use pack_shop_signals::*;
+use purchase_flow::*;
 use save_file::*;
 use state::inventory::*;
 use tile::*;
@@ -875,6 +878,9 @@ pub fn game_loop(
                 }
             }
             WorldStatus::Shop => {
+                // update purchase flow
+                purchase_flow::update_purchase_flow(gs, &mut es.networking_system, platform_api);
+
                 if gs.active_page.is_none() {
                     let mouse_world: VecThreeFloat = {
                         let mut val = VecThreeFloat::new_zero();
@@ -901,6 +907,100 @@ pub fn game_loop(
                         val
                     };
 
+                    // premium shop UI
+                    {
+                        let ui_context = &mut gs.ui_context.as_mut().unwrap();
+
+                        let panel_w = 400.0;
+                        let margin_l = 10.0;
+                        // let premium_marin_l = margin_l + 140.0;
+
+                        begin_panel(
+                            Rect::new_top_size(VecTwo::new(50.0, 100.0), panel_w, 280.0),
+                            Color::new(0.3, 0.3, 1.0, 0.2),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+
+                        draw_paragraph(
+                            "Purchase Base Game",
+                            Rect::new_top_size(VecTwo::new(margin_l, 0.0), panel_w, 600.0),
+                            COLOR_WHITE,
+                            &ui_context.font_header.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+                        draw_text(
+                            "$2.99",
+                            VecTwo::new(margin_l, 100.0),
+                            COLOR_GREEN,
+                            &ui_context.font_header.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+                        draw_paragraph(
+                            "Price may vary at checkout.",
+                            Rect::new_top_size(VecTwo::new(margin_l, 100.0), panel_w, 600.0),
+                            Color::new(1.0, 1.0, 1.0, 0.4),
+                            &ui_context.font_body.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+
+                        draw_paragraph(
+                            "Increase offline progress from 1 hour to 48 hours. More features coming in the future!",
+                            Rect::new_top_size(VecTwo::new(margin_l, 140.0), panel_w, 600.0),
+                            COLOR_WHITE,
+                            &ui_context.font_body.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
+
+                        if let Some(purchase_flow) = &gs.purchase_flow {
+                            match purchase_flow {
+                                PurchaseFlow::StartingCheckout { network_call } => {
+                                    draw_text(
+                                        "Starting Checkout ...",
+                                        VecTwo::new(margin_l, 250.0),
+                                        COLOR_WHITE,
+                                        &ui_context.font_header.clone(),
+                                        &mut ui_frame_state,
+                                        ui_context,
+                                    );
+                                }
+                                PurchaseFlow::RunningCheckout => {
+                                    draw_text(
+                                        "Please finish checkout through Stripe",
+                                        VecTwo::new(margin_l, 250.0),
+                                        COLOR_WHITE,
+                                        &ui_context.font_header.clone(),
+                                        &mut ui_frame_state,
+                                        ui_context,
+                                    );
+                                }
+                            }
+                        } else {
+                            if draw_text_button(
+                                "Purchase",
+                                VecTwo::new(margin_l + 10.0, 250.0),
+                                &ui_context.font_header.clone(),
+                                false,
+                                Some(crate::BUTTON_BG),
+                                &mut ui_frame_state,
+                                std::line!(),
+                                ui_context,
+                            ) {
+                                let pc = PurchaseFlow::StartingCheckout {
+                                    network_call: es
+                                        .networking_system
+                                        .start_call(AccountCall::CreateCheckout),
+                                };
+                                gs.purchase_flow = Some(pc);
+                            }
+                        }
+
+                        end_panel(&mut ui_frame_state, ui_context);
+                    }
                     // lighting
                     {
                         let light_trans: &mut Transform =

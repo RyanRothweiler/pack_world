@@ -196,6 +196,7 @@ impl TileLibraryPanel {
                                 VecTwo::new(last_r.width(), last_r.height()),
                             ),
                             col,
+                            &ui_context.font_body.clone(),
                             ui_state,
                             ui_context,
                         );

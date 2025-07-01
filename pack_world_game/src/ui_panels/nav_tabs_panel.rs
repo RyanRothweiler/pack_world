@@ -107,10 +107,17 @@ impl NavTabsPanel {
             }
 
             if let Some(user_account) = &account_system.user_account {
+                let mut col = if user_account.did_purchase_base() {
+                    COLOR_GREEN
+                } else {
+                    COLOR_WHITE
+                };
+                col.a = 0.5;
+
                 draw_text(
                     &user_account.email,
                     VecTwo::new(ui_state.resolution.x - 690.0, 35.0),
-                    Color::new(1.0, 1.0, 1.0, 0.5),
+                    col,
                     &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,

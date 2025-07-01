@@ -10,7 +10,7 @@
 
 use game::{game_init, game_loop};
 use gengar_engine::{
-    account_call::*, analytics::*, error::Error, input::*, networking::*,
+    account_call::*, analytics::*, error::Error, input::*, json::*, networking::*,
     platform_api::PlatformApi, state::State as EngineState, vectors::*,
 };
 use gengar_render_opengl::*;
@@ -417,6 +417,37 @@ pub fn main_loop() {
                                 let i = *id;
                                 wasm_bindgen_futures::spawn_local(async move {
                                     let status = exchange_refresh_token(rt).await;
+
+                                    // this could panic if multiple network calls finish at the same time.
+                                    // this isn't a proper async network manager.
+                                    NETWORK_CALL_RESPONSES.lock().unwrap().push(
+                                        FinishedNetworkCall {
+                                            id: i,
+                                            status: status,
+                                        },
+                                    );
+                                });
+                            }
+                            AccountCall::CreateCheckout => {
+                                let i = *id;
+                                wasm_bindgen_futures::spawn_local(async move {
+                                    let status = call_stripe_checkout_sandbox().await;
+
+                                    // this could panic if multiple network calls finish at the same time.
+                                    // this isn't a proper async network manager.
+                                    NETWORK_CALL_RESPONSES.lock().unwrap().push(
+                                        FinishedNetworkCall {
+                                            id: i,
+                                            status: status,
+                                        },
+                                    );
+                                });
+                            }
+                            AccountCall::FetchUserAccount { user_auth_token } => {
+                                let i = *id;
+                                let uat = user_auth_token.clone();
+                                wasm_bindgen_futures::spawn_local(async move {
+                                    let status = fetch_user_account(&uat).await;
 
                                     // this could panic if multiple network calls finish at the same time.
                                     // this isn't a proper async network manager.

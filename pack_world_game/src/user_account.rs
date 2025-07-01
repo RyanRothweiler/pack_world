@@ -1,11 +1,18 @@
 use crate::account_system::*;
 use gengar_engine::{account_call::*, error::*, json::*, networking::*, platform_api::*};
 
+pub mod user_info;
+
+pub use user_info::*;
+
+/// Supabase standard user account
 #[derive(Debug)]
 pub struct UserAccount {
     pub email: String,
     pub user_id: String,
     pub access_token: String,
+
+    pub user_info: Option<UserInfo>,
 
     refresh_token: String,
 }
@@ -37,6 +44,8 @@ impl UserAccount {
 
             refresh_token: refresh_token.clone(),
             access_token: access_token,
+
+            user_info: None,
         };
 
         ret.set_refresh_token(&refresh_token, platform_api);
@@ -47,6 +56,14 @@ impl UserAccount {
     fn set_refresh_token(&mut self, new_refresh: &str, platform_api: &PlatformApi) {
         (platform_api.local_persist_set)(REFRESH_KEY, new_refresh);
         self.refresh_token = new_refresh.into();
+    }
+
+    pub fn did_purchase_base(&self) -> bool {
+        if let Some(user_info) = &self.user_info {
+            return user_info.purchased_game_base;
+        }
+
+        return false;
     }
 }
 

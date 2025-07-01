@@ -2,6 +2,7 @@ use crate::{
     account_system::*,
     harvest_drop::*,
     pack_shop_display::*,
+    purchase_flow::*,
     tile::*,
     ui_panels::{debug_panel::*, *},
     user_account::*,
@@ -80,6 +81,8 @@ pub struct State {
     pub opening_pack: bool,
 
     pub account_system: AccountSystem,
+
+    pub purchase_flow: Option<PurchaseFlow>,
 }
 
 impl State {
@@ -127,6 +130,7 @@ impl State {
             opening_pack: false,
 
             account_system: AccountSystem::new(),
+            purchase_flow: None,
         }
     }
 }

@@ -42,6 +42,9 @@ pub enum Error {
     InvalidImageBitDepth,
 
     MissingGameDLL,
+
+    // Account
+    ParsingUserInfoJson,
 }
 
 impl From<FromBytesUntilNulError> for Error {

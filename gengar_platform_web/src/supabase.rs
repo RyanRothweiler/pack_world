@@ -5,6 +5,10 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Headers, Request, RequestInit, Response};
 
+pub mod edge_functions;
+
+pub use edge_functions::*;
+
 pub static ACCOUNT_ERROR: LazyLock<Mutex<Option<AccountError>>> =
     LazyLock::new(|| Mutex::new(None));
 
@@ -27,6 +31,7 @@ fn supa_to_account_error(input: String) -> Result<AccountError, Error> {
     }
 }
 
+/*
 // supabase storage api info
 // https://stackoverflow.com/questions/75540112/how-to-upload-to-supabase-storage-using-curl
 async fn upload_data(data: Vec<u8>, user_id: String) {
@@ -95,6 +100,7 @@ async fn upload_data(data: Vec<u8>, user_id: String) {
 
     super::log("Save upload successful");
 }
+*/
 
 async fn download_data(user_id: String) {
     let opts = RequestInit::new();
@@ -218,7 +224,7 @@ pub async fn verify_pairing_code(pairing_code: String, email: String) -> Network
 }
 
 pub async fn exchange_refresh_token(refresh_token: String) -> NetworkCallStatus {
-    super::log("exchanging resfresh token");
+    super::log("exchanging refresh token");
 
     let json_str = format!("{{\"refresh_token\":\"{}\"}}", refresh_token);
 

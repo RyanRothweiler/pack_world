@@ -1,3 +1,7 @@
+pub const fn ms_to_seconds(ms: f64) -> f64 {
+    ms / 1000.0
+}
+
 pub const fn minutes_to_seconds(minute: f64) -> f64 {
     minute * 60.0
 }

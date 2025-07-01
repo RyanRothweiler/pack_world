@@ -124,6 +124,16 @@ impl JsonNode {
         }
     }
 
+    pub fn get_bool(&self, path: Vec<String>) -> Option<bool> {
+        match JsonNode::get_queue(self, VecDeque::from(path)) {
+            Some(d) => match d {
+                JsonData::Boolean(v) => return Some(v),
+                _ => return None,
+            },
+            None => return None,
+        }
+    }
+
     pub fn get_string(&self, path: Vec<String>) -> Option<String> {
         match JsonNode::get_queue(self, VecDeque::from(path)) {
             Some(d) => match d {

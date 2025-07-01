@@ -52,6 +52,7 @@ impl PairingCodePanel {
             "A pairing code email has been sent. Check your email and input the pairing code here.",
             Rect::new_top_size(VecTwo::new(margin_l, 75.0), 300.0, 1000.0),
             COLOR_WHITE,
+            &ui_context.font_body.clone(),
             ui_state,
             ui_context,
         );

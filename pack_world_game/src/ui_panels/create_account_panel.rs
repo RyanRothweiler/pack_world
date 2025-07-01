@@ -37,7 +37,7 @@ impl CreateAccountPanel {
         let margin_l = 30.0;
 
         draw_text(
-            "Create Account",
+            "Create Account / Login",
             VecTwo::new(margin_l, 50.0),
             COLOR_WHITE,
             &&ui_context.font_header.clone(),

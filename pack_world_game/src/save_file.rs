@@ -119,5 +119,8 @@ pub fn load_game(
     let time_saved = save_file.load_f64("unix_time_saved")?;
 
     // limit to 24h of simulation
-    return Ok((time_now - time_saved).clamp(0.0, 86_400_000.0));
+    let sim_limit_hour = 1.0;
+    let sim_limit_ms = sim_limit_hour * 60.0 * 60.0 * 1000.0;
+
+    return Ok((time_now - time_saved).clamp(0.0, sim_limit_ms));
 }

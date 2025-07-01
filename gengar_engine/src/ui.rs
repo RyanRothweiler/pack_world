@@ -162,6 +162,7 @@ pub fn draw_paragraph(
     para: &str,
     mut rect: Rect,
     color: Color,
+    style: &FontStyle,
     ui_state: &mut UIFrameState,
     context: &mut UIContext,
 ) {
@@ -171,7 +172,7 @@ pub fn draw_paragraph(
     render_paragraph(
         para.into(),
         rect,
-        &context.font_body,
+        style,
         color,
         &mut context.render_commands,
     );
