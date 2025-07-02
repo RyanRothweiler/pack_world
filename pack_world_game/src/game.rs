@@ -991,9 +991,14 @@ pub fn game_loop(
                                 ui_context,
                             ) {
                                 let pc = PurchaseFlow::StartingCheckout {
-                                    network_call: es
-                                        .networking_system
-                                        .start_call(AccountCall::CreateCheckout),
+                                    network_call: es.networking_system.start_call(
+                                        AccountCall::CreateCheckout {
+                                            user_auth_token: gs
+                                                .account_system
+                                                .get_user_auth_token()
+                                                .unwrap(),
+                                        },
+                                    ),
                                 };
                                 gs.purchase_flow = Some(pc);
                             }

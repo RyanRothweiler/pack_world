@@ -7,7 +7,7 @@ pub enum AccountCall {
 
     // supbase edge function calls
     FetchUserAccount { user_auth_token: String },
-    CreateCheckout,
+    CreateCheckout { user_auth_token: String },
 }
 
 #[derive(Debug, Clone)]

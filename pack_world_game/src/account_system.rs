@@ -19,6 +19,13 @@ impl AccountSystem {
         }
     }
 
+    pub fn get_user_auth_token(&self) -> Option<String> {
+        if let Some(user_account) = &self.user_account {
+            return Some(user_account.access_token.clone());
+        }
+        return None;
+    }
+
     pub fn login_supabase(
         &mut self,
         user_json: &str,

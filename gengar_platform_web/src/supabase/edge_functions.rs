@@ -5,7 +5,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Headers, Request, RequestInit, Response};
 
-pub async fn call_stripe_checkout_sandbox() -> NetworkCallStatus {
+pub async fn call_stripe_checkout_sandbox(user_auth_token: &str) -> NetworkCallStatus {
     crate::log("Calling Supabase stripe_checkout_base_sandbox function");
 
     let opts = RequestInit::new();
@@ -15,7 +15,7 @@ pub async fn call_stripe_checkout_sandbox() -> NetworkCallStatus {
     // Set headers
     let headers = Headers::new().unwrap();
     headers
-        .set("Authorization", &format!("Bearer {}", super::API_KEY))
+        .set("Authorization", &format!("Bearer {}", user_auth_token))
         .unwrap();
     headers.set("Content-Type", "application/json").unwrap();
     opts.set_headers(&headers);

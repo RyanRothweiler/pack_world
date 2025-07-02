@@ -428,10 +428,11 @@ pub fn main_loop() {
                                     );
                                 });
                             }
-                            AccountCall::CreateCheckout => {
+                            AccountCall::CreateCheckout { user_auth_token } => {
+                                let uat = user_auth_token.clone();
                                 let i = *id;
                                 wasm_bindgen_futures::spawn_local(async move {
-                                    let status = call_stripe_checkout_sandbox().await;
+                                    let status = call_stripe_checkout_sandbox(&uat).await;
 
                                     // this could panic if multiple network calls finish at the same time.
                                     // this isn't a proper async network manager.
