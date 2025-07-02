@@ -22,8 +22,8 @@ use std::{
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
-    console, BeforeUnloadEvent, Headers, KeyboardEvent, MouseEvent, Request, RequestInit, Response,
-    WebGl2RenderingContext,
+    console, BeforeUnloadEvent, ClipboardEvent, Headers, KeyboardEvent, MouseEvent, Request,
+    RequestInit, Response, WebGl2RenderingContext,
 };
 
 mod idb;
@@ -51,6 +51,7 @@ static mut CHAR_DOWN: Option<char> = None;
 static mut MOUSE_POS: VecTwo = VecTwo { x: 0.0, y: 0.0 };
 static mut MOUSE_LEFT_DOWN: bool = false;
 static mut MOUSE_RIGHT_DOWN: bool = false;
+static CLIPBOARD: LazyLock<Mutex<Option<String>>> = LazyLock::new(|| Mutex::new(None));
 
 static USER_ID: LazyLock<Mutex<String>> = LazyLock::new(|| Mutex::new("".into()));
 const USER_ID_KEY: &str = "USER_ID_KEY";
@@ -162,6 +163,15 @@ pub fn get_platform_api() -> PlatformApi {
         local_persist_get: local_persist_get,
         local_persist_set: local_persist_set,
         local_persist_delete: local_persist_delete,
+    }
+}
+
+#[wasm_bindgen]
+pub fn paste_handler(event: ClipboardEvent) {
+    if let Some(clipboard_data) = event.clipboard_data() {
+        if let Ok(text) = clipboard_data.get_data("text") {
+            *CLIPBOARD.lock().unwrap() = Some(text);
+        }
     }
 }
 
@@ -344,6 +354,12 @@ pub fn main_loop() {
                 prev_pos.x - input.mouse.pos.x as f64,
                 prev_pos.y - input.mouse.pos.y as f64,
             );
+
+            {
+                let mut clip = CLIPBOARD.lock().unwrap();
+                input.paste = clip.clone();
+                *clip = None;
+            }
 
             let key_states: &HashMap<KeyCode, bool> = &KEYBOARD.lock().unwrap();
             for (key, value) in key_states {

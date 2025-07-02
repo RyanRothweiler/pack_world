@@ -165,5 +165,13 @@ impl InputField {
                 content.push(ch);
             }
         }
+
+        // handle paste
+        {
+            if let Some(paste) = &context.paste {
+                *content = paste.to_string();
+                context.paste = None;
+            }
+        }
     }
 }

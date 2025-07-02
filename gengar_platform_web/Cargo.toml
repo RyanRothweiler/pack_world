@@ -46,6 +46,8 @@ features = [
   "WebGlFramebuffer",
   "WebGlRenderbuffer",
   "KeyboardEvent",
+  "ClipboardEvent",
+  "DataTransfer",
   "MouseEvent",
   "BeforeUnloadEvent",
   "WebGlUniformLocation",

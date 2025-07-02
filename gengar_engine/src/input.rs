@@ -9,9 +9,11 @@ pub use key_code::*;
 pub use keyboard::*;
 pub use mouse::*;
 
+/// All game input
 pub struct Input {
     pub mouse: Mouse,
     pub keyboard: Keyboard,
+    pub paste: Option<String>,
 }
 
 impl Input {
@@ -19,6 +21,7 @@ impl Input {
         Input {
             mouse: Mouse::new(),
             keyboard: Keyboard::new(),
+            paste: None,
         }
     }
 }

@@ -376,6 +376,7 @@ pub fn game_loop(
         let ui_context = gs.ui_context.get_or_insert(UIContext {
             mouse: input.mouse.clone(),
             keyboard: input.keyboard.clone(),
+            paste: None,
 
             color_shader: es.shader_color_ui,
             color_shader_texture: es.color_texture_shader,
@@ -397,6 +398,7 @@ pub fn game_loop(
         ui_context.mouse = input.mouse.clone();
         ui_context.keyboard = input.keyboard.clone();
         ui_context.delta_time = prev_delta_time;
+        ui_context.paste = input.paste.clone();
     }
 
     let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);

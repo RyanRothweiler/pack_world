@@ -20,6 +20,7 @@ pub use theme::*;
 pub struct UIContext {
     pub mouse: Mouse,
     pub keyboard: Keyboard,
+    pub paste: Option<String>,
 
     pub color_shader: Shader,
     pub color_shader_texture: Shader,
