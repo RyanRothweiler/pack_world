@@ -24,6 +24,7 @@ pub fn update_purchase_flow(
                         let rj = gengar_engine::json::load(response).unwrap();
                         (platform_api.open_url)(
                             rj.get(vec!["url".into()]).unwrap().as_string().unwrap(),
+                            false,
                         );
 
                         gs.purchase_flow = Some(PurchaseFlow::RunningCheckout);

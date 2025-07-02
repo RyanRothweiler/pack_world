@@ -968,6 +968,7 @@ pub fn game_loop(
                                     );
                                 }
                                 PurchaseFlow::RunningCheckout => {
+                                    /*
                                     draw_text(
                                         "Please finish checkout through Stripe",
                                         VecTwo::new(margin_l, 250.0),
@@ -976,6 +977,7 @@ pub fn game_loop(
                                         &mut ui_frame_state,
                                         ui_context,
                                     );
+                                    */
                                 }
                             }
                         } else {

@@ -64,6 +64,7 @@ features = [
   "Storage",
   "IdbRequest",
   "IdbDatabase",
+  "Location",
 ]
 
 [lints.rust]

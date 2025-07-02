@@ -124,8 +124,12 @@ fn epoch_time_ms() -> f64 {
     Date::now()
 }
 
-fn open_url(url: String) {
-    let _ = web_sys::window().unwrap().open_with_url(&url);
+fn open_url(url: String, new_tab: bool) {
+    if new_tab {
+        let _ = web_sys::window().unwrap().open_with_url(&url);
+    } else {
+        let _ = web_sys::window().unwrap().location().set_href(&url);
+    }
 }
 
 fn local_persist_get(key: &str) -> Option<String> {

@@ -130,7 +130,7 @@ fn epoch_time_ms() -> f64 {
         .as_millis() as f64
 }
 
-fn open_url(url: String) {
+fn open_url(url: String, new_tab: bool) {
     println!("Open url {url}");
 }
 

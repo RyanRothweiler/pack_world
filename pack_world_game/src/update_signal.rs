@@ -201,7 +201,7 @@ pub fn handle_signals(
                 }
 
                 UpdateSignal::OpenURL { url } => {
-                    (platform_api.open_url)(url.clone());
+                    (platform_api.open_url)(url.clone(), true);
 
                     vec![]
                 }
