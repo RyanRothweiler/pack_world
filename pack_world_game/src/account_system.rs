@@ -26,6 +26,13 @@ impl AccountSystem {
         return None;
     }
 
+    pub fn user_purchased_base(&self) -> bool {
+        self.user_account
+            .as_ref()
+            .and_then(|uc| Some(uc.did_purchase_base()))
+            .unwrap_or(false)
+    }
+
     pub fn login_supabase(
         &mut self,
         user_json: &str,

@@ -283,7 +283,7 @@ impl PackShopDisplay {
 
             let deg_between: f64 = 40.0;
             let deg_needed: f64 = deg_between * (self.pulls.len() as f64 - 1.0);
-            let deg_start: f64 = 180.0 + (deg_needed * 0.5);
+            let deg_start: f64 = deg_needed * 0.5;
 
             let radius = 300.0;
 

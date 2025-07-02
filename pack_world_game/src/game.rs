@@ -908,9 +908,8 @@ pub fn game_loop(
                     };
 
                     // premium shop UI
-                    {
-                        let ui_context = &mut gs.ui_context.as_mut().unwrap();
-
+                    let ui_context = &mut gs.ui_context.as_mut().unwrap();
+                    if !gs.account_system.user_purchased_base() {
                         let panel_w = 400.0;
                         let margin_l = 10.0;
                         // let premium_marin_l = margin_l + 140.0;
@@ -1005,7 +1004,17 @@ pub fn game_loop(
                         }
 
                         end_panel(&mut ui_frame_state, ui_context);
+                    } else {
+                        draw_text(
+                            "Account has premium access. Thank you for your support.",
+                            VecTwo::new(10.0, 80.0),
+                            Color::new(1.0, 1.0, 1.0, 0.2),
+                            &ui_context.font_body.clone(),
+                            &mut ui_frame_state,
+                            ui_context,
+                        );
                     }
+
                     // lighting
                     {
                         let light_trans: &mut Transform =
