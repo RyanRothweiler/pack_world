@@ -1,4 +1,4 @@
-use gengar_engine::{account_call::*, error::*, json::*, networking::*};
+use gengar_engine::{account_call::*, error::*, json::*, networking::*, server_environment::*};
 use js_sys::Reflect;
 use std::sync::{Arc, LazyLock, Mutex};
 use wasm_bindgen::prelude::*;
@@ -9,11 +9,12 @@ pub mod edge_functions;
 
 pub use edge_functions::*;
 
+const ONE_TIME_PASSWORD_URL: &str = "/auth/v1/otp";
+const VERIFY_URL: &str = "/auth/v1/verify";
+const TOKEN_REFRESH_URL: &str = "/auth/v1/token?grant_type=refresh_token";
+
 pub static ACCOUNT_ERROR: LazyLock<Mutex<Option<AccountError>>> =
     LazyLock::new(|| Mutex::new(None));
-
-// !!!!!
-const API_KEY: &str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaWJxamxndmtoenlyamFhYnZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMTc1MTUsImV4cCI6MjA1Nzg5MzUxNX0.wYCDHY5jXVIex2E6ZmzU16DQC5GtqMiPV974N7TQKUM";
 
 fn supa_to_account_error(input: String) -> Result<AccountError, Error> {
     let json = gengar_engine::json::load(&input)?;
@@ -100,7 +101,6 @@ async fn upload_data(data: Vec<u8>, user_id: String) {
 
     super::log("Save upload successful");
 }
-*/
 
 async fn download_data(user_id: String) {
     let opts = RequestInit::new();
@@ -135,6 +135,7 @@ async fn download_data(user_id: String) {
 
     super::log("download successful ");
 }
+*/
 
 pub async fn send_otp(email: String) -> NetworkCallStatus {
     let json_str = format!("{{\"email\":\"{}\"}}", email);
@@ -144,15 +145,14 @@ pub async fn send_otp(email: String) -> NetworkCallStatus {
     opts.set_body(&JsValue::from_str(&json_str));
 
     let headers = Headers::new().unwrap();
-    headers.set("apikey", API_KEY).unwrap();
+    headers.set("apikey", SERVER_ENV.supabase_api_key).unwrap();
 
     opts.set_headers(&headers);
 
     // generate random string to force invalidate the cache
     // let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
 
-    let url = "https://qqibqjlgvkhzyrjaabvg.supabase.co/auth/v1/otp";
-
+    let url = format!("{}{}", SERVER_ENV.supabase_url, ONE_TIME_PASSWORD_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     let window = web_sys::window().unwrap();
@@ -189,15 +189,14 @@ pub async fn verify_pairing_code(pairing_code: String, email: String) -> Network
     opts.set_body(&JsValue::from_str(&json_str));
 
     let headers = Headers::new().unwrap();
-    headers.set("apikey", API_KEY).unwrap();
+    headers.set("apikey", SERVER_ENV.supabase_api_key).unwrap();
 
     opts.set_headers(&headers);
 
     // generate random string to force invalidate the cache
     // let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
 
-    let url = "https://qqibqjlgvkhzyrjaabvg.supabase.co/auth/v1/verify";
-
+    let url = format!("{}{}", SERVER_ENV.supabase_url, VERIFY_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     let window = web_sys::window().unwrap();
@@ -233,15 +232,14 @@ pub async fn exchange_refresh_token(refresh_token: String) -> NetworkCallStatus 
     opts.set_body(&JsValue::from_str(&json_str));
 
     let headers = Headers::new().unwrap();
-    headers.set("apikey", API_KEY).unwrap();
+    headers.set("apikey", SERVER_ENV.supabase_api_key).unwrap();
 
     opts.set_headers(&headers);
 
     // generate random string to force invalidate the cache
     // let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
 
-    let url = "https://qqibqjlgvkhzyrjaabvg.supabase.co/auth/v1/token?grant_type=refresh_token";
-
+    let url = format!("{}{}", SERVER_ENV.supabase_url, TOKEN_REFRESH_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     let window = web_sys::window().unwrap();

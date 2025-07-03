@@ -11,6 +11,7 @@ use std::{include_str, io::Cursor};
 pub mod account_call;
 pub mod analytics;
 pub mod ascii;
+pub mod server_environment;
 pub mod binary_file_system;
 pub mod byte_conversion;
 pub mod collisions;
