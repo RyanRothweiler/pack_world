@@ -8,6 +8,8 @@ pub struct AccountSystem {
 
     user_login_call: Option<usize>,
     user_fetch_call: Option<usize>,
+
+    user_fetches_finished: bool,
 }
 
 impl AccountSystem {
@@ -16,6 +18,8 @@ impl AccountSystem {
             user_account: None,
             user_login_call: None,
             user_fetch_call: None,
+
+            user_fetches_finished: false,
         }
     }
 
@@ -31,6 +35,10 @@ impl AccountSystem {
             .as_ref()
             .and_then(|uc| Some(uc.did_purchase_base()))
             .unwrap_or(false)
+    }
+
+    pub fn user_fetches_finished(&self) -> bool {
+        self.user_fetches_finished
     }
 
     pub fn login_supabase(
@@ -61,6 +69,8 @@ impl AccountSystem {
         platform_api: &PlatformApi,
         networking_system: &mut NetworkingSystem,
     ) {
+        self.user_fetches_finished = false;
+
         if let Some(refresh_token) = (platform_api.local_persist_get)(REFRESH_KEY) {
             if refresh_token.len() > 0 {
                 let call_id = networking_system.start_call(AccountCall::ExchangeRefreshToken {
@@ -68,6 +78,9 @@ impl AccountSystem {
                 });
                 self.user_login_call = Some(call_id);
             }
+        } else {
+            // there is no saved token so there is no user to fetch
+            self.user_fetches_finished = true;
         }
     }
 
@@ -106,6 +119,7 @@ impl AccountSystem {
                         user_account.user_info =
                             Some(UserInfo::from_supabase_json(response).unwrap());
                         self.user_fetch_call = None;
+                        self.user_fetches_finished = true;
                     }
 
                     NetworkCallStatus::Error { error } => {

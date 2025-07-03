@@ -436,11 +436,12 @@ pub fn game_loop(
 
         // check for data to load
         {
-            if !es.game_to_load.is_empty() {
+            if !es.game_to_load.is_empty() && gs.account_system.user_fetches_finished() {
                 match load_game(
                     &mut gs.world,
                     &mut gs.inventory,
                     &es.game_to_load,
+                    &gs.account_system,
                     platform_api,
                 ) {
                     Ok(mut ms_to_sim) => {

@@ -1,3 +1,4 @@
+use crate::account_system::*;
 use crate::{
     error::Error, grid::*, state::inventory::*, tile::tile_instance::TileInstance, world::*,
 };
@@ -11,6 +12,9 @@ pub use kvp_file::SaveFile;
 
 pub const TILE_INSTANCE_ID_CHAR: char = 'E';
 pub const VALID_ADJ_ID_CHAR: char = 'V';
+
+const SIM_LIMIT_H_FREE: i32 = 1;
+const SIM_LIMIT_H_PREMIUM: i32 = 24;
 
 pub fn build_save_file(
     world: &World,
@@ -69,6 +73,7 @@ pub fn load_game(
     world: &mut World,
     inventory: &mut Inventory,
     data: &Vec<u8>,
+    account_system: &AccountSystem,
     platform_api: &PlatformApi,
 ) -> Result<f64, Error> {
     world.clear();
@@ -118,9 +123,12 @@ pub fn load_game(
     let time_now = (platform_api.epoch_time_ms)();
     let time_saved = save_file.load_f64("unix_time_saved")?;
 
-    // limit to 24h of simulation
-    let sim_limit_hour = 1.0;
-    let sim_limit_ms = sim_limit_hour * 60.0 * 60.0 * 1000.0;
+    let sim_limit_hour = if account_system.user_purchased_base() {
+        SIM_LIMIT_H_PREMIUM
+    } else {
+        SIM_LIMIT_H_FREE
+    };
+    let sim_limit_ms = sim_limit_hour as f64 * 60.0 * 60.0 * 1000.0;
 
     return Ok((time_now - time_saved).clamp(0.0, sim_limit_ms));
 }
