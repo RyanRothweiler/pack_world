@@ -167,6 +167,7 @@ impl InputField {
         }
 
         // handle paste
+        // note this must happen last because it overwrites the V key used for pasting.
         {
             if let Some(paste) = &context.paste {
                 *content = paste.to_string();

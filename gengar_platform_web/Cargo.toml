@@ -67,6 +67,7 @@ features = [
   "IdbRequest",
   "IdbDatabase",
   "Location",
+  "WheelEvent",
 ]
 
 [lints.rust]

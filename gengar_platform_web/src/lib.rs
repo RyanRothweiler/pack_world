@@ -23,7 +23,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{
     console, BeforeUnloadEvent, ClipboardEvent, Headers, KeyboardEvent, MouseEvent, Request,
-    RequestInit, Response, WebGl2RenderingContext,
+    RequestInit, Response, WebGl2RenderingContext, WheelEvent,
 };
 
 mod idb;
@@ -51,7 +51,9 @@ static mut CHAR_DOWN: Option<char> = None;
 static mut MOUSE_POS: VecTwo = VecTwo { x: 0.0, y: 0.0 };
 static mut MOUSE_LEFT_DOWN: bool = false;
 static mut MOUSE_RIGHT_DOWN: bool = false;
+
 static CLIPBOARD: LazyLock<Mutex<Option<String>>> = LazyLock::new(|| Mutex::new(None));
+static MOUSE_WHEEL: LazyLock<Mutex<i32>> = LazyLock::new(|| Mutex::new(0));
 
 static USER_ID: LazyLock<Mutex<String>> = LazyLock::new(|| Mutex::new("".into()));
 const USER_ID_KEY: &str = "USER_ID_KEY";
@@ -173,6 +175,11 @@ pub fn paste_handler(event: ClipboardEvent) {
             *CLIPBOARD.lock().unwrap() = Some(text);
         }
     }
+}
+
+#[wasm_bindgen]
+pub fn mouse_wheel_handler(event: WheelEvent) {
+    *MOUSE_WHEEL.lock().unwrap() = event.delta_y() as i32;
 }
 
 #[wasm_bindgen(start)]
@@ -373,6 +380,14 @@ pub fn main_loop() {
 
             input.keyboard.char_down = CHAR_DOWN;
             CHAR_DOWN = None;
+
+            // scrolling
+            let mut wheel = MOUSE_WHEEL.lock().unwrap();
+            input.mouse.scroll_delta = 0;
+            if *wheel != 0 {
+                input.mouse.scroll_delta = *wheel * -1;
+                *wheel = 0;
+            }
         }
 
         // check for account errors
