@@ -8,6 +8,3 @@ path = "src/engine.rs"
 
 [dependencies]
 png = "0.17.13"
-
-[features]
-server_prod = []

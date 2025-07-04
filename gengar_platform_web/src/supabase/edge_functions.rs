@@ -5,7 +5,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Headers, Request, RequestInit, Response};
 
-const CHECKOUT_URL: &str = "/functions/v1/stripe_checkout_base_sandbox";
+const CHECKOUT_URL: &str = "/functions/v1/stripe_checkout_base";
 const FETCH_USER_URL: &str = "/functions/v1/fetch_user_data";
 
 pub async fn call_stripe_checkout_sandbox(user_auth_token: &str) -> NetworkCallStatus {
@@ -19,7 +19,7 @@ pub async fn call_stripe_checkout_sandbox(user_auth_token: &str) -> NetworkCallS
         .unwrap();
     headers.set("Content-Type", "application/json").unwrap();
     opts.set_headers(&headers);
-    let url = format!("{}{}", SERVER_ENV.supabase_url, CHECKOUT_URL);
+    let url = format!("{}{}", server_env().supabase_url, CHECKOUT_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     // Fetch call
@@ -56,7 +56,7 @@ pub async fn fetch_user_account(user_auth_token: &str) -> NetworkCallStatus {
     headers.set("Content-Type", "application/json").unwrap();
     opts.set_headers(&headers);
 
-    let url = format!("{}{}", SERVER_ENV.supabase_url, FETCH_USER_URL);
+    let url = format!("{}{}", server_env().supabase_url, FETCH_USER_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     // Fetch call

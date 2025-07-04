@@ -145,14 +145,16 @@ pub async fn send_otp(email: String) -> NetworkCallStatus {
     opts.set_body(&JsValue::from_str(&json_str));
 
     let headers = Headers::new().unwrap();
-    headers.set("apikey", SERVER_ENV.supabase_api_key).unwrap();
+    headers
+        .set("apikey", server_env().supabase_api_key)
+        .unwrap();
 
     opts.set_headers(&headers);
 
     // generate random string to force invalidate the cache
     // let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
 
-    let url = format!("{}{}", SERVER_ENV.supabase_url, ONE_TIME_PASSWORD_URL);
+    let url = format!("{}{}", server_env().supabase_url, ONE_TIME_PASSWORD_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     let window = web_sys::window().unwrap();
@@ -189,14 +191,16 @@ pub async fn verify_pairing_code(pairing_code: String, email: String) -> Network
     opts.set_body(&JsValue::from_str(&json_str));
 
     let headers = Headers::new().unwrap();
-    headers.set("apikey", SERVER_ENV.supabase_api_key).unwrap();
+    headers
+        .set("apikey", server_env().supabase_api_key)
+        .unwrap();
 
     opts.set_headers(&headers);
 
     // generate random string to force invalidate the cache
     // let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
 
-    let url = format!("{}{}", SERVER_ENV.supabase_url, VERIFY_URL);
+    let url = format!("{}{}", server_env().supabase_url, VERIFY_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     let window = web_sys::window().unwrap();
@@ -232,14 +236,16 @@ pub async fn exchange_refresh_token(refresh_token: String) -> NetworkCallStatus 
     opts.set_body(&JsValue::from_str(&json_str));
 
     let headers = Headers::new().unwrap();
-    headers.set("apikey", SERVER_ENV.supabase_api_key).unwrap();
+    headers
+        .set("apikey", server_env().supabase_api_key)
+        .unwrap();
 
     opts.set_headers(&headers);
 
     // generate random string to force invalidate the cache
     // let cache_buster: String = web_sys::window().unwrap().crypto().unwrap().random_uuid();
 
-    let url = format!("{}{}", SERVER_ENV.supabase_url, TOKEN_REFRESH_URL);
+    let url = format!("{}{}", server_env().supabase_url, TOKEN_REFRESH_URL);
     let request = Request::new_with_str_and_init(&url, &opts).unwrap();
 
     let window = web_sys::window().unwrap();

@@ -24,6 +24,7 @@ use gengar_engine::{
         camera::*, image::Image, light::*, load_image, load_image_cursor, material::*,
         render_command::RenderCommand, render_pack::*, shader::*, vao::*, RenderApi,
     },
+    server_environment::*,
     state::State as EngineState,
     transform::*,
     typeface::*,
@@ -554,6 +555,21 @@ pub fn game_loop(
                 VecTwo::new(
                     es.window_resolution.x - 140.0,
                     es.window_resolution.y - 80.0,
+                ),
+                Color::new(g, g, g, 1.0),
+                &gs.font_style_body,
+                &mut ui_frame_state,
+                &mut gs.ui_context.as_mut().unwrap(),
+            );
+        }
+
+        // server enironment
+        {
+            draw_text(
+                server_env().display_name,
+                VecTwo::new(
+                    es.window_resolution.x - 140.0,
+                    es.window_resolution.y - 100.0,
                 ),
                 Color::new(g, g, g, 1.0),
                 &gs.font_style_body,
