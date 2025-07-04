@@ -152,7 +152,7 @@ impl TileLibraryPanel {
             // details panel
             if let Some((index, item_type)) = self.item_selected {
                 begin_panel_relative(
-                    Anchors::new(0.5, 0.0, 0.0, 0.0),
+                    Anchors::new(0.68, 0.0, 0.0, 0.0),
                     grey_color,
                     &mut ui_state,
                     ui_context,

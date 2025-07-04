@@ -1,9 +1,9 @@
 use crate::{drop_table::*, error::*, pack::*, save_file::*};
 use gengar_engine::platform_api::*;
 
-#[cfg(feature = "dev")]
+#[cfg(test)]
 mod test_tables;
-#[cfg(feature = "dev")]
+#[cfg(test)]
 pub use test_tables::*;
 
 // item
@@ -57,13 +57,13 @@ pub enum FixedTableID {
     Pack(PackID),
 
     // testing
-    #[cfg(feature = "dev")]
+    #[cfg(test)]
     TestTable,
-    #[cfg(feature = "dev")]
+    #[cfg(test)]
     TestGold,
-    #[cfg(feature = "dev")]
+    #[cfg(test)]
     TestCycleA,
-    #[cfg(feature = "dev")]
+    #[cfg(test)]
     TestCycleB,
 }
 
@@ -115,7 +115,7 @@ impl FixedTableID {
                 save_file.save_i32(&type_key, 10);
             }
 
-            #[cfg(feature = "dev")]
+            #[cfg(test)]
             FixedTableID::TestTable
             | FixedTableID::TestGold
             | FixedTableID::TestCycleA
@@ -190,13 +190,13 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
             PackID::Water => &PACK_WATER,
         },
 
-        #[cfg(feature = "dev")]
+        #[cfg(test)]
         FixedTableID::TestTable => &TEST_TABLE,
-        #[cfg(feature = "dev")]
+        #[cfg(test)]
         FixedTableID::TestGold => &TEST_GOLD,
-        #[cfg(feature = "dev")]
+        #[cfg(test)]
         FixedTableID::TestCycleA => &TEST_CYCLE_A,
-        #[cfg(feature = "dev")]
+        #[cfg(test)]
         FixedTableID::TestCycleB => &TEST_CYCLE_B,
     }
 }

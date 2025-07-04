@@ -26,7 +26,6 @@ pub mod inventory;
 use assets::*;
 use inventory::*;
 
-#[cfg(feature = "dev")]
 pub struct DebugState {
     pub showing_debug_panel: bool,
     pub debug_panel: Option<UIPanel>,
@@ -42,7 +41,6 @@ pub enum WorldStatus {
 }
 
 pub struct State {
-    #[cfg(feature = "dev")]
     pub debug_state: DebugState,
 
     pub assets: Assets,
@@ -76,7 +74,6 @@ pub struct State {
 
     pub pack_display_state: HashMap<PackID, PackShopDisplay>,
 
-    pub target_camera_pos: VecThreeFloat,
     pub pack_selected: Option<PackID>,
     pub opening_pack: bool,
 
@@ -88,7 +85,6 @@ pub struct State {
 impl State {
     pub fn new() -> Self {
         State {
-            #[cfg(feature = "dev")]
             debug_state: DebugState {
                 showing_debug_panel: false,
                 debug_panel: None,
@@ -125,7 +121,6 @@ impl State {
 
             pack_display_state: HashMap::new(),
 
-            target_camera_pos: VecThreeFloat::new_zero(),
             pack_selected: None,
             opening_pack: false,
 

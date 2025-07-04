@@ -11,6 +11,7 @@ use gengar_engine::{
     account_call::*,
     analytics::*,
     ascii::*,
+    build_vars::*,
     collisions::*,
     color::*,
     debug::*,
@@ -186,6 +187,7 @@ pub fn game_init(
         cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
         cam.pitch = 55.0;
         cam.yaw = 90.0;
+        cam.move_target_position = cam.transform.local_position
     }
 
     // init shop
@@ -195,8 +197,7 @@ pub fn game_init(
         cam.transform.local_position = VecThreeFloat::new(-5.0, 27.0, 10.0);
         cam.pitch = 70.0;
         cam.yaw = 90.0;
-
-        gs.target_camera_pos = cam.transform.local_position;
+        cam.move_target_position = cam.transform.local_position
     }
 
     // lights
@@ -423,8 +424,7 @@ pub fn game_loop(
     // save game
     {
         // manual save for testing
-        #[cfg(feature = "dev")]
-        {
+        if build_type_development() {
             if input.keyboard.get_key(KeyCode::Q).on_press {
                 save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
                 println!("Game manually saved");
@@ -523,8 +523,7 @@ pub fn game_loop(
         }
     }
 
-    // debug developer stuff
-    #[cfg(feature = "dev")]
+    // debug stats display
     {
         let g = 0.3;
 
@@ -577,7 +576,10 @@ pub fn game_loop(
                 &mut gs.ui_context.as_mut().unwrap(),
             );
         }
+    }
 
+    // debug developer stuff
+    if build_type_development() {
         // debug panel
         {
             if input.keyboard.get_key(KeyCode::Tab).on_press {
@@ -636,49 +638,11 @@ pub fn game_loop(
     {
         let mut frame_delta: f64 = prev_delta_time;
 
-        #[cfg(feature = "dev")]
-        if input.keyboard.get_key(KeyCode::One).on_press {
+        if build_type_development() && input.keyboard.get_key(KeyCode::One).on_press {
             frame_delta = 100.0;
         }
 
         sim_world(gs, es, frame_delta, platform_api);
-    }
-
-    // camera controls
-    {
-        /*
-        let keyboard_speed = 1000.0;
-        let drag_speed = 0.75;
-
-        let cam_pack = es.render_packs.get_mut(&RenderPackID::World).unwrap();
-
-        if input.get_key(KeyCode::W).pressing {
-            cam_pack.camera.transform.local_position.y -= keyboard_speed * prev_delta_time;
-        }
-        if input.get_key(KeyCode::S).pressing {
-            cam_pack.camera.transform.local_position.y += keyboard_speed * prev_delta_time;
-        }
-        if input.get_key(KeyCode::A).pressing {
-            cam_pack.camera.transform.local_position.x -= keyboard_speed * prev_delta_time;
-        }
-        if input.get_key(KeyCode::D).pressing {
-            cam_pack.camera.transform.local_position.x += keyboard_speed * prev_delta_time;
-        }
-        */
-
-        // camera click dragging
-        /*
-        {
-            if input.mouse.button_left.pressing {
-                if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
-                    cam_pack.camera.transform.local_position.x +=
-                        input.mouse.pos_delta.x * drag_speed;
-                    cam_pack.camera.transform.local_position.y +=
-                        input.mouse.pos_delta.y * drag_speed;
-                }
-            }
-        }
-        */
     }
 
     // run tile updates
@@ -701,14 +665,25 @@ pub fn game_loop(
     if show_game {
         match gs.world_status {
             WorldStatus::World => {
-                // camera controls
+                // camera controlsj
                 {
+                    let cam_pack = es
+                        .render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::NewWorld)
+                        .unwrap();
+
+                    cam_pack.camera.move_plane(false, input, prev_delta_time);
+                    cam_pack.camera.update_position(prev_delta_time);
+
+                    /*
                     es.render_system
                         .render_packs
                         .get_mut(&RenderPackID::NewWorld)
                         .unwrap()
                         .camera
                         .move_fly(0.3, input);
+                    */
                 }
 
                 // render tiles
@@ -1100,44 +1075,7 @@ pub fn game_loop(
                             .unwrap();
 
                         if gs.pack_selected.is_none() && !gs.opening_pack {
-                            let keyboard_speed = 30.0;
-                            let mouse_scroll_speed = 400.0;
-                            let drag_speed = gengar_engine::math::lerp(
-                                0.02,
-                                0.08,
-                                cam_pack.camera.transform.local_position.y / 100.0,
-                            );
-
-                            if input.keyboard.get_key(KeyCode::W).pressing {
-                                gs.target_camera_pos.z -= keyboard_speed * prev_delta_time;
-                            }
-                            if input.keyboard.get_key(KeyCode::S).pressing {
-                                gs.target_camera_pos.z += keyboard_speed * prev_delta_time;
-                            }
-                            if input.keyboard.get_key(KeyCode::A).pressing {
-                                gs.target_camera_pos.x -= keyboard_speed * prev_delta_time;
-                            }
-                            if input.keyboard.get_key(KeyCode::D).pressing {
-                                gs.target_camera_pos.x += keyboard_speed * prev_delta_time;
-                            }
-                            if input.mouse.scroll_delta > 0 {
-                                gs.target_camera_pos.y -= mouse_scroll_speed * prev_delta_time;
-                            } else if input.mouse.scroll_delta < 0 {
-                                gs.target_camera_pos.y += mouse_scroll_speed * prev_delta_time
-                            }
-
-                            // camera click dragging
-                            {
-                                if input.mouse.button_left.pressing {
-                                    if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0
-                                    {
-                                        gs.target_camera_pos.x +=
-                                            input.mouse.pos_delta.x * drag_speed;
-                                        gs.target_camera_pos.z +=
-                                            input.mouse.pos_delta.y * drag_speed;
-                                    }
-                                }
-                            }
+                            cam_pack.camera.move_plane(true, input, prev_delta_time);
                         } else {
                             if input.keyboard.get_key(KeyCode::W).pressing
                                 || input.keyboard.get_key(KeyCode::S).pressing
@@ -1161,14 +1099,7 @@ pub fn game_loop(
                             .render_packs
                             .get_mut(&RenderPackID::Shop)
                             .unwrap();
-
-                        gs.target_camera_pos.y = gs.target_camera_pos.y.clamp(15.0, 100.0);
-
-                        cam_pack.camera.transform.local_position = VecThreeFloat::lerp(
-                            cam_pack.camera.transform.local_position,
-                            gs.target_camera_pos,
-                            0.2,
-                        );
+                        cam_pack.camera.update_position(prev_delta_time);
                     } else {
                         // fly cam for testing
                         es.render_system
@@ -1276,8 +1207,7 @@ pub fn game_loop(
         .append(&mut gs.ui_context.as_mut().unwrap().render_commands);
 
     // get draw calls
-    #[cfg(feature = "dev")]
-    {
+    if build_type_development() {
         es.render_commands_len = 0;
         for (key, value) in &es.render_system.render_packs {
             es.render_commands_len += value.commands.len() as i32;

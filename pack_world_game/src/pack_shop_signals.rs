@@ -1,5 +1,11 @@
 use crate::{pack::*, pack_shop_display::*, state::*, update_signal::*};
-use gengar_engine::{analytics::*, platform_api::*, state::State as EngineState};
+use gengar_engine::{
+    analytics::*,
+    platform_api::*,
+    render::{render_pack::*, *},
+    state::State as EngineState,
+    vectors::*,
+};
 
 #[derive(Debug)]
 pub enum PackShopSignals {
@@ -64,11 +70,20 @@ pub fn handle_pack_shop_signals(
 
                 // Update camera
                 {
-                    gs.target_camera_pos.x = pack_info.shop_position.x;
-                    gs.target_camera_pos.y = 20.0;
-
                     // This 10 is becuse the camera is rotate a bit and not looking straight down
-                    gs.target_camera_pos.z = pack_info.shop_position.z + 8.0;
+                    let new_pos = VecThreeFloat::new(
+                        pack_info.shop_position.x,
+                        20.0,
+                        pack_info.shop_position.z + 8.0,
+                    );
+
+                    let cam_pack = es
+                        .render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::Shop)
+                        .unwrap()
+                        .camera
+                        .move_target_position = new_pos;
                 }
             }
             PackShopSignals::DeselectAll => {

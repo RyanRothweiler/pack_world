@@ -26,6 +26,8 @@ pub struct Camera {
     pub near_plane: f64,
     pub far_plane: f64,
     pub fov: f64,
+
+    pub move_target_position: VecThreeFloat,
 }
 
 impl Camera {
@@ -50,6 +52,8 @@ impl Camera {
 
             yaw: 90.0,
             pitch: 0.0,
+
+            move_target_position: VecThreeFloat::new_zero(),
         }
     }
 
@@ -192,8 +196,8 @@ impl Camera {
         }
     }
 
-    // Control the camera as a fly-cam
-    // Mouse for rotation and wasd for camera relative movement
+    /// Control the camera as a fly-cam
+    /// Mouse for rotation and wasd for camera relative movement
     pub fn move_fly(&mut self, mov_speed: f64, input: &Input) {
         if input.mouse.button_right.pressing {
             let sens = 0.08;
@@ -229,6 +233,53 @@ impl Camera {
         }
 
         self.update_matricies();
+    }
+
+    /// Camera moving laterally on a flat plane.
+    /// WASD for lateral movement
+    /// Scrolling for zooming in and out
+    pub fn move_plane(&mut self, mouse_drag: bool, input: &Input, prev_delta_time: f64) {
+        let keyboard_speed = 30.0;
+        let mouse_scroll_speed = 400.0;
+        let drag_speed = crate::math::lerp(0.02, 0.08, self.transform.local_position.y / 100.0);
+
+        if input.keyboard.get_key(KeyCode::W).pressing {
+            self.move_target_position.z -= keyboard_speed * prev_delta_time;
+        }
+        if input.keyboard.get_key(KeyCode::S).pressing {
+            self.move_target_position.z += keyboard_speed * prev_delta_time;
+        }
+        if input.keyboard.get_key(KeyCode::A).pressing {
+            self.move_target_position.x -= keyboard_speed * prev_delta_time;
+        }
+        if input.keyboard.get_key(KeyCode::D).pressing {
+            self.move_target_position.x += keyboard_speed * prev_delta_time;
+        }
+        if input.mouse.scroll_delta > 0 {
+            self.move_target_position.y -= mouse_scroll_speed * prev_delta_time;
+        } else if input.mouse.scroll_delta < 0 {
+            self.move_target_position.y += mouse_scroll_speed * prev_delta_time
+        }
+
+        // camera click dragging
+        if mouse_drag {
+            if input.mouse.button_left.pressing {
+                if input.mouse.pos_delta.dist_from(VecTwo::new(0.0, 0.0)) > 1.0 {
+                    self.move_target_position.x += input.mouse.pos_delta.x * drag_speed;
+                    self.move_target_position.z += input.mouse.pos_delta.y * drag_speed;
+                }
+            }
+        }
+    }
+
+    pub fn update_position(&mut self, prev_delta_time: f64) {
+        self.move_target_position.y = self.move_target_position.y.clamp(15.0, 100.0);
+
+        self.transform.local_position = VecThreeFloat::lerp(
+            self.transform.local_position,
+            self.move_target_position,
+            0.2,
+        );
     }
 
     pub fn screen_to_world(&self, input: VecTwo) -> VecThreeFloat {

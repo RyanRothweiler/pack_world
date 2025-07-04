@@ -14,7 +14,3 @@ gengar_render_opengl = { path = "../gengar_render_opengl" }
 
 [dev-dependencies]
 rand = "0.9.0"
-
-[features]
-default = ["dev"]
-dev = []

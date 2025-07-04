@@ -1,3 +1,4 @@
+// todo this should go into the build_vars module
 // !! really shouldn't be putting api keys here man
 
 pub struct ServerEnvironment {
