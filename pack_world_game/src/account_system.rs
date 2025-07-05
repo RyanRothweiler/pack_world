@@ -23,6 +23,10 @@ impl AccountSystem {
         }
     }
 
+    pub fn logged_in(&self) -> bool {
+        self.user_account.is_some()
+    }
+
     pub fn get_user_auth_token(&self) -> Option<String> {
         if let Some(user_account) = &self.user_account {
             return Some(user_account.access_token.clone());
@@ -77,6 +81,8 @@ impl AccountSystem {
                     refresh_token: refresh_token,
                 });
                 self.user_login_call = Some(call_id);
+            } else {
+                self.user_fetches_finished = true;
             }
         } else {
             // there is no saved token so there is no user to fetch

@@ -873,7 +873,9 @@ pub fn game_loop(
             }
             WorldStatus::Shop => {
                 // update purchase flow
-                purchase_flow::update_purchase_flow(gs, &mut es.networking_system, platform_api);
+                let purchase_sigs =
+                    update_purchase_flow(gs, &mut es.networking_system, platform_api);
+                handle_signals(purchase_sigs, gs, es, platform_api);
 
                 if gs.active_page.is_none() {
                     let mouse_world: VecThreeFloat = {
@@ -961,18 +963,9 @@ pub fn game_loop(
                                         ui_context,
                                     );
                                 }
-                                PurchaseFlow::RunningCheckout => {
-                                    /*
-                                    draw_text(
-                                        "Please finish checkout through Stripe",
-                                        VecTwo::new(margin_l, 250.0),
-                                        COLOR_WHITE,
-                                        &ui_context.font_header.clone(),
-                                        &mut ui_frame_state,
-                                        ui_context,
-                                    );
-                                    */
-                                }
+                                PurchaseFlow::RunningCheckout
+                                | PurchaseFlow::Initiate
+                                | PurchaseFlow::Register => {}
                             }
                         } else {
                             if draw_text_button(
@@ -985,17 +978,7 @@ pub fn game_loop(
                                 std::line!(),
                                 ui_context,
                             ) {
-                                let pc = PurchaseFlow::StartingCheckout {
-                                    network_call: es.networking_system.start_call(
-                                        AccountCall::CreateCheckout {
-                                            user_auth_token: gs
-                                                .account_system
-                                                .get_user_auth_token()
-                                                .unwrap(),
-                                        },
-                                    ),
-                                };
-                                gs.purchase_flow = Some(pc);
+                                gs.purchase_flow = Some(PurchaseFlow::Initiate);
                             }
                         }
 

@@ -14,6 +14,8 @@ pub struct UserAccount {
 
     pub user_info: Option<UserInfo>,
 
+    pub purchase_after_register: bool,
+
     refresh_token: String,
 }
 
@@ -46,6 +48,8 @@ impl UserAccount {
             access_token: access_token,
 
             user_info: None,
+
+            purchase_after_register: false,
         };
 
         ret.set_refresh_token(&refresh_token, platform_api);
