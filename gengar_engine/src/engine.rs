@@ -27,7 +27,6 @@ pub mod networking;
 pub mod platform_api;
 pub mod rect;
 pub mod render;
-pub mod server_environment;
 pub mod state;
 pub mod time;
 pub mod transform;

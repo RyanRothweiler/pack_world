@@ -476,13 +476,17 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     }
 
     fn get_uniform_location(&mut self, prog_id: u32, uniform_name: &str) -> Option<i32> {
-        let gl_prog = self.programs.get(prog_id as usize).unwrap();
-
-        if let Some(gl_uniform_loc) = self.context.get_uniform_location(gl_prog, uniform_name) {
-            return Some(self.uniform_locations.push(gl_uniform_loc) as i32);
+        if let Some(gl_prog) = self.programs.get(prog_id as usize) {
+            if let Some(gl_uniform_loc) = self.context.get_uniform_location(gl_prog, uniform_name) {
+                return Some(self.uniform_locations.push(gl_uniform_loc) as i32);
+            }
         }
 
         None
+    }
+
+    fn remove_internal_uniform_loc_position(&mut self, id: i32) {
+        self.uniform_locations.remove(id as usize);
     }
 
     fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44) {

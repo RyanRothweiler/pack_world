@@ -139,6 +139,9 @@ pub trait OGLPlatformImpl {
     fn bind_render_buffer(&self, ty: u32, id: Option<u32>);
     fn render_buffer_storage(&self, ty: u32, stor_type: u32, width: i32, height: i32);
     fn frame_buffer_render_buffer(&self, target: u32, ty: u32, tar: u32, rbid: u32);
+
+    // None opengl specific
+    fn remove_internal_uniform_loc_position(&mut self, id: i32);
 }
 
 pub struct OglRenderApi {
@@ -641,6 +644,10 @@ fn render_list(
                         render_api
                             .platform_api
                             .uniform_matrix_4fv(loc, 1, false, data);
+
+                        render_api
+                            .platform_api
+                            .remove_internal_uniform_loc_position(loc);
                     }
                 }
                 UniformData::VecFour(data) => {
@@ -649,6 +656,10 @@ fn render_list(
                         .get_uniform_location(command.prog_id, key)
                     {
                         render_api.platform_api.uniform_4fv(loc, 1, data);
+
+                        render_api
+                            .platform_api
+                            .remove_internal_uniform_loc_position(loc);
                     }
                 }
                 UniformData::VecThree(data) => {
@@ -657,6 +668,10 @@ fn render_list(
                         .get_uniform_location(command.prog_id, key)
                     {
                         render_api.platform_api.uniform_3fv(loc, 1, data);
+
+                        render_api
+                            .platform_api
+                            .remove_internal_uniform_loc_position(loc);
                     }
                 }
                 UniformData::Float(data) => {
@@ -665,6 +680,10 @@ fn render_list(
                         .get_uniform_location(command.prog_id, key)
                     {
                         render_api.platform_api.uniform_1f(loc, *data as f32);
+
+                        render_api
+                            .platform_api
+                            .remove_internal_uniform_loc_position(loc);
                     }
                 }
                 UniformData::Texture(data) => {
@@ -682,6 +701,10 @@ fn render_list(
                         render_api
                             .platform_api
                             .bind_texture(TextureTarget::Texture2D, Some(data.image_id));
+
+                        render_api
+                            .platform_api
+                            .remove_internal_uniform_loc_position(loc);
                     }
                 }
             }

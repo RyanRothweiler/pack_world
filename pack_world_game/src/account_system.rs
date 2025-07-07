@@ -108,6 +108,7 @@ impl AccountSystem {
                 }
 
                 NetworkCallStatus::Error { error } => {
+                    self.user_fetches_finished = true;
                     self.user_login_call = None;
                 }
 
@@ -129,6 +130,7 @@ impl AccountSystem {
                     }
 
                     NetworkCallStatus::Error { error } => {
+                        self.user_fetches_finished = true;
                         self.user_fetch_call = None;
                     }
 

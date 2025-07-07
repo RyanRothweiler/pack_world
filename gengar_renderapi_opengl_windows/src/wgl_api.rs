@@ -431,6 +431,10 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         return Some((self.glGetUniformLocation)(prog_id, name_c.as_ptr()));
     }
 
+    fn remove_internal_uniform_loc_position(&mut self, _id: i32) {
+        // no internal uniform loc data for windows
+    }
+
     fn uniform_matrix_4fv(&self, loc: i32, count: i32, transpose: bool, data: &M44) {
         let mut elems: [f32; 16] = [0.0; 16];
         for i in 0..data.elements.len() {
