@@ -1,6 +1,7 @@
 use crate::{account_call::*, analytics::*, error::Error};
 use std::path::*;
 
+#[derive(Clone)]
 pub struct PlatformApi {
     pub rand: fn() -> f64,
     pub send_event: fn(AnalyticsEvent),
@@ -13,4 +14,8 @@ pub struct PlatformApi {
     pub local_persist_get: fn(key: &str) -> Option<String>,
     pub local_persist_set: fn(key: &str, data: &str),
     pub local_persist_delete: fn(key: &str),
+
+    /// Platform specific println.
+    /// Some platforms like web have different logging systems.
+    pub println: fn(output: &str),
 }

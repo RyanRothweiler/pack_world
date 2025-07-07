@@ -153,6 +153,10 @@ fn local_persist_delete(key: &str) {
     ls.remove_item(key).unwrap()
 }
 
+fn plat_print(output: &str) {
+    log(output);
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: rand,
@@ -165,6 +169,8 @@ pub fn get_platform_api() -> PlatformApi {
         local_persist_get: local_persist_get,
         local_persist_set: local_persist_set,
         local_persist_delete: local_persist_delete,
+
+        println: plat_print,
     }
 }
 
@@ -239,12 +245,13 @@ pub fn start() {
         });
         INPUT = Some(Input::new());
 
-        ENGINE_STATE = Some(gengar_engine::state::State::new(resolution));
+        ENGINE_STATE = Some(gengar_engine::state::State::new(resolution, &platform_api));
         GAME_STATE = Some(game::state::State::new());
 
         gengar_engine::load_resources(
             &mut ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
+            &platform_api,
         );
 
         game_init(

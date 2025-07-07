@@ -147,6 +147,10 @@ fn local_persist_delete(key: &str) {
     println!("TODO");
 }
 
+fn plat_print(output: &str) {
+    println!("{}", output);
+}
+
 pub fn get_platform_api() -> PlatformApi {
     PlatformApi {
         rand: random,
@@ -159,6 +163,8 @@ pub fn get_platform_api() -> PlatformApi {
         local_persist_get: local_persist_get,
         local_persist_set: local_persist_set,
         local_persist_delete: local_persist_delete,
+
+        println: plat_print,
     }
 }
 
@@ -356,7 +362,7 @@ fn main() {
         // after context is setup, get the render api calls
         let mut render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
 
-        let mut engine_state = gengar_engine::state::State::new(resolution);
+        let mut engine_state = gengar_engine::state::State::new(resolution, &platform_api);
         engine_state.title_bar_height = 40;
 
         let mut game_state = game::state::State::new();
@@ -364,7 +370,7 @@ fn main() {
         // setup input
         let mut input = gengar_engine::input::Input::new();
 
-        gengar_engine::load_resources(&mut engine_state, &mut render_api);
+        gengar_engine::load_resources(&mut engine_state, &mut render_api, &platform_api);
         if cfg!(feature = "hotreloading_dll") {
             (game_dll.proc_init)(
                 &mut game_state,

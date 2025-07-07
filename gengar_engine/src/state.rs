@@ -1,8 +1,10 @@
 use crate::{
     account_call::*,
     input::*,
+    logging::*,
     model::*,
     networking::*,
+    platform_api::*,
     render::{camera::*, render_command::*, render_pack::*, shader::*, vao::*},
     transform::*,
     typeface::*,
@@ -49,10 +51,12 @@ pub struct State {
     pub networking_system: NetworkingSystem,
 
     pub title_bar_height: i32,
+
+    pub logger: Logger,
 }
 
 impl State {
-    pub fn new(window_resolution: VecTwo) -> Self {
+    pub fn new(window_resolution: VecTwo, platform_api: &PlatformApi) -> Self {
         let mut state = State {
             pbr_shader: Shader::new_empty(),
             color_texture_shader: Shader::new_empty(),
@@ -82,6 +86,8 @@ impl State {
             networking_system: NetworkingSystem::new(),
 
             title_bar_height: 0,
+
+            logger: Logger::new(platform_api),
         };
 
         state.render_system.render_packs.insert(

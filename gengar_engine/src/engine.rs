@@ -19,6 +19,7 @@ pub mod color;
 pub mod debug;
 pub mod error;
 pub mod input;
+pub mod logging;
 pub mod math;
 pub mod matricies;
 pub mod model;
@@ -46,13 +47,18 @@ use input::*;
 use matricies::matrix_four_four::*;
 use model::*;
 use networking::*;
+use platform_api::*;
 use render::{render_command::*, shader::*, vao::*};
 use state::*;
 use transform::*;
 use typeface::*;
 use vectors::*;
 
-pub fn load_resources(es: &mut State, render_api: &mut impl render::RenderApi) {
+pub fn load_resources(
+    es: &mut State,
+    render_api: &mut impl render::RenderApi,
+    platform_api: &PlatformApi,
+) {
     es.pbr_shader = Shader::compile(
         include_str!("../engine_resources/shaders/pbr.vs"),
         include_str!("../engine_resources/shaders/pbr.fs"),

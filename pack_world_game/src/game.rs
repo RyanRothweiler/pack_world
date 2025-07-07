@@ -16,6 +16,7 @@ use gengar_engine::{
     color::*,
     debug::*,
     input::*,
+    logging::*,
     matricies::matrix_four_four::*,
     model::*,
     obj,
@@ -95,6 +96,31 @@ const BUTTON_BG: Color = Color {
     a: 0.2,
 };
 
+fn setup_initial(world: &mut World, inventory: &mut Inventory) {
+    // setup map
+    {
+        let init_dirt: Vec<GridPos> = vec![
+            GridPos::new(0, 0),
+            // GridPos::new(21, 10),
+            // GridPos::new(20, 11),
+            // GridPos::new(21, 11),
+        ];
+        for p in init_dirt {
+            let _ = world.insert_tile(p, TileType::Dirt);
+        }
+    }
+
+    // setup inventory
+    {
+        inventory
+            .give_item(ItemType::Tile(TileType::Dirt), 4)
+            .unwrap();
+        inventory
+            .give_item(ItemType::Tile(TileType::Grass), 4)
+            .unwrap();
+    }
+}
+
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
 pub fn game_init_ogl(
@@ -121,7 +147,6 @@ pub fn game_init(
         es.model_plane.clone(),
     );
 
-    // gs.assets.binary_file_system = load_game_assets();
     load_game_assets(&mut gs.assets.asset_library, render_api);
     gs.assets.build_assets(es.pbr_shader, es.shader_color);
 
@@ -301,27 +326,7 @@ pub fn game_init(
     gs.ui_panel_stack.push(CreatePanelData::Home.create_panel());
 
     // setup first map
-    {
-        let init_dirt: Vec<GridPos> = vec![
-            GridPos::new(0, 0),
-            // GridPos::new(21, 10),
-            // GridPos::new(20, 11),
-            // GridPos::new(21, 11),
-        ];
-        for p in init_dirt {
-            let _ = gs.world.insert_tile(p, TileType::Dirt);
-        }
-    }
-
-    // setup initial inventory
-    {
-        gs.inventory
-            .give_item(ItemType::Tile(TileType::Dirt), 4)
-            .unwrap();
-        gs.inventory
-            .give_item(ItemType::Tile(TileType::Grass), 4)
-            .unwrap();
-    }
+    setup_initial(&mut gs.world, &mut gs.inventory);
 
     // make debug panel. Needs to happen here so that the memory is in dll space.
     {
@@ -435,6 +440,8 @@ pub fn game_loop(
             }
         }
 
+        // Log::println("heyo working");
+
         // check for data to load
         {
             if !es.game_to_load.is_empty() && gs.account_system.user_fetches_finished() {
@@ -454,7 +461,11 @@ pub fn game_loop(
                         }
                     }
                     Err(error) => {
-                        println!("Error loading save file {:?}", error);
+                        es.logger.println(&format!(
+                            "Error loading save file. Clearing save data. {:?}",
+                            error
+                        ));
+                        setup_initial(&mut gs.world, &mut gs.inventory);
                     }
                 };
                 es.game_to_load.clear();
