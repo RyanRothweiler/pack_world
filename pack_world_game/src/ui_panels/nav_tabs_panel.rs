@@ -63,6 +63,8 @@ impl NavTabsPanel {
                 Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 60.0, 15.0), 25.0, 25.0);
             let bluesky =
                 Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 100.0, 15.0), 25.0, 25.0);
+            let discord =
+                Rect::new_top_size(VecTwo::new(ui_state.resolution.x - 150.0, 15.0), 35.0, 25.0);
 
             if draw_button_id(
                 0,
@@ -91,18 +93,17 @@ impl NavTabsPanel {
                 })
             }
 
-            if draw_text_button(
-                "Join Mailing List",
-                VecTwo::new(ui_state.resolution.x - 265.0, 35.0),
-                &ui_context.font_body.clone(),
-                false,
-                Some(crate::BUTTON_BG),
+            if draw_button_id(
+                2,
+                "",
+                ButtonStyleData::new_shrink(Some(assets.image_discord.gl_id.unwrap()), None, 0.2),
+                &discord,
                 ui_state,
                 std::line!(),
                 ui_context,
             ) {
                 ret.push(UpdateSignal::OpenURL {
-                    url: "https://mailchi.mp/932d23a45465/packworld".into(),
+                    url: "https://discord.gg/FUmeVUeX".into(),
                 })
             }
 

@@ -203,6 +203,11 @@ pub fn game_init(
         render_api,
     )
     .unwrap();
+    gs.assets.image_discord = load_image_cursor(
+        include_bytes!("../resources/social_icons/discord.png"),
+        render_api,
+    )
+    .unwrap();
 
     // init world camera
     {
