@@ -941,7 +941,7 @@ pub fn game_loop(
 
                         begin_panel(
                             Rect::new_top_size(VecTwo::new(50.0, 100.0), panel_w, 280.0),
-                            Color::new(0.3, 0.3, 1.0, 0.2),
+                            *THEME_PANEL_BG,
                             &mut ui_frame_state,
                             ui_context,
                         );
@@ -972,9 +972,9 @@ pub fn game_loop(
                         );
 
                         draw_paragraph(
-                            "Increase offline progress from 1 hour to 48 hours. More features coming in the future!",
+                            &format!("Increase offline progress from {} hour to {} hours. More features coming in the future!", save_file::SIM_LIMIT_H_FREE, save_file::SIM_LIMIT_H_PREMIUM),
                             Rect::new_top_size(VecTwo::new(margin_l, 140.0), panel_w, 600.0),
-                            COLOR_WHITE,
+                            *THEME_TEXT_MUT,
                             &ui_context.font_body.clone(),
                             &mut ui_frame_state,
                             ui_context,

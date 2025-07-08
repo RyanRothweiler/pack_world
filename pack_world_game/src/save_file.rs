@@ -13,8 +13,8 @@ pub use kvp_file::SaveFile;
 pub const TILE_INSTANCE_ID_CHAR: char = 'E';
 pub const VALID_ADJ_ID_CHAR: char = 'V';
 
-const SIM_LIMIT_H_FREE: i32 = 1;
-const SIM_LIMIT_H_PREMIUM: i32 = 24;
+pub const SIM_LIMIT_H_FREE: i32 = 6;
+pub const SIM_LIMIT_H_PREMIUM: i32 = 24;
 
 pub fn build_save_file(
     world: &World,
