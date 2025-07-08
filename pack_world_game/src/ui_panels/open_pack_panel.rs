@@ -47,7 +47,7 @@ impl OpenPackPanel {
 
         let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(1400.0, 800.0));
 
-        begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
+        begin_panel(panel_r, *THEME_PANEL_BG, &mut ui_state, ui_context);
 
         let pack_info: &Pack = self.pack_id.get_pack_info();
 

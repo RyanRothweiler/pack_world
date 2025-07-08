@@ -32,7 +32,7 @@ impl CreateAccountPanel {
         let mut ret: Vec<UpdateSignal> = vec![];
 
         let panel_r = Rect::new_center(ui_state.resolution * 0.5, VecTwo::new(500.0, 700.0));
-        begin_panel(panel_r, BG_COLOR, &mut ui_state, ui_context);
+        begin_panel(panel_r, *THEME_PANEL_BG, &mut ui_state, ui_context);
 
         let margin_l = 30.0;
 

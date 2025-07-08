@@ -33,7 +33,7 @@ impl TileLibraryPanel {
 
         // begin panel
         let base_rect = Rect::new_top_size(VecTwo::new(0.0, 150.0), 400.0, ui_state.resolution.y);
-        begin_panel(base_rect, BG_COLOR, &mut ui_state, ui_context);
+        begin_panel(base_rect, *THEME_PANEL_BG, &mut ui_state, ui_context);
         {
             let mut item_hovering: Option<(Rect, ItemType)> = None;
 
@@ -61,7 +61,7 @@ impl TileLibraryPanel {
                 draw_text(
                     "Tiles",
                     VecTwo::new(10.0, 40.0),
-                    COLOR_WHITE,
+                    *THEME_TEXT,
                     &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
@@ -95,7 +95,7 @@ impl TileLibraryPanel {
                 draw_text(
                     "Items",
                     grid_rects[(i + col_count) as usize].top_left + VecTwo::new(10.0, 50.0),
-                    COLOR_WHITE,
+                    *THEME_TEXT,
                     &ui_context.font_body.clone(),
                     ui_state,
                     ui_context,
@@ -162,7 +162,7 @@ impl TileLibraryPanel {
                     draw_text(
                         &item_type.user_title(),
                         VecTwo::new(10.0, 25.0),
-                        COLOR_WHITE,
+                        *THEME_TEXT,
                         &ui_context.font_body.clone(),
                         ui_state,
                         ui_context,
@@ -179,12 +179,11 @@ impl TileLibraryPanel {
 
                         let mut disp: &str = NO_ITEM_DESC;
                         let mut col = COLOR_WHITE;
-                        col.a = 0.35;
 
                         match item_type.user_description() {
                             Some(desc) => {
                                 disp = desc;
-                                col = COLOR_WHITE;
+                                col = *THEME_TEXT_MUT;
                             }
                             _ => {}
                         }
@@ -286,7 +285,7 @@ impl TileLibraryPanel {
                 if draw_button_id(
                     i,
                     &disp,
-                    ButtonStyleData::new_outline(Some(icon)),
+                    ButtonStyleData::new_shrink(Some(icon), None, 2.0),
                     &grid_rect,
                     ui_state,
                     std::line!(),

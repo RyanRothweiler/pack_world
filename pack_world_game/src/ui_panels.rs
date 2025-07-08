@@ -27,13 +27,6 @@ pub use pairing_code_panel::*;
 use shop_panel::*;
 use tile_library_panel::*;
 
-pub const BG_COLOR: Color = Color {
-    r: 0.32,
-    g: 0.32,
-    b: 0.32,
-    a: 1.0,
-};
-
 pub enum UIPanel {
     NavTabs(NavTabsPanel),
     TileLibrary(TileLibraryPanel),

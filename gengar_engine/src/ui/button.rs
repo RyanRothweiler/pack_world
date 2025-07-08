@@ -158,7 +158,7 @@ pub fn draw_text_button_id(
         ));
     }
 
-    draw_text(display, pos, COLOR_WHITE, style, ui_state, context);
+    draw_text(display, pos, *THEME_TEXT, style, ui_state, context);
 
     return contains && button_on_down;
 }

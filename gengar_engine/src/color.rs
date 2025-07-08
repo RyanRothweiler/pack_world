@@ -1,3 +1,8 @@
+pub mod hsl;
+
+pub use hsl::*;
+
+/// There are from 0.0 to 1.0
 #[derive(Debug, Copy, Clone)]
 pub struct Color {
     pub r: f32,

@@ -111,7 +111,7 @@ impl NavTabsPanel {
                 let mut col = if user_account.did_purchase_base() {
                     COLOR_GREEN
                 } else {
-                    COLOR_WHITE
+                    *THEME_TEXT
                 };
                 col.a = 0.5;
 

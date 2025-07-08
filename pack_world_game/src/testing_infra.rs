@@ -25,7 +25,7 @@ fn get_save_game_data() {
     unimplemented!()
 }
 
-fn open_url(url: String) {
+fn open_url(url: String, same_tab: bool) {
     unimplemented!()
 }
 
@@ -39,6 +39,10 @@ fn local_persist_set(key: &str, data: &str) {
 
 fn local_persist_delete(key: &str) {
     // do nothing for now
+}
+
+fn plat_print(output: &str) {
+    println!("{}", output);
 }
 
 //For testing use the windows platform api. Tests don't run on any other platform.s
@@ -55,5 +59,7 @@ pub fn windows_plaform_api() -> PlatformApi {
         local_persist_get: local_persist_get,
         local_persist_set: local_persist_set,
         local_persist_delete: local_persist_delete,
+
+        println: plat_print,
     }
 }

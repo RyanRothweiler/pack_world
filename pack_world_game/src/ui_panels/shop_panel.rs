@@ -21,7 +21,7 @@ impl ShopPanel {
 
         begin_panel(
             Rect::new_top_size(VecTwo::new(0.0, 150.0), 900.0, ui_state.resolution.y),
-            BG_COLOR,
+            *THEME_PANEL_BG,
             &mut ui_state,
             ui_context,
         );
