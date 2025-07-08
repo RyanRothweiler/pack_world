@@ -187,10 +187,13 @@ pub fn handle_signals(
                 }
 
                 UpdateSignal::SaveGame => {
+                    /*
                     match save_game(&gs.world, &gs.inventory, platform_api) {
                         Ok(()) => println!("Game saved successfully"),
                         Err(error) => println!("Error saving game {:?}", error),
                     }
+                    */
+                    gs.save_queued = true;
 
                     vec![]
                 }

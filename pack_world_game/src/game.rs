@@ -432,6 +432,20 @@ pub fn game_loop(
 
     // save game
     {
+        // save timer
+        {
+            gs.save_timer_check += prev_delta_time;
+            if gs.save_timer_check > 3.0 {
+                gs.save_timer_check = 0.0;
+
+                if gs.save_queued {
+                    gs.save_queued = false;
+                    save_game(&gs.world, &gs.inventory, platform_api).expect("Error saving game.");
+                    println!("Saving game");
+                }
+            }
+        }
+
         // manual save for testing
         if build_type_development() {
             if input.keyboard.get_key(KeyCode::Q).on_press {

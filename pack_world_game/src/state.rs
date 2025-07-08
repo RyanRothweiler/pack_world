@@ -80,6 +80,9 @@ pub struct State {
     pub account_system: AccountSystem,
 
     pub purchase_flow: Option<PurchaseFlow>,
+
+    pub save_queued: bool,
+    pub save_timer_check: f64,
 }
 
 impl State {
@@ -126,6 +129,9 @@ impl State {
 
             account_system: AccountSystem::new(),
             purchase_flow: None,
+
+            save_queued: false,
+            save_timer_check: 0.0,
         }
     }
 }
