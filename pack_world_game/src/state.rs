@@ -1,5 +1,6 @@
 use crate::{
     account_system::*,
+    game_mode::*,
     harvest_drop::*,
     pack_shop_display::*,
     purchase_flow::*,
@@ -34,12 +35,6 @@ pub struct DebugState {
     pub thumbnail_height: f64,
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
-pub enum WorldStatus {
-    World,
-    Shop,
-}
-
 pub struct State {
     pub debug_state: DebugState,
 
@@ -66,7 +61,7 @@ pub struct State {
 
     pub ui_context: Option<UIContext>,
 
-    pub world_status: WorldStatus,
+    pub current_mode: GameMode,
 
     pub pack_light_origin: usize,
     pub pack_light_trans: usize,
@@ -116,7 +111,7 @@ impl State {
 
             ui_context: None,
 
-            world_status: WorldStatus::World,
+            current_mode: GameMode::World,
 
             pack_light_origin: 0,
             pack_light_trans: 0,

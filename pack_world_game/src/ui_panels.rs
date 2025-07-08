@@ -1,5 +1,6 @@
 use crate::{
     account_system::*,
+    game_mode::*,
     pack::*,
     state::{assets::*, inventory::*, *},
     tile::*,
@@ -23,7 +24,7 @@ use home_panel::*;
 use nav_tabs_panel::*;
 use open_pack_panel::*;
 use pack_details_panel::*;
-pub use pairing_code_panel::*;
+use pairing_code_panel::*;
 use shop_panel::*;
 use tile_library_panel::*;
 
@@ -117,7 +118,7 @@ impl CreatePanelData {
             CreatePanelData::TileLibrary => UIPanel::TileLibrary(TileLibraryPanel::new()),
             CreatePanelData::Shop => UIPanel::Shop(ShopPanel {}),
             CreatePanelData::Home => UIPanel::Home(HomePanel {
-                tab: WorldStatus::World,
+                current_mode: GameMode::World,
 
                 ui_nav_tabs: Box::new(CreatePanelData::NavTabs.create_panel()),
                 ui_shop: Box::new(CreatePanelData::Shop.create_panel()),

@@ -1,5 +1,6 @@
 use crate::{
     drop_table::*,
+    game_mode::*,
     grid::*,
     harvest_drop::*,
     item::*,
@@ -46,9 +47,8 @@ pub enum UpdateSignal {
     /// Open a pack
     OpenPack(PackID),
 
-    /// For the home panel. Not good that this is here.
-    /// This is suggesting a different architecture.
-    WorldStatusChange { new_status: WorldStatus },
+    /// Change the game mode
+    SetGameMode { new_mode: GameMode },
 
     /// Purchase a bank slot
     PurchaseBankSlot,
@@ -168,8 +168,9 @@ pub fn handle_signals(
                     ]
                 }
 
-                UpdateSignal::WorldStatusChange { new_status } => {
-                    gs.world_status = *new_status;
+                UpdateSignal::SetGameMode { new_mode } => {
+                    gs.tile_placing = None;
+                    gs.current_mode = *new_mode;
                     vec![]
                 }
 

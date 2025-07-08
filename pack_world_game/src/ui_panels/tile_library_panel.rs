@@ -38,7 +38,7 @@ impl TileLibraryPanel {
             let mut item_hovering: Option<(Rect, ItemType)> = None;
 
             let col_count = 3;
-            // generate a bunch more than we need
+            // generate a buncch more than we need
             let title_cells_count = 25;
             let grid_rects = get_grid_layout(GridLayoutInfo {
                 bounds_width: 300.0,

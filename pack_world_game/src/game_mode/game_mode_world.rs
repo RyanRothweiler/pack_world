@@ -1,0 +1,227 @@
+pub use crate::{grid::*, item::*, state::*, tile::*, update_signal::*, world::*};
+pub use gengar_engine::{
+    collisions::*,
+    color::*,
+    input::{Input, KeyCode},
+    matricies::*,
+    platform_api::*,
+    render::{camera::*, material::*, render_command::*, render_pack::*, *},
+    state::State as EngineState,
+    transform::*,
+    ui::*,
+    vectors::*,
+};
+
+pub fn game_mode_world(
+    prev_delta_time: f64,
+    gs: &mut State,
+    es: &mut EngineState,
+    input: &mut Input,
+    render_api: &mut impl RenderApi,
+    platform_api: &PlatformApi,
+) {
+    // camera controlsj
+    {
+        let cam_pack = es
+            .render_system
+            .render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap();
+
+        cam_pack.camera.move_plane(false, input, prev_delta_time);
+        cam_pack.camera.update_position(prev_delta_time);
+
+        /*
+        es.render_system
+            .render_packs
+            .get_mut(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera
+            .move_fly(0.3, input);
+        */
+    }
+
+    // render tiles
+    {
+        // TODO chagne this to use delta_time
+        gs.rotate_time += 0.08;
+
+        for (grid_pos, world_cell) in &gs.world.entity_map {
+            for (layer, eid) in &world_cell.layers {
+                // Skip ground tils if there is a floor
+                if *layer == WorldLayer::Ground {
+                    if world_cell.layers.contains_key(&WorldLayer::Floor) {
+                        continue;
+                    }
+                }
+
+                let entity = &gs.world.get_entity(&eid);
+
+                entity.render(
+                    gs.rotate_time,
+                    &entity.grid_pos,
+                    es.color_texture_shader,
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::NewWorld)
+                        .unwrap(),
+                    &gs.assets,
+                );
+            }
+        }
+    }
+
+    // Get mouse grid position
+    let mouse_grid: GridPos = {
+        let mut val = GridPos::new(0, 0);
+
+        let cam: &Camera = &es
+            .render_system
+            .render_packs
+            .get(&RenderPackID::NewWorld)
+            .unwrap()
+            .camera;
+        let pos = cam.screen_to_world(input.mouse.pos);
+
+        let dir = (pos - cam.transform.local_position).normalize();
+
+        if let Some(len) = plane_intersection_distance(
+            cam.transform.local_position,
+            dir,
+            VecThreeFloat::new(0.0, 0.0, 0.0),
+            VecThreeFloat::new(0.0, -1.0, 0.0),
+        ) {
+            let world_pos = cam.transform.local_position + (dir * len);
+            val = world_to_grid(&world_pos.xz());
+        }
+
+        val
+    };
+
+    // placing tiles
+    if let Some(tile) = gs.tile_placing {
+        // escape key reseting
+        if input.keyboard.get_key(KeyCode::Escape).on_press {
+            gs.tile_placing = None;
+        }
+
+        // render tile placing
+        if tile.get_definition().placing_draw_footprint {
+            let footprint = &tile.get_definition().footprint;
+
+            for p in footprint {
+                let pos = mouse_grid + *p;
+
+                let can_place = tile.pos_passes_placement_constraints(pos, &gs.world);
+
+                draw_tile_grid_pos(
+                    tile,
+                    0.0,
+                    &pos,
+                    can_place,
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::NewWorld)
+                        .unwrap(),
+                    &gs.assets,
+                );
+            }
+        } else {
+            let can_place = tile.can_place_here(mouse_grid, &gs.world);
+
+            draw_tile_grid_pos(
+                tile,
+                0.0,
+                &mouse_grid,
+                can_place,
+                es.render_system
+                    .render_packs
+                    .get_mut(&RenderPackID::NewWorld)
+                    .unwrap(),
+                &gs.assets,
+            );
+        }
+
+        // place tile
+        let can_place = tile.can_place_here(mouse_grid, &gs.world);
+        if input.mouse.button_left.on_press && can_place {
+            if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
+                let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
+                if count == 0 {
+                    gs.tile_placing = None;
+                }
+
+                handle_signals(update_sigs, gs, es, platform_api);
+            }
+        }
+    }
+
+    // tile hovering
+    {
+        let mut update_signals: Vec<UpdateSignal> = vec![];
+        let world_snapshot = gs.world.get_world_snapshot();
+
+        if gs.tile_placing.is_none() {
+            let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
+
+            for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
+                let tile = gs.world.get_entity_mut(eid);
+
+                // Harvesting
+                if input.mouse.button_left.pressing && tile.can_harvest() {
+                    tile.harvest(&world_snapshot, platform_api);
+                }
+
+                // render hover rect
+                {
+                    let mut mat = Material::new();
+                    mat.shader = Some(es.shader_color);
+                    mat.set_color(Color::new(1.0, 1.0, 1.0, 0.8));
+
+                    let mut trans = Transform::new();
+                    trans.local_position = grid_to_world(&mouse_grid);
+                    trans.update_global_matrix(&M44::new_identity());
+
+                    es.render_system
+                        .render_packs
+                        .get_mut(&RenderPackID::NewWorld)
+                        .unwrap()
+                        .commands
+                        .push(RenderCommand::new_model(
+                            &trans,
+                            gs.assets.asset_library.get_model("tile_outline"),
+                            &mat,
+                        ));
+                }
+
+                // render info
+                {
+                    let mut ui_frame_state = UIFrameState::new(&input, es.window_resolution);
+
+                    let y = layer.to_index() as f64 * 40.0;
+
+                    draw_text(
+                        &format!("{:?}", tile.tile_type),
+                        VecTwo::new(450.0, 100.0 + y),
+                        COLOR_WHITE,
+                        &gs.font_style_body,
+                        &mut ui_frame_state,
+                        &mut gs.ui_context.as_mut().unwrap(),
+                    );
+
+                    tile.render_hover_info(
+                        tile.get_component_harvestable(),
+                        y,
+                        es.shader_color.clone(),
+                        es.render_system
+                            .render_packs
+                            .get_mut(&RenderPackID::UI)
+                            .unwrap(),
+                    );
+                }
+            }
+        }
+
+        handle_signals(update_signals, gs, es, platform_api);
+    }
+}

@@ -45,6 +45,7 @@ pub mod account_system;
 pub mod constants;
 pub mod drop_table;
 pub mod error;
+pub mod game_mode;
 pub mod grid;
 pub mod harvest_drop;
 pub mod item;
@@ -66,6 +67,7 @@ pub mod testing_infra;
 use account_system::*;
 use assets::*;
 pub use constants::*;
+use game_mode::*;
 use grid::*;
 use harvest_drop::*;
 use harvest_timer::*;
@@ -683,6 +685,12 @@ pub fn game_loop(
         handle_signals(update_sigs, gs, es, platform_api);
     }
 
+    // update purchase flow
+    {
+        let purchase_sigs = update_purchase_flow(gs, &mut es.networking_system, platform_api);
+        handle_signals(purchase_sigs, gs, es, platform_api);
+    }
+
     let show_game = {
         if let Some(top_panel) = gs.ui_panel_stack.last_mut() {
             !top_panel.owns_screen()
@@ -692,498 +700,31 @@ pub fn game_loop(
     };
 
     if show_game {
-        match gs.world_status {
-            WorldStatus::World => {
-                // camera controlsj
-                {
-                    let cam_pack = es
-                        .render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::NewWorld)
-                        .unwrap();
-
-                    cam_pack.camera.move_plane(false, input, prev_delta_time);
-                    cam_pack.camera.update_position(prev_delta_time);
-
-                    /*
-                    es.render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::NewWorld)
-                        .unwrap()
-                        .camera
-                        .move_fly(0.3, input);
-                    */
-                }
-
-                // render tiles
-                {
-                    // TODO chagne this to use delta_time
-                    gs.rotate_time += 0.08;
-
-                    for (grid_pos, world_cell) in &gs.world.entity_map {
-                        for (layer, eid) in &world_cell.layers {
-                            // Skip ground tils if there is a floor
-                            if *layer == WorldLayer::Ground {
-                                if world_cell.layers.contains_key(&WorldLayer::Floor) {
-                                    continue;
-                                }
-                            }
-
-                            let entity = &gs.world.get_entity(&eid);
-
-                            entity.render(
-                                gs.rotate_time,
-                                &entity.grid_pos,
-                                es.color_texture_shader,
-                                es.render_system
-                                    .render_packs
-                                    .get_mut(&RenderPackID::NewWorld)
-                                    .unwrap(),
-                                &gs.assets,
-                            );
-                        }
-                    }
-                }
-
-                // Get mouse grid position
-                let mouse_grid: GridPos = {
-                    let mut val = GridPos::new(0, 0);
-
-                    let cam: &Camera = &es
-                        .render_system
-                        .render_packs
-                        .get(&RenderPackID::NewWorld)
-                        .unwrap()
-                        .camera;
-                    let pos = cam.screen_to_world(input.mouse.pos);
-
-                    let dir = (pos - cam.transform.local_position).normalize();
-
-                    if let Some(len) = plane_intersection_distance(
-                        cam.transform.local_position,
-                        dir,
-                        VecThreeFloat::new(0.0, 0.0, 0.0),
-                        VecThreeFloat::new(0.0, -1.0, 0.0),
-                    ) {
-                        let world_pos = cam.transform.local_position + (dir * len);
-                        val = world_to_grid(&world_pos.xz());
-                    }
-
-                    val
-                };
-
-                // placing tiles
-                if let Some(tile) = gs.tile_placing {
-                    // escape key reseting
-                    if input.keyboard.get_key(KeyCode::Escape).on_press {
-                        gs.tile_placing = None;
-                    }
-
-                    // render tile placing
-                    if tile.get_definition().placing_draw_footprint {
-                        let footprint = &tile.get_definition().footprint;
-
-                        for p in footprint {
-                            let pos = mouse_grid + *p;
-
-                            let can_place = tile.pos_passes_placement_constraints(pos, &gs.world);
-
-                            draw_tile_grid_pos(
-                                tile,
-                                0.0,
-                                &pos,
-                                can_place,
-                                es.render_system
-                                    .render_packs
-                                    .get_mut(&RenderPackID::NewWorld)
-                                    .unwrap(),
-                                &gs.assets,
-                            );
-                        }
-                    } else {
-                        let can_place = tile.can_place_here(mouse_grid, &gs.world);
-
-                        draw_tile_grid_pos(
-                            tile,
-                            0.0,
-                            &mouse_grid,
-                            can_place,
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::NewWorld)
-                                .unwrap(),
-                            &gs.assets,
-                        );
-                    }
-
-                    // place tile
-                    let can_place = tile.can_place_here(mouse_grid, &gs.world);
-                    if input.mouse.button_left.on_press && can_place {
-                        if let Ok(update_sigs) = gs.world.try_place_tile(mouse_grid, tile) {
-                            let count = gs.inventory.give_item(ItemType::Tile(tile), -1).unwrap();
-                            if count == 0 {
-                                gs.tile_placing = None;
-                            }
-
-                            handle_signals(update_sigs, gs, es, platform_api);
-                        }
-                    }
-                }
-
-                // tile hovering
-                {
-                    let mut update_signals: Vec<UpdateSignal> = vec![];
-                    let world_snapshot = gs.world.get_world_snapshot();
-
-                    if gs.tile_placing.is_none() {
-                        let world_cell: WorldCell = gs.world.get_entities(mouse_grid);
-
-                        for (i, (layer, eid)) in world_cell.layers.iter().enumerate() {
-                            let tile = gs.world.get_entity_mut(eid);
-
-                            // Harvesting
-                            if input.mouse.button_left.pressing && tile.can_harvest() {
-                                tile.harvest(&world_snapshot, platform_api);
-                            }
-
-                            // render hover rect
-                            {
-                                let mut mat = Material::new();
-                                mat.shader = Some(es.shader_color);
-                                mat.set_color(Color::new(1.0, 1.0, 1.0, 0.8));
-
-                                let mut trans = Transform::new();
-                                trans.local_position = grid_to_world(&mouse_grid);
-                                trans.update_global_matrix(&M44::new_identity());
-
-                                es.render_system
-                                    .render_packs
-                                    .get_mut(&RenderPackID::NewWorld)
-                                    .unwrap()
-                                    .commands
-                                    .push(RenderCommand::new_model(
-                                        &trans,
-                                        gs.assets.asset_library.get_model("tile_outline"),
-                                        &mat,
-                                    ));
-                            }
-
-                            // render info
-                            {
-                                let mut ui_frame_state =
-                                    UIFrameState::new(&input, es.window_resolution);
-
-                                let y = layer.to_index() as f64 * 40.0;
-
-                                draw_text(
-                                    &format!("{:?}", tile.tile_type),
-                                    VecTwo::new(450.0, 100.0 + y),
-                                    COLOR_WHITE,
-                                    &gs.font_style_body,
-                                    &mut ui_frame_state,
-                                    &mut gs.ui_context.as_mut().unwrap(),
-                                );
-
-                                tile.render_hover_info(
-                                    tile.get_component_harvestable(),
-                                    y,
-                                    es.shader_color.clone(),
-                                    es.render_system
-                                        .render_packs
-                                        .get_mut(&RenderPackID::UI)
-                                        .unwrap(),
-                                );
-                            }
-                        }
-                    }
-
-                    handle_signals(update_signals, gs, es, platform_api);
-                }
+        match gs.current_mode {
+            GameMode::World => {
+                game_mode_world(prev_delta_time, gs, es, input, render_api, platform_api);
             }
-            WorldStatus::Shop => {
-                // update purchase flow
-                let purchase_sigs =
-                    update_purchase_flow(gs, &mut es.networking_system, platform_api);
-                handle_signals(purchase_sigs, gs, es, platform_api);
-
-                if gs.active_page.is_none() {
-                    let mouse_world: VecThreeFloat = {
-                        let mut val = VecThreeFloat::new_zero();
-
-                        let cam: &Camera = &es
-                            .render_system
-                            .render_packs
-                            .get(&RenderPackID::Shop)
-                            .unwrap()
-                            .camera;
-                        let pos = cam.screen_to_world(input.mouse.pos);
-
-                        let dir = (pos - cam.transform.local_position).normalize();
-
-                        if let Some(len) = plane_intersection_distance(
-                            cam.transform.local_position,
-                            dir,
-                            VecThreeFloat::new(0.0, 0.0, 0.0),
-                            VecThreeFloat::new(0.0, -1.0, 0.0),
-                        ) {
-                            val = cam.transform.local_position + (dir * len);
-                        }
-
-                        val
-                    };
-
-                    // premium shop UI
-                    let ui_context = &mut gs.ui_context.as_mut().unwrap();
-                    if !gs.account_system.user_purchased_base() {
-                        let panel_w = 400.0;
-                        let margin_l = 10.0;
-                        // let premium_marin_l = margin_l + 140.0;
-
-                        begin_panel(
-                            Rect::new_top_size(VecTwo::new(50.0, 100.0), panel_w, 280.0),
-                            *THEME_PANEL_BG,
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-
-                        draw_paragraph(
-                            "Purchase Base Game",
-                            Rect::new_top_size(VecTwo::new(margin_l, 0.0), panel_w, 600.0),
-                            COLOR_WHITE,
-                            &ui_context.font_header.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-                        draw_text(
-                            "$2.99",
-                            VecTwo::new(margin_l, 100.0),
-                            COLOR_GREEN,
-                            &ui_context.font_header.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-                        draw_paragraph(
-                            "Price may vary at checkout.",
-                            Rect::new_top_size(VecTwo::new(margin_l, 100.0), panel_w, 600.0),
-                            Color::new(1.0, 1.0, 1.0, 0.4),
-                            &ui_context.font_body.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-
-                        draw_paragraph(
-                            &format!("Increase offline progress from {} hour to {} hours. More features coming in the future!", save_file::SIM_LIMIT_H_FREE, save_file::SIM_LIMIT_H_PREMIUM),
-                            Rect::new_top_size(VecTwo::new(margin_l, 140.0), panel_w, 600.0),
-                            *THEME_TEXT_MUT,
-                            &ui_context.font_body.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-
-                        if let Some(purchase_flow) = &gs.purchase_flow {
-                            match purchase_flow {
-                                PurchaseFlow::StartingCheckout { network_call } => {
-                                    draw_text(
-                                        "Starting Checkout ...",
-                                        VecTwo::new(margin_l, 250.0),
-                                        COLOR_WHITE,
-                                        &ui_context.font_header.clone(),
-                                        &mut ui_frame_state,
-                                        ui_context,
-                                    );
-                                }
-                                PurchaseFlow::RunningCheckout
-                                | PurchaseFlow::Initiate
-                                | PurchaseFlow::Register => {}
-                            }
-                        } else {
-                            if draw_text_button(
-                                "Purchase",
-                                VecTwo::new(margin_l + 10.0, 250.0),
-                                &ui_context.font_header.clone(),
-                                false,
-                                Some(crate::BUTTON_BG),
-                                &mut ui_frame_state,
-                                std::line!(),
-                                ui_context,
-                            ) {
-                                gs.purchase_flow = Some(PurchaseFlow::Initiate);
-                            }
-                        }
-
-                        end_panel(&mut ui_frame_state, ui_context);
-                    } else {
-                        draw_text(
-                            "Account has premium access. Thank you for your support.",
-                            VecTwo::new(10.0, 80.0),
-                            Color::new(1.0, 1.0, 1.0, 0.2),
-                            &ui_context.font_body.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-                    }
-
-                    // lighting
-                    {
-                        let light_trans: &mut Transform =
-                            &mut es.components.transforms[gs.pack_light_trans];
-
-                        /*
-                        draw_tile_world_pos(
-                            TileType::Dirt,
-                            0.0,
-                            &light_trans.global_matrix.get_position(),
-                            true,
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::Shop)
-                                .unwrap(),
-                            &gs.assets,
-                        );
-                        */
-
-                        let spd = 0.007;
-                        let origin_trans: &mut Transform =
-                            &mut es.components.transforms[gs.pack_light_origin];
-                        // origin_trans.local_rotation.x = es.frame as f64 * spd;
-                        origin_trans.local_rotation.y = es.frame as f64 * spd;
-                        // origin_trans.local_rotation.x = es.frame as f64 * spd;
-                        // origin_trans.local_rotation.z = es.frame as f64 * spd;
-
-                        let cp = es
-                            .render_system
-                            .render_packs
-                            .get(&RenderPackID::Shop)
-                            .unwrap()
-                            .camera
-                            .transform
-                            .local_position;
-
-                        origin_trans.local_position.x = cp.x;
-                        origin_trans.local_position.z = cp.z;
-
-                        /*
-                        let light = Light::new(es.components.new_transform());
-
-                        let ct: &mut Transform = &mut es.components.transforms[light.transform];
-                        ct.parent = Some(gs.pack_light_origin);
-                        ct.local_position.x = -2.0;
-                        ct.local_position.z = 10.0;
-                        ct.local_position.y = 15.0;
-
-                        es.render_system
-                            .get_pack(RenderPackID::Shop)
-                            .lights
-                            .push(light);
-                        */
-                    }
-
-                    // camera controls
-                    if true {
-                        let cam_pack = es
-                            .render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap();
-
-                        if gs.pack_selected.is_none() && !gs.opening_pack {
-                            cam_pack.camera.move_plane(true, input, prev_delta_time);
-                        } else {
-                            if input.keyboard.get_key(KeyCode::W).pressing
-                                || input.keyboard.get_key(KeyCode::S).pressing
-                                || input.keyboard.get_key(KeyCode::A).pressing
-                                || input.keyboard.get_key(KeyCode::D).pressing
-                                || input.keyboard.get_key(KeyCode::Escape).pressing
-                                || input.mouse.scroll_delta != 0
-                            {
-                                handle_pack_shop_signals(
-                                    vec![PackShopSignals::DeselectAll],
-                                    gs,
-                                    es,
-                                    platform_api,
-                                );
-                                gs.pack_selected = None;
-                            }
-                        }
-
-                        let cam_pack = es
-                            .render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap();
-                        cam_pack.camera.update_position(prev_delta_time);
-                    } else {
-                        // fly cam for testing
-                        es.render_system
-                            .render_packs
-                            .get_mut(&RenderPackID::Shop)
-                            .unwrap()
-                            .camera
-                            .move_fly(0.3, input);
-                    }
-
-                    // pack layout rendering
-                    {
-                        // light testing
-                        {
-                            let p = 500.0;
-                            let white_p = 2000.0;
-
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::Shop)
-                                .unwrap()
-                                .lights[0]
-                                .power = VecThreeFloat::new(3.0 * p, 0.95 * p, 0.9 * p);
-
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::Shop)
-                                .unwrap()
-                                .lights[1]
-                                .power = VecThreeFloat::new(1.0 * p, 0.85 * p, 3.6 * p);
-
-                            es.render_system
-                                .render_packs
-                                .get_mut(&RenderPackID::Shop)
-                                .unwrap()
-                                .lights[2]
-                                .power = VecThreeFloat::new(white_p, white_p, white_p);
-                        }
-
-                        let packs: Vec<PackID> =
-                            vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
-
-                        // make sure all packs exist in the hashmap.
-                        // Really means we don't need a hashmap probably
-                        for pack_id in &packs {
-                            gs.pack_display_state
-                                .entry(*pack_id)
-                                .or_insert(PackShopDisplay::new());
-                        }
-
-                        for pack_id in &packs {
-                            let signals = gs
-                                .pack_display_state
-                                .entry(*pack_id)
-                                .or_insert(PackShopDisplay::new())
-                                .update(
-                                    *pack_id,
-                                    &input.mouse.button_left,
-                                    mouse_world,
-                                    &gs.inventory,
-                                    &mut gs.assets,
-                                    &mut es.render_system,
-                                    &mut ui_frame_state,
-                                    &mut gs.ui_context.as_mut().unwrap(),
-                                    es.window_resolution,
-                                    platform_api,
-                                );
-
-                            handle_pack_shop_signals(signals, gs, es, platform_api);
-                        }
-                    }
-                }
+            GameMode::Shop => {
+                game_mode_shop(
+                    prev_delta_time,
+                    gs,
+                    es,
+                    &mut ui_frame_state,
+                    input,
+                    render_api,
+                    platform_api,
+                );
+            }
+            GameMode::Inventory => {
+                game_mode_inventory(
+                    prev_delta_time,
+                    gs,
+                    es,
+                    &mut ui_frame_state,
+                    input,
+                    render_api,
+                    platform_api,
+                );
             }
         }
     }

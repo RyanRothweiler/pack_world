@@ -39,8 +39,8 @@ impl CreateAccountPanel {
         draw_text(
             "Create Account / Login",
             VecTwo::new(margin_l, 50.0),
-            COLOR_WHITE,
-            &&ui_context.font_header.clone(),
+            *THEME_TEXT,
+            &ui_context.font_header.clone(),
             ui_state,
             ui_context,
         );

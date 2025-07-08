@@ -23,7 +23,7 @@ impl NavTabsPanel {
         inventory: &Inventory,
         assets: &Assets,
         ui_context: &mut UIContext,
-        current_tab: WorldStatus,
+        current_mode: GameMode,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
@@ -31,31 +31,43 @@ impl NavTabsPanel {
             "World",
             VecTwo::new(20.0, 40.0),
             &ui_context.font_nav.clone(),
-            current_tab == WorldStatus::World,
+            current_mode == GameMode::World,
             None,
             ui_state,
             std::line!(),
             ui_context,
         ) {
-            ret.push(UpdateSignal::WorldStatusChange {
-                new_status: WorldStatus::World,
+            ret.push(UpdateSignal::SetGameMode {
+                new_mode: GameMode::World,
             });
-            ret.push(UpdateSignal::SetPlacingTile(None));
         }
         if draw_text_button(
             "Shop",
             VecTwo::new(125.0, 40.0),
             &ui_context.font_nav.clone(),
-            current_tab == WorldStatus::Shop,
+            current_mode == GameMode::Shop,
             None,
             ui_state,
             std::line!(),
             ui_context,
         ) {
-            ret.push(UpdateSignal::WorldStatusChange {
-                new_status: WorldStatus::Shop,
+            ret.push(UpdateSignal::SetGameMode {
+                new_mode: GameMode::Shop,
             });
-            ret.push(UpdateSignal::SetPlacingTile(None));
+        }
+        if draw_text_button(
+            "Inventory",
+            VecTwo::new(225.0, 40.0),
+            &ui_context.font_nav.clone(),
+            current_mode == GameMode::Inventory,
+            None,
+            ui_state,
+            std::line!(),
+            ui_context,
+        ) {
+            ret.push(UpdateSignal::SetGameMode {
+                new_mode: GameMode::Inventory,
+            });
         }
 
         {
