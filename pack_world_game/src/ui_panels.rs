@@ -118,7 +118,7 @@ impl CreatePanelData {
             CreatePanelData::TileLibrary => UIPanel::TileLibrary(TileLibraryPanel::new()),
             CreatePanelData::Shop => UIPanel::Shop(ShopPanel {}),
             CreatePanelData::Home => UIPanel::Home(HomePanel {
-                current_mode: GameMode::World,
+                current_mode: GameModeKind::World,
 
                 ui_nav_tabs: Box::new(CreatePanelData::NavTabs.create_panel()),
                 ui_shop: Box::new(CreatePanelData::Shop.create_panel()),

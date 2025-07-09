@@ -15,7 +15,7 @@ use gengar_engine::{
 };
 
 pub struct HomePanel {
-    pub current_mode: GameMode,
+    pub current_mode: GameModeKind,
 
     pub ui_nav_tabs: Box<UIPanel>,
     pub ui_shop: Box<UIPanel>,
@@ -75,16 +75,7 @@ impl HomePanel {
         update_signals.append(&mut nav_update_sigs);
 
         match self.current_mode {
-            /*
-            Tab::Shop => update_signals.append(&mut self.ui_shop.update(
-                ui_state,
-                inventory,
-                assets,
-                ui_context,
-                platform_api,
-            )),
-            */
-            GameMode::World => update_signals.append(&mut self.ui_inventory.update(
+            GameModeKind::World => update_signals.append(&mut self.ui_inventory.update(
                 account_system,
                 networking_system,
                 ui_state,

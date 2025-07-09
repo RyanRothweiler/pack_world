@@ -700,33 +700,20 @@ pub fn game_loop(
     };
 
     if show_game {
-        match gs.current_mode {
-            GameMode::World => {
-                game_mode_world(prev_delta_time, gs, es, input, render_api, platform_api);
-            }
-            GameMode::Shop => {
-                game_mode_shop(
-                    prev_delta_time,
-                    gs,
-                    es,
-                    &mut ui_frame_state,
-                    input,
-                    render_api,
-                    platform_api,
-                );
-            }
-            GameMode::Inventory => {
-                game_mode_inventory(
-                    prev_delta_time,
-                    gs,
-                    es,
-                    &mut ui_frame_state,
-                    input,
-                    render_api,
-                    platform_api,
-                );
-            }
-        }
+        let update_sigs = gs.current_mode.update(
+            prev_delta_time,
+            es,
+            &mut ui_frame_state,
+            input,
+            render_api,
+            platform_api,
+            &mut gs.inventory,
+            &mut gs.assets,
+            gs.ui_context.as_mut().unwrap(),
+            &mut gs.world,
+        );
+
+        handle_signals(update_sigs, gs, es, platform_api);
     }
 
     // update harvest drops

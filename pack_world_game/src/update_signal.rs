@@ -48,7 +48,7 @@ pub enum UpdateSignal {
     OpenPack(PackID),
 
     /// Change the game mode
-    SetGameMode { new_mode: GameMode },
+    SetGameMode { new_mode: GameModeKind },
 
     /// Purchase a bank slot
     PurchaseBankSlot,
@@ -170,7 +170,7 @@ pub fn handle_signals(
 
                 UpdateSignal::SetGameMode { new_mode } => {
                     gs.tile_placing = None;
-                    gs.current_mode = *new_mode;
+                    gs.current_mode = new_mode.into_mode();
                     vec![]
                 }
 

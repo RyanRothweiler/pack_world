@@ -111,7 +111,7 @@ impl State {
 
             ui_context: None,
 
-            current_mode: GameMode::World,
+            current_mode: GameMode::World(GameModeWorldState::new()),
 
             pack_light_origin: 0,
             pack_light_trans: 0,
