@@ -7,6 +7,7 @@ pub use gengar_engine::{
     input::{Input, KeyCode},
     matricies::*,
     platform_api::*,
+    rect::*,
     render::{camera::*, material::*, render_command::*, render_pack::*, *},
     state::State as EngineState,
     transform::*,
@@ -18,6 +19,9 @@ pub use gengar_engine::{
 pub struct GameModeWorldState {
     rotate_time: f64,
     tile_placing: Option<TileType>,
+
+    // For paint mode
+    prev_pos_placed: Option<GridPos>,
 }
 
 impl GameModeWorldState {
@@ -25,6 +29,7 @@ impl GameModeWorldState {
         Self {
             rotate_time: 0.0,
             tile_placing: None,
+            prev_pos_placed: None,
         }
     }
 
@@ -39,10 +44,11 @@ impl GameModeWorldState {
         assets: &mut Assets,
         inventory: &mut Inventory,
         ui_context: &mut UIContext,
+        mut ui_frame_state: &mut UIFrameState,
     ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
-        // camera controlsj
+        // camera controls
         {
             let cam_pack = es
                 .render_system
@@ -120,26 +126,43 @@ impl GameModeWorldState {
             val
         };
 
-        // placing tiles
-        if let Some(tile) = self.tile_placing {
-            // escape key reseting
-            if input.keyboard.get_key(KeyCode::Escape).on_press {
-                self.tile_placing = None;
-            }
+        // don't allow tile placing if over selection UI
+        if input.mouse.pos.x > 300.0 {
+            // placing tiles
+            if let Some(tile) = self.tile_placing {
+                // escape key reseting
+                if input.keyboard.get_key(KeyCode::Escape).on_press {
+                    self.tile_placing = None;
+                }
 
-            // render tile placing
-            if tile.get_definition().placing_draw_footprint {
-                let footprint = &tile.get_definition().footprint;
+                // render tile placing
+                if tile.get_definition().placing_draw_footprint {
+                    let footprint = &tile.get_definition().footprint;
 
-                for p in footprint {
-                    let pos = mouse_grid + *p;
+                    for p in footprint {
+                        let pos = mouse_grid + *p;
 
-                    let can_place = tile.pos_passes_placement_constraints(pos, &world);
+                        let can_place = tile.pos_passes_placement_constraints(pos, &world);
+
+                        draw_tile_grid_pos(
+                            tile,
+                            0.0,
+                            &pos,
+                            can_place,
+                            es.render_system
+                                .render_packs
+                                .get_mut(&RenderPackID::NewWorld)
+                                .unwrap(),
+                            &assets,
+                        );
+                    }
+                } else {
+                    let can_place = tile.can_place_here(mouse_grid, &world);
 
                     draw_tile_grid_pos(
                         tile,
                         0.0,
-                        &pos,
+                        &mouse_grid,
                         can_place,
                         es.render_system
                             .render_packs
@@ -148,33 +171,39 @@ impl GameModeWorldState {
                         &assets,
                     );
                 }
-            } else {
+
+                // place tile
                 let can_place = tile.can_place_here(mouse_grid, &world);
+                let mut want_place = input.mouse.button_left.pressing;
 
-                draw_tile_grid_pos(
-                    tile,
-                    0.0,
-                    &mouse_grid,
-                    can_place,
-                    es.render_system
-                        .render_packs
-                        .get_mut(&RenderPackID::NewWorld)
-                        .unwrap(),
-                    &assets,
-                );
-            }
-
-            // place tile
-            let can_place = tile.can_place_here(mouse_grid, &world);
-            if input.mouse.button_left.on_press && can_place {
-                if let Ok(update_sigs) = world.try_place_tile(mouse_grid, tile) {
-                    let count = inventory.give_item(ItemType::Tile(tile), -1).unwrap();
-                    if count == 0 {
-                        self.tile_placing = None;
+                // check for painting
+                if want_place {
+                    match self.prev_pos_placed {
+                        Some(pos) => {
+                            if pos == mouse_grid {
+                                want_place = false;
+                            }
+                        }
+                        None => {}
                     }
+                }
 
-                    let mut us: Vec<UpdateSignal> = update_sigs;
-                    ret.append(&mut us);
+                if want_place && can_place {
+                    self.prev_pos_placed = Some(mouse_grid);
+
+                    if let Ok(update_sigs) = world.try_place_tile(mouse_grid, tile) {
+                        let count = inventory.give_item(ItemType::Tile(tile), -1).unwrap();
+                        if count == 0 {
+                            self.tile_placing = None;
+                        }
+
+                        let mut us: Vec<UpdateSignal> = update_sigs;
+                        ret.append(&mut us);
+                    }
+                }
+
+                if !input.mouse.button_left.pressing {
+                    self.prev_pos_placed = None;
                 }
             }
         }
@@ -243,6 +272,56 @@ impl GameModeWorldState {
                     }
                 }
             }
+        }
+
+        // tile selecting
+        {
+            let icon_size: f64 = 100.0;
+            let gutter: f64 = 100.0;
+
+            begin_panel(
+                Rect::new(VecTwo::new(0.0, 57.0), VecTwo::new(250.0, 4000.0)),
+                Color::new(0.0, 0.0, 0.0, 0.70),
+                ui_frame_state,
+                ui_context,
+            );
+            {
+                let mut i: i32 = 0;
+                let tile_inv = inventory.get_all_tiles();
+                for (item_type, count) in tile_inv {
+                    let disp = format!("{count}");
+                    let icon = assets.get_item_icon(item_type);
+
+                    match item_type {
+                        ItemType::Tile(tile_type) => {
+                            if let Some(tile_thumbnail) = assets.get_tile_thumbnail(tile_type) {
+                                let mut r = Rect::new_size(icon_size, icon_size);
+                                r.translate(VecTwo::new(70.0, icon_size * 0.5));
+                                r.translate(VecTwo::new(
+                                    (i as f64 % 2.0) * gutter,
+                                    (i / 2) as f64 * gutter,
+                                ));
+
+                                if draw_button_id(
+                                    i,
+                                    &disp,
+                                    ButtonStyleData::new_shrink(None, Some(tile_thumbnail), 4.0),
+                                    &r,
+                                    ui_frame_state,
+                                    std::line!(),
+                                    ui_context,
+                                ) {
+                                    self.tile_placing = Some(*tile_type);
+                                }
+                            }
+                        }
+                        _ => {}
+                    };
+
+                    i += 1;
+                }
+            }
+            end_panel(&mut ui_frame_state, ui_context);
         }
 
         return ret;

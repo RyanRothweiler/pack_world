@@ -67,11 +67,7 @@ impl TileLibraryPanel {
                     ui_context,
                 );
 
-                let all_tiles: Vec<(&ItemType, &i64)> = inventory
-                    .items
-                    .iter()
-                    .filter(|(item_type, count)| item_type.is_tile() && **count > 0)
-                    .collect();
+                let all_tiles = inventory.get_all_tiles();
 
                 // render tiles list
                 for (item_type, count) in all_tiles {

@@ -91,6 +91,16 @@ impl Inventory {
         BANK_LIMIT_COST_BASE + next.powf(BANK_LIMIT_EXPO_PRICE) as i64
     }
 
+    pub fn get_all_tiles(&self) -> Vec<(&ItemType, &i64)> {
+        let all_tiles: Vec<(&ItemType, &i64)> = self
+            .items
+            .iter()
+            .filter(|(item_type, count)| item_type.is_tile() && **count > 0)
+            .collect();
+
+        all_tiles
+    }
+
     pub fn save_file_write(
         &self,
         key_parent: String,

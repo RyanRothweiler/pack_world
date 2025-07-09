@@ -328,7 +328,6 @@ pub fn game_init(
         };
     }
 
-    // setup initial UI
     gs.ui_panel_stack.push(CreatePanelData::Home.create_panel());
 
     // setup first map

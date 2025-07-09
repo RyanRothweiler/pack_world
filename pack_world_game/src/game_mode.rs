@@ -39,6 +39,7 @@ impl GameMode {
                     assets,
                     inventory,
                     ui_context,
+                    ui_frame_state,
                 );
             }
             GameMode::Shop => {}

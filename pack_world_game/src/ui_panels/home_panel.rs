@@ -74,19 +74,6 @@ impl HomePanel {
         };
         update_signals.append(&mut nav_update_sigs);
 
-        match self.current_mode {
-            GameModeKind::World => update_signals.append(&mut self.ui_inventory.update(
-                account_system,
-                networking_system,
-                ui_state,
-                inventory,
-                assets,
-                ui_context,
-                platform_api,
-            )),
-            _ => {}
-        };
-
         // Consume home panel tab switch
         update_signals.retain(|sig| match sig {
             UpdateSignal::SetGameMode { new_mode } => {
