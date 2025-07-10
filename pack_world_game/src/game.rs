@@ -45,6 +45,7 @@ pub mod account_system;
 pub mod constants;
 pub mod drop_table;
 pub mod error;
+pub mod format_graveyard;
 pub mod game_mode;
 pub mod grid;
 pub mod harvest_drop;
@@ -52,7 +53,6 @@ pub mod item;
 pub mod pack;
 pub mod pack_shop_display;
 pub mod pack_shop_signals;
-pub mod purchase_flow;
 pub mod save_file;
 pub mod state;
 pub mod tile;
@@ -75,7 +75,6 @@ use item::*;
 use pack::*;
 use pack_shop_display::*;
 use pack_shop_signals::*;
-use purchase_flow::*;
 use save_file::*;
 use state::inventory::*;
 use tile::*;
@@ -340,6 +339,13 @@ pub fn game_init(
 
     gs.account_system
         .start_try_login_existing(platform_api, &mut es.networking_system);
+
+    // setup game modes
+    {
+        gs.game_mode_world = Some(GameModeWorld::new());
+        gs.game_mode_shop = Some(GameModeShop::new());
+        gs.game_mode_inventory = Some(GameModeInventory::new());
+    }
 }
 
 fn sim_world(gs: &mut State, es: &mut EngineState, ms: f64, platform_api: &PlatformApi) {
@@ -380,8 +386,10 @@ pub fn game_loop(
     );
     gengar_engine::debug::frame_start();
 
-    gs.account_system
+    let account_update_sigs = gs
+        .account_system
         .update(platform_api, &mut es.networking_system);
+    handle_signals(account_update_sigs, gs, es, platform_api);
 
     // update ui_context
     {
@@ -684,12 +692,6 @@ pub fn game_loop(
         handle_signals(update_sigs, gs, es, platform_api);
     }
 
-    // update purchase flow
-    {
-        let purchase_sigs = update_purchase_flow(gs, &mut es.networking_system, platform_api);
-        handle_signals(purchase_sigs, gs, es, platform_api);
-    }
-
     let show_game = {
         if let Some(top_panel) = gs.ui_panel_stack.last_mut() {
             !top_panel.owns_screen()
@@ -699,6 +701,7 @@ pub fn game_loop(
     };
 
     if show_game {
+        /*
         let update_sigs = gs.current_mode.update(
             prev_delta_time,
             es,
@@ -711,6 +714,44 @@ pub fn game_loop(
             gs.ui_context.as_mut().unwrap(),
             &mut gs.world,
         );
+        */
+        let update_sigs = match gs.current_mode {
+            GameModeKind::Inventory => gs.game_mode_inventory.as_mut().unwrap().update(
+                prev_delta_time,
+                es,
+                &mut ui_frame_state,
+                input,
+                render_api,
+                platform_api,
+                &mut gs.inventory,
+                &mut gs.assets,
+                gs.ui_context.as_mut().unwrap(),
+            ),
+            GameModeKind::Shop => gs.game_mode_shop.as_mut().unwrap().update(
+                prev_delta_time,
+                es,
+                &mut ui_frame_state,
+                input,
+                render_api,
+                platform_api,
+                &mut gs.inventory,
+                &mut gs.assets,
+                gs.ui_context.as_mut().unwrap(),
+                &mut gs.account_system,
+            ),
+            GameModeKind::World => gs.game_mode_world.as_mut().unwrap().update(
+                prev_delta_time,
+                es,
+                input,
+                render_api,
+                platform_api,
+                &mut gs.world,
+                &mut gs.assets,
+                &mut gs.inventory,
+                gs.ui_context.as_mut().unwrap(),
+                &mut ui_frame_state,
+            ),
+        };
 
         handle_signals(update_sigs, gs, es, platform_api);
     }

@@ -1,6 +1,6 @@
 pub use crate::{
     assets::*, grid::*, inventory::*, item::*, pack::*, pack_shop_display::*, pack_shop_signals::*,
-    purchase_flow::*, save_file::*, state::*, tile::*, update_signal::*, world::*,
+    save_file::*, state::*, tile::*, update_signal::*, world::*,
 };
 pub use gengar_engine::{
     collisions::*,
@@ -17,9 +17,13 @@ pub use gengar_engine::{
 };
 
 #[derive(Debug)]
-pub struct GameModeInventoryState {}
+pub struct GameModeInventory {}
 
-impl GameModeInventoryState {
+impl GameModeInventory {
+    pub fn new() -> Self {
+        Self {}
+    }
+
     pub fn update(
         &mut self,
         prev_delta_time: f64,
@@ -31,7 +35,7 @@ impl GameModeInventoryState {
         inventory: &mut Inventory,
         assets: &mut Assets,
         ui_context: &mut UIContext,
-    ) {
+    ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![];
 
         // margin panel holder
@@ -158,6 +162,8 @@ impl GameModeInventoryState {
             end_panel(&mut ui_frame_state, ui_context);
         }
         end_panel(&mut ui_frame_state, ui_context);
+
+        ret
     }
 
     fn render_item(
@@ -190,7 +196,6 @@ impl GameModeInventoryState {
                         std::line!(),
                         ui_context,
                     ) {
-                        ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                         // self.item_selected = Some((i, *item_type));
                     }
                 }

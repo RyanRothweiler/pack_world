@@ -3,7 +3,6 @@ use crate::{
     game_mode::*,
     harvest_drop::*,
     pack_shop_display::*,
-    purchase_flow::*,
     tile::*,
     ui_panels::{debug_panel::*, *},
     user_account::*,
@@ -48,8 +47,6 @@ pub struct State {
     pub active_page: Option<UIPanel>,
     pub ui_panel_stack: Vec<UIPanel>,
 
-    pub tile_placing: Option<TileType>,
-
     // these things need to be saved and loaded between runs
     pub inventory: Inventory,
     pub world: World,
@@ -61,7 +58,10 @@ pub struct State {
 
     pub ui_context: Option<UIContext>,
 
-    pub current_mode: GameMode,
+    pub current_mode: GameModeKind,
+    pub game_mode_world: Option<GameModeWorld>,
+    pub game_mode_shop: Option<GameModeShop>,
+    pub game_mode_inventory: Option<GameModeInventory>,
 
     pub pack_light_origin: usize,
     pub pack_light_trans: usize,
@@ -73,8 +73,6 @@ pub struct State {
     pub opening_pack: bool,
 
     pub account_system: AccountSystem,
-
-    pub purchase_flow: Option<PurchaseFlow>,
 
     pub save_queued: bool,
     pub save_timer_check: f64,
@@ -104,14 +102,16 @@ impl State {
             active_page: None,
 
             world: World::new(),
-            tile_placing: None,
             inventory: Inventory::new(),
 
             rotate_time: 0.0,
 
             ui_context: None,
 
-            current_mode: GameMode::World(GameModeWorldState::new()),
+            current_mode: GameModeKind::World,
+            game_mode_world: None,
+            game_mode_inventory: None,
+            game_mode_shop: None,
 
             pack_light_origin: 0,
             pack_light_trans: 0,
@@ -123,7 +123,6 @@ impl State {
             opening_pack: false,
 
             account_system: AccountSystem::new(),
-            purchase_flow: None,
 
             save_queued: false,
             save_timer_check: 0.0,

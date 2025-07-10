@@ -257,7 +257,7 @@ impl TileLibraryPanel {
                         std::line!(),
                         ui_context,
                     ) {
-                        ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
+                        // ret.push(UpdateSignal::SetPlacingTile(Some(*tile_type)));
                         self.item_selected = Some((i, *item_type));
                     }
                 }

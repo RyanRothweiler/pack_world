@@ -1,14 +1,6 @@
 pub use crate::{
-    pack_shop_display::*,
-    grid::*, 
-    item::*, 
-    purchase_flow::*, 
-    save_file::*, 
-    state::*, tile::*, 
-    update_signal::*, 
-    world::*, 
-    pack_shop_signals::*, 
-    pack::*,
+    account_system::*, assets::*, grid::*, inventory::*, item::*, pack::*, pack_shop_display::*,
+    pack_shop_signals::*, save_file::*, state::*, tile::*, update_signal::*, world::*,
 };
 pub use gengar_engine::{
     collisions::*,
@@ -24,18 +16,27 @@ pub use gengar_engine::{
     vectors::*,
 };
 
-pub fn game_mode_shop(
-    prev_delta_time: f64,
-    gs: &mut State,
-    es: &mut EngineState,
-    mut ui_frame_state: &mut UIFrameState,
-    input: &mut Input,
-    render_api: &mut impl RenderApi,
-    platform_api: &PlatformApi,
-) {
+#[derive(Debug)]
+pub struct GameModeShop {}
 
+impl GameModeShop {
+    pub fn new() -> Self {
+        Self {}
+    }
 
-    if gs.active_page.is_none() {
+    pub fn update(
+        &mut self,
+        prev_delta_time: f64,
+        es: &mut EngineState,
+        mut ui_frame_state: &mut UIFrameState,
+        input: &mut Input,
+        render_api: &mut impl RenderApi,
+        platform_api: &PlatformApi,
+        inventory: &mut Inventory,
+        assets: &mut Assets,
+        ui_context: &mut UIContext,
+        account_system: &mut AccountSystem,
+    ) -> Vec<UpdateSignal> {
         let mouse_world: VecThreeFloat = {
             let mut val = VecThreeFloat::new_zero();
 
@@ -62,8 +63,7 @@ pub fn game_mode_shop(
         };
 
         // premium shop UI
-        let ui_context = &mut gs.ui_context.as_mut().unwrap();
-        if !gs.account_system.user_purchased_base() {
+        if !account_system.user_purchased_base() {
             let panel_w = 400.0;
             let margin_l = 10.0;
             // let premium_marin_l = margin_l + 140.0;
@@ -101,33 +101,23 @@ pub fn game_mode_shop(
             );
 
             draw_paragraph(
-                            &format!("Increase offline progress from {} hour to {} hours. More features coming in the future!", 
-                                crate::save_file::SIM_LIMIT_H_FREE, 
-                                crate::save_file::SIM_LIMIT_H_PREMIUM
-                            ),
-                            Rect::new_top_size(VecTwo::new(margin_l, 140.0), panel_w, 600.0),
-                            *THEME_TEXT_MUT,
-                            &ui_context.font_body.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
+                &crate::format_graveyard::OFFLINE_PROGRESS_DESC,
+                Rect::new_top_size(VecTwo::new(margin_l, 140.0), panel_w, 600.0),
+                *THEME_TEXT_MUT,
+                &ui_context.font_body.clone(),
+                &mut ui_frame_state,
+                ui_context,
+            );
 
-            if let Some(purchase_flow) = &gs.purchase_flow {
-                match purchase_flow {
-                    PurchaseFlow::StartingCheckout { network_call } => {
-                        draw_text(
-                            "Starting Checkout ...",
-                            VecTwo::new(margin_l, 250.0),
-                            COLOR_WHITE,
-                            &ui_context.font_header.clone(),
-                            &mut ui_frame_state,
-                            ui_context,
-                        );
-                    }
-                    PurchaseFlow::RunningCheckout
-                    | PurchaseFlow::Initiate
-                    | PurchaseFlow::Register => {}
-                }
+            if account_system.purchase_in_progress() {
+                draw_text(
+                    "Starting Checkout ...",
+                    VecTwo::new(margin_l, 250.0),
+                    COLOR_WHITE,
+                    &ui_context.font_header.clone(),
+                    &mut ui_frame_state,
+                    ui_context,
+                );
             } else {
                 if draw_text_button(
                     "Purchase",
@@ -139,7 +129,7 @@ pub fn game_mode_shop(
                     std::line!(),
                     ui_context,
                 ) {
-                    gs.purchase_flow = Some(PurchaseFlow::Initiate);
+                    account_system.start_purchase();
                 }
             }
 
@@ -155,24 +145,9 @@ pub fn game_mode_shop(
             );
         }
 
+        /*
         // lighting
         {
-            let light_trans: &mut Transform = &mut es.components.transforms[gs.pack_light_trans];
-
-            /*
-            draw_tile_world_pos(
-                TileType::Dirt,
-                0.0,
-                &light_trans.global_matrix.get_position(),
-                true,
-                es.render_system
-                    .render_packs
-                    .get_mut(&RenderPackID::Shop)
-                    .unwrap(),
-                &gs.assets,
-            );
-            */
-
             let spd = 0.007;
             let origin_trans: &mut Transform = &mut es.components.transforms[gs.pack_light_origin];
             // origin_trans.local_rotation.x = es.frame as f64 * spd;
@@ -207,7 +182,9 @@ pub fn game_mode_shop(
                 .push(light);
             */
         }
+        */
 
+        /*
         // camera controls
         if true {
             let cam_pack = es
@@ -251,6 +228,7 @@ pub fn game_mode_shop(
                 .camera
                 .move_fly(0.3, input);
         }
+        */
 
         // pack layout rendering
         {
@@ -284,6 +262,7 @@ pub fn game_mode_shop(
             let packs: Vec<PackID> =
                 vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
 
+            /*
             // make sure all packs exist in the hashmap.
             // Really means we don't need a hashmap probably
             for pack_id in &packs {
@@ -301,17 +280,20 @@ pub fn game_mode_shop(
                         *pack_id,
                         &input.mouse.button_left,
                         mouse_world,
-                        &gs.inventory,
-                        &mut gs.assets,
+                        inventory,
+                        assets,
                         &mut es.render_system,
                         &mut ui_frame_state,
-                        &mut gs.ui_context.as_mut().unwrap(),
+                        ui_context,
                         es.window_resolution,
                         platform_api,
                     );
 
                 handle_pack_shop_signals(signals, gs, es, platform_api);
             }
+            */
         }
+
+        vec![]
     }
 }

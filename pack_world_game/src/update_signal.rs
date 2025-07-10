@@ -41,9 +41,6 @@ pub enum UpdateSignal {
     /// Add an item to inventory
     GiveItem { item_type: ItemType, count: i64 },
 
-    /// Update the tile that we're currently placing
-    SetPlacingTile(Option<TileType>),
-
     /// Open a pack
     OpenPack(PackID),
 
@@ -118,11 +115,6 @@ pub fn handle_signals(
                     vec![]
                 }
 
-                UpdateSignal::SetPlacingTile(tile) => {
-                    gs.tile_placing = *tile;
-                    vec![]
-                }
-
                 UpdateSignal::GiveItem { item_type, count } => {
                     gs.inventory.give_item(*item_type, *count).unwrap();
                     vec![UpdateSignal::SaveGame]
@@ -169,8 +161,7 @@ pub fn handle_signals(
                 }
 
                 UpdateSignal::SetGameMode { new_mode } => {
-                    gs.tile_placing = None;
-                    gs.current_mode = new_mode.into_mode();
+                    gs.current_mode = *new_mode;
                     vec![]
                 }
 

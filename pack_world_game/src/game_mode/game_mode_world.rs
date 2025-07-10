@@ -16,7 +16,7 @@ pub use gengar_engine::{
 };
 
 #[derive(Debug)]
-pub struct GameModeWorldState {
+pub struct GameModeWorld {
     rotate_time: f64,
     tile_placing: Option<TileType>,
 
@@ -24,7 +24,7 @@ pub struct GameModeWorldState {
     prev_pos_placed: Option<GridPos>,
 }
 
-impl GameModeWorldState {
+impl GameModeWorld {
     pub fn new() -> Self {
         Self {
             rotate_time: 0.0,

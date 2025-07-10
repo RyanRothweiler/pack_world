@@ -1,10 +1,16 @@
-use crate::user_account::*;
+use crate::{ui_panels::*, update_signal::*, user_account::*};
 use gengar_engine::{account_call::*, networking::*, platform_api::*};
+
+mod purchase_flow;
+
+pub use purchase_flow::*;
 
 pub const REFRESH_KEY: &str = "last_refresh";
 
 pub struct AccountSystem {
     pub user_account: Option<UserAccount>,
+
+    purchase_flow: Option<PurchaseFlow>,
 
     user_login_call: Option<usize>,
     user_fetch_call: Option<usize>,
@@ -18,6 +24,7 @@ impl AccountSystem {
             user_account: None,
             user_login_call: None,
             user_fetch_call: None,
+            purchase_flow: None,
 
             user_fetches_finished: false,
         }
@@ -55,6 +62,16 @@ impl AccountSystem {
         self.user_account = Some(user_account);
 
         self.start_account_fetch(networking_system);
+    }
+
+    pub fn start_purchase(&mut self) {
+        if !self.user_purchased_base() {
+            self.purchase_flow = Some(PurchaseFlow::Initiate);
+        }
+    }
+
+    pub fn purchase_in_progress(&self) -> bool {
+        self.purchase_flow.is_some()
     }
 
     pub fn start_account_fetch(&mut self, networking_system: &mut NetworkingSystem) {
@@ -97,7 +114,14 @@ impl AccountSystem {
     }
 
     /// Handle networking checks and updating refresh tokens and such
-    pub fn update(&mut self, platform_api: &PlatformApi, networking_system: &mut NetworkingSystem) {
+    #[must_use]
+    pub fn update(
+        &mut self,
+        platform_api: &PlatformApi,
+        networking_system: &mut NetworkingSystem,
+    ) -> Vec<UpdateSignal> {
+        let mut ret: Vec<UpdateSignal> = vec![];
+
         // check for login
         if let Some(call_id) = self.user_login_call {
             let status = networking_system.get_status(call_id);
@@ -139,5 +163,63 @@ impl AccountSystem {
                 }
             }
         }
+
+        let mut purchse_update_sigs = self.update_purchase_flow(networking_system, platform_api);
+        ret.append(&mut purchse_update_sigs);
+
+        return ret;
+    }
+
+    fn update_purchase_flow(
+        &mut self,
+        networking_system: &mut NetworkingSystem,
+        platform_api: &PlatformApi,
+    ) -> Vec<UpdateSignal> {
+        if let Some(purchase_flow) = &self.purchase_flow {
+            match purchase_flow {
+                PurchaseFlow::Initiate => {
+                    if !self.logged_in() {
+                        self.purchase_flow = Some(PurchaseFlow::Register);
+                        return vec![UpdateSignal::PushPanel(CreatePanelData::CreateAccount)];
+                    } else {
+                        self.purchase_flow =
+                            Some(PurchaseFlow::start_checkout(networking_system, self));
+                    }
+                }
+                PurchaseFlow::Register => {
+                    if self.logged_in() {
+                        self.purchase_flow =
+                            Some(PurchaseFlow::start_checkoutn(networking_system, self));
+                    }
+                }
+
+                PurchaseFlow::StartingCheckout { network_call } => {
+                    if self.user_fetches_finished() {
+                        if self.user_purchased_base() {
+                            self.purchase_flow = None;
+                            return vec![];
+                        }
+
+                        let call_status = networking_system.get_status(*network_call);
+
+                        match &call_status {
+                            NetworkCallStatus::Success { response } => {
+                                let rj = gengar_engine::json::load(response).unwrap();
+                                (platform_api.open_url)(
+                                    rj.get(vec!["url".into()]).unwrap().as_string().unwrap(),
+                                    false,
+                                );
+
+                                self.purchase_flow = Some(PurchaseFlow::RunningCheckout);
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        return vec![];
     }
 }

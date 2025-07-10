@@ -6,6 +6,7 @@ pub use game_mode_inventory::*;
 pub use game_mode_shop::*;
 pub use game_mode_world::*;
 
+/*
 #[derive(Debug)]
 pub enum GameMode {
     World(GameModeWorldState),
@@ -67,6 +68,7 @@ impl GameMode {
         }
     }
 }
+*/
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum GameModeKind {
@@ -75,6 +77,7 @@ pub enum GameModeKind {
     Inventory,
 }
 
+/*
 impl GameModeKind {
     pub fn into_mode(&self) -> GameMode {
         match self {
@@ -84,3 +87,4 @@ impl GameModeKind {
         }
     }
 }
+    */
