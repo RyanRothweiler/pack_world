@@ -1,6 +1,6 @@
 pub use crate::{
-    assets::*, grid::*, inventory::*, item::*, pack::*, pack_shop_display::*, pack_shop_signals::*,
-    save_file::*, state::*, tile::*, update_signal::*, world::*,
+    assets::*, constants::*, grid::*, inventory::*, item::*, pack::*, pack_shop_display::*,
+    pack_shop_signals::*, save_file::*, state::*, theme::*, tile::*, update_signal::*, world::*,
 };
 pub use gengar_engine::{
     collisions::*,
@@ -17,11 +17,15 @@ pub use gengar_engine::{
 };
 
 #[derive(Debug)]
-pub struct GameModeInventory {}
+pub struct GameModeInventory {
+    item_selected: Option<ItemType>,
+}
 
 impl GameModeInventory {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            item_selected: None,
+        }
     }
 
     pub fn update(
@@ -96,7 +100,7 @@ impl GameModeInventory {
                         let mut grid_rect = grid_rects[(i + col_count) as usize];
                         grid_rect.translate(VecTwo::new(20.0, -40.0));
 
-                        ret.append(&mut self.render_item(
+                        self.render_item(
                             i,
                             item_type,
                             count,
@@ -107,7 +111,7 @@ impl GameModeInventory {
                             assets,
                             ui_context,
                             grid_rect,
-                        ));
+                        );
 
                         i += 1;
                     }
@@ -133,7 +137,7 @@ impl GameModeInventory {
                     let mut grid_rect = grid_rects[(i + col_count) as usize];
                     grid_rect.translate(VecTwo::new(20.0, -40.0));
 
-                    ret.append(&mut self.render_item(
+                    self.render_item(
                         i,
                         item_type,
                         count,
@@ -144,7 +148,7 @@ impl GameModeInventory {
                         assets,
                         ui_context,
                         grid_rect,
-                    ));
+                    );
 
                     i += 1;
                 }
@@ -158,7 +162,59 @@ impl GameModeInventory {
                 ui_frame_state,
                 ui_context,
             );
-            {}
+            {
+                if let Some(item_selected) = self.item_selected {
+                    let icon_size = 150.0;
+                    let icon_rect =
+                        Rect::new_top_size(VecTwo::new(10.0, 10.0), icon_size, icon_size);
+
+                    // draw item icon
+                    match item_selected {
+                        ItemType::Tile(tile_type) => {
+                            if let Some(tile_thumbnail) = assets.get_tile_thumbnail(&tile_type) {
+                                draw_framebuffer(
+                                    icon_rect,
+                                    tile_thumbnail,
+                                    COLOR_WHITE,
+                                    &mut ui_frame_state,
+                                    ui_context,
+                                );
+                            }
+                        }
+
+                        _ => {
+                            let icon = assets.get_item_icon(&item_selected);
+                            draw_image(
+                                icon_rect,
+                                icon,
+                                COLOR_WHITE,
+                                &mut ui_frame_state,
+                                ui_context,
+                            );
+                        }
+                    };
+
+                    draw_text(
+                        item_selected.user_title(),
+                        VecTwo::new(175.0, 100.0),
+                        *THEME_TEXT,
+                        &ui_context.font_header.clone(),
+                        ui_frame_state,
+                        ui_context,
+                    );
+
+                    let mut disp: &str = item_selected.user_description().unwrap_or(NO_ITEM_DESC);
+
+                    draw_paragraph(
+                        disp,
+                        Rect::new(VecTwo::new(20.0, 160.0), VecTwo::new(600.0, 500.0)),
+                        *THEME_TEXT_MUT,
+                        &ui_context.font_body.clone(),
+                        ui_frame_state,
+                        ui_context,
+                    );
+                }
+            }
             end_panel(&mut ui_frame_state, ui_context);
         }
         end_panel(&mut ui_frame_state, ui_context);
@@ -178,9 +234,7 @@ impl GameModeInventory {
         assets: &mut Assets,
         ui_context: &mut UIContext,
         grid_rect: Rect,
-    ) -> Vec<UpdateSignal> {
-        let mut ret: Vec<UpdateSignal> = vec![];
-
+    ) {
         let disp = format!("{count}");
         let icon = assets.get_item_icon(item_type);
 
@@ -196,7 +250,7 @@ impl GameModeInventory {
                         std::line!(),
                         ui_context,
                     ) {
-                        // self.item_selected = Some((i, *item_type));
+                        self.item_selected = Some(*item_type);
                     }
                 }
             }
@@ -225,11 +279,12 @@ impl GameModeInventory {
                     std::line!(),
                     ui_context,
                 ) {
-                    // self.item_selected = Some((i, *item_type));
+                    self.item_selected = Some(*item_type);
                 }
             }
         };
 
+        /*
         // render hover detials
         {
             let button_rect = grid_rect;
@@ -240,8 +295,8 @@ impl GameModeInventory {
                 // *item_hovering = Some((button_rect, *item_type));
             }
         }
+        */
 
         *y_cursor += 80.0;
-        return ret;
     }
 }
