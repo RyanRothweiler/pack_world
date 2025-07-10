@@ -1,4 +1,4 @@
-use crate::{pack::*, pack_shop_display::*, state::*, update_signal::*};
+use crate::{game_mode::*, pack::*, pack_shop_display::*, state::*, update_signal::*};
 use gengar_engine::{
     analytics::*,
     platform_api::*,
@@ -19,51 +19,59 @@ pub enum PackShopSignals {
 }
 
 pub fn handle_pack_shop_signals(
+    mut game_mode_shop: &mut GameModeShop,
     mut signals: Vec<PackShopSignals>,
-    gs: &mut State,
     es: &mut EngineState,
+    inventory: &mut Inventory,
     platform_api: &PlatformApi,
-) {
+) -> Vec<UpdateSignal> {
+    let mut ret: Vec<UpdateSignal> = vec![];
+
     for sig in signals {
         println!("{:?}", sig);
 
         match sig {
             PackShopSignals::Idle { pack_id } => {
-                gs.pack_display_state
+                game_mode_shop
+                    .pack_display_state
                     .get_mut(&pack_id)
                     .unwrap()
                     .set_state(PackShopDisplayState::Idle);
             }
             PackShopSignals::Open { pack_id } => {
                 let pack_info = pack_id.get_pack_info();
-                pack_info.spend(&mut gs.inventory);
+                pack_info.spend(inventory);
 
                 (platform_api.send_event)(AnalyticsEvent::PackOpen(format!("{:?}", pack_id)));
 
-                gs.opening_pack = true;
+                game_mode_shop.opening_pack = true;
 
-                gs.pack_display_state
+                game_mode_shop
+                    .pack_display_state
                     .get_mut(&pack_id)
                     .unwrap()
                     .set_state(PackShopDisplayState::Opening);
             }
             PackShopSignals::OpenFinished => {
-                gs.opening_pack = false;
+                game_mode_shop.opening_pack = false;
 
-                gs.pack_display_state
+                game_mode_shop
+                    .pack_display_state
                     .iter_mut()
                     .for_each(|p| p.1.set_state(PackShopDisplayState::Idle));
             }
             PackShopSignals::Select { pack_id } => {
                 let pack_info = pack_id.get_pack_info();
 
-                gs.pack_selected = Some(pack_id);
+                game_mode_shop.pack_selected = Some(pack_id);
 
-                gs.pack_display_state
+                game_mode_shop
+                    .pack_display_state
                     .iter_mut()
                     .for_each(|p| p.1.set_state(PackShopDisplayState::Hidden));
 
-                gs.pack_display_state
+                game_mode_shop
+                    .pack_display_state
                     .get_mut(&pack_id)
                     .unwrap()
                     .set_state(PackShopDisplayState::Selected);
@@ -87,17 +95,21 @@ pub fn handle_pack_shop_signals(
                 }
             }
             PackShopSignals::DeselectAll => {
-                if !gs.opening_pack {
-                    gs.pack_selected = None;
+                if !game_mode_shop.opening_pack {
+                    game_mode_shop.pack_selected = None;
 
-                    gs.pack_display_state
+                    game_mode_shop
+                        .pack_display_state
                         .iter_mut()
                         .for_each(|p| p.1.set_state(PackShopDisplayState::Idle));
                 }
             }
             PackShopSignals::StandardUpateSignal { sigs } => {
-                handle_signals(sigs, gs, es, platform_api);
+                let mut s: Vec<UpdateSignal> = sigs;
+                ret.append(&mut s);
             }
         }
     }
+
+    ret
 }

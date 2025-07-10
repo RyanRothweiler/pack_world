@@ -246,67 +246,6 @@ pub fn game_init(
                 .lights
                 .push(light);
         }
-
-        // shop pack lights
-        {
-            gs.pack_light_origin = es.components.new_transform();
-            // let origin_trans: &mut Transform = &mut es.components.transforms[light.transform];
-
-            let rad = 10.0;
-            let y = 20.0;
-
-            // first light
-            {
-                gs.pack_light_trans = es.components.new_transform();
-
-                let light = Light::new(gs.pack_light_trans);
-
-                let ct: &mut Transform = &mut es.components.transforms[light.transform];
-                ct.parent = Some(gs.pack_light_origin);
-                ct.local_position.x = rad;
-                ct.local_position.z = rad;
-                ct.local_position.y = y;
-
-                es.render_system
-                    .get_pack(RenderPackID::Shop)
-                    .lights
-                    .push(light);
-            }
-
-            // second light
-            {
-                gs.pack_light_trans_second = es.components.new_transform();
-
-                let light = Light::new(gs.pack_light_trans_second);
-
-                let ct: &mut Transform = &mut es.components.transforms[light.transform];
-                ct.parent = Some(gs.pack_light_origin);
-                ct.local_position.x = -rad;
-                ct.local_position.z = -rad;
-                ct.local_position.y = y;
-
-                es.render_system
-                    .get_pack(RenderPackID::Shop)
-                    .lights
-                    .push(light);
-            }
-
-            // third whilte light
-            {
-                let light = Light::new(es.components.new_transform());
-
-                let ct: &mut Transform = &mut es.components.transforms[light.transform];
-                ct.parent = Some(gs.pack_light_origin);
-                ct.local_position.x = rad;
-                ct.local_position.z = -rad;
-                ct.local_position.y = 0.0;
-
-                es.render_system
-                    .get_pack(RenderPackID::Shop)
-                    .lights
-                    .push(light);
-            }
-        }
     }
 
     // setup font styles
@@ -343,7 +282,7 @@ pub fn game_init(
     // setup game modes
     {
         gs.game_mode_world = Some(GameModeWorld::new());
-        gs.game_mode_shop = Some(GameModeShop::new());
+        gs.game_mode_shop = Some(GameModeShop::new(es));
         gs.game_mode_inventory = Some(GameModeInventory::new());
     }
 }

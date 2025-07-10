@@ -9,19 +9,99 @@ pub use gengar_engine::{
     matricies::*,
     platform_api::*,
     rect::*,
-    render::{camera::*, material::*, render_command::*, render_pack::*, *},
-    state::State as EngineState,
+    render::{camera::*, light::*, material::*, render_command::*, render_pack::*, *},
+    state::{components::*, State as EngineState},
     transform::*,
     ui::*,
     vectors::*,
 };
+use std::collections::HashMap;
 
-#[derive(Debug)]
-pub struct GameModeShop {}
+pub struct GameModeShop {
+    light_origin: usize,
+
+    light_trans: usize,
+    light_trans_second: usize,
+
+    pub pack_display_state: HashMap<PackID, PackShopDisplay>,
+    pub opening_pack: bool,
+    pub pack_selected: Option<PackID>,
+}
 
 impl GameModeShop {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(es: &mut EngineState) -> Self {
+        let mut sel = Self {
+            light_origin: 0,
+            light_trans: 0,
+            light_trans_second: 0,
+
+            pack_display_state: HashMap::new(),
+            opening_pack: false,
+            pack_selected: None,
+        };
+
+        // setup lights
+        {
+            sel.light_origin = es.components.new_transform();
+            // let origin_trans: &mut Transform = &mut es.components.transforms[light.transform];
+
+            let rad = 10.0;
+            let y = 20.0;
+
+            // first light
+            {
+                sel.light_trans = es.components.new_transform();
+
+                let light = Light::new(sel.light_trans);
+
+                let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                ct.parent = Some(sel.light_origin);
+                ct.local_position.x = rad;
+                ct.local_position.z = rad;
+                ct.local_position.y = y;
+
+                es.render_system
+                    .get_pack(RenderPackID::Shop)
+                    .lights
+                    .push(light);
+            }
+
+            // second light
+            {
+                sel.light_trans_second = es.components.new_transform();
+
+                let light = Light::new(sel.light_trans_second);
+
+                let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                ct.parent = Some(sel.light_origin);
+                ct.local_position.x = -rad;
+                ct.local_position.z = -rad;
+                ct.local_position.y = y;
+
+                es.render_system
+                    .get_pack(RenderPackID::Shop)
+                    .lights
+                    .push(light);
+            }
+
+            // third whilte light
+            {
+                let light = Light::new(es.components.new_transform());
+
+                let ct: &mut Transform = &mut es.components.transforms[light.transform];
+                ct.parent = Some(sel.light_origin);
+                ct.local_position.x = rad;
+                ct.local_position.z = -rad;
+                ct.local_position.y = 0.0;
+
+                es.render_system
+                    .get_pack(RenderPackID::Shop)
+                    .lights
+                    .push(light);
+            }
+        }
+
+        return sel;
     }
 
     pub fn update(
@@ -37,6 +117,8 @@ impl GameModeShop {
         ui_context: &mut UIContext,
         account_system: &mut AccountSystem,
     ) -> Vec<UpdateSignal> {
+        let mut sigs: Vec<UpdateSignal> = vec![];
+
         let mouse_world: VecThreeFloat = {
             let mut val = VecThreeFloat::new_zero();
 
@@ -145,11 +227,10 @@ impl GameModeShop {
             );
         }
 
-        /*
         // lighting
         {
             let spd = 0.007;
-            let origin_trans: &mut Transform = &mut es.components.transforms[gs.pack_light_origin];
+            let origin_trans: &mut Transform = &mut es.components.transforms[self.light_origin];
             // origin_trans.local_rotation.x = es.frame as f64 * spd;
             origin_trans.local_rotation.y = es.frame as f64 * spd;
             // origin_trans.local_rotation.x = es.frame as f64 * spd;
@@ -182,9 +263,7 @@ impl GameModeShop {
                 .push(light);
             */
         }
-        */
 
-        /*
         // camera controls
         if true {
             let cam_pack = es
@@ -193,7 +272,7 @@ impl GameModeShop {
                 .get_mut(&RenderPackID::Shop)
                 .unwrap();
 
-            if gs.pack_selected.is_none() && !gs.opening_pack {
+            if self.pack_selected.is_none() && !self.opening_pack {
                 cam_pack.camera.move_plane(true, input, prev_delta_time);
             } else {
                 if input.keyboard.get_key(KeyCode::W).pressing
@@ -204,12 +283,13 @@ impl GameModeShop {
                     || input.mouse.scroll_delta != 0
                 {
                     handle_pack_shop_signals(
+                        self,
                         vec![PackShopSignals::DeselectAll],
-                        gs,
                         es,
+                        inventory,
                         platform_api,
                     );
-                    gs.pack_selected = None;
+                    self.pack_selected = None;
                 }
             }
 
@@ -228,7 +308,6 @@ impl GameModeShop {
                 .camera
                 .move_fly(0.3, input);
         }
-        */
 
         // pack layout rendering
         {
@@ -262,17 +341,16 @@ impl GameModeShop {
             let packs: Vec<PackID> =
                 vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
 
-            /*
             // make sure all packs exist in the hashmap.
             // Really means we don't need a hashmap probably
             for pack_id in &packs {
-                gs.pack_display_state
+                self.pack_display_state
                     .entry(*pack_id)
                     .or_insert(PackShopDisplay::new());
             }
 
             for pack_id in &packs {
-                let signals = gs
+                let signals = self
                     .pack_display_state
                     .entry(*pack_id)
                     .or_insert(PackShopDisplay::new())
@@ -289,11 +367,16 @@ impl GameModeShop {
                         platform_api,
                     );
 
-                handle_pack_shop_signals(signals, gs, es, platform_api);
+                sigs.append(&mut handle_pack_shop_signals(
+                    self,
+                    signals,
+                    es,
+                    inventory,
+                    platform_api,
+                ));
             }
-            */
         }
 
-        vec![]
+        sigs
     }
 }

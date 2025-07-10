@@ -189,7 +189,7 @@ impl AccountSystem {
                 PurchaseFlow::Register => {
                     if self.logged_in() {
                         self.purchase_flow =
-                            Some(PurchaseFlow::start_checkoutn(networking_system, self));
+                            Some(PurchaseFlow::start_checkout(networking_system, self));
                     }
                 }
 
