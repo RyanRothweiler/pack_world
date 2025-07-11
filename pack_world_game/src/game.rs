@@ -217,17 +217,17 @@ pub fn game_init(
         cam.transform.local_position = VecThreeFloat::new(1.0, 27.0, 20.0);
         cam.pitch = 55.0;
         cam.yaw = 90.0;
-        cam.move_target_position = cam.transform.local_position
+        cam.move_target_position = cam.transform.local_position;
     }
 
     // init shop
     {
         let mut cam = &mut es.render_system.get_pack(RenderPackID::Shop).camera;
 
-        cam.transform.local_position = VecThreeFloat::new(-5.0, 27.0, 10.0);
+        cam.transform.local_position = VecThreeFloat::new(0.0, 23.0, 11.0);
         cam.pitch = 70.0;
         cam.yaw = 90.0;
-        cam.move_target_position = cam.transform.local_position
+        cam.move_target_position = cam.transform.local_position;
     }
 
     // lights

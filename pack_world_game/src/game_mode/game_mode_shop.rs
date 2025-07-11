@@ -158,7 +158,7 @@ impl GameModeShop {
             );
 
             draw_paragraph(
-                "Purchase Base Game",
+                "Support Development",
                 Rect::new_top_size(VecTwo::new(margin_l, 0.0), panel_w, 600.0),
                 COLOR_WHITE,
                 &ui_context.font_header.clone(),
@@ -166,7 +166,7 @@ impl GameModeShop {
                 ui_context,
             );
             draw_text(
-                "$2.99",
+                "$0.99",
                 VecTwo::new(margin_l, 100.0),
                 COLOR_GREEN,
                 &ui_context.font_header.clone(),
@@ -184,7 +184,7 @@ impl GameModeShop {
 
             draw_paragraph(
                 &crate::format_graveyard::OFFLINE_PROGRESS_DESC,
-                Rect::new_top_size(VecTwo::new(margin_l, 140.0), panel_w, 600.0),
+                Rect::new_top_size(VecTwo::new(margin_l, 125.0), panel_w, 600.0),
                 *THEME_TEXT_MUT,
                 &ui_context.font_body.clone(),
                 &mut ui_frame_state,

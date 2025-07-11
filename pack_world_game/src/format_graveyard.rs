@@ -5,7 +5,7 @@ use std::sync::LazyLock;
 
 pub const OFFLINE_PROGRESS_DESC: LazyLock<String> = LazyLock::new(|| {
     format!(
-        "Increase offline progress from {} hour to {} hours. More features coming in the future!",
+        "Increase offline progress from {} hour to {} hours. More features to come as development continues.",
         crate::save_file::SIM_LIMIT_H_FREE,
         crate::save_file::SIM_LIMIT_H_PREMIUM
     )
