@@ -38,8 +38,8 @@ impl DebugPanel {
         */
 
         let grid_rects = get_grid_layout(GridLayoutInfo {
-            bounds_width: 300.0,
-            col_count: 3,
+            bounds_width: 1000.0,
+            col_count: 10,
             cell_height: 100.0,
             gutter: 10.0,
             cells_count: 100,

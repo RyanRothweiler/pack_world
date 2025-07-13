@@ -102,24 +102,9 @@ impl Assets {
     // Do assets setup. Probably better to not need this step and just have it be part of the constructor.
     pub fn build_assets(&mut self, pbr_shader: Shader, shader_color: Shader) {
         // build tile materials
-        for tile_type in vec![
-            TileType::Water,
-            TileType::Grass,
-            TileType::Dirt,
-            TileType::Boulder,
-            TileType::Cave,
-            TileType::TallGrass,
-            TileType::Shrub,
-            TileType::OakTree,
-            TileType::MudPit,
-            TileType::BirdNest,
-            TileType::Frog,
-            TileType::Newt,
-            TileType::Reed,
-            TileType::Clam,
-        ] {
+        for tile_type in ALL_TILE_TYPES.iter() {
             self.tile_materials.insert(
-                tile_type,
+                *tile_type,
                 Self::build_pbr_material(
                     &tile_type.to_string_id(),
                     &self.asset_library,

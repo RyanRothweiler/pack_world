@@ -17,6 +17,7 @@ pub enum TileSnapshot {
     Newt,
     Reed,
     Clam,
+    MudFish,
 }
 
 /// Snapshot of world state.

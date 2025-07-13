@@ -101,9 +101,12 @@ impl TileInstance {
         return false;
     }
 
-    pub fn sim_update(&mut self, delta_time: f64) -> Vec<UpdateSignal> {
+    pub fn sim_update(&mut self, delta_time: f64, platform_api: &PlatformApi) -> Vec<UpdateSignal> {
         if let Some(timer) = self.get_component_harvestable_mut() {
-            timer.inc(delta_time);
+            let drop_opt = timer.inc(delta_time, platform_api);
+            if let Some(drop) = drop_opt {
+                self.drops_queue.append(&mut drop.to_individual());
+            }
         }
 
         vec![]
@@ -223,6 +226,7 @@ impl TileInstance {
             TileMethods::Newt => TileSnapshot::Newt,
             TileMethods::Reed => TileSnapshot::Reed,
             TileMethods::Clam => TileSnapshot::Clam,
+            TileMethods::MudFish => TileSnapshot::MudFish,
         }
     }
 

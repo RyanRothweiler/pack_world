@@ -31,7 +31,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Frog, grid_pos, TileMethods::Frog);
 
     inst.components.push(TileComponent::Harvestable {
-        timer: HarvestTimer::new(10800.0, FixedTableID::Frog),
+        timer: HarvestTimer::new(10800.0, FixedTableID::Frog, false),
     });
 
     inst.components.push(TileComponent::Wander {

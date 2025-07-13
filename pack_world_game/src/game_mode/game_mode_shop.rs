@@ -183,7 +183,7 @@ impl GameModeShop {
             );
 
             draw_paragraph(
-                &crate::format_graveyard::OFFLINE_PROGRESS_DESC,
+                &crate::constants::OFFLINE_PROGRESS_DESC,
                 Rect::new_top_size(VecTwo::new(margin_l, 125.0), panel_w, 600.0),
                 *THEME_TEXT_MUT,
                 &ui_context.font_body.clone(),

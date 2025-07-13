@@ -35,7 +35,7 @@ const HARVEST_SECONDS: f64 = 18.0;
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Grass, grid_pos, TileMethods::Grass);
 
-    let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass);
+    let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass, false);
     ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
     ht.add_drop_condition(
         (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),

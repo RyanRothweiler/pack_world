@@ -38,6 +38,7 @@ pub enum TileMethods {
     Newt,
     Reed,
     Clam,
+    MudFish,
 }
 
 impl TileMethods {
@@ -57,6 +58,7 @@ impl TileMethods {
             TileMethods::Newt => 12,
             TileMethods::Reed => 13,
             TileMethods::Clam => 14,
+            TileMethods::MudFish => 15,
         }
     }
 

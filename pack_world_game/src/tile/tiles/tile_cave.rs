@@ -34,7 +34,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Cave, grid_pos, TileMethods::Cave);
 
     inst.components.push(TileComponent::Harvestable {
-        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave),
+        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Cave, false),
     });
 
     inst

@@ -46,7 +46,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     );
 
     inst.components.push(TileComponent::Harvestable {
-        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree),
+        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::OakTree, false),
     });
 
     inst
