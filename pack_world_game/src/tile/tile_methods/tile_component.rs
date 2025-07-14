@@ -8,17 +8,22 @@ use crate::{
 };
 use gengar_engine::render::{render_pack::*, shader::*, *};
 
+pub mod tile_component_auto_death;
 pub mod tile_component_wander;
 
+pub use tile_component_auto_death::*;
 pub use tile_component_wander::*;
 
 #[derive(Debug)]
 pub enum TileComponent {
-    // Harvesting behavior
+    /// Harvesting behavior
     Harvestable { timer: HarvestTimer },
 
-    // Tile wanders around a grid (like frog and newt tile )
+    /// Tile wanders around a grid (like frog and newt tile )
     Wander { state: WanderState },
+
+    /// Destroy this tile after a set time
+    AutoDeath { state: AutoDeathState },
 }
 
 impl TileComponent {
@@ -33,6 +38,7 @@ impl TileComponent {
                 timer.save_file_write(key, save_file)?;
             }
             Self::Wander { state } => {}
+            Self::AutoDeath { state } => {}
         }
         Ok(())
     }
@@ -48,6 +54,7 @@ impl TileComponent {
                 *timer = HarvestTimer::save_file_load(key, save_file)?;
             }
             Self::Wander { state } => {}
+            Self::AutoDeath { state } => {}
         }
 
         Ok(())
