@@ -1,29 +1,24 @@
 use std::ops::{Add, Sub};
 
-pub const fn ms_to_seconds(ms: f64) -> f64 {
-    ms / 1000.0
-}
-
-pub const fn minutes_to_seconds(minute: f64) -> f64 {
-    minute * 60.0
-}
-
-pub const fn hours_to_seconds(hour: f64) -> f64 {
-    minutes_to_seconds(hour * 60.0)
-}
-
-pub const fn days_to_seconds(days: f64) -> f64 {
-    hours_to_seconds(days * 24.0)
-}
-
-/// This stores as i64 for easy comparisons
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum TimeUnit {
-    MilliSeconds(i64),
-    Minutes(i64),
-    Seconds(i64),
-    Hours(i64),
-    Days(i64),
+    MilliSeconds(f64),
+    Seconds(f64),
+    Minutes(f64),
+    Hours(f64),
+    Days(f64),
+}
+
+impl TimeUnit {
+    pub const fn value(&self) -> f64 {
+        match self {
+            Self::Days(d)
+            | Self::Hours(d)
+            | Self::Minutes(d)
+            | Self::Seconds(d)
+            | Self::MilliSeconds(d) => *d,
+        }
+    }
 }
 
 /// Stores time as f64 for accuracy
@@ -52,19 +47,19 @@ impl Time {
     }
 
     pub const fn as_milliseconds(&self) -> TimeUnit {
-        TimeUnit::MilliSeconds(self.ms as i64)
+        TimeUnit::MilliSeconds(self.ms)
     }
 
     pub const fn as_seconds(&self) -> TimeUnit {
-        TimeUnit::Seconds((self.ms / 1000.0) as i64)
+        TimeUnit::Seconds(self.ms / 1000.0)
     }
 
     pub const fn as_hours(&self) -> TimeUnit {
-        TimeUnit::Hours((self.ms / 1000.0 / 60.0) as i64)
+        TimeUnit::Hours(self.ms / 1000.0 / 60.0)
     }
 
     pub const fn as_days(&self) -> TimeUnit {
-        TimeUnit::Days((self.ms / 1000.0 / 60.0 / 24.0) as i64)
+        TimeUnit::Days(self.ms / 1000.0 / 60.0 / 24.0)
     }
 }
 
@@ -100,43 +95,36 @@ mod test {
     use super::*;
 
     #[test]
-    pub fn conversions() {
-        assert_eq!(minutes_to_seconds(1.0), 60.0);
-        assert_eq!(hours_to_seconds(1.0), 3600.0);
-        assert_eq!(days_to_seconds(1.5), 129600.0);
-    }
-
-    #[test]
     pub fn time_build() {
         assert_eq!(
-            Time::new(TimeUnit::Seconds(60)),
-            Time::new(TimeUnit::Minutes(1))
+            Time::new(TimeUnit::Seconds(60.0)),
+            Time::new(TimeUnit::Minutes(1.0))
         );
 
         assert_eq!(
-            Time::new(TimeUnit::Hours(1)),
-            Time::new(TimeUnit::Minutes(60))
+            Time::new(TimeUnit::Hours(1.0)),
+            Time::new(TimeUnit::Minutes(60.0))
         );
 
         assert_eq!(
-            Time::new(TimeUnit::Days(1)),
-            Time::new(TimeUnit::Minutes(1440))
+            Time::new(TimeUnit::Days(1.0)),
+            Time::new(TimeUnit::Minutes(1440.0))
         );
     }
 
     #[test]
     pub fn sub() {
         assert_eq!(
-            Time::new(TimeUnit::Seconds(60)) - Time::new(TimeUnit::Minutes(1)),
-            Time::new(TimeUnit::Seconds(0))
+            Time::new(TimeUnit::Seconds(60.0)) - Time::new(TimeUnit::Minutes(1.0)),
+            Time::new(TimeUnit::Seconds(0.0))
         );
     }
 
     #[test]
     pub fn add() {
         assert_eq!(
-            Time::new(TimeUnit::Minutes(59)) + Time::new(TimeUnit::Minutes(1)),
-            Time::new(TimeUnit::Hours(1))
+            Time::new(TimeUnit::Minutes(59.0)) + Time::new(TimeUnit::Minutes(1.0)),
+            Time::new(TimeUnit::Hours(1.0))
         );
     }
 }

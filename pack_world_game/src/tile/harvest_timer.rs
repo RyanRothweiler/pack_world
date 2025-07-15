@@ -41,6 +41,7 @@ struct DropCondition {
 }
 
 impl HarvestTimer {
+    // TODO change length to use time
     pub fn new(length: f64, table_id: FixedTableID, self_harvest: bool) -> Self {
         Self {
             length,

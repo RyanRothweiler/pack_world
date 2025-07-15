@@ -38,7 +38,9 @@ impl TileComponent {
                 timer.save_file_write(key, save_file)?;
             }
             Self::Wander { state } => {}
-            Self::AutoDeath { state } => {}
+            Self::AutoDeath { state } => {
+                // todo here
+            }
         }
         Ok(())
     }
@@ -54,7 +56,9 @@ impl TileComponent {
                 *timer = HarvestTimer::save_file_load(key, save_file)?;
             }
             Self::Wander { state } => {}
-            Self::AutoDeath { state } => {}
+            Self::AutoDeath { state } => {
+                // todo here
+            }
         }
 
         Ok(())
