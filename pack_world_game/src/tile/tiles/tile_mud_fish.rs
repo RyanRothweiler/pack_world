@@ -4,7 +4,7 @@ use crate::{
     item::*,
     save_file::*,
     state::{inventory::*, *},
-    tile::{harvest_timer::*, tile_methods::tile_component::TileComponent, *},
+    tile::*,
     world::*,
 };
 use gengar_engine::{
@@ -34,9 +34,9 @@ const HARVEST_SECONDS: f64 = Time::new(TimeUnit::Minutes(45.0)).as_seconds().val
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::MudFish, grid_pos, TileMethods::Grass);
 
-    inst.comp_harvestable = Some(HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Dirt, true));
+    inst.harvest = Some(TileHarvest::new(HARVEST_SECONDS, FixedTableID::Dirt, true));
 
-    inst.comp_auto_death = Some(AutoDeath::new(Time::new(TimeUnit::Days(3.0))));
+    inst.comp_auto_death = Some(TileAutoDeath::new(Time::new(TimeUnit::Days(3.0))));
 
     inst
 }

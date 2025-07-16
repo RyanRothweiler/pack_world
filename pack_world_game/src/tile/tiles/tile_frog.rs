@@ -3,7 +3,7 @@ use crate::{
     grid::*,
     save_file::*,
     state::{inventory::*, *},
-    tile::{harvest_timer::*, *},
+    tile::*,
 };
 use gengar_engine::{
     color::*,
@@ -30,9 +30,9 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Frog, grid_pos, TileMethods::Frog);
 
-    inst.comp_harvestable = Some(HarvestTimer::new(10800.0, FixedTableID::Frog, false));
+    inst.harvest = Some(TileHarvest::new(10800.0, FixedTableID::Frog, false));
 
-    inst.comp_wander = Some(WanderState {
+    inst.wander = Some(TileWander {
         target_grid_offset: GridPos::new(1, 1),
         curr_world_pos: grid_to_world(&grid_pos),
     });

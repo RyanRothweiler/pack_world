@@ -2,7 +2,6 @@ use crate::{
     drop_table::*,
     error::*,
     grid::*,
-    harvest_timer::*,
     save_file::{load, *},
     state::{assets::*, *},
     tile::{tile_instance::*, tile_type::*, tiles::*},
@@ -16,10 +15,6 @@ use gengar_engine::{
     ui::*,
     vectors::*,
 };
-
-pub mod tile_component;
-
-pub use tile_component::*;
 
 /// This is just manual dynamic dispatch because Dyn breaks hot realoding.
 #[derive(Debug, Clone)]

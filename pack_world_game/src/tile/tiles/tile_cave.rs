@@ -3,7 +3,7 @@ use crate::{
     grid::*,
     save_file::*,
     state::{inventory::*, *},
-    tile::{harvest_timer::*, *},
+    tile::*,
 };
 use gengar_engine::{
     color::*,
@@ -33,7 +33,7 @@ const HARVEST_SECONDS: f64 = Time::new(TimeUnit::Days(1.5)).as_seconds().value()
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Cave, grid_pos, TileMethods::Cave);
 
-    inst.comp_harvestable = Some(HarvestTimer::new(
+    inst.harvest = Some(TileHarvest::new(
         HARVEST_SECONDS,
         FixedTableID::Cave,
         false,

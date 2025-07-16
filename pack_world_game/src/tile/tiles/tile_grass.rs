@@ -4,7 +4,7 @@ use crate::{
     item::*,
     save_file::*,
     state::{inventory::*, *},
-    tile::{harvest_timer::*, tile_methods::tile_component::TileComponent, *},
+    tile::*,
     world::*,
 };
 use gengar_engine::{
@@ -34,14 +34,14 @@ const HARVEST_SECONDS: f64 = 18.0;
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Grass, grid_pos, TileMethods::Grass);
 
-    let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Grass, false);
+    let mut ht = TileHarvest::new(HARVEST_SECONDS, FixedTableID::Grass, false);
     ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
     ht.add_drop_condition(
         (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
         WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
     );
 
-    inst.comp_harvestable = Some(ht);
+    inst.harvest = Some(ht);
 
     inst
 }

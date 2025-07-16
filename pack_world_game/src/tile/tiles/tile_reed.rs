@@ -6,7 +6,7 @@ use crate::{
     item::*,
     save_file::*,
     state::{inventory::*, *},
-    tile::{harvest_timer::*, *},
+    tile::*,
     world::*,
 };
 use gengar_engine::{
@@ -35,7 +35,7 @@ const HARVEST_SECONDS: f64 = 20.0;
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Reed, grid_pos, TileMethods::Reed);
 
-    inst.comp_harvestable = Some(HarvestTimer::new(
+    inst.harvest = Some(TileHarvest::new(
         HARVEST_SECONDS,
         FixedTableID::SmallGold,
         false,

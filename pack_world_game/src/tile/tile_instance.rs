@@ -5,7 +5,7 @@ use crate::{
     grid::*,
     save_file::{load, *},
     tile::*,
-    tile::{harvest_timer::*, tile_component::*, TileMethods, TileType},
+    tile::{TileMethods, TileType},
     update_signal::*,
     world::*,
 };
@@ -15,6 +15,14 @@ use gengar_engine::{
     time::*,
     ui::*,
 };
+
+pub mod tile_auto_death;
+pub mod tile_harvest;
+pub mod tile_wander;
+
+pub use tile_auto_death::*;
+pub use tile_harvest::*;
+pub use tile_wander::*;
 
 // TODO make these private?
 pub struct TileInstance {
@@ -28,9 +36,10 @@ pub struct TileInstance {
 
     methods: TileMethods,
 
-    pub comp_wander: Option<WanderState>,
-    pub comp_harvestable: Option<HarvestTimer>,
-    pub comp_auto_death: Option<AutoDeath>,
+    // component like things.
+    pub wander: Option<TileWander>,
+    pub harvest: Option<TileHarvest>,
+    pub comp_auto_death: Option<TileAutoDeath>,
 }
 
 impl TileInstance {
@@ -44,8 +53,8 @@ impl TileInstance {
             drops_queue: vec![],
             destroy_after_drops: false,
 
-            comp_wander: None,
-            comp_harvestable: None,
+            wander: None,
+            harvest: None,
             comp_auto_death: None,
         }
     }
@@ -64,13 +73,15 @@ impl TileInstance {
     pub fn tile_placed(&mut self, current_tiles: Vec<&TileInstance>) {
         match &mut self.methods {
             TileMethods::BirdNest(state) => state.tile_placed(current_tiles),
+
+            // Default is that the tile doesn't care
             _ => {}
         }
     }
 
     pub fn render_hover_info(
         &self,
-        harvestable: Option<&HarvestTimer>,
+        harvestable: Option<&TileHarvest>,
         y_offset: f64,
         shader_color: Shader,
         render_pack: &mut RenderPack,
@@ -84,7 +95,7 @@ impl TileInstance {
     }
 
     pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
-        if let Some(timer) = &mut self.comp_harvestable {
+        if let Some(timer) = &mut self.harvest {
             let drop = timer.harvest(platform_api);
 
             self.drops_queue.append(&mut drop.to_individual());
@@ -99,7 +110,7 @@ impl TileInstance {
     }
 
     pub fn can_harvest(&self) -> bool {
-        if let Some(timer) = &self.comp_harvestable {
+        if let Some(timer) = &self.harvest {
             return timer.can_harvest();
         }
 
@@ -111,7 +122,7 @@ impl TileInstance {
         let mut sigs: Vec<UpdateSignal> = vec![];
 
         // Harvestable
-        if let Some(timer) = &mut self.comp_harvestable {
+        if let Some(timer) = &mut self.harvest {
             let drop_opt = timer.inc(delta_time, platform_api);
             if let Some(drop) = drop_opt {
                 self.drops_queue.append(&mut drop.to_individual());
@@ -133,7 +144,7 @@ impl TileInstance {
 
     pub fn update_world_conditions(&mut self, world_snapshot: &WorldSnapshot) {
         let gp = self.grid_pos;
-        if let Some(timer) = &mut self.comp_harvestable {
+        if let Some(timer) = &mut self.harvest {
             timer.update_world_conditions(gp, world_snapshot);
         }
     }
@@ -144,7 +155,7 @@ impl TileInstance {
         let grid_pos: GridPos = self.grid_pos;
 
         // Wandering behavior
-        if let Some(wander_state) = &mut self.comp_wander {
+        if let Some(wander_state) = &mut self.wander {
             wander_state.update(grid_pos, delta_time, platform_api);
         }
 
@@ -195,7 +206,7 @@ impl TileInstance {
                 let mut rotation: f64 = 0.0;
 
                 // harvesting
-                if let Some(time_comp) = &self.comp_harvestable {
+                if let Some(time_comp) = &self.harvest {
                     if time_comp.can_harvest() {
                         rotation = f64::sin(rot_time) * 7.0;
                     }
@@ -203,7 +214,7 @@ impl TileInstance {
 
                 // wander position
                 let mut render_pos = grid_to_world(pos);
-                if let Some(wander_state) = &self.comp_wander {
+                if let Some(wander_state) = &self.wander {
                     render_pos = wander_state.curr_world_pos;
                 }
 

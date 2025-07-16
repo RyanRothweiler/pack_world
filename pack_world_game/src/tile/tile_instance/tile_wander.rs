@@ -4,12 +4,12 @@ use gengar_engine::{platform_api::*, vectors::*};
 // const MOVE_SPEED: f64 = 0.5;
 
 #[derive(Debug)]
-pub struct WanderState {
+pub struct TileWander {
     pub curr_world_pos: VecThreeFloat,
     pub target_grid_offset: GridPos,
 }
 
-impl WanderState {
+impl TileWander {
     pub fn update(&mut self, origin: GridPos, time_step: f64, platform_api: &PlatformApi) {
         let target_world = grid_to_world(&(origin + self.target_grid_offset));
         let mut dir = target_world - self.curr_world_pos;

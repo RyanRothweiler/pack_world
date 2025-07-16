@@ -1,11 +1,11 @@
 use gengar_engine::time::*;
 
 #[derive(Debug)]
-pub struct AutoDeath {
+pub struct TileAutoDeath {
     timer: Time,
 }
 
-impl AutoDeath {
+impl TileAutoDeath {
     pub fn new(timer: Time) -> Self {
         Self { timer }
     }
