@@ -52,7 +52,7 @@ impl World {
             return Err(Error::InvalidTilePosition);
         }
 
-        Ok(self.insert_tile(grid_pos, tile))
+        Ok(self.insert_tile_type(grid_pos, tile))
     }
 
     pub fn get_next_entity_id(&mut self) -> EntityID {
@@ -63,15 +63,28 @@ impl World {
         ret
     }
 
-    /// Insert tile
+    /// Create a new tile instance and insert it into the world
     /// Returns updates signals, because this might need to give new tiles
     #[must_use]
-    pub fn insert_tile(&mut self, grid_pos: GridPos, tile: TileType) -> Vec<UpdateSignal> {
+    pub fn insert_tile_type(&mut self, grid_pos: GridPos, tile: TileType) -> Vec<UpdateSignal> {
+        let mut inst = tile.create_instance(grid_pos);
+        self.insert_tile_instance(grid_pos, inst)
+    }
+
+    /// Insert tile instance
+    /// Returns updates signals, because this might need to give new tiles
+    #[must_use]
+    pub fn insert_tile_instance(
+        &mut self,
+        grid_pos: GridPos,
+        mut inst: TileInstance,
+    ) -> Vec<UpdateSignal> {
         let mut ret: Vec<UpdateSignal> = vec![UpdateSignal::SaveGame];
 
+        let tile = inst.tile_type;
         let tile_layer = tile.get_definition().world_layer;
+
         let new_entity_id = self.get_next_entity_id();
-        let mut inst = tile.create_instance(grid_pos);
 
         // tell below tiles that something was placed above. They might care.
         let world_cell = self.get_entities(grid_pos);
@@ -355,7 +368,7 @@ mod tests {
         let mut world = World::new();
 
         // insert tiles
-        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
         let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Dirt);
         assert!(ret.is_ok());
 
@@ -404,10 +417,10 @@ mod tests {
     pub fn tree_invalid_placement() {
         let mut world = World::new();
 
-        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(1, 1), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(1, 1), TileType::Dirt);
 
         // test invalid placement
         world
@@ -421,10 +434,10 @@ mod tests {
     pub fn overwrite_tree() {
         let mut world = World::new();
 
-        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(1, 1), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(1, 1), TileType::Dirt);
 
         world
             .try_place_tile(GridPos::new(0, 0), TileType::OakTree)
@@ -450,10 +463,10 @@ mod tests {
     pub fn overwrite_tree_with_nest() {
         let mut world = World::new();
 
-        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(1, 1), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(1, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(1, 1), TileType::Dirt);
 
         world
             .try_place_tile(GridPos::new(0, 0), TileType::OakTree)

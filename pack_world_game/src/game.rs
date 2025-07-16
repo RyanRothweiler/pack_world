@@ -62,6 +62,8 @@ pub mod world;
 
 #[cfg(test)]
 pub mod testing_infra;
+#[cfg(test)]
+pub mod tests;
 
 use account_system::*;
 use assets::*;
@@ -104,7 +106,7 @@ fn setup_initial(world: &mut World, inventory: &mut Inventory) {
             // GridPos::new(21, 11),
         ];
         for p in init_dirt {
-            let _ = world.insert_tile(p, TileType::Dirt);
+            let _ = world.insert_tile_type(p, TileType::Dirt);
         }
     }
 

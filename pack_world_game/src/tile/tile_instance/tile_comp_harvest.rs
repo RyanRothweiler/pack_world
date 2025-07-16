@@ -20,6 +20,9 @@ pub struct TileCompHarvest {
     // Adds drops
     drop_conditions: Vec<DropCondition>,
 
+    // Modifies drops count
+    drop_count_conditions: Vec<DropCountCondition>,
+
     pub table: FixedTableID,
 
     // Does this harvest itself?
@@ -40,6 +43,13 @@ struct DropCondition {
     condition: WorldConditionState,
 }
 
+/// Multiply a drop count on a condition
+#[derive(Debug)]
+struct DropCountCondition {
+    count_mod: f64,
+    condition: WorldConditionState,
+}
+
 impl TileCompHarvest {
     // TODO change length to use time
     pub fn new(length: f64, table_id: FixedTableID, self_harvest: bool) -> Self {
@@ -50,6 +60,7 @@ impl TileCompHarvest {
             time: 0.0,
             length_condition: vec![],
             drop_conditions: vec![],
+            drop_count_conditions: vec![],
         }
     }
 
@@ -67,6 +78,13 @@ impl TileCompHarvest {
         })
     }
 
+    pub fn add_drop_count_condition(&mut self, count_mod: f64, condition: WorldCondition) {
+        self.drop_count_conditions.push(DropCountCondition {
+            count_mod,
+            condition: WorldConditionState::new(condition),
+        })
+    }
+
     pub fn update_world_conditions(&mut self, pos: GridPos, world_snapshot: &WorldSnapshot) {
         // length conditions
         for lc in &mut self.length_condition {
@@ -75,6 +93,11 @@ impl TileCompHarvest {
 
         // drop conditions
         for dc in &mut self.drop_conditions {
+            dc.condition.update(pos, world_snapshot);
+        }
+
+        // drop count conditions
+        for dc in &mut self.drop_count_conditions {
             dc.condition.update(pos, world_snapshot);
         }
     }
@@ -114,7 +137,17 @@ impl TileCompHarvest {
         }
 
         self.reset();
-        return drop_table_instance.get_drop(platform_api);
+
+        let mut drop = drop_table_instance.get_drop(platform_api);
+
+        // Modify from drop count conditions
+        for dc in &self.drop_count_conditions {
+            if dc.condition.is_affirm() {
+                drop.amount = (drop.amount as f64 * dc.count_mod) as i64;
+            }
+        }
+
+        return drop;
     }
 
     pub fn length(&self) -> f64 {

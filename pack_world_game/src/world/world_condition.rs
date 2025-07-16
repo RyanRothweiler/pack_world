@@ -64,9 +64,9 @@ mod test {
     fn adjacent_to() {
         let mut world = World::new();
 
-        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Water);
-        let _ = world.insert_tile(GridPos::new(10, 10), TileType::Grass);
+        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Water);
+        let _ = world.insert_tile_type(GridPos::new(10, 10), TileType::Grass);
 
         let snapshot = world.get_world_snapshot();
 
@@ -100,9 +100,9 @@ mod test {
     fn origin_contains() {
         let mut world = World::new();
 
-        let _ = world.insert_tile(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile(GridPos::new(0, 1), TileType::Water);
-        let _ = world.insert_tile(GridPos::new(10, 10), TileType::Grass);
+        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
+        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Water);
+        let _ = world.insert_tile_type(GridPos::new(10, 10), TileType::Grass);
 
         let snapshot = world.get_world_snapshot();
 

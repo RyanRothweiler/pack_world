@@ -210,8 +210,6 @@ impl GameModeWorld {
 
         // tile hovering
         {
-            let world_snapshot = world.get_world_snapshot();
-
             if self.tile_placing.is_none() {
                 let world_cell: WorldCell = world.get_entities(mouse_grid);
 
@@ -220,7 +218,7 @@ impl GameModeWorld {
 
                     // Harvesting
                     if input.mouse.button_left.pressing && tile.can_harvest() {
-                        tile.harvest(&world_snapshot, platform_api);
+                        tile.harvest(platform_api);
                     }
 
                     // render hover rect

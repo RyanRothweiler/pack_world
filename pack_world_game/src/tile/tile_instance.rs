@@ -94,7 +94,7 @@ impl TileInstance {
         }
     }
 
-    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
+    pub fn harvest(&mut self, platform_api: &PlatformApi) {
         if let Some(timer) = &mut self.comp_harvest {
             let drop = timer.harvest(platform_api);
 

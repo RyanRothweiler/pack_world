@@ -19,7 +19,8 @@ use std::sync::LazyLock;
 
 pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     title: "MudFish",
-    description: "Automatically drops dirt tiles. Dies after 3 days.",
+    description:
+        "Automatically drops dirt tiles. Drops double if adjacent to a MudPit. Dies after 3 days.",
     world_layer: WorldLayer::Walker,
     footprint: vec![GridPos::new(0, 0)],
     placing_draw_footprint: false,
@@ -32,13 +33,11 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 const HARVEST_SECONDS: f64 = Time::new(TimeUnit::Minutes(45.0)).as_seconds().value();
 
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
-    let mut inst = TileInstance::new(TileType::MudFish, grid_pos, TileMethods::Grass);
+    let mut inst = TileInstance::new(TileType::MudFish, grid_pos, TileMethods::MudFish);
 
-    inst.comp_harvest = Some(TileCompHarvest::new(
-        HARVEST_SECONDS,
-        FixedTableID::Dirt,
-        true,
-    ));
+    let mut tch = TileCompHarvest::new(HARVEST_SECONDS, FixedTableID::Dirt, true);
+    tch.add_drop_count_condition(2.0, WorldCondition::AdjacentTo(TileSnapshot::MudPit));
+    inst.comp_harvest = Some(tch);
 
     inst.comp_auto_death = Some(TileCompAutoDeath::new(Time::new(TimeUnit::Days(3.0))));
 
