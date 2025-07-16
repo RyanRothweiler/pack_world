@@ -21,9 +21,6 @@ pub enum TileComponent {
 
     /// Tile wanders around a grid (like frog and newt tile )
     Wander { state: WanderState },
-
-    /// Destroy this tile after a set time
-    AutoDeath { state: AutoDeathState },
 }
 
 impl TileComponent {
@@ -38,9 +35,6 @@ impl TileComponent {
                 timer.save_file_write(key, save_file)?;
             }
             Self::Wander { state } => {}
-            Self::AutoDeath { state } => {
-                // todo here
-            }
         }
         Ok(())
     }
@@ -56,9 +50,6 @@ impl TileComponent {
                 *timer = HarvestTimer::save_file_load(key, save_file)?;
             }
             Self::Wander { state } => {}
-            Self::AutoDeath { state } => {
-                // todo here
-            }
         }
 
         Ok(())

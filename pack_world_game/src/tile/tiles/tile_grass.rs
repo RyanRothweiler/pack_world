@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use crate::{
     drop_table::*,
     grid::*,
@@ -14,6 +12,7 @@ use gengar_engine::{
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    time::*,
     ui::*,
 };
 use std::sync::LazyLock;
@@ -42,8 +41,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
         WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
     );
 
-    inst.components
-        .push(TileComponent::Harvestable { timer: ht });
+    inst.comp_harvestable = Some(ht);
 
     inst
 }

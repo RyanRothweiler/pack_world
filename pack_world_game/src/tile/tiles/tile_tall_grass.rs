@@ -33,9 +33,11 @@ const HARVEST_SECONDS: f64 = 60.0;
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::TallGrass, grid_pos, TileMethods::TallGrass);
 
-    inst.components.push(TileComponent::Harvestable {
-        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::TallGrass, false),
-    });
+    inst.comp_harvestable = Some(HarvestTimer::new(
+        HARVEST_SECONDS,
+        FixedTableID::TallGrass,
+        false,
+    ));
 
     inst
 }

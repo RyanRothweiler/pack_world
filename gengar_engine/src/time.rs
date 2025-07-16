@@ -22,7 +22,7 @@ impl TimeUnit {
 }
 
 /// Stores time as f64 for accuracy
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Time {
     ms: f64,
 }
@@ -60,6 +60,10 @@ impl Time {
 
     pub const fn as_days(&self) -> TimeUnit {
         TimeUnit::Days(self.ms / 1000.0 / 60.0 / 24.0)
+    }
+
+    pub const fn greater_than_zero(&self) -> bool {
+        self.ms > 0.0
     }
 }
 

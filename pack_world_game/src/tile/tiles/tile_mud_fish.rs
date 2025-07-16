@@ -19,7 +19,7 @@ use std::sync::LazyLock;
 
 pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     title: "MudFish",
-    description: "Placed on water. Gives dirt tiles. Auto harvests itself.",
+    description: "Automatically drops dirt tiles. Dies after 3 days.",
     world_layer: WorldLayer::Walker,
     footprint: vec![GridPos::new(0, 0)],
     placing_draw_footprint: false,
@@ -34,10 +34,9 @@ const HARVEST_SECONDS: f64 = Time::new(TimeUnit::Minutes(45.0)).as_seconds().val
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::MudFish, grid_pos, TileMethods::Grass);
 
-    let mut ht = HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Dirt, true);
+    inst.comp_harvestable = Some(HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Dirt, true));
 
-    inst.components
-        .push(TileComponent::Harvestable { timer: ht });
+    inst.comp_auto_death = Some(AutoDeath::new(Time::new(TimeUnit::Days(3.0))));
 
     inst
 }

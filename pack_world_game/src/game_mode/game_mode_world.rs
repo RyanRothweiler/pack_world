@@ -261,7 +261,7 @@ impl GameModeWorld {
                         );
 
                         tile.render_hover_info(
-                            tile.get_component_harvestable(),
+                            tile.comp_harvestable.as_ref(),
                             y,
                             es.shader_color.clone(),
                             es.render_system

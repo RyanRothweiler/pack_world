@@ -32,9 +32,11 @@ const HARVEST_SECONDS: f64 = 120.0;
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Boulder, grid_pos, TileMethods::Boulder);
 
-    inst.components.push(TileComponent::Harvestable {
-        timer: HarvestTimer::new(HARVEST_SECONDS, FixedTableID::Boulder, false),
-    });
+    inst.comp_harvestable = Some(HarvestTimer::new(
+        HARVEST_SECONDS,
+        FixedTableID::Boulder,
+        false,
+    ));
 
     inst
 }
