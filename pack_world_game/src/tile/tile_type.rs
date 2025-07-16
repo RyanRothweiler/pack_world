@@ -23,6 +23,7 @@ pub enum TileType {
     Reed,
     Clam,
     MudFish,
+    Spring,
 }
 
 pub const ALL_TILE_TYPES: LazyLock<Vec<TileType>> = LazyLock::new(|| {
@@ -42,6 +43,7 @@ pub const ALL_TILE_TYPES: LazyLock<Vec<TileType>> = LazyLock::new(|| {
         TileType::Reed,
         TileType::Clam,
         TileType::MudFish,
+        TileType::Spring,
     ]
 });
 
@@ -102,6 +104,7 @@ impl TileType {
             TileType::OakTree => &tile_oak_tree::DEF,
             TileType::Frog => &tile_frog::DEF,
             TileType::MudFish => &tile_mud_fish::DEF,
+            TileType::Spring => &tile_spring::DEF,
         }
     }
 
@@ -122,6 +125,7 @@ impl TileType {
             Self::Reed => 12,
             Self::Clam => 13,
             Self::MudFish => 14,
+            Self::Spring => 15,
         }
     }
 
@@ -142,6 +146,7 @@ impl TileType {
             12 => Ok(Self::Reed),
             13 => Ok(Self::Clam),
             14 => Ok(Self::MudFish),
+            15 => Ok(Self::Spring),
             _ => Err(Error::InvalidTileTypeIndex(idx)),
         }
     }

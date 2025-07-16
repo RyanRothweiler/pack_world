@@ -97,6 +97,12 @@ include_texture!(al, "tile_mudfish_metallic", "../../../../resources/tiles/tile_
 include_texture!(al, "tile_mudfish_roughness", "../../../../resources/tiles/tile_mudfish/Roughness.png", render_api);
 include_texture!(al, "tile_mudfish_ao", "../../../../resources/tiles/tile_mudfish/AO.png", render_api);
 include_texture!(al, "tile_mudfish_normal", "../../../../resources/tiles/tile_mudfish/Normal.png", render_api);
+include_model!(al, "tile_spring", "../../../../resources/tiles/tile_spring/tile_spring.obj", render_api);
+include_texture!(al, "tile_spring_base_color", "../../../../resources/tiles/tile_spring/BaseColor.png", render_api);
+include_texture!(al, "tile_spring_metallic", "../../../../resources/tiles/tile_spring/Metallic.png", render_api);
+include_texture!(al, "tile_spring_roughness", "../../../../resources/tiles/tile_spring/Roughness.png", render_api);
+include_texture!(al, "tile_spring_ao", "../../../../resources/tiles/tile_spring/AO.png", render_api);
+include_texture!(al, "tile_spring_normal", "../../../../resources/tiles/tile_spring/Normal.png", render_api);
 include_model!(al, "pack_starter", "../../../../resources/packs/pack_starter/pack_starter.obj", render_api);
 include_texture!(al, "pack_starter_base_color", "../../../../resources/packs/pack_starter/BaseColor.png", render_api);
 include_texture!(al, "pack_starter_metallic", "../../../../resources/packs/pack_starter/Metallic.png", render_api);

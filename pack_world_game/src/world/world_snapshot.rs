@@ -18,6 +18,7 @@ pub enum TileSnapshot {
     Reed,
     Clam,
     MudFish,
+    Spring,
 }
 
 /// Snapshot of world state.

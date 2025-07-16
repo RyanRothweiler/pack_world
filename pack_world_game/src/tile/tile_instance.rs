@@ -230,6 +230,8 @@ impl TileInstance {
 
     /// Convert the tile into a tilesnapshot
     pub fn into_snapshot(&self) -> TileSnapshot {
+        // TODO make this conversion part of the tile definition
+
         /*
         I made multiple attempts to to remove the need for the snapshots.
         But this actually seems the best. Otherwise we need equals checks on the
@@ -258,6 +260,7 @@ impl TileInstance {
             TileMethods::Reed => TileSnapshot::Reed,
             TileMethods::Clam => TileSnapshot::Clam,
             TileMethods::MudFish => TileSnapshot::MudFish,
+            TileMethods::Spring => TileSnapshot::Spring,
         }
     }
 

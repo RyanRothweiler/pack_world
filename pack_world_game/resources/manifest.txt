@@ -43,6 +43,9 @@ tile_clam
 tile
 tile_mudfish
 
+tile
+tile_spring
+
 pack
 pack_starter
 
