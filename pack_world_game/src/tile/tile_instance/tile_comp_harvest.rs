@@ -25,7 +25,7 @@ pub struct TileCompHarvest {
 
     pub table: FixedTableID,
 
-    // Does this harvest itself?
+    // Does this automatically harvest itself
     self_harvest: bool,
 }
 
