@@ -30,9 +30,13 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Newt, grid_pos, TileMethods::Newt);
 
-    inst.harvest = Some(TileHarvest::new(10800.0, FixedTableID::SmallGold, false));
+    inst.comp_harvest = Some(TileCompHarvest::new(
+        10800.0,
+        FixedTableID::SmallGold,
+        false,
+    ));
 
-    inst.wander = Some(TileWander {
+    inst.comp_wander = Some(TileCompWander {
         target_grid_offset: GridPos::new(1, 1),
         curr_world_pos: grid_to_world(&grid_pos),
     });

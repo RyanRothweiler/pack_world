@@ -34,7 +34,7 @@ const HARVEST_SECONDS: f64 = Time::new(TimeUnit::Minutes(4.0)).as_seconds().valu
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::MudPit, grid_pos, TileMethods::MudPit);
 
-    inst.harvest = Some(TileHarvest::new(
+    inst.comp_harvest = Some(TileCompHarvest::new(
         HARVEST_SECONDS,
         FixedTableID::MudPit,
         false,

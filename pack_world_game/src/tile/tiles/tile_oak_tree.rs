@@ -45,7 +45,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
         }),
     );
 
-    inst.harvest = Some(TileHarvest::new(
+    inst.comp_harvest = Some(TileCompHarvest::new(
         HARVEST_SECONDS,
         FixedTableID::OakTree,
         false,

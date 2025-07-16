@@ -16,13 +16,13 @@ use gengar_engine::{
     ui::*,
 };
 
-pub mod tile_auto_death;
-pub mod tile_harvest;
-pub mod tile_wander;
+pub mod tile_comp_auto_death;
+pub mod tile_comp_wander;
+pub mod tile_omp_harvest;
 
-pub use tile_auto_death::*;
-pub use tile_harvest::*;
-pub use tile_wander::*;
+pub use tile_comp_auto_death::*;
+pub use tile_comp_wander::*;
+pub use tile_omp_harvest::*;
 
 // TODO make these private?
 pub struct TileInstance {
@@ -37,9 +37,9 @@ pub struct TileInstance {
     methods: TileMethods,
 
     // component like things.
-    pub wander: Option<TileWander>,
-    pub harvest: Option<TileHarvest>,
-    pub comp_auto_death: Option<TileAutoDeath>,
+    pub comp_wander: Option<TileCompWander>,
+    pub comp_harvest: Option<TileCompHarvest>,
+    pub comp_auto_death: Option<TileCompAutoDeath>,
 }
 
 impl TileInstance {
@@ -53,8 +53,8 @@ impl TileInstance {
             drops_queue: vec![],
             destroy_after_drops: false,
 
-            wander: None,
-            harvest: None,
+            comp_wander: None,
+            comp_harvest: None,
             comp_auto_death: None,
         }
     }
@@ -81,7 +81,7 @@ impl TileInstance {
 
     pub fn render_hover_info(
         &self,
-        harvestable: Option<&TileHarvest>,
+        harvestable: Option<&TileCompHarvest>,
         y_offset: f64,
         shader_color: Shader,
         render_pack: &mut RenderPack,
@@ -95,7 +95,7 @@ impl TileInstance {
     }
 
     pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
-        if let Some(timer) = &mut self.harvest {
+        if let Some(timer) = &mut self.comp_harvest {
             let drop = timer.harvest(platform_api);
 
             self.drops_queue.append(&mut drop.to_individual());
@@ -110,7 +110,7 @@ impl TileInstance {
     }
 
     pub fn can_harvest(&self) -> bool {
-        if let Some(timer) = &self.harvest {
+        if let Some(timer) = &self.comp_harvest {
             return timer.can_harvest();
         }
 
@@ -122,7 +122,7 @@ impl TileInstance {
         let mut sigs: Vec<UpdateSignal> = vec![];
 
         // Harvestable
-        if let Some(timer) = &mut self.harvest {
+        if let Some(timer) = &mut self.comp_harvest {
             let drop_opt = timer.inc(delta_time, platform_api);
             if let Some(drop) = drop_opt {
                 self.drops_queue.append(&mut drop.to_individual());
@@ -132,9 +132,7 @@ impl TileInstance {
         // Auto death
         if let Some(ad) = &mut self.comp_auto_death {
             ad.inc(Time::new(TimeUnit::Seconds(delta_time)));
-            println!("{:?}", ad);
             if !ad.alive() {
-                println!("destroy");
                 sigs.push(self.destroy_self_sig());
             }
         }
@@ -144,7 +142,7 @@ impl TileInstance {
 
     pub fn update_world_conditions(&mut self, world_snapshot: &WorldSnapshot) {
         let gp = self.grid_pos;
-        if let Some(timer) = &mut self.harvest {
+        if let Some(timer) = &mut self.comp_harvest {
             timer.update_world_conditions(gp, world_snapshot);
         }
     }
@@ -155,7 +153,7 @@ impl TileInstance {
         let grid_pos: GridPos = self.grid_pos;
 
         // Wandering behavior
-        if let Some(wander_state) = &mut self.wander {
+        if let Some(wander_state) = &mut self.comp_wander {
             wander_state.update(grid_pos, delta_time, platform_api);
         }
 
@@ -206,7 +204,7 @@ impl TileInstance {
                 let mut rotation: f64 = 0.0;
 
                 // harvesting
-                if let Some(time_comp) = &self.harvest {
+                if let Some(time_comp) = &self.comp_harvest {
                     if time_comp.can_harvest() {
                         rotation = f64::sin(rot_time) * 7.0;
                     }
@@ -214,7 +212,7 @@ impl TileInstance {
 
                 // wander position
                 let mut render_pos = grid_to_world(pos);
-                if let Some(wander_state) = &self.wander {
+                if let Some(wander_state) = &self.comp_wander {
                     render_pos = wander_state.curr_world_pos;
                 }
 
@@ -280,13 +278,15 @@ impl TileInstance {
         let methods_key = format!("{}.m", key_parent);
         self.methods.save_file_write(methods_key, save_file)?;
 
-        // Save compnents
-        // This assumes a tile doesn't have multiple of the same type of component
-        /*
-        for c in &self.components {
-            c.save_file_write(comp_key.clone(), save_file)?;
+        if let Some(harvest) = &self.comp_harvest {
+            let key = format!("{}.ht", comp_key);
+            harvest.save_file_write(key, save_file)?;
         }
-        */
+
+        if let Some(ad) = &self.comp_auto_death {
+            let key = format!("{}.ad", comp_key);
+            ad.save_file_write(key, save_file)?;
+        }
 
         Ok(())
     }
@@ -309,11 +309,16 @@ impl TileInstance {
             TileMethods::save_file_load(format!("{}.m", key_parent), grid_pos, save_file)?;
 
         let mut inst = (tile_type.get_definition().new_instance)(grid_pos);
-        /*
-        for c in &mut inst.components {
-            c.save_file_load(comp_key.clone(), save_file)?;
+
+        if let Some(harvest) = &inst.comp_harvest {
+            let key = format!("{}.ht", comp_key);
+            inst.comp_harvest = Some(TileCompHarvest::save_file_load(key, save_file)?);
         }
-        */
+
+        if let Some(ad) = &inst.comp_auto_death {
+            let key = format!("{}.ad", comp_key);
+            inst.comp_auto_death = Some(TileCompAutoDeath::save_file_load(key, save_file)?);
+        }
 
         Ok(inst)
     }

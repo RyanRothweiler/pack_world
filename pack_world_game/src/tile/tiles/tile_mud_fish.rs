@@ -34,9 +34,13 @@ const HARVEST_SECONDS: f64 = Time::new(TimeUnit::Minutes(45.0)).as_seconds().val
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::MudFish, grid_pos, TileMethods::Grass);
 
-    inst.harvest = Some(TileHarvest::new(HARVEST_SECONDS, FixedTableID::Dirt, true));
+    inst.comp_harvest = Some(TileCompHarvest::new(
+        HARVEST_SECONDS,
+        FixedTableID::Dirt,
+        true,
+    ));
 
-    inst.comp_auto_death = Some(TileAutoDeath::new(Time::new(TimeUnit::Days(3.0))));
+    inst.comp_auto_death = Some(TileCompAutoDeath::new(Time::new(TimeUnit::Days(3.0))));
 
     inst
 }

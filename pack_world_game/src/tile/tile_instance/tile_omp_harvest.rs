@@ -9,7 +9,7 @@ use crate::{
 use gengar_engine::{platform_api::*, vectors::*};
 
 #[derive(Debug)]
-pub struct TileHarvest {
+pub struct TileCompHarvest {
     // Time until we can harvest
     length: f64,
     pub time: f64,
@@ -40,7 +40,7 @@ struct DropCondition {
     condition: WorldConditionState,
 }
 
-impl TileHarvest {
+impl TileCompHarvest {
     // TODO change length to use time
     pub fn new(length: f64, table_id: FixedTableID, self_harvest: bool) -> Self {
         Self {
@@ -167,7 +167,7 @@ mod test {
     fn harvesting() {
         let plat_api = windows_plaform_api();
 
-        let mut ht = TileHarvest::new(10.0, FixedTableID::Boulder, false);
+        let mut ht = TileCompHarvest::new(10.0, FixedTableID::Boulder, false);
 
         assert_eq!(ht.can_harvest(), false);
 
@@ -188,7 +188,7 @@ mod test {
     fn self_harvest() {
         let plat_api = windows_plaform_api();
 
-        let mut ht = TileHarvest::new(10.0, FixedTableID::Boulder, true);
+        let mut ht = TileCompHarvest::new(10.0, FixedTableID::Boulder, true);
 
         let drop = ht.inc(10.0, &plat_api);
         assert!(drop.is_some());

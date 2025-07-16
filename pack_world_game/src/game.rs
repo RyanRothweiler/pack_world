@@ -401,10 +401,9 @@ pub fn game_loop(
 
             if input.keyboard.get_key(KeyCode::L).on_press {
                 (platform_api.fetch_game_save)();
+                println!("Game manually loaded");
             }
         }
-
-        // Log::println("heyo working");
 
         // check for data to load
         {

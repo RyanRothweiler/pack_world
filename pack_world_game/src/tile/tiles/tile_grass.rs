@@ -34,14 +34,14 @@ const HARVEST_SECONDS: f64 = 18.0;
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Grass, grid_pos, TileMethods::Grass);
 
-    let mut ht = TileHarvest::new(HARVEST_SECONDS, FixedTableID::Grass, false);
+    let mut ht = TileCompHarvest::new(HARVEST_SECONDS, FixedTableID::Grass, false);
     ht.add_length_condition(-0.1, WorldCondition::AdjacentTo(TileSnapshot::Water));
     ht.add_drop_condition(
         (EntryOutput::new_item(ItemType::Acorn, 1), 10.0),
         WorldCondition::AdjacentTo(TileSnapshot::OakTree { has_nest: true }),
     );
 
-    inst.harvest = Some(ht);
+    inst.comp_harvest = Some(ht);
 
     inst
 }
