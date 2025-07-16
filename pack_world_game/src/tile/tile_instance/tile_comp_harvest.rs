@@ -149,7 +149,7 @@ impl TileCompHarvest {
         let length = save_file.load_f64(&length_key)?;
         let time = save_file.load_f64(&time_key)?;
 
-        // Does this fixed table id get overwritten anywhere?
+        // This must get overwritten by the loader. Otherwise we need to serialize the fixed table id
         let mut timer = Self::new(length, FixedTableID::Grass, false);
 
         timer.time = time;

@@ -17,12 +17,12 @@ use gengar_engine::{
 };
 
 pub mod tile_comp_auto_death;
+pub mod tile_comp_harvest;
 pub mod tile_comp_wander;
-pub mod tile_omp_harvest;
 
 pub use tile_comp_auto_death::*;
+pub use tile_comp_harvest::*;
 pub use tile_comp_wander::*;
-pub use tile_omp_harvest::*;
 
 // TODO make these private?
 pub struct TileInstance {
@@ -311,8 +311,11 @@ impl TileInstance {
         let mut inst = (tile_type.get_definition().new_instance)(grid_pos);
 
         if let Some(harvest) = &inst.comp_harvest {
+            let orig_table = harvest.table;
+
             let key = format!("{}.ht", comp_key);
             inst.comp_harvest = Some(TileCompHarvest::save_file_load(key, save_file)?);
+            inst.comp_harvest.as_mut().unwrap().table = orig_table;
         }
 
         if let Some(ad) = &inst.comp_auto_death {
@@ -321,5 +324,31 @@ impl TileInstance {
         }
 
         Ok(inst)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::save_file::*;
+
+    #[test]
+    fn grass_saving() {
+        let inst_orig = crate::tiles::tile_cave::new_instance(GridPos::new(10, 5));
+
+        let mut save_file = SaveFile::new();
+        inst_orig
+            .save_file_write("cave".into(), &mut save_file)
+            .unwrap();
+
+        let inst_loaded = TileInstance::save_file_load("cave".into(), &save_file).unwrap();
+
+        assert_eq!(inst_orig.grid_pos, inst_loaded.grid_pos);
+        assert!(inst_loaded.comp_auto_death.is_none());
+        assert!(inst_loaded.comp_wander.is_none());
+        assert_eq!(
+            inst_orig.comp_harvest.unwrap().table,
+            inst_loaded.comp_harvest.unwrap().table
+        );
     }
 }
