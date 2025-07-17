@@ -106,6 +106,7 @@ impl TileMethods {
             11 => Ok(Self::Water),
             12 => Ok(Self::Newt),
             13 => Ok(Self::Reed),
+            14 => Ok(Self::Clam),
             15 => Ok(Self::MudFish),
             16 => Ok(Self::Spring),
             _ => {

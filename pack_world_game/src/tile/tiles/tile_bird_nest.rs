@@ -24,6 +24,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::OakTree {
         has_nest: false,
     })],
+    placement_global_mod: vec![],
 
     new_instance: new_instance,
 });

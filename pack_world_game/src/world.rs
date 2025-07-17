@@ -1,13 +1,19 @@
 use crate::{drop_table::*, error::*, grid::*, item::*, tile::*, update_signal::*};
-use gengar_engine::{error::Error as EngineError, vectors::*};
+use gengar_engine::{change::*, error::Error as EngineError, vectors::*};
 use std::{collections::HashMap, fs::File, io::Write};
 
+#[cfg(test)]
+pub mod tests;
+
 pub mod entity_id;
+pub mod global_mod;
 pub mod world_cell;
 pub mod world_condition;
 pub mod world_condition_state;
 pub mod world_layer;
 pub mod world_snapshot;
+
+pub use global_mod::*;
 
 pub use {
     entity_id::*, world_cell::*, world_condition::*, world_condition_state::*, world_layer::*,
@@ -17,6 +23,9 @@ pub use {
 /// When placing a tile update all world conditions within this range.
 /// Effectively a limit on adjacency ranges
 const CONDITIONS_UPDATE_RANGE: i32 = 5;
+
+// Max value of global mod.
+const GLOBAL_MOD_MAX: f64 = 100.0;
 
 pub struct World {
     /// Get a WorldCell from grid pos.
@@ -29,6 +38,9 @@ pub struct World {
     pub valids: HashMap<GridPos, bool>,
 
     pub next_entity_id: u64,
+
+    // Global drop count modification. Applied to all tiles harvesting at this position
+    pub drop_count_mod: HashMap<GridPos, f64>,
 }
 
 impl World {
@@ -38,6 +50,7 @@ impl World {
             valids: HashMap::new(),
             entities: HashMap::new(),
             next_entity_id: 0,
+            drop_count_mod: HashMap::new(),
         }
     }
 
@@ -82,7 +95,8 @@ impl World {
         let mut ret: Vec<UpdateSignal> = vec![UpdateSignal::SaveGame];
 
         let tile = inst.tile_type;
-        let tile_layer = tile.get_definition().world_layer;
+        let tile_def = tile.get_definition();
+        let tile_layer = tile_def.world_layer;
 
         let new_entity_id = self.get_next_entity_id();
 
@@ -112,7 +126,7 @@ impl World {
 
         // Find tiles that are going to be overwritten, so that we can give them back to the player
         {
-            for p in &tile.get_definition().footprint {
+            for p in &tile_def.footprint {
                 let pos = grid_pos + *p;
 
                 let types_removed = self.remove_tile(pos, tile_layer);
@@ -129,7 +143,7 @@ impl World {
         self.entities.insert(new_entity_id, inst);
 
         // Add tile to grid map
-        for p in &tile.get_definition().footprint {
+        for p in &tile_def.footprint {
             let pos = grid_pos + *p;
 
             // update adjacents
@@ -148,6 +162,11 @@ impl World {
         // After insrting the new tile
         self.update_conditions(grid_pos);
 
+        // Update global mods
+        for gm in &tile_def.placement_global_mod {
+            self.update_global_mod(grid_pos, gm, Change::Adding);
+        }
+
         ret
     }
 
@@ -156,6 +175,7 @@ impl World {
         self.entity_map.clear();
         self.entities.clear();
         self.valids.clear();
+        self.drop_count_mod.clear();
         self.next_entity_id = 0;
     }
 
@@ -168,6 +188,35 @@ impl World {
             for (layer, eid) in world_cell.layers {
                 let tile_world = &mut self.entities.get_mut(&eid).unwrap();
                 tile_world.update_world_conditions(&snapshot);
+            }
+        }
+    }
+
+    /// Add or remove a global mod.
+    pub fn update_global_mod(&mut self, origin: GridPos, global_mod: &GlobalMod, change: Change) {
+        let mut positions: Vec<GridPos> = vec![];
+
+        // get all positions
+        match global_mod.loc {
+            GlobalModLocation::Radius(rad) => {
+                let mut p: Vec<GridPos> = origin.to_radius_iter(rad).collect();
+                positions.append(&mut p);
+            }
+        }
+
+        // set the modifications
+        match global_mod.kind {
+            GlobalModKind::DropCount(drop_mod) => {
+                for p in &positions {
+                    let mut new_val: f64 = *self.drop_count_mod.get(p).unwrap_or(&1.0);
+
+                    match change {
+                        Change::Adding => new_val *= drop_mod.clamp(0.0, GLOBAL_MOD_MAX),
+                        Change::Removing => new_val /= drop_mod.clamp(0.0, GLOBAL_MOD_MAX),
+                    }
+
+                    self.drop_count_mod.insert(*p, new_val);
+                }
             }
         }
     }
@@ -212,6 +261,13 @@ impl World {
         // Update world conditions
         self.update_conditions(pos_removing);
 
+        // Update global mods
+        for tile_type in &types_removing {
+            for gm in &tile_type.get_definition().placement_global_mod {
+                self.update_global_mod(pos_removing, gm, Change::Removing);
+            }
+        }
+
         types_removing
     }
 
@@ -247,9 +303,11 @@ impl World {
             entity_map: HashMap::new(),
             entities: HashMap::new(),
             valids: self.valids.clone(),
+            drop_count_mod: HashMap::new(),
         };
 
         ret.entity_map = self.entity_map.clone();
+        ret.drop_count_mod = self.drop_count_mod.clone();
 
         for (grid_pos, world_layer) in &self.entity_map {
             // for eid in value {
@@ -331,169 +389,5 @@ impl World {
         self.entities
             .get_mut(eid)
             .expect(&format!("Invalid entity id {:?}", eid))
-    }
-}
-
-mod tests {
-    use super::*;
-
-    #[cfg(test)]
-    pub fn signal_contains_drop(sigs: &Vec<UpdateSignal>, drop_type: DropType) -> bool {
-        for sig in sigs {
-            match sig {
-                UpdateSignal::AddHarvestDrop { drop, origin } => {
-                    if drop.drop_type == drop_type {
-                        return true;
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        false
-    }
-
-    // Check that the entire grid points to valid entities. Panic if not.
-    #[cfg(test)]
-    pub fn validate_grid(world: &World) {
-        for (grid, layer) in &world.entity_map {
-            for (layer, eid) in &layer.layers {
-                let entity = world.get_entity(&eid);
-            }
-        }
-    }
-
-    #[test]
-    pub fn insert_overwrite() {
-        let mut world = World::new();
-
-        // insert tiles
-        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
-        let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Dirt);
-        assert!(ret.is_ok());
-
-        // place invalid
-        let ret = world.try_place_tile(GridPos::new(10, 10), TileType::Dirt);
-        assert!(ret.is_err());
-
-        // place grass on dirt
-        let ret = world.try_place_tile(GridPos::new(1, 0), TileType::Grass);
-        assert!(ret.is_ok());
-
-        // overwrite grass
-        let ret = world
-            .try_place_tile(GridPos::new(1, 0), TileType::Grass)
-            .unwrap();
-        assert_eq!(ret.len(), 2);
-        assert!(signal_contains_drop(
-            &ret,
-            DropType::Item {
-                item_type: ItemType::Tile(TileType::Grass),
-            },
-        ));
-
-        // validate lists
-        assert_eq!(world.entities.len(), 3);
-        assert_eq!(world.valids.len(), 8);
-
-        // check all valids
-        assert_eq!(world.valids.contains_key(&GridPos::new(1, 0)), true);
-        assert_eq!(world.valids.contains_key(&GridPos::new(0, 0)), true);
-
-        assert_eq!(world.valids.contains_key(&GridPos::new(1, 1)), true);
-        assert_eq!(world.valids.contains_key(&GridPos::new(0, 1)), true);
-
-        assert_eq!(world.valids.contains_key(&GridPos::new(1, -1)), true);
-        assert_eq!(world.valids.contains_key(&GridPos::new(0, -1)), true);
-
-        assert_eq!(world.valids.contains_key(&GridPos::new(-1, 0)), true);
-        assert_eq!(world.valids.contains_key(&GridPos::new(2, 0)), true);
-
-        validate_grid(&world);
-    }
-
-    #[test]
-    #[should_panic]
-    pub fn tree_invalid_placement() {
-        let mut world = World::new();
-
-        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(1, 1), TileType::Dirt);
-
-        // test invalid placement
-        world
-            .try_place_tile(GridPos::new(1, 0), TileType::OakTree)
-            .unwrap();
-
-        validate_grid(&world);
-    }
-
-    #[test]
-    pub fn overwrite_tree() {
-        let mut world = World::new();
-
-        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(1, 1), TileType::Dirt);
-
-        world
-            .try_place_tile(GridPos::new(0, 0), TileType::OakTree)
-            .unwrap();
-
-        let update_sigs = world
-            .try_place_tile(GridPos::new(1, 0), TileType::Grass)
-            .unwrap();
-
-        assert_eq!(update_sigs.len(), 2);
-        assert!(signal_contains_drop(
-            &update_sigs,
-            DropType::Item {
-                item_type: ItemType::Tile(TileType::OakTree),
-            },
-        ));
-
-        validate_grid(&world);
-    }
-
-    // Placing tree. place bird nest in tree. place grass under tree. the bird nest and tree should be given back to user.
-    #[test]
-    pub fn overwrite_tree_with_nest() {
-        let mut world = World::new();
-
-        let _ = world.insert_tile_type(GridPos::new(0, 0), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(1, 0), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(0, 1), TileType::Dirt);
-        let _ = world.insert_tile_type(GridPos::new(1, 1), TileType::Dirt);
-
-        world
-            .try_place_tile(GridPos::new(0, 0), TileType::OakTree)
-            .unwrap();
-
-        world
-            .try_place_tile(GridPos::new(0, 0), TileType::BirdNest)
-            .unwrap();
-
-        let update_sigs = world
-            .try_place_tile(GridPos::new(1, 0), TileType::Grass)
-            .unwrap();
-
-        assert_eq!(update_sigs.len(), 3);
-        assert!(signal_contains_drop(
-            &update_sigs,
-            DropType::Item {
-                item_type: ItemType::Tile(TileType::OakTree),
-            },
-        ));
-        assert!(signal_contains_drop(
-            &update_sigs,
-            DropType::Item {
-                item_type: ItemType::Tile(TileType::BirdNest),
-            },
-        ));
-
-        validate_grid(&world);
     }
 }

@@ -23,6 +23,7 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     placing_draw_footprint: true,
 
     placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Water)],
+    placement_global_mod: vec![],
 
     new_instance: new_instance,
 });

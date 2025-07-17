@@ -2,7 +2,7 @@ use crate::grid::GridPos;
 
 /// "Radius" iterator.
 /// Origin is included. So origin 0, radius 2, would be -2, -1, 0, 1, 2
-
+/// This is a manhattan distance radius
 pub struct GridPosRadiusIter {
     pos: GridPos,
 

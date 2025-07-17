@@ -28,6 +28,7 @@ pub struct WorldSnapshot {
     pub entity_map: HashMap<GridPos, WorldCell>,
     pub entities: HashMap<EntityID, TileSnapshot>,
     pub valids: HashMap<GridPos, bool>,
+    pub drop_count_mod: HashMap<GridPos, f64>,
 }
 
 impl WorldSnapshot {

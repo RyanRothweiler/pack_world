@@ -14,6 +14,7 @@ pub mod ascii;
 pub mod binary_file_system;
 pub mod build_vars;
 pub mod byte_conversion;
+pub mod change;
 pub mod collisions;
 pub mod color;
 pub mod debug;

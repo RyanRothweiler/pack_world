@@ -13,7 +13,11 @@ pub struct TileDefinition {
 
     pub footprint: Vec<GridPos>,
 
+    // Restrictions on where this can be placed
     pub placement_constraints: Vec<WorldCondition>,
+
+    // When placed, apply these global modifications
+    pub placement_global_mod: Vec<GlobalMod>,
 
     pub new_instance: fn(grid_pos: GridPos) -> TileInstance,
 }
