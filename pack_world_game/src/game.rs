@@ -288,9 +288,12 @@ pub fn game_init(
 }
 
 fn sim_world(gs: &mut State, es: &mut EngineState, ms: f64, platform_api: &PlatformApi) {
+    let world_snapshot = gs.world.get_world_snapshot();
+
     let mut update_signals: Vec<UpdateSignal> = vec![];
+
     for (eid, entity) in &mut gs.world.entities {
-        update_signals.append(&mut entity.sim_update(ms, platform_api));
+        update_signals.append(&mut entity.sim_update(ms, &world_snapshot, platform_api));
     }
     handle_signals(update_signals, gs, es, platform_api);
 }

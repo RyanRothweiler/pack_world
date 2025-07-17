@@ -94,9 +94,9 @@ impl TileInstance {
         }
     }
 
-    pub fn harvest(&mut self, platform_api: &PlatformApi) {
+    pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
         if let Some(timer) = &mut self.comp_harvest {
-            let drop = timer.harvest(platform_api);
+            let drop = timer.harvest(world_snapshot, &self.grid_pos, platform_api);
 
             self.drops_queue.append(&mut drop.to_individual());
 
@@ -118,12 +118,17 @@ impl TileInstance {
     }
 
     /// World simulation update
-    pub fn sim_update(&mut self, delta_time: f64, platform_api: &PlatformApi) -> Vec<UpdateSignal> {
+    pub fn sim_update(
+        &mut self,
+        delta_time: f64,
+        world_snapshot: &WorldSnapshot,
+        platform_api: &PlatformApi,
+    ) -> Vec<UpdateSignal> {
         let mut sigs: Vec<UpdateSignal> = vec![];
 
         // Harvestable
         if let Some(timer) = &mut self.comp_harvest {
-            let drop_opt = timer.inc(delta_time, platform_api);
+            let drop_opt = timer.inc(delta_time, world_snapshot, &self.grid_pos, platform_api);
             if let Some(drop) = drop_opt {
                 self.drops_queue.append(&mut drop.to_individual());
             }

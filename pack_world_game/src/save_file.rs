@@ -12,6 +12,7 @@ pub use kvp_file::SaveFile;
 
 pub const TILE_INSTANCE_ID_CHAR: char = 'E';
 pub const VALID_ADJ_ID_CHAR: char = 'V';
+pub const DROP_MOD_CHAR: char = 'G';
 
 pub const SIM_LIMIT_H_FREE: i32 = 6;
 pub const SIM_LIMIT_H_PREMIUM: i32 = 24;
@@ -40,6 +41,16 @@ pub fn build_save_file(
 
             save_file.save_i32(&format!("valid_x.{}", i as i32), key.x);
             save_file.save_i32(&format!("valid_y.{}", i as i32), key.y);
+        }
+
+        // write global drop mods
+        for (i, (key, value)) in world.drop_count_mod.iter().enumerate() {
+            let id_key = format!("{}.{}", DROP_MOD_CHAR, i);
+            save_file.save_i32(&id_key, i as i32);
+
+            save_file.save_i32(&format!("drop_mod_x.{}", i as i32), key.x);
+            save_file.save_i32(&format!("drop_mod_y.{}", i as i32), key.y);
+            save_file.save_f64(&format!("drop_mod_v.{}", i as i32), *value);
         }
 
         save_file.save_u64("next_entity_id", world.next_entity_id);
@@ -110,6 +121,17 @@ pub fn load_game(
                     GridPos::new(save_file.load_i32(&key_x)?, save_file.load_i32(&key_y)?);
 
                 world.valids.insert(grid_pos, true);
+            } else if parts[0].starts_with(DROP_MOD_CHAR) {
+                let i = save_file.load_i32(key)?;
+
+                let key_x = &format!("drop_mod_x.{}", i as i32);
+                let key_y = &format!("drop_mod_y.{}", i as i32);
+                let key_v = &format!("drop_mod_v.{}", i as i32);
+
+                let gp = GridPos::new(save_file.load_i32(&key_x)?, save_file.load_i32(&key_y)?);
+                let val: f64 = save_file.load_f64(key_v)?;
+
+                world.drop_count_mod.insert(gp, val);
             }
         }
     }
