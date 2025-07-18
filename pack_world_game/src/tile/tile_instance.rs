@@ -266,6 +266,7 @@ impl TileInstance {
             TileMethods::Clam => TileSnapshot::Clam,
             TileMethods::MudFish => TileSnapshot::MudFish,
             TileMethods::Spring => TileSnapshot::Spring,
+            TileMethods::Kelp => TileSnapshot::Kelp,
         }
     }
 

@@ -35,6 +35,7 @@ pub enum TileMethods {
     Clam,
     MudFish,
     Spring,
+    Kelp,
 }
 
 impl TileMethods {
@@ -56,6 +57,7 @@ impl TileMethods {
             TileMethods::Clam => 14,
             TileMethods::MudFish => 15,
             TileMethods::Spring => 16,
+            TileMethods::Kelp => 17,
         }
     }
 
@@ -109,6 +111,7 @@ impl TileMethods {
             14 => Ok(Self::Clam),
             15 => Ok(Self::MudFish),
             16 => Ok(Self::Spring),
+            17 => Ok(Self::Kelp),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }

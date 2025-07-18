@@ -46,6 +46,9 @@ tile_mudfish
 tile
 tile_spring
 
+tile
+tile_kelp
+
 pack
 pack_starter
 

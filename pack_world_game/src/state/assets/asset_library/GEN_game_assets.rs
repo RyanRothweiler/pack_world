@@ -103,6 +103,12 @@ include_texture!(al, "tile_spring_metallic", "../../../../resources/tiles/tile_s
 include_texture!(al, "tile_spring_roughness", "../../../../resources/tiles/tile_spring/Roughness.png", render_api);
 include_texture!(al, "tile_spring_ao", "../../../../resources/tiles/tile_spring/AO.png", render_api);
 include_texture!(al, "tile_spring_normal", "../../../../resources/tiles/tile_spring/Normal.png", render_api);
+include_model!(al, "tile_kelp", "../../../../resources/tiles/tile_kelp/tile_kelp.obj", render_api);
+include_texture!(al, "tile_kelp_base_color", "../../../../resources/tiles/tile_kelp/BaseColor.png", render_api);
+include_texture!(al, "tile_kelp_metallic", "../../../../resources/tiles/tile_kelp/Metallic.png", render_api);
+include_texture!(al, "tile_kelp_roughness", "../../../../resources/tiles/tile_kelp/Roughness.png", render_api);
+include_texture!(al, "tile_kelp_ao", "../../../../resources/tiles/tile_kelp/AO.png", render_api);
+include_texture!(al, "tile_kelp_normal", "../../../../resources/tiles/tile_kelp/Normal.png", render_api);
 include_model!(al, "pack_starter", "../../../../resources/packs/pack_starter/pack_starter.obj", render_api);
 include_texture!(al, "pack_starter_base_color", "../../../../resources/packs/pack_starter/BaseColor.png", render_api);
 include_texture!(al, "pack_starter_metallic", "../../../../resources/packs/pack_starter/Metallic.png", render_api);
