@@ -3,10 +3,11 @@ use std::sync::LazyLock;
 
 pub static PACK_WATER: LazyLock<DropTable> = LazyLock::new(|| {
     DropTable::new(vec![
-        (EntryOutput::new_tile(TileType::Water, 3), 10.0),
-        (EntryOutput::new_tile(TileType::Clam, 1), 10.0),
-        (EntryOutput::new_tile(TileType::Cave, 1), 10.0),
-        (EntryOutput::new_tile(TileType::Spring, 1), 10.0),
+        (EntryOutput::new_tile(TileType::Water, 1), 3.0),
+        (EntryOutput::new_tile(TileType::Clam, 1), 1.0),
+        (EntryOutput::new_tile(TileType::Cave, 1), 1.0),
+        (EntryOutput::new_tile(TileType::Spring, 1), 1.0),
+        (EntryOutput::new_tile(TileType::Kelp, 1), 1.0),
     ])
 });
 

@@ -5,6 +5,7 @@ pub mod tile_bird_nest;
 pub mod tile_boulder;
 pub mod tile_cave;
 pub mod tile_clam;
+pub mod tile_crab;
 pub mod tile_dirt;
 pub mod tile_frog;
 pub mod tile_grass;

@@ -49,6 +49,9 @@ tile_spring
 tile
 tile_kelp
 
+tile
+tile_crab
+
 pack
 pack_starter
 

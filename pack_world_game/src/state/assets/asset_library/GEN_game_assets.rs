@@ -109,6 +109,12 @@ include_texture!(al, "tile_kelp_metallic", "../../../../resources/tiles/tile_kel
 include_texture!(al, "tile_kelp_roughness", "../../../../resources/tiles/tile_kelp/Roughness.png", render_api);
 include_texture!(al, "tile_kelp_ao", "../../../../resources/tiles/tile_kelp/AO.png", render_api);
 include_texture!(al, "tile_kelp_normal", "../../../../resources/tiles/tile_kelp/Normal.png", render_api);
+include_model!(al, "tile_crab", "../../../../resources/tiles/tile_crab/tile_crab.obj", render_api);
+include_texture!(al, "tile_crab_base_color", "../../../../resources/tiles/tile_crab/BaseColor.png", render_api);
+include_texture!(al, "tile_crab_metallic", "../../../../resources/tiles/tile_crab/Metallic.png", render_api);
+include_texture!(al, "tile_crab_roughness", "../../../../resources/tiles/tile_crab/Roughness.png", render_api);
+include_texture!(al, "tile_crab_ao", "../../../../resources/tiles/tile_crab/AO.png", render_api);
+include_texture!(al, "tile_crab_normal", "../../../../resources/tiles/tile_crab/Normal.png", render_api);
 include_model!(al, "pack_starter", "../../../../resources/packs/pack_starter/pack_starter.obj", render_api);
 include_texture!(al, "pack_starter_base_color", "../../../../resources/packs/pack_starter/BaseColor.png", render_api);
 include_texture!(al, "pack_starter_metallic", "../../../../resources/packs/pack_starter/Metallic.png", render_api);
