@@ -18,10 +18,12 @@ use gengar_engine::{
 
 pub mod tile_comp_auto_death;
 pub mod tile_comp_harvest;
+pub mod tile_comp_harvest_others;
 pub mod tile_comp_wander;
 
 pub use tile_comp_auto_death::*;
 pub use tile_comp_harvest::*;
+pub use tile_comp_harvest_others::*;
 pub use tile_comp_wander::*;
 
 // TODO make these private?
@@ -40,6 +42,7 @@ pub struct TileInstance {
     pub comp_wander: Option<TileCompWander>,
     pub comp_harvest: Option<TileCompHarvest>,
     pub comp_auto_death: Option<TileCompAutoDeath>,
+    pub comp_harvest_others: Option<TileCompHarvestOthers>,
 }
 
 impl TileInstance {
@@ -56,6 +59,7 @@ impl TileInstance {
             comp_wander: None,
             comp_harvest: None,
             comp_auto_death: None,
+            comp_harvest_others: None,
         }
     }
 
@@ -81,7 +85,6 @@ impl TileInstance {
 
     pub fn render_hover_info(
         &self,
-        harvestable: Option<&TileCompHarvest>,
         y_offset: f64,
         shader_color: Shader,
         render_pack: &mut RenderPack,
@@ -89,22 +92,28 @@ impl TileInstance {
         let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
-        if let Some(time_comp) = harvestable {
+        if let Some(time_comp) = &self.comp_harvest {
             draw_progress_bar(time_comp.percent_done(), &r, shader_color, render_pack);
+        }
+
+        if let Some(ho) = &self.comp_harvest_others {
+            draw_progress_bar(ho.perc_done(), &r, shader_color, render_pack);
         }
     }
 
     pub fn harvest(&mut self, world_snapshot: &WorldSnapshot, platform_api: &PlatformApi) {
         if let Some(timer) = &mut self.comp_harvest {
-            let drop = timer.harvest(world_snapshot, &self.grid_pos, platform_api);
+            if timer.can_harvest() {
+                let drop = timer.harvest(world_snapshot, &self.grid_pos, platform_api);
 
-            self.drops_queue.append(&mut drop.to_individual());
+                self.drops_queue.append(&mut drop.to_individual());
 
-            match self.tile_type {
-                TileType::Reed => {
-                    self.destroy_after_drops = true;
+                match self.tile_type {
+                    TileType::Reed => {
+                        self.destroy_after_drops = true;
+                    }
+                    _ => {}
                 }
-                _ => {}
             }
         }
     }
@@ -140,6 +149,16 @@ impl TileInstance {
             if !ad.alive() {
                 sigs.push(self.destroy_self_sig());
             }
+        }
+
+        // Harvesting others
+        if let Some(ho) = &mut self.comp_harvest_others {
+            let mut us = ho.update(
+                Time::new(TimeUnit::Seconds(delta_time)),
+                &self.grid_pos,
+                world_snapshot,
+            );
+            sigs.append(&mut us);
         }
 
         sigs
@@ -267,6 +286,7 @@ impl TileInstance {
             TileMethods::MudFish => TileSnapshot::MudFish,
             TileMethods::Spring => TileSnapshot::Spring,
             TileMethods::Kelp => TileSnapshot::Kelp,
+            TileMethods::Crab => TileSnapshot::Crab,
         }
     }
 

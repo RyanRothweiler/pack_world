@@ -20,6 +20,7 @@ pub enum TileSnapshot {
     MudFish,
     Spring,
     Kelp,
+    Crab,
 }
 
 /// Snapshot of world state.
@@ -27,7 +28,10 @@ pub enum TileSnapshot {
 #[derive(Debug)]
 pub struct WorldSnapshot {
     pub entity_map: HashMap<GridPos, WorldCell>,
+
     pub entities: HashMap<EntityID, TileSnapshot>,
+    pub entity_harvest_perc: HashMap<GridPos, (EntityID, f64)>,
+
     pub valids: HashMap<GridPos, bool>,
     pub drop_count_mod: HashMap<GridPos, f64>,
 }

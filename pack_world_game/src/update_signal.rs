@@ -76,6 +76,10 @@ pub enum UpdateSignal {
 
     /// Logout
     Logout,
+
+    /// Try to harvest a tile.
+    /// Will do nothing if the tile isn't harvestable or isn't ready to harvest.
+    TryHarvestTile { entity_id: EntityID },
 }
 
 pub fn handle_signals(
@@ -220,6 +224,14 @@ pub fn handle_signals(
                 UpdateSignal::Logout => {
                     gs.account_system.logout(platform_api);
 
+                    vec![]
+                }
+
+                UpdateSignal::TryHarvestTile { entity_id } => {
+                    let world_snapshot = gs.world.get_world_snapshot();
+                    if let Some(tile_inst) = gs.world.entities.get_mut(entity_id) {
+                        tile_inst.harvest(&world_snapshot, platform_api);
+                    }
                     vec![]
                 }
             };

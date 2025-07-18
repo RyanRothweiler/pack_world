@@ -302,6 +302,7 @@ impl World {
         let mut ret = WorldSnapshot {
             entity_map: HashMap::new(),
             entities: HashMap::new(),
+            entity_harvest_perc: HashMap::new(),
             valids: self.valids.clone(),
             drop_count_mod: HashMap::new(),
         };
@@ -312,9 +313,13 @@ impl World {
         for (grid_pos, world_layer) in &self.entity_map {
             // for eid in value {
             for (layer_key, eid) in &world_layer.layers {
-                // let inst: &TileInstance = self.entities.get(eid)
                 if let Some(tile_inst) = self.entities.get(eid) {
                     ret.entities.insert(*eid, tile_inst.into_snapshot());
+
+                    if let Some(hc) = &tile_inst.comp_harvest {
+                        ret.entity_harvest_perc
+                            .insert(*grid_pos, (*eid, hc.percent_done()));
+                    }
                 }
             }
         }

@@ -62,6 +62,10 @@ impl Time {
         TimeUnit::Days(self.ms / 1000.0 / 60.0 / 24.0)
     }
 
+    pub fn clamp_ms(&mut self, min: f64, max: f64) {
+        self.ms = self.ms.clamp(min, max);
+    }
+
     pub const fn greater_than_zero(&self) -> bool {
         self.ms > 0.0
     }
