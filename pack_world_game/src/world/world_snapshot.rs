@@ -21,6 +21,7 @@ pub enum TileSnapshot {
     Spring,
     Kelp,
     Crab,
+    MudHenge,
 }
 
 /// Snapshot of world state.

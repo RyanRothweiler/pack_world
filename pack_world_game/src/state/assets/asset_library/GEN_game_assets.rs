@@ -115,6 +115,12 @@ include_texture!(al, "tile_crab_metallic", "../../../../resources/tiles/tile_cra
 include_texture!(al, "tile_crab_roughness", "../../../../resources/tiles/tile_crab/Roughness.png", render_api);
 include_texture!(al, "tile_crab_ao", "../../../../resources/tiles/tile_crab/AO.png", render_api);
 include_texture!(al, "tile_crab_normal", "../../../../resources/tiles/tile_crab/Normal.png", render_api);
+include_model!(al, "tile_mudhenge", "../../../../resources/tiles/tile_mudhenge/tile_mudhenge.obj", render_api);
+include_texture!(al, "tile_mudhenge_base_color", "../../../../resources/tiles/tile_mudhenge/BaseColor.png", render_api);
+include_texture!(al, "tile_mudhenge_metallic", "../../../../resources/tiles/tile_mudhenge/Metallic.png", render_api);
+include_texture!(al, "tile_mudhenge_roughness", "../../../../resources/tiles/tile_mudhenge/Roughness.png", render_api);
+include_texture!(al, "tile_mudhenge_ao", "../../../../resources/tiles/tile_mudhenge/AO.png", render_api);
+include_texture!(al, "tile_mudhenge_normal", "../../../../resources/tiles/tile_mudhenge/Normal.png", render_api);
 include_model!(al, "pack_starter", "../../../../resources/packs/pack_starter/pack_starter.obj", render_api);
 include_texture!(al, "pack_starter_base_color", "../../../../resources/packs/pack_starter/BaseColor.png", render_api);
 include_texture!(al, "pack_starter_metallic", "../../../../resources/packs/pack_starter/Metallic.png", render_api);
