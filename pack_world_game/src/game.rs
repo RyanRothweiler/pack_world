@@ -174,8 +174,8 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/pack_stick.png"), render_api).unwrap();
     gs.assets.image_question_mark =
         load_image_cursor(include_bytes!("../resources/question_mark.png"), render_api).unwrap();
-    gs.assets.image_mud_baby =
-        load_image_cursor(include_bytes!("../resources/mud_baby.png"), render_api).unwrap();
+    gs.assets.image_mud_heart =
+        load_image_cursor(include_bytes!("../resources/mud_heart.png"), render_api).unwrap();
     gs.assets.image_pack_mud =
         load_image_cursor(include_bytes!("../resources/pack_mud.png"), render_api).unwrap();
     gs.assets.image_pearl =

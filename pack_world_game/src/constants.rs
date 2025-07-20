@@ -12,6 +12,9 @@ pub const BANK_LIMIT_COST_BASE: i64 = 50;
 /// starting bank slots count
 pub const BANK_LIMIT_START: usize = 15;
 
+/// Time between drops. When processing a list of drops, Wait XX seconds before dropping the next one.
+pub const DROP_TIME_GUTTER_S: f64 = 0.01;
+
 // Offline progress description
 pub const OFFLINE_PROGRESS_DESC: LazyLock<String> = LazyLock::new(|| {
     format!(

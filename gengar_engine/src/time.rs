@@ -24,7 +24,7 @@ impl TimeUnit {
 /// Stores time as f64 for accuracy
 #[derive(Debug, Clone, Copy)]
 pub struct Time {
-    ms: f64,
+    pub ms: f64,
 }
 
 impl Time {

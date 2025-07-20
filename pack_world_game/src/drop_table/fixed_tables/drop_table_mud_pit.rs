@@ -4,7 +4,7 @@ use std::sync::LazyLock;
 pub static MUD_PIT: LazyLock<DropTable> = LazyLock::new(|| {
     DropTable::new(vec![
         (EntryOutput::new_table(FixedTableID::Dirt, 1), 16.0),
-        (EntryOutput::new_item(ItemType::MudBaby, 1), 0.5),
+        (EntryOutput::new_item(ItemType::MudHeart, 1), 0.5),
     ])
 });
 

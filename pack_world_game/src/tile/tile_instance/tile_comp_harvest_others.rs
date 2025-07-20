@@ -4,7 +4,7 @@ use gengar_engine::{platform_api::*, time::*, vectors::*};
 /// Automatically harvest someone else
 #[derive(Debug)]
 pub struct TileCompHarvestOthers {
-    timer: Time,
+    pub timer: Time,
     len: Time,
 }
 

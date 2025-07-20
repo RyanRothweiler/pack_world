@@ -6,7 +6,7 @@ pub static CAVE: LazyLock<DropTable> = LazyLock::new(|| {
         (EntryOutput::new_table(FixedTableID::SmallGold, 3), 25.0),
         (EntryOutput::new_item(ItemType::DragonEgg, 1), 0.1),
         (EntryOutput::new_item(ItemType::Baby, 1), 15.0),
-        (EntryOutput::new_item(ItemType::MudBaby, 1), 15.0),
+        (EntryOutput::new_item(ItemType::MudHeart, 1), 15.0),
     ])
 });
 

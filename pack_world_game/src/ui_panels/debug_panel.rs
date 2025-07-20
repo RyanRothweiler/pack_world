@@ -37,6 +37,7 @@ impl DebugPanel {
         }
         */
 
+        // tiles
         let grid_rects = get_grid_layout(GridLayoutInfo {
             bounds_width: 1000.0,
             col_count: 10,
@@ -58,6 +59,28 @@ impl DebugPanel {
             ) {
                 ret.push(UpdateSignal::GiveItem {
                     item_type: ItemType::Tile(*ty),
+                    count: 1000,
+                });
+            }
+        }
+
+        // items
+        for (i, ty) in ALL_ITEM_TYPES.iter().enumerate() {
+            let icon = assets.get_item_icon(ty);
+
+            let mut r: Rect = grid_rects[i];
+            r.translate(VecTwo::new(0.0, 400.0));
+
+            if draw_button(
+                &format!("{:?}", ty),
+                ButtonStyleData::new_shrink(Some(icon), None, 4.0),
+                &r,
+                ui_state,
+                std::line!(),
+                ui_context,
+            ) {
+                ret.push(UpdateSignal::GiveItem {
+                    item_type: *ty,
                     count: 1000,
                 });
             }

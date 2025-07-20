@@ -3,7 +3,6 @@ pub mod baby;
 pub mod berry;
 pub mod dirt_clod;
 pub mod dragon_egg;
-pub mod mud_baby;
 pub mod oak_wood;
 pub mod pearl;
 pub mod rock;

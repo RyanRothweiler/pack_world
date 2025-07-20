@@ -1,5 +1,6 @@
 use crate::{
     assets::*,
+    constants::*,
     drop_table::*,
     error::Error,
     grid::*,
@@ -186,7 +187,7 @@ impl TileInstance {
             if self.drops_queue.len() > 0 {
                 self.drop_timer += delta_time;
 
-                if self.drop_timer > 0.06 {
+                if self.drop_timer > DROP_TIME_GUTTER_S {
                     self.drop_timer = 0.0;
 
                     return vec![UpdateSignal::AddHarvestDrop {
@@ -317,6 +318,11 @@ impl TileInstance {
             ad.save_file_write(key, save_file)?;
         }
 
+        if let Some(comp) = &self.comp_harvest_others {
+            let key = format!("{}.ho", comp_key);
+            save_file.save_f64(&key, comp.timer.as_milliseconds().value());
+        }
+
         Ok(())
     }
 
@@ -350,6 +356,11 @@ impl TileInstance {
         if let Some(ad) = &inst.comp_auto_death {
             let key = format!("{}.ad", comp_key);
             inst.comp_auto_death = Some(TileCompAutoDeath::save_file_load(key, save_file)?);
+        }
+
+        if let Some(comp) = &mut inst.comp_harvest_others.as_mut() {
+            let key = format!("{}.ho", comp_key);
+            comp.timer.ms = save_file.load_f64(&key)?;
         }
 
         Ok(inst)

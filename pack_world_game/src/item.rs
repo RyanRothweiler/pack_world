@@ -1,4 +1,5 @@
 use crate::{error::*, save_file::*, tile::*};
+use std::sync::LazyLock;
 
 mod item_data;
 
@@ -12,7 +13,7 @@ pub enum ItemType {
     DragonEgg,
     Baby,
     Berry,
-    MudBaby,
+    MudHeart,
     Pearl,
     OldBoot,
     Seaweed,
@@ -22,6 +23,26 @@ pub enum ItemType {
 
     Tile(TileType),
 }
+
+pub const ALL_ITEM_TYPES: LazyLock<Vec<ItemType>> = LazyLock::new(|| {
+    vec![
+        ItemType::DirtClod,
+        ItemType::Stick,
+        ItemType::Rock,
+        ItemType::OakLog,
+        ItemType::Acorn,
+        ItemType::DragonEgg,
+        ItemType::Baby,
+        ItemType::Berry,
+        ItemType::MudHeart,
+        ItemType::Pearl,
+        ItemType::OldBoot,
+        ItemType::Seaweed,
+        ItemType::TrashBag,
+        ItemType::OldHat,
+        ItemType::Dew,
+    ]
+});
 
 impl ItemType {
     pub fn user_title(&self) -> &str {
@@ -34,7 +55,7 @@ impl ItemType {
             ItemType::DragonEgg => item_data::dragon_egg::TITLE,
             ItemType::Baby => item_data::baby::TITLE,
             ItemType::Berry => item_data::berry::TITLE,
-            ItemType::MudBaby => item_data::mud_baby::TITLE,
+            ItemType::MudHeart => "Mud Heart",
             ItemType::Pearl => item_data::pearl::TITLE,
             ItemType::OldBoot => "Old Boot",
             ItemType::Seaweed => "Seaweed",
@@ -58,7 +79,7 @@ impl ItemType {
             ItemType::DragonEgg => Some("Hatches into a dragon in the right environment!"),
             ItemType::Baby => Some("Grows up to be a big boy one day."),
             ItemType::Berry => Some("Basic food resource"),
-            ItemType::MudBaby => Some("Grows up to be a big mud boy one day."),
+            ItemType::MudHeart => Some("Grows up into a mud being one day."),
             ItemType::Pearl => Some("Contains life."),
             ItemType::OldBoot => Some("Just some trash."),
             ItemType::Seaweed => Some("Just some trash."),
@@ -116,7 +137,7 @@ impl ItemType {
                 save_file.save_i32(&tile_type_key, tile_type.to_index());
             }
 
-            Self::MudBaby => {
+            Self::MudHeart => {
                 save_file.save_i32(&id_key, 9);
             }
             Self::Pearl => {
@@ -161,7 +182,7 @@ impl ItemType {
 
                 return Ok(Self::Tile(TileType::from_index(tile_id)?));
             }
-            9 => Ok(Self::MudBaby),
+            9 => Ok(Self::MudHeart),
             10 => Ok(Self::Pearl),
             11 => Ok(Self::OldBoot),
             12 => Ok(Self::Seaweed),
