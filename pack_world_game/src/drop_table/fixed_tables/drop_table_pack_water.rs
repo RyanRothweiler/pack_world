@@ -9,6 +9,7 @@ pub static PACK_WATER: LazyLock<DropTable> = LazyLock::new(|| {
         (EntryOutput::new_tile(TileType::Spring, 1), 1.0),
         (EntryOutput::new_tile(TileType::Kelp, 1), 1.0),
         (EntryOutput::new_tile(TileType::Crab, 1), 1.0),
+        (EntryOutput::new_tile(TileType::MudHenge, 1), 1.0),
     ])
 });
 
