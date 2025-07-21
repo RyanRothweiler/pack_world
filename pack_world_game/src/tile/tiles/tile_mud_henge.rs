@@ -3,6 +3,7 @@ use gengar_engine::{
     color::*,
     rect::*,
     render::{material::*, render_command::*},
+    time::*,
     vectors::*,
 };
 use std::sync::LazyLock;
@@ -21,5 +22,13 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 });
 
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
-    TileInstance::new(TileType::MudHenge, grid_pos, TileMethods::MudHenge)
+    let mut inst = TileInstance::new(TileType::MudHenge, grid_pos, TileMethods::MudHenge);
+
+    inst.comp_harvest = Some(TileCompHarvest::new(
+        Time::new(TimeUnit::Days(1.0)).ms,
+        FixedTableID::MudHenge,
+        false,
+    ));
+
+    inst
 }

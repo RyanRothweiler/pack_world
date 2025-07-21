@@ -13,6 +13,7 @@ mod drop_table_clam;
 mod drop_table_dirt;
 mod drop_table_frog;
 mod drop_table_grass;
+mod drop_table_mud_henge;
 mod drop_table_mud_pit;
 mod drop_table_oak_tree;
 mod drop_table_shrub;
@@ -25,6 +26,7 @@ use drop_table_clam::*;
 use drop_table_dirt::*;
 use drop_table_frog::*;
 use drop_table_grass::*;
+use drop_table_mud_henge::*;
 use drop_table_mud_pit::*;
 use drop_table_oak_tree::*;
 use drop_table_shrub::*;
@@ -56,6 +58,7 @@ pub enum FixedTableID {
     Frog,
     Clam,
     Dirt,
+    MudHenge,
 
     Pack(PackID),
 
@@ -120,6 +123,9 @@ impl FixedTableID {
             FixedTableID::Dirt => {
                 save_file.save_i32(&type_key, 11);
             }
+            FixedTableID::MudHenge => {
+                save_file.save_i32(&type_key, 12);
+            }
 
             #[cfg(test)]
             FixedTableID::TestTable
@@ -154,7 +160,8 @@ impl FixedTableID {
             8 => FixedTableID::TallGrass,
             9 => FixedTableID::Frog,
             10 => FixedTableID::Clam,
-            12 => FixedTableID::Dirt,
+            11 => FixedTableID::Dirt,
+            12 => FixedTableID::MudHenge,
 
             _ => return Err(Error::UnknownFixedTableID(ty)),
         };
@@ -190,6 +197,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
         FixedTableID::Frog => &FROG,
         FixedTableID::Clam => &CLAM,
         FixedTableID::Dirt => &DIRT,
+        FixedTableID::MudHenge => &MUD_HENGE,
 
         FixedTableID::Pack(pack_id) => match pack_id {
             PackID::Starter => &PACK_STARTER,

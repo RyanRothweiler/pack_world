@@ -599,7 +599,7 @@ pub fn game_loop(
                 gs.debug_state.thumbnail_height -= spd;
             }
 
-            let tile_type = TileType::Reed;
+            let tile_type = TileType::MudHenge;
             gs.assets.render_tile_thumbnail(
                 tile_type,
                 Some(gs.debug_state.thumbnail_dist),
@@ -618,7 +618,7 @@ pub fn game_loop(
         let mut frame_delta: f64 = prev_delta_time;
 
         if build_type_development() && input.keyboard.get_key(KeyCode::One).on_press {
-            frame_delta = 100.0;
+            frame_delta = 10000000.0;
         }
 
         sim_world(gs, es, frame_delta, platform_api);
