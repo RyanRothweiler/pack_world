@@ -22,6 +22,7 @@ pub enum TileSnapshot {
     Kelp,
     Crab,
     MudHenge,
+    MudChicken,
 }
 
 /// Snapshot of world state.

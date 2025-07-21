@@ -55,6 +55,9 @@ tile_crab
 tile
 tile_mudhenge
 
+tile
+tile_mudchicken
+
 pack
 pack_starter
 

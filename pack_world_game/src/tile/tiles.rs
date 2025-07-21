@@ -10,6 +10,7 @@ pub mod tile_dirt;
 pub mod tile_frog;
 pub mod tile_grass;
 pub mod tile_kelp;
+pub mod tile_mud_chicken;
 pub mod tile_mud_fish;
 pub mod tile_mud_henge;
 pub mod tile_mud_pit;

@@ -10,7 +10,7 @@ use std::sync::LazyLock;
 
 pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     title: "Mud Henge",
-    description: "todo",
+    description: "Gives mud hearts. Destroyed after harvesting.",
     world_layer: WorldLayer::Floor,
     footprint: GridPos::new(0, 0).to_rect_iter(2, 2).collect(),
     placing_draw_footprint: false,
@@ -29,6 +29,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
         FixedTableID::MudHenge,
         false,
     ));
+    inst.comp_harvest.as_mut().unwrap().destroy_after_harvest = true;
 
     inst
 }

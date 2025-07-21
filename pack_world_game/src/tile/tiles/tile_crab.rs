@@ -34,8 +34,10 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
 
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Crab, grid_pos, TileMethods::Crab);
-    inst.comp_harvest_others = Some(TileCompHarvestOthers::new(Time::new(TimeUnit::Seconds(
-        10.0,
-    ))));
+
+    let harvest_time = Time::new(TimeUnit::Seconds(10.0));
+    let positions: Vec<GridPos> = GridPos::new(0, 0).to_adjacents_iter().collect();
+    inst.comp_harvest_others = Some(TileCompHarvestOthers::new(harvest_time, positions));
+
     inst
 }

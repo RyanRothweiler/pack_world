@@ -1,8 +1,12 @@
 use crate::{drop_table::*, pack::*};
 use std::sync::LazyLock;
 
-pub static PACK_MUD_HEART: LazyLock<DropTable> =
-    LazyLock::new(|| DropTable::new(vec![(EntryOutput::new_tile(TileType::MudFish, 1), 1.0)]));
+pub static PACK_MUD_HEART: LazyLock<DropTable> = LazyLock::new(|| {
+    DropTable::new(vec![
+        (EntryOutput::new_tile(TileType::MudFish, 1), 1.0),
+        (EntryOutput::new_tile(TileType::MudChicken, 1), 1.0),
+    ])
+});
 
 #[cfg(test)]
 mod test {

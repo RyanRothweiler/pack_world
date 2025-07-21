@@ -27,6 +27,9 @@ pub struct TileCompHarvest {
 
     // Does this automatically harvest itself
     self_harvest: bool,
+
+    /// Destroy this after harvesting?
+    pub destroy_after_harvest: bool,
 }
 
 /// Adjust the length based on condition
@@ -61,6 +64,8 @@ impl TileCompHarvest {
             length_condition: vec![],
             drop_conditions: vec![],
             drop_count_conditions: vec![],
+
+            destroy_after_harvest: false,
         }
     }
 

@@ -41,6 +41,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
         FixedTableID::SmallGold,
         false,
     ));
+    inst.comp_harvest.as_mut().unwrap().destroy_after_harvest = true;
 
     inst
 }

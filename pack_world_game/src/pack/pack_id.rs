@@ -82,6 +82,12 @@ mod tests {
                 PackID::Water => {
                     assert_eq!(PackID::from_index(PackID::Water.to_index()), PackID::Water)
                 }
+                PackID::MudHeart => {
+                    assert_eq!(
+                        PackID::from_index(PackID::MudHeart.to_index()),
+                        PackID::MudHeart
+                    )
+                }
             };
         }
 
@@ -89,5 +95,6 @@ mod tests {
         validate(PackID::Stick);
         validate(PackID::Mud);
         validate(PackID::Water);
+        validate(PackID::MudHeart);
     }
 }

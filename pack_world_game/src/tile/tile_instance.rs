@@ -109,12 +109,7 @@ impl TileInstance {
 
                 self.drops_queue.append(&mut drop.to_individual());
 
-                match self.tile_type {
-                    TileType::Reed => {
-                        self.destroy_after_drops = true;
-                    }
-                    _ => {}
-                }
+                self.destroy_after_drops = timer.destroy_after_harvest;
             }
         }
     }
@@ -289,6 +284,7 @@ impl TileInstance {
             TileMethods::Kelp => TileSnapshot::Kelp,
             TileMethods::Crab => TileSnapshot::Crab,
             TileMethods::MudHenge => TileSnapshot::MudHenge,
+            TileMethods::MudChicken => TileSnapshot::MudChicken,
         }
     }
 
