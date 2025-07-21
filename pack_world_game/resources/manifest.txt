@@ -67,6 +67,9 @@ pack_stick
 pack
 pack_water
 
+pack
+pack_mudheart
+
 model
 tile_outline
 models/tile_outline/tile_outline.obj

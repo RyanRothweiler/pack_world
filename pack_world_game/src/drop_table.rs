@@ -62,15 +62,21 @@ pub fn draw_drop_icon(
     ui_frame_state: &mut UIFrameState,
     ui_context: &mut UIContext,
     assets: &mut Assets,
+    inventory: &Inventory,
 ) {
-    let icon = assets.get_drop_icon(&drop.drop_type);
-
-    let dfb = match drop.drop_type {
+    let mut dfb = match drop.drop_type {
         DropType::Gold => false,
         DropType::Item { item_type } => match item_type {
             ItemType::Tile(_) => true,
             _ => false,
         },
+    };
+
+    let icon = if inventory.drop_seen(drop) {
+        assets.get_drop_icon(&drop.drop_type)
+    } else {
+        dfb = false;
+        assets.image_question_mark.gl_id.unwrap()
     };
 
     if dfb {

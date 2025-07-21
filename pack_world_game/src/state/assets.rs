@@ -114,9 +114,9 @@ impl Assets {
         }
 
         // build pack materials
-        for pack in vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water] {
+        for pack in crate::pack_id::ALL_PACKS.iter() {
             self.pack_materials.insert(
-                pack,
+                *pack,
                 Self::build_pbr_material(&pack.to_string_id(), &self.asset_library, pbr_shader),
             );
         }
@@ -157,12 +157,7 @@ impl Assets {
     }
 
     fn get_pack_image_opt(&self, pack: &PackID) -> Option<u32> {
-        match pack {
-            PackID::Starter => return self.image_pack_starter.gl_id,
-            PackID::Stick => return self.image_pack_stick.gl_id,
-            PackID::Mud => return self.image_pack_mud.gl_id,
-            PackID::Water => return self.image_pack_water.gl_id,
-        };
+        panic!("Remove");
     }
 
     fn get_item_image_opt(&mut self, item: &ItemType) -> Option<u32> {

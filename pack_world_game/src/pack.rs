@@ -1,8 +1,8 @@
 use crate::{drop_table::*, error::*, item::*, save_file::*, state::inventory::*, tile::*};
 use gengar_engine::{platform_api::*, vectors::*};
 
-mod pack_id;
-mod packs;
+pub mod pack_id;
+pub mod packs;
 
 pub use pack_id::PackID;
 pub use packs::*;

@@ -145,6 +145,12 @@ include_texture!(al, "pack_water_metallic", "../../../../resources/packs/pack_wa
 include_texture!(al, "pack_water_roughness", "../../../../resources/packs/pack_water/Roughness.png", render_api);
 include_texture!(al, "pack_water_ao", "../../../../resources/packs/pack_water/AO.png", render_api);
 include_texture!(al, "pack_water_normal", "../../../../resources/packs/pack_water/Normal.png", render_api);
+include_model!(al, "pack_mudheart", "../../../../resources/packs/pack_mudheart/pack_mudheart.obj", render_api);
+include_texture!(al, "pack_mudheart_base_color", "../../../../resources/packs/pack_mudheart/BaseColor.png", render_api);
+include_texture!(al, "pack_mudheart_metallic", "../../../../resources/packs/pack_mudheart/Metallic.png", render_api);
+include_texture!(al, "pack_mudheart_roughness", "../../../../resources/packs/pack_mudheart/Roughness.png", render_api);
+include_texture!(al, "pack_mudheart_ao", "../../../../resources/packs/pack_mudheart/AO.png", render_api);
+include_texture!(al, "pack_mudheart_normal", "../../../../resources/packs/pack_mudheart/Normal.png", render_api);
 include_model!(al, "tile_outline", "../../../../resources/models/tile_outline/tile_outline.obj", render_api);
 include_model!(al, "model_missing", "../../../../resources/models/model_missing/model_missing.obj", render_api);
 }

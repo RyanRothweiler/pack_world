@@ -338,18 +338,15 @@ impl GameModeShop {
                     .power = VecThreeFloat::new(white_p, white_p, white_p);
             }
 
-            let packs: Vec<PackID> =
-                vec![PackID::Starter, PackID::Mud, PackID::Stick, PackID::Water];
-
             // make sure all packs exist in the hashmap.
             // Really means we don't need a hashmap probably
-            for pack_id in &packs {
+            for pack_id in crate::pack_id::ALL_PACKS.iter() {
                 self.pack_display_state
                     .entry(*pack_id)
                     .or_insert(PackShopDisplay::new());
             }
 
-            for pack_id in &packs {
+            for pack_id in crate::pack_id::ALL_PACKS.iter() {
                 let signals = self
                     .pack_display_state
                     .entry(*pack_id)

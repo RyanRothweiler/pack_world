@@ -93,8 +93,9 @@ impl ShopPanel {
                 std::line!(),
                 ui_context,
             ) {
-                let new_panel_data = CreatePanelData::PackDetails { pack_id: *pack_id };
-                sigs.push(UpdateSignal::SetActivePage(Some(new_panel_data)));
+                sigs.push(UpdateSignal::PushPanel(CreatePanelData::PackDetails {
+                    pack_id: *pack_id,
+                }));
             }
 
             // pack button

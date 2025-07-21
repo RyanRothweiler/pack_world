@@ -35,11 +35,13 @@ use drop_table_tall_grass::*;
 
 // packs
 mod drop_table_pack_mud;
+mod drop_table_pack_mud_heart;
 mod drop_table_pack_starter;
 mod drop_table_pack_stick;
 mod drop_table_pack_water;
 
 use drop_table_pack_mud::*;
+use drop_table_pack_mud_heart::*;
 use drop_table_pack_starter::*;
 use drop_table_pack_stick::*;
 use drop_table_pack_water::*;
@@ -204,6 +206,7 @@ pub fn get_fixed_table<'a>(id: FixedTableID) -> &'a DropTable {
             PackID::Stick => &PACK_STICK,
             PackID::Mud => &PACK_MUD,
             PackID::Water => &PACK_WATER,
+            PackID::MudHeart => &PACK_MUD_HEART,
         },
 
         #[cfg(test)]

@@ -237,7 +237,7 @@ impl PackShopDisplay {
                     ) {
                         let new_panel_data = CreatePanelData::PackDetails { pack_id: pack_id };
                         ret.push(PackShopSignals::StandardUpateSignal {
-                            sigs: vec![UpdateSignal::SetActivePage(Some(new_panel_data))],
+                            sigs: vec![UpdateSignal::PushPanel(new_panel_data)],
                         });
                     }
 
@@ -305,6 +305,7 @@ impl PackShopDisplay {
                     ui_frame_state,
                     ui_context,
                     assets,
+                    inventory,
                 );
 
                 i += 1;

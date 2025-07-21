@@ -3,6 +3,7 @@ use crate::{
     pack::{packs::*, Pack},
     save_file::*,
 };
+use std::sync::LazyLock;
 
 #[derive(Debug, Hash, Eq, PartialEq, Clone, Copy)]
 pub enum PackID {
@@ -10,7 +11,18 @@ pub enum PackID {
     Stick,
     Mud,
     Water,
+    MudHeart,
 }
+
+pub const ALL_PACKS: LazyLock<Vec<PackID>> = LazyLock::new(|| {
+    vec![
+        PackID::Starter,
+        PackID::Stick,
+        PackID::Mud,
+        PackID::Water,
+        PackID::MudHeart,
+    ]
+});
 
 impl PackID {
     pub fn to_index(&self) -> i32 {
@@ -19,6 +31,7 @@ impl PackID {
             Self::Stick => 1,
             Self::Mud => 2,
             Self::Water => 3,
+            Self::MudHeart => 4,
         }
     }
 
@@ -32,6 +45,7 @@ impl PackID {
             1 => Self::Stick,
             2 => Self::Mud,
             3 => Self::Water,
+            4 => Self::MudHeart,
             _ => panic!("Invalid PackID index"),
         }
     }
@@ -42,6 +56,7 @@ impl PackID {
             PackID::Stick => &STICK,
             PackID::Mud => &MUD,
             PackID::Water => &WATER,
+            PackID::MudHeart => &MUD_HEART,
         }
     }
 }

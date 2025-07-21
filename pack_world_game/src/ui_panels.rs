@@ -82,7 +82,7 @@ impl UIPanel {
 
     pub fn owns_screen(&mut self) -> bool {
         match self {
-            UIPanel::CreateAccount(_) | UIPanel::PairingCode(_) => true,
+            UIPanel::CreateAccount(_) | UIPanel::PairingCode(_) | UIPanel::PackDetails(_) => true,
             _ => false,
         }
     }

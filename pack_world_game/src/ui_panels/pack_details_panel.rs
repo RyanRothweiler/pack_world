@@ -79,7 +79,15 @@ impl PackDetailsData {
                 cost_origin.x += 40.0;
                 cost_origin.y += 40.0;
 
-                draw_drop_icon(icon_size, cost_origin, &drop, ui_state, ui_context, assets);
+                draw_drop_icon(
+                    icon_size,
+                    cost_origin,
+                    &drop,
+                    ui_state,
+                    ui_context,
+                    assets,
+                    inventory,
+                );
             }
         }
 
@@ -95,7 +103,7 @@ impl PackDetailsData {
                 std::line!(),
                 ui_context,
             ) {
-                update_signals.push(UpdateSignal::SetActivePage(None));
+                update_signals.push(UpdateSignal::PreviousPanel());
             }
         }
 
