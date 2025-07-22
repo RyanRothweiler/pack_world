@@ -194,6 +194,12 @@ pub fn game_init(
         load_image_cursor(include_bytes!("../resources/dew.png"), render_api).unwrap();
     gs.assets.image_glow =
         load_image_cursor(include_bytes!("../resources/glow.png"), render_api).unwrap();
+    gs.assets.image_eye_of_newt =
+        load_image_cursor(include_bytes!("../resources/eye_of_newt.png"), render_api).unwrap();
+    gs.assets.image_frog_leg =
+        load_image_cursor(include_bytes!("../resources/frog_leg.png"), render_api).unwrap();
+    gs.assets.image_root =
+        load_image_cursor(include_bytes!("../resources/root.png"), render_api).unwrap();
     gs.assets.image_twitter = load_image_cursor(
         include_bytes!("../resources/social_icons/twitter.png"),
         render_api,

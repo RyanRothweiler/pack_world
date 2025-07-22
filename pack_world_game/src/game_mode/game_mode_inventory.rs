@@ -257,6 +257,8 @@ impl GameModeInventory {
 
             ItemType::DirtClod
             | ItemType::Stick
+            | ItemType::Root
+            | ItemType::FrogLeg
             | ItemType::MudHeart
             | ItemType::Rock
             | ItemType::Berry
@@ -269,6 +271,7 @@ impl GameModeInventory {
             | ItemType::OldHat
             | ItemType::DragonEgg
             | ItemType::Baby
+            | ItemType::EyeOfNewt
             | ItemType::Acorn => {
                 if draw_button_id(
                     i,

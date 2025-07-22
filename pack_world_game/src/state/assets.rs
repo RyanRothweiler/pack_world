@@ -36,6 +36,9 @@ pub struct Assets {
     pub image_old_hat: Image,
     pub image_dew: Image,
     pub image_glow: Image,
+    pub image_eye_of_newt: Image,
+    pub image_frog_leg: Image,
+    pub image_root: Image,
 
     pub image_twitter: Image,
     pub image_bluesky: Image,
@@ -79,6 +82,9 @@ impl Assets {
             image_old_hat: Image::new(),
             image_dew: Image::new(),
             image_glow: Image::new(),
+            image_eye_of_newt: Image::new(),
+            image_frog_leg: Image::new(),
+            image_root: Image::new(),
 
             image_twitter: Image::new(),
             image_bluesky: Image::new(),
@@ -177,6 +183,9 @@ impl Assets {
             ItemType::TrashBag => return self.image_trash_bag.gl_id,
             ItemType::OldHat => return self.image_old_hat.gl_id,
             ItemType::Dew => return self.image_dew.gl_id,
+            ItemType::EyeOfNewt => return self.image_eye_of_newt.gl_id,
+            ItemType::FrogLeg => return self.image_frog_leg.gl_id,
+            ItemType::Root => return self.image_root.gl_id,
 
             ItemType::Tile(tile_type) => return self.get_tile_thumbnail(tile_type),
         };

@@ -38,9 +38,8 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
         curr_world_pos: grid_to_world(&grid_pos),
     });
 
-    let harvest_time = Time::new(TimeUnit::Seconds(10.0));
-    let positions: Vec<GridPos> = DEF.footprint.clone();
-    inst.comp_harvest_others = Some(TileCompHarvestOthers::new(harvest_time, positions));
+    let mut tch = TileCompHarvest::new(Time::new(TimeUnit::Hours(6.0)), FixedTableID::MudPig, true);
+    inst.comp_harvest = Some(tch);
 
     inst.comp_auto_death = Some(TileCompAutoDeath::new(Time::new(TimeUnit::Days(3.0))));
 

@@ -34,7 +34,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
 
     inst.comp_harvest = Some(TileCompHarvest::new(
         Time::new(TimeUnit::Hours(3.0)),
-        FixedTableID::SmallGold,
+        FixedTableID::Newt,
         false,
     ));
 

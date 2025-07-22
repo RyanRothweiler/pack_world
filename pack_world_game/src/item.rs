@@ -20,6 +20,9 @@ pub enum ItemType {
     TrashBag,
     OldHat,
     Dew,
+    EyeOfNewt,
+    FrogLeg,
+    Root,
 
     Tile(TileType),
 }
@@ -41,6 +44,9 @@ pub const ALL_ITEM_TYPES: LazyLock<Vec<ItemType>> = LazyLock::new(|| {
         ItemType::TrashBag,
         ItemType::OldHat,
         ItemType::Dew,
+        ItemType::EyeOfNewt,
+        ItemType::FrogLeg,
+        ItemType::Root,
     ]
 });
 
@@ -62,6 +68,9 @@ impl ItemType {
             ItemType::TrashBag => "Trash Bag",
             ItemType::OldHat => "Old Hat",
             ItemType::Dew => "Dew",
+            ItemType::EyeOfNewt => "Eye of Newt",
+            ItemType::FrogLeg => "Frog Leg",
+            ItemType::Root => "Root",
 
             ItemType::Tile(tile_type) => tile_type.get_definition().title,
         }
@@ -86,6 +95,9 @@ impl ItemType {
             ItemType::TrashBag => Some("Just some trash."),
             ItemType::OldHat => Some("Just some trash."),
             ItemType::Dew => Some("Morning dew. Get enough and open a water pack."),
+            ItemType::EyeOfNewt => Some("Gross!"),
+            ItemType::FrogLeg => Some("Please don't kick."),
+            ItemType::Root => Some("Very chewwy."),
         };
 
         ret
@@ -158,6 +170,15 @@ impl ItemType {
             Self::Dew => {
                 save_file.save_i32(&id_key, 15);
             }
+            Self::EyeOfNewt => {
+                save_file.save_i32(&id_key, 16);
+            }
+            Self::FrogLeg => {
+                save_file.save_i32(&id_key, 17);
+            }
+            Self::Root => {
+                save_file.save_i32(&id_key, 18);
+            }
         }
 
         Ok(())
@@ -189,6 +210,9 @@ impl ItemType {
             13 => Ok(Self::TrashBag),
             14 => Ok(Self::OldHat),
             15 => Ok(Self::Dew),
+            16 => Ok(Self::EyeOfNewt),
+            17 => Ok(Self::FrogLeg),
+            18 => Ok(Self::Root),
             _ => panic!("Invalid item id"),
         }
     }

@@ -264,10 +264,12 @@ impl TileLibraryPanel {
             }
 
             ItemType::DirtClod
+            | ItemType::Root
             | ItemType::Stick
             | ItemType::MudHeart
             | ItemType::Rock
             | ItemType::Berry
+            | ItemType::FrogLeg
             | ItemType::Pearl
             | ItemType::OakLog
             | ItemType::OldBoot
@@ -275,6 +277,7 @@ impl TileLibraryPanel {
             | ItemType::Dew
             | ItemType::TrashBag
             | ItemType::OldHat
+            | ItemType::EyeOfNewt
             | ItemType::DragonEgg
             | ItemType::Baby
             | ItemType::Acorn => {
