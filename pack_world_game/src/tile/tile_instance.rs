@@ -351,10 +351,9 @@ impl TileInstance {
         grid_pos.x = save_file.load_i32(&grid_x_key)?;
         grid_pos.y = save_file.load_i32(&grid_y_key)?;
 
-        let methods =
-            TileMethods::save_file_load(format!("{}.m", key_parent), grid_pos, save_file)?;
-
         let mut inst = (tile_type.get_definition().new_instance)(grid_pos);
+        inst.methods =
+            TileMethods::save_file_load(format!("{}.m", key_parent), grid_pos, save_file)?;
 
         if let Some(harvest) = &inst.comp_harvest {
             let orig_table = harvest.table;

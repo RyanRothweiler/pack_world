@@ -151,7 +151,7 @@ impl GameModeShop {
             // let premium_marin_l = margin_l + 140.0;
 
             begin_panel(
-                Rect::new_top_size(VecTwo::new(50.0, 100.0), panel_w, 280.0),
+                Rect::new_top_size(VecTwo::new(10.0, 70.0), panel_w, 230.0),
                 *THEME_PANEL_BG,
                 ui_frame_state,
                 ui_context,
@@ -161,21 +161,21 @@ impl GameModeShop {
                 "Support Development",
                 Rect::new_top_size(VecTwo::new(margin_l, 0.0), panel_w, 600.0),
                 COLOR_WHITE,
-                &ui_context.font_header.clone(),
+                &ui_context.font_body.clone(),
                 ui_frame_state,
                 ui_context,
             );
             draw_text(
                 "$0.99",
-                VecTwo::new(margin_l, 100.0),
+                VecTwo::new(margin_l, 50.0),
                 COLOR_GREEN,
-                &ui_context.font_header.clone(),
+                &ui_context.font_body.clone(),
                 ui_frame_state,
                 ui_context,
             );
             draw_paragraph(
                 "Price may vary at checkout.",
-                Rect::new_top_size(VecTwo::new(margin_l, 100.0), panel_w, 600.0),
+                Rect::new_top_size(VecTwo::new(margin_l, 50.0), panel_w, 500.0),
                 Color::new(1.0, 1.0, 1.0, 0.4),
                 &ui_context.font_body.clone(),
                 ui_frame_state,
@@ -184,7 +184,7 @@ impl GameModeShop {
 
             draw_paragraph(
                 &crate::constants::OFFLINE_PROGRESS_DESC,
-                Rect::new_top_size(VecTwo::new(margin_l, 125.0), panel_w, 600.0),
+                Rect::new_top_size(VecTwo::new(margin_l, 75.0), panel_w, 600.0),
                 *THEME_TEXT_MUT,
                 &ui_context.font_body.clone(),
                 &mut ui_frame_state,
@@ -194,7 +194,7 @@ impl GameModeShop {
             if account_system.purchase_in_progress() {
                 draw_text(
                     "Starting Checkout ...",
-                    VecTwo::new(margin_l, 250.0),
+                    VecTwo::new(margin_l, 200.0),
                     COLOR_WHITE,
                     &ui_context.font_header.clone(),
                     &mut ui_frame_state,
@@ -203,7 +203,7 @@ impl GameModeShop {
             } else {
                 if draw_text_button(
                     "Purchase",
-                    VecTwo::new(margin_l + 10.0, 250.0),
+                    VecTwo::new(margin_l + 10.0, 200.0),
                     &ui_context.font_header.clone(),
                     false,
                     Some(crate::BUTTON_BG),

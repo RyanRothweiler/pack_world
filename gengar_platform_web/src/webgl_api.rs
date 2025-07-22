@@ -195,19 +195,32 @@ impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
         }
     }
 
-    fn delete_vertex_arrays(&self, count: i32, vao_id: u32) {
+    fn delete_vertex_arrays(&mut self, count: i32, vao_id: u32) {
         let vao: &WebGlVertexArrayObject = self.vertex_arrays.get(vao_id as usize).unwrap();
         self.context.delete_vertex_array(Some(&vao));
+
+        self.vertex_arrays.remove(vao_id as usize);
     }
 
-    fn delete_buffers(&self, count: i32, buf_id: u32) {
+    fn delete_buffers(&mut self, count: i32, buf_id: u32) {
         let buf: &WebGlBuffer = self.buffers.get(buf_id as usize).unwrap();
         self.context.delete_buffer(Some(buf));
+
+        self.buffers.remove(buf_id as usize);
     }
 
     fn bind_vertex_array(&self, vao_id: u32) {
         let vao = self.vertex_arrays.get(vao_id as usize).unwrap();
         self.context.bind_vertex_array(Some(vao));
+    }
+
+    fn get_metrics(&self) -> String {
+        format!(
+            "buffers {:?}, vert_arrays {:?}, uniform_locations {:?}",
+            self.buffers.data.len(),
+            self.vertex_arrays.data.len(),
+            self.uniform_locations.data.len()
+        )
     }
 
     fn gen_buffers(&mut self, count: i32, buffers: *mut u32) {

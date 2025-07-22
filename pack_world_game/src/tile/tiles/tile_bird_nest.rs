@@ -64,6 +64,8 @@ impl TileBirdNest {
         render_pack: &mut RenderPack,
         assets: &Assets,
     ) {
+        println!("{:?}", self.tree_origin);
+
         let mut world_pos = grid_to_world(&self.tree_origin);
         world_pos.z += GRID_SIZE;
         world_pos.x += GRID_SIZE * 0.5;
@@ -97,9 +99,9 @@ impl TileBirdNest {
         let x_key = format!("{}.x", key_parent);
         let y_key = format!("{}.y", key_parent);
 
-        let tm = TileMethods::BirdNest(TileBirdNest {
-            tree_origin: GridPos::new(save_file.load_i32(&x_key)?, save_file.load_i32(&y_key)?),
-        });
+        let gp = GridPos::new(save_file.load_i32(&x_key)?, save_file.load_i32(&y_key)?);
+
+        let tm = TileMethods::BirdNest(TileBirdNest { tree_origin: gp });
 
         Ok(tm)
     }

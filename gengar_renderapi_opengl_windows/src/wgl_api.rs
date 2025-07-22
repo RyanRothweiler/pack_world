@@ -175,6 +175,10 @@ impl WglMethods {
 }
 
 impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
+    fn get_metrics(&self) -> String {
+        String::new()
+    }
+
     fn create_shader(&mut self, id: i32) -> u32 {
         return (self.glCreateShader)(id);
     }
@@ -227,11 +231,11 @@ impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
         (self.glGenVertexArrays)(count, vao);
     }
 
-    fn delete_vertex_arrays(&self, count: i32, vao: u32) {
+    fn delete_vertex_arrays(&mut self, count: i32, vao: u32) {
         (self.glDeleteVertexArrays)(count, &vao);
     }
 
-    fn delete_buffers(&self, count: i32, buf_id: u32) {
+    fn delete_buffers(&mut self, count: i32, buf_id: u32) {
         (self.glDeleteBuffers)(count, &buf_id);
     }
 

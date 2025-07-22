@@ -111,8 +111,8 @@ pub trait OGLPlatformImpl {
     fn draw_elements(&self, mode: i32, indecies: &Vec<u32>);
     fn viewport(&self, x: i32, y: i32, width: i32, height: i32);
 
-    fn delete_vertex_arrays(&self, count: i32, vao: u32);
-    fn delete_buffers(&self, count: i32, buf_id: u32);
+    fn delete_vertex_arrays(&mut self, count: i32, vao: u32);
+    fn delete_buffers(&mut self, count: i32, buf_id: u32);
 
     fn buffer_data_v3(&self, target: BufferType, data: &Vec<VecThreeFloat>, usage: BufferUsage);
     fn buffer_data_v2(&self, target: BufferType, data: &Vec<VecTwo>, usage: BufferUsage);
@@ -142,6 +142,7 @@ pub trait OGLPlatformImpl {
 
     // None opengl specific
     fn remove_internal_uniform_loc_position(&mut self, id: i32);
+    fn get_metrics(&self) -> String;
 }
 
 pub struct OglRenderApi {
