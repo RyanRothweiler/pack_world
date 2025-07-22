@@ -54,12 +54,16 @@ impl Time {
         TimeUnit::Seconds(self.ms / 1000.0)
     }
 
+    pub const fn as_minutes(&self) -> TimeUnit {
+        TimeUnit::Minutes(self.ms / 1000.0 / 60.0)
+    }
+
     pub const fn as_hours(&self) -> TimeUnit {
-        TimeUnit::Hours(self.ms / 1000.0 / 60.0)
+        TimeUnit::Hours(self.ms / 1000.0 / 60.0 / 60.0)
     }
 
     pub const fn as_days(&self) -> TimeUnit {
-        TimeUnit::Days(self.ms / 1000.0 / 60.0 / 24.0)
+        TimeUnit::Days(self.ms / 1000.0 / 60.0 / 60.0 / 24.0)
     }
 
     pub fn clamp_ms(&mut self, min: f64, max: f64) {
@@ -68,6 +72,36 @@ impl Time {
 
     pub const fn greater_than_zero(&self) -> bool {
         self.ms > 0.0
+    }
+
+    pub fn display(&self) -> String {
+        let total_secs = self.as_seconds().value() as i32;
+
+        let d = total_secs / (24 * 60 * 60);
+        let rem_after_days = total_secs % (24 * 60 * 60);
+
+        let h = rem_after_days / (60 * 60);
+        let rem_after_hours = rem_after_days % (60 * 60);
+
+        let m = rem_after_hours / 60;
+        let s = rem_after_hours % 60;
+
+        let mut parts = Vec::new();
+
+        if d > 0 {
+            parts.push(format!("{}d", d));
+        }
+        if h > 0 {
+            parts.push(format!("{}h", h));
+        }
+        if m > 0 {
+            parts.push(format!("{}m", m));
+        }
+        if s > 0 {
+            parts.push(format!("{}s", s));
+        }
+
+        parts.join(":")
     }
 }
 
@@ -134,5 +168,20 @@ mod test {
             Time::new(TimeUnit::Minutes(59.0)) + Time::new(TimeUnit::Minutes(1.0)),
             Time::new(TimeUnit::Hours(1.0))
         );
+    }
+
+    #[test]
+    pub fn conversions() {
+        let t = Time::new(TimeUnit::Days(1.5));
+        assert_eq!(t.as_days().value(), 1.5);
+        assert_eq!(t.as_hours().value(), 36.0);
+        assert_eq!(t.as_minutes().value(), 2160.0);
+        assert_eq!(t.as_seconds().value(), 129600.0);
+    }
+
+    #[test]
+    pub fn display() {
+        let t = Time::new(TimeUnit::Seconds(90061.0));
+        assert_eq!(t.display(), "1d:1h:1m:1s");
     }
 }

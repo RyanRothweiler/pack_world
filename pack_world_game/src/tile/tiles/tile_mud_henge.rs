@@ -25,7 +25,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::MudHenge, grid_pos, TileMethods::MudHenge);
 
     inst.comp_harvest = Some(TileCompHarvest::new(
-        Time::new(TimeUnit::Days(1.0)).ms,
+        Time::new(TimeUnit::Days(1.0)),
         FixedTableID::MudHenge,
         false,
     ));

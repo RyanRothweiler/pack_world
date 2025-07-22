@@ -10,6 +10,7 @@ use gengar_engine::{
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    time::*,
     ui::*,
     vectors::*,
 };
@@ -32,7 +33,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::Newt, grid_pos, TileMethods::Newt);
 
     inst.comp_harvest = Some(TileCompHarvest::new(
-        10800.0,
+        Time::new(TimeUnit::Hours(3.0)),
         FixedTableID::SmallGold,
         false,
     ));

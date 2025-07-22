@@ -266,6 +266,8 @@ impl GameModeWorld {
                                 .render_packs
                                 .get_mut(&RenderPackID::UI)
                                 .unwrap(),
+                            ui_context,
+                            &mut ui_frame_state,
                         );
                     }
                 }

@@ -31,12 +31,11 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     new_instance: new_instance,
 });
 
-const HARVEST_SECONDS: f64 = Time::new(TimeUnit::Minutes(45.0)).as_seconds().value();
-
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::MudFish, grid_pos, TileMethods::MudFish);
 
-    let mut tch = TileCompHarvest::new(HARVEST_SECONDS, FixedTableID::Dirt, true);
+    let mut tch =
+        TileCompHarvest::new(Time::new(TimeUnit::Minutes(45.0)), FixedTableID::Dirt, true);
     tch.add_drop_count_condition(2.0, WorldCondition::AdjacentTo(TileSnapshot::MudPit));
     inst.comp_harvest = Some(tch);
 

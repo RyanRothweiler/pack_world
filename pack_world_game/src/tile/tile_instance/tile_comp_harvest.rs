@@ -6,11 +6,11 @@ use crate::{
     update_signal::*,
     world::*,
 };
-use gengar_engine::{platform_api::*, vectors::*};
+use gengar_engine::{platform_api::*, time::*, vectors::*};
 
 #[derive(Debug)]
 pub struct TileCompHarvest {
-    // Time until we can harvest
+    // Time until we can harvest. In seconds.
     length: f64,
     pub time: f64,
 
@@ -55,9 +55,9 @@ struct DropCountCondition {
 
 impl TileCompHarvest {
     // TODO change length to use time
-    pub fn new(length: f64, table_id: FixedTableID, self_harvest: bool) -> Self {
+    pub fn new(lt: Time, table_id: FixedTableID, self_harvest: bool) -> Self {
         Self {
-            length,
+            length: lt.as_seconds().value(),
             self_harvest,
             table: table_id,
             time: 0.0,
@@ -203,7 +203,11 @@ impl TileCompHarvest {
         let time = save_file.load_f64(&time_key)?;
 
         // This must get overwritten by the loader. Otherwise we need to serialize the fixed table id
-        let mut timer = Self::new(length, FixedTableID::Grass, false);
+        let mut timer = Self::new(
+            Time::new(TimeUnit::Seconds(length)),
+            FixedTableID::Grass,
+            false,
+        );
 
         timer.time = time;
 

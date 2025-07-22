@@ -12,6 +12,7 @@ use gengar_engine::{
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},
+    time::*,
     ui::*,
 };
 use std::sync::LazyLock;
@@ -29,13 +30,11 @@ pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     new_instance: new_instance,
 });
 
-const HARVEST_SECONDS: f64 = 60.0;
-
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::TallGrass, grid_pos, TileMethods::TallGrass);
 
     inst.comp_harvest = Some(TileCompHarvest::new(
-        HARVEST_SECONDS,
+        Time::new(TimeUnit::Seconds(60.0)),
         FixedTableID::TallGrass,
         false,
     ));

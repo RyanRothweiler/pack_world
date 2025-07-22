@@ -89,12 +89,24 @@ impl TileInstance {
         y_offset: f64,
         shader_color: Shader,
         render_pack: &mut RenderPack,
+        ui_context: &mut UIContext,
+        mut ui_frame_state: &mut UIFrameState,
     ) {
         let base: VecTwo = VecTwo::new(450.0, 110.0 + y_offset);
         let r = Rect::new_top_size(base, 200.0, 10.0);
 
         if let Some(time_comp) = &self.comp_harvest {
             draw_progress_bar(time_comp.percent_done(), &r, shader_color, render_pack);
+
+            let disp = Time::new(TimeUnit::Seconds(time_comp.length() - time_comp.time)).display();
+            draw_text(
+                &disp,
+                base + VecTwo::new(210.0, 10.0),
+                *THEME_TEXT_MUT,
+                &ui_context.font_body.clone(),
+                &mut ui_frame_state,
+                ui_context,
+            );
         }
 
         if let Some(ho) = &self.comp_harvest_others {
