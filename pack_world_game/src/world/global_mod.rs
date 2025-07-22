@@ -1,8 +1,4 @@
-// Where to apply the modification
-pub enum GlobalModLocation {
-    // Apply within a radius centered on self tile
-    Radius(i32),
-}
+use crate::grid::*;
 
 // What to modify
 pub enum GlobalModKind {
@@ -12,11 +8,13 @@ pub enum GlobalModKind {
 
 pub struct GlobalMod {
     pub kind: GlobalModKind,
-    pub loc: GlobalModLocation,
+
+    /// Positions relative to origin to apply the mod
+    pub positions: Vec<GridPos>,
 }
 
 impl GlobalMod {
-    pub fn new(kind: GlobalModKind, loc: GlobalModLocation) -> Self {
-        Self { kind, loc }
+    pub fn new(kind: GlobalModKind, positions: Vec<GridPos>) -> Self {
+        Self { kind, positions }
     }
 }

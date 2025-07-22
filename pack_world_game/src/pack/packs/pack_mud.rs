@@ -12,6 +12,6 @@ pub static MUD: LazyLock<Pack> = LazyLock::new(|| {
         vec![(ItemType::DirtClod, 20)],
         4,
         FixedTableID::Pack(PackID::Mud),
-        VecThreeFloat::new(0.0, 0.0, 9.0),
+        VecThreeFloat::new(0.0, 0.0, 6.0),
     )
 });

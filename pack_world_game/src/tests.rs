@@ -14,7 +14,11 @@ pub fn tile_instance_drop_count_conditions() {
         let mut inst =
             TileInstance::new(TileType::MudFish, GridPos::new(0, 0), TileMethods::MudFish);
 
-        let mut tch = TileCompHarvest::new(0.0, FixedTableID::TestGold, false);
+        let mut tch = TileCompHarvest::new(
+            Time::new(TimeUnit::Seconds(0.0)),
+            FixedTableID::TestGold,
+            false,
+        );
         tch.add_drop_count_condition(2.0, WorldCondition::AdjacentTo(TileSnapshot::MudPit));
         inst.comp_harvest = Some(tch);
 
@@ -62,7 +66,11 @@ pub fn global_drop_count_mod() {
 
     let mut grass_inst = {
         let mut inst = TileInstance::new(TileType::Grass, GridPos::new(0, 0), TileMethods::Grass);
-        inst.comp_harvest = Some(TileCompHarvest::new(0.0, FixedTableID::TestGold, false));
+        inst.comp_harvest = Some(TileCompHarvest::new(
+            Time::new(TimeUnit::Seconds(0.0)),
+            FixedTableID::TestGold,
+            false,
+        ));
         inst
     };
 

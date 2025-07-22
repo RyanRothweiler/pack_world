@@ -227,7 +227,11 @@ mod test {
 
         let world_snapshot = world.get_world_snapshot();
 
-        let mut ht = TileCompHarvest::new(10.0, FixedTableID::Boulder, false);
+        let mut ht = TileCompHarvest::new(
+            Time::new(TimeUnit::Seconds(10.0)),
+            FixedTableID::Boulder,
+            false,
+        );
 
         assert_eq!(ht.can_harvest(), false);
 
@@ -251,7 +255,11 @@ mod test {
         let mut world = World::new();
         let world_snapshot = world.get_world_snapshot();
 
-        let mut ht = TileCompHarvest::new(10.0, FixedTableID::Boulder, true);
+        let mut ht = TileCompHarvest::new(
+            Time::new(TimeUnit::Seconds(10.0)),
+            FixedTableID::Boulder,
+            true,
+        );
 
         let drop = ht.inc(10.0, &world_snapshot, &GridPos::new(0, 0), &plat_api);
         assert!(drop.is_some());

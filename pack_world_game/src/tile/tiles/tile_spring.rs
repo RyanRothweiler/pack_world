@@ -17,20 +17,21 @@ use gengar_engine::{
 };
 use std::sync::LazyLock;
 
-pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
-    title: "Spring",
-    description: "Doubles the drops of all adjacent tiles.",
-    world_layer: WorldLayer::Floor,
-    footprint: vec![GridPos::new(0, 0)],
-    placing_draw_footprint: false,
+pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| {
+    let mod_positions: Vec<GridPos> = GridPos::new(0, 0).to_adjacents_iter().collect();
 
-    placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
-    placement_global_mod: vec![GlobalMod::new(
-        GlobalModKind::DropCount(2.0),
-        GlobalModLocation::Radius(1),
-    )],
+    TileDefinition {
+        title: "Spring",
+        description: "Doubles the drops of all adjacent tiles.",
+        world_layer: WorldLayer::Floor,
+        footprint: vec![GridPos::new(0, 0)],
+        placing_draw_footprint: false,
 
-    new_instance: new_instance,
+        placement_constraints: vec![WorldCondition::OriginContains(TileSnapshot::Dirt)],
+        placement_global_mod: vec![GlobalMod::new(GlobalModKind::DropCount(2.0), mod_positions)],
+
+        new_instance: new_instance,
+    }
 });
 
 pub fn new_instance(grid_pos: GridPos) -> TileInstance {

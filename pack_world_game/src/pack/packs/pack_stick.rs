@@ -12,6 +12,6 @@ pub static STICK: LazyLock<Pack> = LazyLock::new(|| {
         vec![(ItemType::Stick, 20)],
         4,
         FixedTableID::Pack(PackID::Stick),
-        VecThreeFloat::new(-9.0, 0.0, 9.0),
+        VecThreeFloat::new(-6.0, 0.0, 6.0),
     )
 });

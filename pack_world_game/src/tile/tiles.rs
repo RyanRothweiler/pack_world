@@ -8,6 +8,7 @@ pub mod tile_clam;
 pub mod tile_crab;
 pub mod tile_dirt;
 pub mod tile_frog;
+pub mod tile_goblin;
 pub mod tile_grass;
 pub mod tile_kelp;
 pub mod tile_mud_chicken;

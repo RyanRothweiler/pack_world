@@ -12,6 +12,6 @@ pub static MUD_HEART: LazyLock<Pack> = LazyLock::new(|| {
         vec![(ItemType::MudHeart, 5)],
         4,
         FixedTableID::Pack(PackID::MudHeart),
-        VecThreeFloat::new(0.0, 0.0, 18.0),
+        VecThreeFloat::new(0.0, 0.0, 12.0),
     )
 });

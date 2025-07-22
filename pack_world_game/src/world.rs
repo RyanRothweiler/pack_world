@@ -194,28 +194,19 @@ impl World {
 
     /// Add or remove a global mod.
     pub fn update_global_mod(&mut self, origin: GridPos, global_mod: &GlobalMod, change: Change) {
-        let mut positions: Vec<GridPos> = vec![];
-
-        // get all positions
-        match global_mod.loc {
-            GlobalModLocation::Radius(rad) => {
-                let mut p: Vec<GridPos> = origin.to_radius_iter(rad).collect();
-                positions.append(&mut p);
-            }
-        }
-
         // set the modifications
         match global_mod.kind {
             GlobalModKind::DropCount(drop_mod) => {
-                for p in &positions {
-                    let mut new_val: f64 = *self.drop_count_mod.get(p).unwrap_or(&1.0);
+                for p_rel in &global_mod.positions {
+                    let pos = *p_rel + origin;
+                    let mut new_val: f64 = *self.drop_count_mod.get(&pos).unwrap_or(&1.0);
 
                     match change {
                         Change::Adding => new_val *= drop_mod.clamp(0.0, GLOBAL_MOD_MAX),
                         Change::Removing => new_val /= drop_mod.clamp(0.0, GLOBAL_MOD_MAX),
                     }
 
-                    self.drop_count_mod.insert(*p, new_val);
+                    self.drop_count_mod.insert(pos, new_val);
                 }
             }
         }

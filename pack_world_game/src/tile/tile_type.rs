@@ -28,6 +28,7 @@ pub enum TileType {
     Crab,
     MudHenge,
     MudChicken,
+    Goblin,
 }
 
 pub const ALL_TILE_TYPES: LazyLock<Vec<TileType>> = LazyLock::new(|| {
@@ -52,6 +53,7 @@ pub const ALL_TILE_TYPES: LazyLock<Vec<TileType>> = LazyLock::new(|| {
         TileType::Crab,
         TileType::MudHenge,
         TileType::MudChicken,
+        TileType::Goblin,
     ]
 });
 
@@ -117,6 +119,7 @@ impl TileType {
             TileType::Crab => &tile_crab::DEF,
             TileType::MudHenge => &tile_mud_henge::DEF,
             TileType::MudChicken => &tile_mud_chicken::DEF,
+            TileType::Goblin => &tile_goblin::DEF,
         }
     }
 
@@ -142,6 +145,7 @@ impl TileType {
             Self::Crab => 17,
             Self::MudHenge => 18,
             Self::MudChicken => 19,
+            Self::Goblin => 20,
         }
     }
 
@@ -167,6 +171,7 @@ impl TileType {
             17 => Ok(Self::Crab),
             18 => Ok(Self::MudHenge),
             19 => Ok(Self::MudChicken),
+            20 => Ok(Self::Goblin),
             _ => Err(Error::InvalidTileTypeIndex(idx)),
         }
     }

@@ -58,6 +58,9 @@ tile_mudhenge
 tile
 tile_mudchicken
 
+tile
+tile_goblin
+
 pack
 pack_starter
 

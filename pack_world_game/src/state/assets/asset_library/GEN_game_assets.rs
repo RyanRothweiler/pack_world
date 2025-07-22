@@ -127,6 +127,12 @@ include_texture!(al, "tile_mudchicken_metallic", "../../../../resources/tiles/ti
 include_texture!(al, "tile_mudchicken_roughness", "../../../../resources/tiles/tile_mudchicken/Roughness.png", render_api);
 include_texture!(al, "tile_mudchicken_ao", "../../../../resources/tiles/tile_mudchicken/AO.png", render_api);
 include_texture!(al, "tile_mudchicken_normal", "../../../../resources/tiles/tile_mudchicken/Normal.png", render_api);
+include_model!(al, "tile_goblin", "../../../../resources/tiles/tile_goblin/tile_goblin.obj", render_api);
+include_texture!(al, "tile_goblin_base_color", "../../../../resources/tiles/tile_goblin/BaseColor.png", render_api);
+include_texture!(al, "tile_goblin_metallic", "../../../../resources/tiles/tile_goblin/Metallic.png", render_api);
+include_texture!(al, "tile_goblin_roughness", "../../../../resources/tiles/tile_goblin/Roughness.png", render_api);
+include_texture!(al, "tile_goblin_ao", "../../../../resources/tiles/tile_goblin/AO.png", render_api);
+include_texture!(al, "tile_goblin_normal", "../../../../resources/tiles/tile_goblin/Normal.png", render_api);
 include_model!(al, "pack_starter", "../../../../resources/packs/pack_starter/pack_starter.obj", render_api);
 include_texture!(al, "pack_starter_base_color", "../../../../resources/packs/pack_starter/BaseColor.png", render_api);
 include_texture!(al, "pack_starter_metallic", "../../../../resources/packs/pack_starter/Metallic.png", render_api);
