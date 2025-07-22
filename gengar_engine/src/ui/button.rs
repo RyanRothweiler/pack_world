@@ -125,6 +125,11 @@ pub fn draw_text_button_id(
             shrink_target = 5.0;
         }
 
+        // hacky way to set the initial state.
+        if button_state.y_current == 0.0 {
+            button_state.y_current = y_target;
+        }
+
         button_state.y_current = lerp(button_state.y_current, y_target, context.delta_time * 35.0);
         r.bottom_right.y = button_state.y_current;
 
