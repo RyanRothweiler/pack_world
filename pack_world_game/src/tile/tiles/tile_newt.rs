@@ -39,6 +39,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     ));
 
     inst.comp_wander = Some(TileCompWander {
+        range: 4,
         target_grid_offset: GridPos::new(1, 1),
         curr_world_pos: grid_to_world(&grid_pos),
     });

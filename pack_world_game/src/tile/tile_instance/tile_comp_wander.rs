@@ -5,6 +5,7 @@ use gengar_engine::{platform_api::*, vectors::*};
 
 #[derive(Debug)]
 pub struct TileCompWander {
+    pub range: i32,
     pub curr_world_pos: VecThreeFloat,
     pub target_grid_offset: GridPos,
 }
@@ -18,8 +19,8 @@ impl TileCompWander {
         self.curr_world_pos = self.curr_world_pos + (dir * 0.01);
 
         if self.curr_world_pos.dist_from(target_world) < 1.0 {
-            self.target_grid_offset.x = ((platform_api.rand)() * 4.0) as i32;
-            self.target_grid_offset.y = ((platform_api.rand)() * 4.0) as i32;
+            self.target_grid_offset.x = ((platform_api.rand)() * self.range as f64) as i32;
+            self.target_grid_offset.y = ((platform_api.rand)() * self.range as f64) as i32;
         }
     }
 }

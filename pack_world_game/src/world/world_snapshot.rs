@@ -24,6 +24,7 @@ pub enum TileSnapshot {
     MudHenge,
     MudChicken,
     Goblin,
+    MudPig,
 }
 
 /// Snapshot of world state.

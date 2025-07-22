@@ -14,6 +14,7 @@ pub mod tile_kelp;
 pub mod tile_mud_chicken;
 pub mod tile_mud_fish;
 pub mod tile_mud_henge;
+pub mod tile_mud_pig;
 pub mod tile_mud_pit;
 pub mod tile_newt;
 pub mod tile_oak_tree;

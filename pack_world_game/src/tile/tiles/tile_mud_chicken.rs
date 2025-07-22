@@ -19,7 +19,7 @@ use std::sync::LazyLock;
 
 pub static DEF: LazyLock<TileDefinition> = LazyLock::new(|| TileDefinition {
     title: "Mud Chicken",
-    description: "Automatically harvests all tiles within its area",
+    description: "Automatically harvests all tiles within its area. Dies after 3 days.",
     world_layer: WorldLayer::Walker,
     footprint: GridPos::new(0, 0).to_rect_iter(4, 4).collect(),
     placing_draw_footprint: true,
@@ -33,6 +33,7 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let mut inst = TileInstance::new(TileType::MudChicken, grid_pos, TileMethods::MudChicken);
 
     inst.comp_wander = Some(TileCompWander {
+        range: 4,
         target_grid_offset: GridPos::new(1, 1),
         curr_world_pos: grid_to_world(&grid_pos),
     });
@@ -40,6 +41,8 @@ pub fn new_instance(grid_pos: GridPos) -> TileInstance {
     let harvest_time = Time::new(TimeUnit::Seconds(10.0));
     let positions: Vec<GridPos> = DEF.footprint.clone();
     inst.comp_harvest_others = Some(TileCompHarvestOthers::new(harvest_time, positions));
+
+    inst.comp_auto_death = Some(TileCompAutoDeath::new(Time::new(TimeUnit::Days(3.0))));
 
     inst
 }

@@ -298,6 +298,7 @@ impl TileInstance {
             TileMethods::MudHenge => TileSnapshot::MudHenge,
             TileMethods::MudChicken => TileSnapshot::MudChicken,
             TileMethods::Goblin => TileSnapshot::Goblin,
+            TileMethods::MudPig => TileSnapshot::MudPig,
         }
     }
 

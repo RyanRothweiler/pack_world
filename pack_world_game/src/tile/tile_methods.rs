@@ -40,6 +40,7 @@ pub enum TileMethods {
     MudHenge,
     MudChicken,
     Goblin,
+    MudPig,
 }
 
 impl TileMethods {
@@ -66,6 +67,7 @@ impl TileMethods {
             TileMethods::MudHenge => 19,
             TileMethods::MudChicken => 20,
             TileMethods::Goblin => 21,
+            TileMethods::MudPig => 22,
         }
     }
 
@@ -124,6 +126,7 @@ impl TileMethods {
             19 => Ok(Self::MudHenge),
             20 => Ok(Self::MudChicken),
             21 => Ok(Self::Goblin),
+            22 => Ok(Self::MudPig),
             _ => {
                 return Err(Error::UnknownTileMethodID(id));
             }
