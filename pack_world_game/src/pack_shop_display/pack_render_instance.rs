@@ -142,6 +142,9 @@ impl PackRenderInstance {
             }
         };
 
+        // disable any rotation animation. I kinda like it without the animation
+        self.rot_time = 1.1;
+
         let target_rot = VecThreeFloat::new(
             f64::sin(self.rot_time) * rot_max,
             -90.0_f64.to_radians() + (f64::sin(self.rot_time + 2.0) * rot_max),
