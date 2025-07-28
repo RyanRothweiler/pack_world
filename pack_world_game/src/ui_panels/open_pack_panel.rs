@@ -6,7 +6,7 @@ use crate::{
     ui_panels::{nav_tabs_panel::*, *},
     UpdateSignal,
 };
-use gengar_engine::{
+use elara_engine::{
     color::*, platform_api::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*,
 };
 

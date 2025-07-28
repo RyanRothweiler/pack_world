@@ -1,5 +1,5 @@
 use crate::{pack::*, pack_shop_display::PackShopDisplayState, state::assets::*};
-use gengar_engine::{
+use elara_engine::{
     math::*,
     matricies::*,
     platform_api::*,
@@ -72,7 +72,7 @@ impl PackRenderInstance {
                     ease_in_quint(self.time.clamp(0.0, 1.0)),
                 );
                 */
-                self.scale = gengar_engine::math::lerp(
+                self.scale = elara_engine::math::lerp(
                     self.scale,
                     0.0,
                     ease_out_quint(self.time.clamp(0.0, 1.0)),
@@ -110,7 +110,7 @@ impl PackRenderInstance {
                     }
                 }
 
-                self.scale = gengar_engine::math::lerp(self.scale, scale_target, 0.35);
+                self.scale = elara_engine::math::lerp(self.scale, scale_target, 0.35);
             }
             PackInstanceState::Remove => {
                 self.scale = 0.0;

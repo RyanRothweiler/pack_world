@@ -7,7 +7,7 @@ use crate::{
     tile::*,
     world::*,
 };
-use gengar_engine::{
+use elara_engine::{
     color::*,
     platform_api::*,
     rect::*,

@@ -1,5 +1,5 @@
 use crate::account_system::*;
-use gengar_engine::{account_call::*, error::*, json::*, networking::*, platform_api::*};
+use elara_engine::{account_call::*, error::*, json::*, networking::*, platform_api::*};
 
 pub mod user_info;
 
@@ -24,7 +24,7 @@ impl UserAccount {
         json_string: &str,
         platform_api: &PlatformApi,
     ) -> Result<Self, Error> {
-        let jd = gengar_engine::json::load(json_string)?;
+        let jd = elara_engine::json::load(json_string)?;
 
         let email = jd
             .get_string(vec!["user".into(), "email".into()])

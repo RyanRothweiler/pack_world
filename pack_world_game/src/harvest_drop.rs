@@ -3,7 +3,7 @@ use crate::{
     item::*,
     state::{assets::*, inventory::*},
 };
-use gengar_engine::{
+use elara_engine::{
     color::*,
     math::*,
     platform_api::*,

@@ -8,7 +8,7 @@ use crate::{
     update_signal::*,
     world::*,
 };
-use gengar_engine::{
+use elara_engine::{
     platform_api::*,
     rect::*,
     render::{material::*, render_command::*, render_pack::*, shader::*},

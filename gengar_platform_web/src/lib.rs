@@ -9,12 +9,12 @@
 )]
 
 use game::{game_init, game_loop};
-use gengar_engine::{
+use gengar_render_opengl::*;
+use js_sys::{Date, Math};
+use elara_engine::{
     account_call::*, analytics::*, error::Error, input::*, json::*, networking::*,
     platform_api::PlatformApi, state::State as EngineState, vectors::*,
 };
-use gengar_render_opengl::*;
-use js_sys::{Date, Math};
 use std::{
     collections::HashMap,
     sync::{LazyLock, Mutex},
@@ -245,10 +245,10 @@ pub fn start() {
         });
         INPUT = Some(Input::new());
 
-        ENGINE_STATE = Some(gengar_engine::state::State::new(resolution, &platform_api));
+        ENGINE_STATE = Some(elara_engine::state::State::new(resolution, &platform_api));
         GAME_STATE = Some(game::state::State::new());
 
-        gengar_engine::load_resources(
+        elara_engine::load_resources(
             &mut ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
             &platform_api,
@@ -531,7 +531,7 @@ pub fn main_loop() {
             }
         }
 
-        gengar_engine::engine_frame_start(
+        elara_engine::engine_frame_start(
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
@@ -544,7 +544,7 @@ pub fn main_loop() {
             RENDER_API.as_mut().unwrap(),
             &platform_api,
         );
-        gengar_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
+        elara_engine::engine_frame_end(ENGINE_STATE.as_mut().unwrap());
 
         render(
             ENGINE_STATE.as_mut().unwrap(),

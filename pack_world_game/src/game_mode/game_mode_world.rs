@@ -1,7 +1,7 @@
 pub use crate::{
     assets::*, grid::*, inventory::*, item::*, state::*, tile::*, update_signal::*, world::*,
 };
-pub use gengar_engine::{
+pub use elara_engine::{
     collisions::*,
     color::*,
     input::{Input, KeyCode},

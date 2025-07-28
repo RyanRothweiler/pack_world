@@ -3,7 +3,7 @@ use crate::{
     state::{assets::*, inventory::*},
     tile::*,
 };
-use gengar_engine::{color::*, platform_api::*, rect::*, ui::*, vectors::*};
+use elara_engine::{color::*, platform_api::*, rect::*, ui::*, vectors::*};
 use std::{collections::HashMap, sync::LazyLock};
 
 mod fixed_tables;

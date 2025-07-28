@@ -5,7 +5,7 @@ use crate::{
     state::{inventory::*, *},
     tile::*,
 };
-use gengar_engine::{
+use elara_engine::{
     color::*,
     platform_api::*,
     rect::*,

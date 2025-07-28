@@ -2,7 +2,7 @@ pub use crate::{
     account_system::*, assets::*, grid::*, inventory::*, item::*, pack::*, pack_shop_display::*,
     pack_shop_signals::*, save_file::*, state::*, tile::*, update_signal::*, world::*,
 };
-pub use gengar_engine::{
+pub use elara_engine::{
     collisions::*,
     color::*,
     input::{Input, KeyCode},

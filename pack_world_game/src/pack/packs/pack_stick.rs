@@ -3,7 +3,7 @@ use crate::{
     item::ItemType,
     pack::{pack_id::PackID, Pack},
 };
-use gengar_engine::vectors::*;
+use elara_engine::vectors::*;
 use std::sync::LazyLock;
 
 pub static STICK: LazyLock<Pack> = LazyLock::new(|| {

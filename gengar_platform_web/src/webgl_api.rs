@@ -3,7 +3,7 @@
 /// This should work, but I realized I didn't really need it.
 /// Once all the methods here have been implemented then webgl_render can be swapped with this
 /// Then we don't need two gl rendering backends.
-use gengar_engine::{
+use elara_engine::{
     matricies::matrix_four_four::*, render::image::*, util::incrementing_map::*, vectors::*,
 };
 use gengar_render_opengl::*;

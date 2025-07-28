@@ -7,7 +7,7 @@
 )]
 
 use crate::state::*;
-use gengar_engine::{
+use elara_engine::{
     account_call::*,
     analytics::*,
     ascii::*,
@@ -140,7 +140,7 @@ pub fn game_init(
 ) {
     (platform_api.send_event)(AnalyticsEvent::AppStart);
 
-    gengar_engine::debug::init_context(
+    elara_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui,
         es.model_sphere.clone(),
@@ -326,13 +326,13 @@ pub fn game_loop(
     render_api: &mut impl RenderApi,
     platform_api: &PlatformApi,
 ) {
-    gengar_engine::debug::init_context(
+    elara_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),
         es.model_sphere.clone(),
         es.model_plane.clone(),
     );
-    gengar_engine::debug::frame_start();
+    elara_engine::debug::frame_start();
 
     let account_update_sigs = gs
         .account_system
@@ -741,6 +741,6 @@ pub fn game_loop(
         }
     }
 
-    es.game_ui_debug_render_commands = gengar_engine::debug::get_ui_render_list().clone();
-    es.game_debug_render_commands = gengar_engine::debug::get_render_list().clone();
+    es.game_ui_debug_render_commands = elara_engine::debug::get_ui_render_list().clone();
+    es.game_debug_render_commands = elara_engine::debug::get_render_list().clone();
 }

@@ -5,7 +5,7 @@ use crate::{
     ui_panels::*,
     UpdateSignal,
 };
-use gengar_engine::{rect::*, render::material::*, typeface::*, ui::*, vectors::*};
+use elara_engine::{rect::*, render::material::*, typeface::*, ui::*, vectors::*};
 
 const Y_OFFSET: f64 = 80.0;
 

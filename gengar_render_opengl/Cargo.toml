@@ -7,6 +7,6 @@ edition = "2021"
 path = "src/gengar_render_opengl.rs"
 
 [dependencies]
-gengar_engine = { path = "../gengar_engine" }
+elara_engine = { path = "../elara_engine" }
 libc = "0.2.155"
 

@@ -1,7 +1,7 @@
 mod tests {
 
     use crate::{drop_table::*, error::*, grid::*, item::*, tile::*, update_signal::*, world::*};
-    use gengar_engine::{error::Error as EngineError, vectors::*};
+    use elara_engine::{error::Error as EngineError, vectors::*};
     use std::{collections::HashMap, fs::File, io::Write};
 
     #[cfg(test)]

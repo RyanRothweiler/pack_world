@@ -10,7 +10,7 @@ use crate::{
     update_signal::*,
     world::*,
 };
-use gengar_engine::{
+use elara_engine::{
     platform_api::*,
     render::{render_pack::*, shader::*},
     time::*,

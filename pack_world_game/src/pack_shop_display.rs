@@ -2,7 +2,7 @@ use crate::{
     drop_table::*, inventory::*, item::*, pack::*, pack::*, pack_shop_signals::*, state::assets::*,
     ui_panels::*, update_signal::*,
 };
-use gengar_engine::{
+use elara_engine::{
     collisions::*,
     color::*,
     input::*,
@@ -84,7 +84,7 @@ impl PackShopDisplay {
     pub fn update(
         &mut self,
         pack_id: PackID,
-        mouse_left: &gengar_engine::input::ButtonState,
+        mouse_left: &elara_engine::input::ButtonState,
         mouse_world: VecThreeFloat,
         inventory: &Inventory,
         assets: &mut Assets,

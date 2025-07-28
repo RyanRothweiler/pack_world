@@ -16,11 +16,11 @@
 
 mod gl;
 
-use game;
-use gengar_engine::{
+use elara_engine::{
     analytics::*, error::Error as EngineError, input::*, platform_api::PlatformApi, vectors::*,
     vol_mem::*,
 };
+use game;
 use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
@@ -75,15 +75,15 @@ static GAME_TO_LOAD: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec!
 
 type FuncGameInit = fn(
     &mut game::state::State,
-    &mut gengar_engine::state::State,
+    &mut elara_engine::state::State,
     &mut gengar_render_opengl::OglRenderApi,
     &PlatformApi,
 );
 type FuncGameLoop = fn(
     f64,
     &mut game::state::State,
-    &mut gengar_engine::state::State,
-    &mut gengar_engine::input::Input,
+    &mut elara_engine::state::State,
+    &mut elara_engine::input::Input,
     &mut gengar_render_opengl::OglRenderApi,
     &PlatformApi,
 );
@@ -169,7 +169,7 @@ pub fn get_platform_api() -> PlatformApi {
 }
 
 fn main() {
-    gengar_engine::memory_track!("main");
+    elara_engine::memory_track!("main");
 
     let dll_path = format!("{}.dll", game::PACKAGE_NAME);
     let dll_current_path = format!("{}_current.dll", game::PACKAGE_NAME);
@@ -362,15 +362,15 @@ fn main() {
         // after context is setup, get the render api calls
         let mut render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
 
-        let mut engine_state = gengar_engine::state::State::new(resolution, &platform_api);
+        let mut engine_state = elara_engine::state::State::new(resolution, &platform_api);
         engine_state.title_bar_height = 40;
 
         let mut game_state = game::state::State::new();
 
         // setup input
-        let mut input = gengar_engine::input::Input::new();
+        let mut input = elara_engine::input::Input::new();
 
-        gengar_engine::load_resources(&mut engine_state, &mut render_api, &platform_api);
+        elara_engine::load_resources(&mut engine_state, &mut render_api, &platform_api);
         if cfg!(feature = "hotreloading_dll") {
             (game_dll.proc_init)(
                 &mut game_state,
@@ -468,7 +468,7 @@ fn main() {
             }
 
             // Run game / engine loops
-            gengar_engine::engine_frame_start(&mut engine_state, &input, &render_api);
+            elara_engine::engine_frame_start(&mut engine_state, &input, &render_api);
             if cfg!(feature = "hotreloading_dll") {
                 (game_dll.proc_loop)(
                     prev_frame_dur.as_secs_f64(),
@@ -489,7 +489,7 @@ fn main() {
                 );
             }
 
-            gengar_engine::engine_frame_end(&mut engine_state);
+            elara_engine::engine_frame_end(&mut engine_state);
 
             render(&mut engine_state, &resolution, &mut render_api);
 
@@ -508,7 +508,7 @@ fn main() {
             /*
             println!(
                 "{:.2} mb",
-                gengar_engine::byte_conversion::bytes_to_megabytes(TRACKERS[0].allocated_memory)
+                elara_engine::byte_conversion::bytes_to_megabytes(TRACKERS[0].allocated_memory)
             );
             */
         }

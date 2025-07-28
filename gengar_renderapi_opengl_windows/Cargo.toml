@@ -7,7 +7,7 @@ edition = "2021"
 path = "src/wgl_api.rs"
 
 [dependencies]
-gengar_engine = { path = "../gengar_engine" }
+elara_engine = { path = "../elara_engine" }
 gengar_render_opengl = { path = "../gengar_render_opengl" }
 libc = "0.2"
 

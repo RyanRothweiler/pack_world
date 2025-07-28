@@ -9,7 +9,7 @@ use crate::{
     world::*,
     PackID,
 };
-use gengar_engine::{
+use elara_engine::{
     model::*,
     render::{frame_buffer_pack::*, image::Image, material::*, vao::*},
     state::State as EngineState,

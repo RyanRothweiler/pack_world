@@ -97,6 +97,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "elara_engine"
+version = "0.1.0"
+dependencies = [
+ "png",
+]
+
+[[package]]
 name = "fdeflate"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -116,18 +123,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "gengar_engine"
-version = "0.1.0"
-dependencies = [
- "png",
-]
-
-[[package]]
 name = "gengar_platform_web"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
- "gengar_engine",
+ "elara_engine",
  "gengar_render_opengl",
  "js-sys",
  "pack_world_game",
@@ -144,7 +144,7 @@ dependencies = [
 name = "gengar_platform_windows"
 version = "0.1.0"
 dependencies = [
- "gengar_engine",
+ "elara_engine",
  "gengar_render_opengl",
  "gengar_renderapi_opengl_windows",
  "pack_world_game",
@@ -156,7 +156,7 @@ dependencies = [
 name = "gengar_render_opengl"
 version = "0.1.0"
 dependencies = [
- "gengar_engine",
+ "elara_engine",
  "libc",
 ]
 
@@ -164,7 +164,7 @@ dependencies = [
 name = "gengar_renderapi_opengl_windows"
 version = "0.1.0"
 dependencies = [
- "gengar_engine",
+ "elara_engine",
  "gengar_render_opengl",
  "libc",
  "windows",
@@ -287,7 +287,7 @@ checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 name = "pack_world_game"
 version = "0.1.0"
 dependencies = [
- "gengar_engine",
+ "elara_engine",
  "gengar_render_opengl",
  "rand",
 ]

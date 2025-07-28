@@ -1,5 +1,5 @@
 use crate::{ui_panels::*, update_signal::*, user_account::*};
-use gengar_engine::{account_call::*, networking::*, platform_api::*};
+use elara_engine::{account_call::*, networking::*, platform_api::*};
 
 mod purchase_flow;
 
@@ -204,7 +204,7 @@ impl AccountSystem {
 
                         match &call_status {
                             NetworkCallStatus::Success { response } => {
-                                let rj = gengar_engine::json::load(response).unwrap();
+                                let rj = elara_engine::json::load(response).unwrap();
                                 (platform_api.open_url)(
                                     rj.get(vec!["url".into()]).unwrap().as_string().unwrap(),
                                     false,

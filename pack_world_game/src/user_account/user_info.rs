@@ -1,4 +1,4 @@
-use gengar_engine::{account_call::*, error::*, json::*, networking::*, platform_api::*};
+use elara_engine::{account_call::*, error::*, json::*, networking::*, platform_api::*};
 
 /// Custom user info in the users table
 #[derive(Debug)]
@@ -8,7 +8,7 @@ pub struct UserInfo {
 
 impl UserInfo {
     pub fn from_supabase_json(json_string: &str) -> Result<Self, Error> {
-        let jd = gengar_engine::json::load(json_string)?;
+        let jd = elara_engine::json::load(json_string)?;
 
         let purchased_game_base = jd
             .get_bool(vec!["user".into(), "purchased_game_base".into()])

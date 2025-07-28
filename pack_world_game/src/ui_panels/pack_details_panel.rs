@@ -8,7 +8,7 @@ use crate::{
     ui_panels::{nav_tabs_panel::*, *},
     UpdateSignal,
 };
-use gengar_engine::{color::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*};
+use elara_engine::{color::*, rect::*, render::material::*, typeface::*, ui::*, vectors::*};
 
 pub struct PackDetailsData {
     pub pack_id: PackID,

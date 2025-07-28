@@ -1,5 +1,5 @@
-use gengar_engine::{account_call::*, build_vars::*, error::*, json::*, networking::*};
 use js_sys::Reflect;
+use elara_engine::{account_call::*, build_vars::*, error::*, json::*, networking::*};
 use std::sync::{Arc, LazyLock, Mutex};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
@@ -17,7 +17,7 @@ pub static ACCOUNT_ERROR: LazyLock<Mutex<Option<AccountError>>> =
     LazyLock::new(|| Mutex::new(None));
 
 fn supa_to_account_error(input: String) -> Result<AccountError, Error> {
-    let json = gengar_engine::json::load(&input)?;
+    let json = elara_engine::json::load(&input)?;
     let error_code = json
         .get(vec!["error_code".to_string()])
         .ok_or(Error::JsonMissingEntry)?

@@ -9,7 +9,7 @@ fn main() {
         .expect("Couldn't open output file");
 
     let imp = r#"
-use gengar_engine::{
+use elara_engine::{
     model::*,
     render::{image::*, RenderApi, *},
 };

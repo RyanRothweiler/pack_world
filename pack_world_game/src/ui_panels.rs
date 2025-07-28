@@ -6,7 +6,7 @@ use crate::{
     tile::*,
     UpdateSignal,
 };
-use gengar_engine::{color::*, networking::*, platform_api::*, typeface::*, ui::*, vectors::*};
+use elara_engine::{color::*, networking::*, platform_api::*, typeface::*, ui::*, vectors::*};
 
 pub mod create_account_panel;
 pub mod debug_panel;

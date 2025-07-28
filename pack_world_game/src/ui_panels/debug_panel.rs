@@ -4,7 +4,7 @@ use crate::{
     ui_panels::*,
     UpdateSignal,
 };
-use gengar_engine::{rect::*, render::material::*, typeface::*, ui::*, vectors::*};
+use elara_engine::{rect::*, render::material::*, typeface::*, ui::*, vectors::*};
 
 pub struct DebugPanel {}
 

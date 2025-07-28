@@ -1,6 +1,6 @@
 #![allow(unused_variables, unused_imports, dead_code, clippy::all)]
 
-use gengar_engine::{
+use elara_engine::{
     color::*,
     error::Error as EngineError,
     matricies::matrix_four_four::*,
@@ -532,13 +532,13 @@ pub fn render(es: &mut EngineState, resolution: &VecTwo, render_api: &mut OglRen
     {
         render_list(
             vec![],
-            gengar_engine::debug::get_render_list(),
+            elara_engine::debug::get_render_list(),
             &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
         render_list(
             vec![],
-            gengar_engine::debug::get_ui_render_list(),
+            elara_engine::debug::get_ui_render_list(),
             &es.render_packs.get(&RenderPackID::World).unwrap().camera,
             &render_api,
         );
