@@ -1,12 +1,12 @@
 [package]
 name = "elara_render_opengl"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 
 [lib]
 path = "src/elara_render_opengl.rs"
 
 [dependencies]
-elara_engine = { path = "../elara_engine" }
+elara_engine = { path = "../elara_engine", version = "=1.0.0" }
 libc = "0.2.155"
 

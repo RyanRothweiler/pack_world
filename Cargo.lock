@@ -98,7 +98,7 @@ dependencies = [
 
 [[package]]
 name = "elara_engine"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "png",
 ]
@@ -135,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "elara_render_opengl"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "elara_engine",
  "libc",
@@ -143,7 +143,7 @@ dependencies = [
 
 [[package]]
 name = "elara_renderapi_opengl_windows"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "elara_engine",
  "elara_render_opengl",
@@ -285,7 +285,7 @@ checksum = "3fdb12b2476b595f9358c5161aa467c2438859caa136dec86c26fdd2efe17b92"
 
 [[package]]
 name = "pack_world_game"
-version = "0.1.0"
+version = "0.5.0"
 dependencies = [
  "elara_engine",
  "elara_render_opengl",
