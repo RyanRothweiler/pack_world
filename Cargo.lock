@@ -99,6 +99,7 @@ dependencies = [
 [[package]]
 name = "elara_engine"
 version = "1.0.0"
+source = "git+https://github.com/RyanRothweiler/elara_engine.git?branch=version%2F1.x.x#d9407595f813ce5d621954b54e843edaf586e38b"
 dependencies = [
  "png",
 ]

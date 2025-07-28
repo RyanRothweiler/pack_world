@@ -9,7 +9,7 @@ crate-type = ["cdylib", "rlib"]
 path = "src/game.rs"
 
 [dependencies]
-elara_engine = { path = "../elara_engine", version = "=1.0.0" }
+elara_engine = { git = "https://github.com/RyanRothweiler/elara_engine.git", branch = "version/1.x.x", version = "=1.0.0" }
 elara_render_opengl = { path = "../elara_render_opengl", version = "=1.0.0" }
 
 [dev-dependencies]
