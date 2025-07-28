@@ -6,7 +6,7 @@
 use elara_engine::{
     matricies::matrix_four_four::*, render::image::*, util::incrementing_map::*, vectors::*,
 };
-use gengar_render_opengl::*;
+use elara_render_opengl::*;
 
 use web_sys::{
     WebGl2RenderingContext, WebGlBuffer, WebGlFramebuffer, WebGlProgram, WebGlRenderbuffer,
@@ -111,7 +111,7 @@ impl WebGlRenderMethods {
 }
 
 // Implement opengl render
-impl gengar_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
+impl elara_render_opengl::OGLPlatformImpl for WebGlRenderMethods {
     fn create_shader(&mut self, id: i32) -> u32 {
         let prog: WebGlShader = self.context.create_shader(id as u32).unwrap();
         self.shaders.push(prog) as u32

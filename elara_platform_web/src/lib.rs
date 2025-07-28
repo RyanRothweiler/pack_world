@@ -9,7 +9,7 @@
 )]
 
 use game::{game_init, game_loop};
-use gengar_render_opengl::*;
+use elara_render_opengl::*;
 use js_sys::{Date, Math};
 use elara_engine::{
     account_call::*, analytics::*, error::Error, input::*, json::*, networking::*,
@@ -240,7 +240,7 @@ pub fn start() {
         .unwrap();
 
     unsafe {
-        RENDER_API = Some(gengar_render_opengl::OglRenderApi {
+        RENDER_API = Some(elara_render_opengl::OglRenderApi {
             platform_api: Box::new(WebGlRenderMethods::new(gl_context)),
         });
         INPUT = Some(Input::new());

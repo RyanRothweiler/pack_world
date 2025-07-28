@@ -20,8 +20,8 @@ use elara_engine::{
     analytics::*, error::Error as EngineError, input::*, platform_api::PlatformApi, vectors::*,
     vol_mem::*,
 };
+use elara_render_opengl::*;
 use game;
-use gengar_render_opengl::*;
 use std::{
     collections::HashMap,
     fs::{File, OpenOptions},
@@ -76,7 +76,7 @@ static GAME_TO_LOAD: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec!
 type FuncGameInit = fn(
     &mut game::state::State,
     &mut elara_engine::state::State,
-    &mut gengar_render_opengl::OglRenderApi,
+    &mut elara_render_opengl::OglRenderApi,
     &PlatformApi,
 );
 type FuncGameLoop = fn(
@@ -84,7 +84,7 @@ type FuncGameLoop = fn(
     &mut game::state::State,
     &mut elara_engine::state::State,
     &mut elara_engine::input::Input,
-    &mut gengar_render_opengl::OglRenderApi,
+    &mut elara_render_opengl::OglRenderApi,
     &PlatformApi,
 );
 
@@ -360,7 +360,7 @@ fn main() {
         let mut game_dll = load_game_dll().unwrap();
 
         // after context is setup, get the render api calls
-        let mut render_api = gengar_renderapi_opengl_windows::get_ogl_render_api();
+        let mut render_api = elara_renderapi_opengl_windows::get_ogl_render_api();
 
         let mut engine_state = elara_engine::state::State::new(resolution, &platform_api);
         engine_state.title_bar_height = 40;

@@ -1,5 +1,5 @@
 [package]
-name = "gengar_platform_windows"
+name = "elara_platform_windows"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,8 +12,8 @@ tracking_allocator = []
 rand = "0.9.0"
 
 elara_engine = { path = "../elara_engine" }
-gengar_renderapi_opengl_windows = { path = "../gengar_renderapi_opengl_windows" }
-gengar_render_opengl = { path = "../gengar_render_opengl" }
+elara_renderapi_opengl_windows = { path = "../elara_renderapi_opengl_windows" }
+elara_render_opengl = { path = "../elara_render_opengl" }
 
 game = { path = "../pack_world_game", package="pack_world_game" }
 

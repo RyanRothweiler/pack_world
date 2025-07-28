@@ -104,6 +104,54 @@ dependencies = [
 ]
 
 [[package]]
+name = "elara_platform_web"
+version = "0.1.0"
+dependencies = [
+ "console_error_panic_hook",
+ "elara_engine",
+ "elara_render_opengl",
+ "js-sys",
+ "pack_world_game",
+ "rexie",
+ "serde",
+ "serde-wasm-bindgen",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "wasm-bindgen-test",
+ "web-sys",
+]
+
+[[package]]
+name = "elara_platform_windows"
+version = "0.1.0"
+dependencies = [
+ "elara_engine",
+ "elara_render_opengl",
+ "elara_renderapi_opengl_windows",
+ "pack_world_game",
+ "rand",
+ "windows",
+]
+
+[[package]]
+name = "elara_render_opengl"
+version = "0.1.0"
+dependencies = [
+ "elara_engine",
+ "libc",
+]
+
+[[package]]
+name = "elara_renderapi_opengl_windows"
+version = "0.1.0"
+dependencies = [
+ "elara_engine",
+ "elara_render_opengl",
+ "libc",
+ "windows",
+]
+
+[[package]]
 name = "fdeflate"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -120,54 +168,6 @@ checksum = "324a1be68054ef05ad64b861cc9eaf1d623d2d8cb25b4bf2cb9cdd902b4bf253"
 dependencies = [
  "crc32fast",
  "miniz_oxide 0.8.0",
-]
-
-[[package]]
-name = "gengar_platform_web"
-version = "0.1.0"
-dependencies = [
- "console_error_panic_hook",
- "elara_engine",
- "gengar_render_opengl",
- "js-sys",
- "pack_world_game",
- "rexie",
- "serde",
- "serde-wasm-bindgen",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "wasm-bindgen-test",
- "web-sys",
-]
-
-[[package]]
-name = "gengar_platform_windows"
-version = "0.1.0"
-dependencies = [
- "elara_engine",
- "gengar_render_opengl",
- "gengar_renderapi_opengl_windows",
- "pack_world_game",
- "rand",
- "windows",
-]
-
-[[package]]
-name = "gengar_render_opengl"
-version = "0.1.0"
-dependencies = [
- "elara_engine",
- "libc",
-]
-
-[[package]]
-name = "gengar_renderapi_opengl_windows"
-version = "0.1.0"
-dependencies = [
- "elara_engine",
- "gengar_render_opengl",
- "libc",
- "windows",
 ]
 
 [[package]]
@@ -288,7 +288,7 @@ name = "pack_world_game"
 version = "0.1.0"
 dependencies = [
  "elara_engine",
- "gengar_render_opengl",
+ "elara_render_opengl",
  "rand",
 ]
 

@@ -8,8 +8,8 @@
     clippy::all
 )]
 
-use gengar_render_opengl::{gl_types::*, *};
 use elara_engine::{matricies::matrix_four_four::*, render::image::*, vectors::*};
+use elara_render_opengl::{gl_types::*, *};
 
 use libc;
 
@@ -174,7 +174,7 @@ impl WglMethods {
     }
 }
 
-impl gengar_render_opengl::OGLPlatformImpl for WglMethods {
+impl elara_render_opengl::OGLPlatformImpl for WglMethods {
     fn get_metrics(&self) -> String {
         String::new()
     }

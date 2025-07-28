@@ -1,10 +1,10 @@
 [package]
-name = "gengar_render_opengl"
+name = "elara_render_opengl"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-path = "src/gengar_render_opengl.rs"
+path = "src/elara_render_opengl.rs"
 
 [dependencies]
 elara_engine = { path = "../elara_engine" }

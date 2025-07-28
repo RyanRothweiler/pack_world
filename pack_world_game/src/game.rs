@@ -32,7 +32,7 @@ use elara_engine::{
     ui::*,
     vectors::*,
 };
-use gengar_render_opengl::*;
+use elara_render_opengl::*;
 use std::{
     collections::HashMap,
     fs::File,

@@ -4,11 +4,11 @@ resolver = "2"
 
 members = [
     "elara_engine",
-    "gengar_render_opengl",
-    "gengar_renderapi_opengl_windows",
+    "elara_render_opengl",
+    "elara_renderapi_opengl_windows",
 
-    "gengar_platform_windows",
-    "gengar_platform_web",
+    "elara_platform_windows",
+    "elara_platform_web",
 
     "pack_world_game", 
 ]

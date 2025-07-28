@@ -1,5 +1,5 @@
 [package]
-name = "gengar_renderapi_opengl_windows"
+name = "elara_renderapi_opengl_windows"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,7 +8,7 @@ path = "src/wgl_api.rs"
 
 [dependencies]
 elara_engine = { path = "../elara_engine" }
-gengar_render_opengl = { path = "../gengar_render_opengl" }
+elara_render_opengl = { path = "../elara_render_opengl" }
 libc = "0.2"
 
 [dependencies.windows]
