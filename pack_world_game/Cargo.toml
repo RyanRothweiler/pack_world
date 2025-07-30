@@ -8,17 +8,12 @@ build = "build.rs"
 crate-type = ["cdylib", "rlib"]
 path = "src/game.rs"
 
-[[bin]]
-name = "pack_world_main"
-path = "src/main.rs"
-
 [dependencies]
 
 #elara_engine = { git = "https://github.com/RyanRothweiler/elara_engine.git", branch = "version/1.x.x", version = "=1.0.0" }
 elara_engine = { path = "C:/Digital Archive/Game Development/elara/elara_engine/", version = "=1.0.0" }
 
 elara_render_opengl = { path = "../elara_render_opengl", version = "=1.0.0" }
-elara_platform_windows = { path = "../elara_platform_windows", version = "=1.0.0" }
 
 [dev-dependencies]
 rand = "0.9.0"

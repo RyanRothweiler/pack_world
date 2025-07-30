@@ -138,9 +138,16 @@ name = "pack_world_game"
 version = "0.5.0"
 dependencies = [
  "elara_engine",
- "elara_platform_windows",
  "elara_render_opengl",
  "rand",
+]
+
+[[package]]
+name = "pack_world_windows_runner"
+version = "0.1.0"
+dependencies = [
+ "elara_platform_windows",
+ "pack_world_game",
 ]
 
 [[package]]

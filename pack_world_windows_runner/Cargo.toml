@@ -1,0 +1,8 @@
+[package]
+name = "pack_world_windows_runner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+elara_platform_windows = { path = "../elara_platform_windows", version = "=1.0.0" }
+pack_world_game = { path = "../pack_world_game" }

@@ -9,5 +9,5 @@ members = [
     "elara_platform_windows",
     # "elara_platform_web",
 
-    "pack_world_game", 
+    "pack_world_game", "pack_world_windows_runner", 
 ]
