@@ -7,7 +7,10 @@ edition = "2021"
 path = "src/wgl_api.rs"
 
 [dependencies]
-elara_engine = { git = "https://github.com/RyanRothweiler/elara_engine.git", branch = "version/1.x.x", version = "=1.0.0" }
+
+#elara_engine = { git = "https://github.com/RyanRothweiler/elara_engine.git", branch = "version/1.x.x", version = "=1.0.0" }
+elara_engine = { path = "C:/Digital Archive/Game Development/elara/elara_engine/", version = "=1.0.0" }
+
 elara_render_opengl = { path = "../elara_render_opengl" }
 libc = "0.2"
 

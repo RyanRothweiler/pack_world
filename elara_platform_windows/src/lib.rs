@@ -21,7 +21,7 @@ use elara_engine::{
     vol_mem::*,
 };
 use elara_render_opengl::*;
-use game;
+use std::ffi::c_void;
 use std::{
     collections::HashMap,
     fs::{File, OpenOptions},
@@ -54,6 +54,9 @@ const FRAME_TARGET: Duration = Duration::from_secs((1.0 / FRAME_TARGET_FPS) as u
 
 const SAVE_FILE_NAME: &str = "save_file.gsf";
 
+static DLL_PATH_STR: LazyLock<Mutex<String>> = LazyLock::new(|| Mutex::new(String::new()));
+static DLL_CURRENT_PATH_STR: LazyLock<Mutex<String>> = LazyLock::new(|| Mutex::new(String::new()));
+
 static mut GAME_DLL_PATH: PCWSTR = w!("");
 static mut GAME_DLL_CURRENT_PATH: PCWSTR = w!("");
 
@@ -74,14 +77,14 @@ static mut CHAR_DOWN: Option<char> = None;
 static GAME_TO_LOAD: LazyLock<Mutex<Vec<u8>>> = LazyLock::new(|| Mutex::new(vec![]));
 
 type FuncGameInit = fn(
-    &mut game::state::State,
+    *mut c_void,
     &mut elara_engine::state::State,
     &mut elara_render_opengl::OglRenderApi,
     &PlatformApi,
 );
 type FuncGameLoop = fn(
     f64,
-    &mut game::state::State,
+    *mut c_void,
     &mut elara_engine::state::State,
     &mut elara_engine::input::Input,
     &mut elara_render_opengl::OglRenderApi,
@@ -168,11 +171,14 @@ pub fn get_platform_api() -> PlatformApi {
     }
 }
 
-fn main() {
+pub fn platform_main(game_id: &str, game_state: *mut c_void) {
     elara_engine::memory_track!("main");
 
-    let dll_path = format!("{}.dll", game::PACKAGE_NAME);
-    let dll_current_path = format!("{}_current.dll", game::PACKAGE_NAME);
+    let dll_path = format!("{}.dll", game_id);
+    let dll_current_path = format!("{}_current.dll", game_id);
+
+    *DLL_PATH_STR.lock().unwrap() = dll_path.clone();
+    *DLL_CURRENT_PATH_STR.lock().unwrap() = dll_current_path.clone();
 
     // These need to be here. Pointers are taken from them, so they cannot be dropped.
     let h_dll_path = HSTRING::from(dll_path);
@@ -365,19 +371,20 @@ fn main() {
         let mut engine_state = elara_engine::state::State::new(resolution, &platform_api);
         engine_state.title_bar_height = 40;
 
-        let mut game_state = game::state::State::new();
-
         // setup input
         let mut input = elara_engine::input::Input::new();
 
         elara_engine::load_resources(&mut engine_state, &mut render_api, &platform_api);
-        if cfg!(feature = "hotreloading_dll") {
-            (game_dll.proc_init)(
-                &mut game_state,
-                &mut engine_state,
-                &mut render_api,
-                &platform_api,
-            );
+        // if cfg!(feature = "hotreloading_dll") {
+
+        (game_dll.proc_init)(
+            game_state,
+            &mut engine_state,
+            &mut render_api,
+            &platform_api,
+        );
+
+        /*
         } else {
             game::game_init(
                 &mut game_state,
@@ -386,6 +393,7 @@ fn main() {
                 &platform_api,
             );
         }
+        */
 
         let mut prev_time_start: SystemTime = SystemTime::now();
 
@@ -469,15 +477,16 @@ fn main() {
 
             // Run game / engine loops
             elara_engine::engine_frame_start(&mut engine_state, &input, &render_api);
-            if cfg!(feature = "hotreloading_dll") {
-                (game_dll.proc_loop)(
-                    prev_frame_dur.as_secs_f64(),
-                    &mut game_state,
-                    &mut engine_state,
-                    &mut input,
-                    &mut render_api,
-                    &platform_api,
-                );
+            // if cfg!(feature = "hotreloading_dll") {
+            (game_dll.proc_loop)(
+                prev_frame_dur.as_secs_f64(),
+                game_state,
+                &mut engine_state,
+                &mut input,
+                &mut render_api,
+                &platform_api,
+            );
+            /*
             } else {
                 game::game_loop(
                     prev_frame_dur.as_secs_f64(),
@@ -488,6 +497,7 @@ fn main() {
                     &platform_api,
                 );
             }
+            */
 
             elara_engine::engine_frame_end(&mut engine_state);
 
@@ -632,16 +642,20 @@ fn get_file_write_time(file_path: PCWSTR) -> std::result::Result<FILETIME, Engin
 }
 
 unsafe fn load_game_dll() -> std::result::Result<GameDll, EngineError> {
-    // Check if game dll exists, otherwise try to use the copied  _current one.
+    // Check if game dll exists, otherwise try to use the copied _current one.
     // It could exist from previous runs
     match PathFileExistsW(GAME_DLL_PATH) {
-        // original game dll does not exist
+        // Error. original game dll does not exist, so looks for copied one
         Err(_) => match PathFileExistsW(GAME_DLL_CURRENT_PATH) {
             // Copied dll does exist, so use that.
             Ok(_) => {
                 let game_dll: HMODULE = match LoadLibraryW(GAME_DLL_CURRENT_PATH) {
                     Ok(v) => v,
                     Err(e) => {
+                        eprintln!(
+                            "Error loading dll at {}",
+                            DLL_CURRENT_PATH_STR.lock().unwrap()
+                        );
                         return Err(EngineError::WindowsLoadLibrary);
                     }
                 };
@@ -650,6 +664,11 @@ unsafe fn load_game_dll() -> std::result::Result<GameDll, EngineError> {
 
             // NO VALID dll exists! So problem!!
             Err(_) => {
+                eprintln!(
+                    "No dll at {} and no copied dll at {}",
+                    DLL_PATH_STR.lock().unwrap(),
+                    DLL_CURRENT_PATH_STR.lock().unwrap(),
+                );
                 return Err(EngineError::MissingGameDLL);
             }
         },
@@ -680,8 +699,8 @@ unsafe fn load_game_dll() -> std::result::Result<GameDll, EngineError> {
 }
 
 unsafe fn get_game_procs_from_dll(dll: HMODULE) -> std::result::Result<GameDll, EngineError> {
-    let init_proc = GetProcAddress(dll, s!("game_init_ogl"));
-    let loop_proc = GetProcAddress(dll, s!("game_loop_ogl"));
+    let init_proc = GetProcAddress(dll, s!("game_init"));
+    let loop_proc = GetProcAddress(dll, s!("game_loop"));
 
     let dll = GameDll {
         dll_handle: dll,

@@ -121,6 +121,10 @@ fn setup_initial(world: &mut World, inventory: &mut Inventory) {
     }
 }
 
+pub fn main() {
+    println!("running main!");
+}
+
 // The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
 pub fn game_init_ogl(

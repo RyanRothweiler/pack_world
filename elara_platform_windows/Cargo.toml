@@ -11,11 +11,11 @@ tracking_allocator = []
 [dependencies]
 rand = "0.9.0"
 
-elara_engine = { git = "https://github.com/RyanRothweiler/elara_engine.git", branch = "version/1.x.x", version = "=1.0.0" }
+#elara_engine = { git = "https://github.com/RyanRothweiler/elara_engine.git", branch = "version/1.x.x", version = "=1.0.0" }
+elara_engine = { path = "C:/Digital Archive/Game Development/elara/elara_engine/", version = "=1.0.0" }
+
 elara_renderapi_opengl_windows = { path = "../elara_renderapi_opengl_windows" }
 elara_render_opengl = { path = "../elara_render_opengl" }
-
-game = { path = "../pack_world_game", package="pack_world_game" }
 
 
 [dependencies.windows]
