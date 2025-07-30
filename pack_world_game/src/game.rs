@@ -33,6 +33,7 @@ use elara_engine::{
     vectors::*,
 };
 use elara_render_opengl::*;
+use std::ffi::c_void;
 use std::{
     collections::HashMap,
     fs::File,
@@ -121,27 +122,15 @@ fn setup_initial(world: &mut World, inventory: &mut Inventory) {
     }
 }
 
-pub fn main() {
-    println!("running main!");
-}
-
-// The render_api is hard-coded here instead of using a trait so that we can support hot reloading
 #[no_mangle]
-pub fn game_init_ogl(
-    gs: &mut State,
+pub fn game_init(
+    game_state_ptr: *mut c_void,
     es: &mut EngineState,
     render_api: &mut OglRenderApi,
     platform_api: &PlatformApi,
 ) {
-    game_init(gs, es, render_api, platform_api)
-}
+    let gs = unsafe { &mut *(game_state_ptr as *mut State) };
 
-pub fn game_init(
-    gs: &mut State,
-    es: &mut EngineState,
-    render_api: &mut impl RenderApi,
-    platform_api: &PlatformApi,
-) {
     (platform_api.send_event)(AnalyticsEvent::AppStart);
 
     elara_engine::debug::init_context(
@@ -308,28 +297,18 @@ fn sim_world(gs: &mut State, es: &mut EngineState, ms: f64, platform_api: &Platf
     handle_signals(update_signals, gs, es, platform_api);
 }
 
-// The render_api is hard-coded here instead of using a trait so that we can support hot reloading
+// Prev delta time is in seconds. So for 60 fps 0.016666.
 #[no_mangle]
-pub fn game_loop_ogl(
+fn game_loop(
     prev_delta_time: f64,
-    gs: &mut State,
+    game_state_ptr: *mut c_void,
     es: &mut EngineState,
     input: &mut Input,
     render_api: &mut OglRenderApi,
     platform_api: &PlatformApi,
 ) {
-    game_loop(prev_delta_time, gs, es, input, render_api, platform_api);
-}
+    let gs = unsafe { &mut *(game_state_ptr as *mut State) };
 
-// Prev delta time is in seconds. So for 60 fps 0.016666.
-pub fn game_loop(
-    prev_delta_time: f64,
-    gs: &mut State,
-    es: &mut EngineState,
-    input: &mut Input,
-    render_api: &mut impl RenderApi,
-    platform_api: &PlatformApi,
-) {
     elara_engine::debug::init_context(
         es.shader_color.clone(),
         es.shader_color_ui.clone(),

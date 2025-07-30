@@ -50,7 +50,7 @@ dependencies = [
 
 [[package]]
 name = "elara_platform_windows"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "elara_engine",
  "elara_render_opengl",
@@ -75,15 +75,6 @@ dependencies = [
  "elara_render_opengl",
  "libc",
  "windows",
-]
-
-[[package]]
-name = "example_game"
-version = "0.1.0"
-dependencies = [
- "elara_engine",
- "elara_platform_windows",
- "elara_render_opengl",
 ]
 
 [[package]]
@@ -147,6 +138,7 @@ name = "pack_world_game"
 version = "0.5.0"
 dependencies = [
  "elara_engine",
+ "elara_platform_windows",
  "elara_render_opengl",
  "rand",
 ]

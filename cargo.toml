@@ -10,5 +10,4 @@ members = [
     # "elara_platform_web",
 
     "pack_world_game", 
-    "example_game", 
 ]
