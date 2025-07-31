@@ -1,1 +1,0 @@
-Windows GL (wgl) platform implementation of open_gl calls
