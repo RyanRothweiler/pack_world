@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 elara_engine = { git = "https://github.com/RyanRothweiler/elara_engine.git", branch = "version/1.0.0", version = "=1.0.0" }
-elara_render_opengl = { path = "C:/Digital Archive/Game Development/elara/elara_render_opengl/" }
+elara_render_opengl = { git = "https://github.com/RyanRothweiler/elara_render_opengl.git", branch = "version/1.0.0", version = "=1.0.0" }
 elara_platform_web = { path = "C:/Digital Archive/Game Development/elara/elara_platform_web/", version = "=1.0.0" }
 pack_world_game = { path = "../pack_world_game" }
 

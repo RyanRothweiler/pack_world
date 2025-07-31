@@ -125,6 +125,7 @@ dependencies = [
 [[package]]
 name = "elara_render_opengl"
 version = "1.0.0"
+source = "git+https://github.com/RyanRothweiler/elara_render_opengl.git?branch=version%2F1.0.0#3f4993d35b7c951f2b269bf26224eda932cfa65a"
 dependencies = [
  "elara_engine",
  "libc",
