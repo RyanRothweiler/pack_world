@@ -299,7 +299,7 @@ fn sim_world(gs: &mut State, es: &mut EngineState, ms: f64, platform_api: &Platf
 
 // Prev delta time is in seconds. So for 60 fps 0.016666.
 #[no_mangle]
-fn game_loop(
+pub fn game_loop(
     prev_delta_time: f64,
     game_state_ptr: *mut c_void,
     es: &mut EngineState,

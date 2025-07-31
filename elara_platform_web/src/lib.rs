@@ -8,13 +8,13 @@
     unreachable_code
 )]
 
-use game::{game_init, game_loop};
-use elara_render_opengl::*;
-use js_sys::{Date, Math};
 use elara_engine::{
-    account_call::*, analytics::*, error::Error, input::*, json::*, networking::*,
+    account_call::*, analytics::*, error::Error, game_methods::*, input::*, json::*, networking::*,
     platform_api::PlatformApi, state::State as EngineState, vectors::*,
 };
+use elara_render_opengl::*;
+use js_sys::{Date, Math};
+use std::ffi::c_void;
 use std::{
     collections::HashMap,
     sync::{LazyLock, Mutex},
@@ -40,7 +40,6 @@ struct FinishedNetworkCall {
 }
 
 static mut ENGINE_STATE: Option<EngineState> = None;
-static mut GAME_STATE: Option<game::state::State> = None;
 static mut RENDER_API: Option<OglRenderApi> = None;
 static mut INPUT: Option<Input> = None;
 
@@ -60,11 +59,6 @@ const USER_ID_KEY: &str = "USER_ID_KEY";
 
 static mut NETWORK_CALL_RESPONSES: LazyLock<Mutex<Vec<FinishedNetworkCall>>> =
     LazyLock::new(|| Mutex::new(vec![]));
-
-#[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-}
 
 pub fn log(input: &str) {
     console::log_1(&input.into());
@@ -174,7 +168,6 @@ pub fn get_platform_api() -> PlatformApi {
     }
 }
 
-#[wasm_bindgen]
 pub fn paste_handler(event: ClipboardEvent) {
     if let Some(clipboard_data) = event.clipboard_data() {
         if let Ok(text) = clipboard_data.get_data("text") {
@@ -183,14 +176,63 @@ pub fn paste_handler(event: ClipboardEvent) {
     }
 }
 
-#[wasm_bindgen]
 pub fn mouse_wheel_handler(event: WheelEvent) {
     *MOUSE_WHEEL.lock().unwrap() = event.delta_y() as i32;
 }
 
-#[wasm_bindgen(start)]
-pub fn start() {
+pub fn key_down(vent: KeyboardEvent) {
+    if vent.key().len() == 1 {
+        let c: Vec<char> = vent.key().chars().collect();
+        unsafe { CHAR_DOWN = Some(c[0]) };
+    }
+
+    if let Some(key) = to_keycode(vent.key()) {
+        KEYBOARD.lock().unwrap().insert(key, true);
+    }
+}
+
+pub fn key_up(vent: KeyboardEvent) {
+    if let Some(key) = to_keycode(vent.key()) {
+        KEYBOARD.lock().unwrap().insert(key, false);
+    }
+}
+
+pub fn mouse_down(vent: MouseEvent) {
+    unsafe {
+        if vent.button() == 0 {
+            MOUSE_LEFT_DOWN = true;
+        } else if vent.button() == 2 {
+            MOUSE_RIGHT_DOWN = true;
+        }
+    }
+}
+
+pub fn mouse_up(vent: MouseEvent) {
+    unsafe {
+        if vent.button() == 0 {
+            MOUSE_LEFT_DOWN = false;
+        } else if vent.button() == 2 {
+            MOUSE_RIGHT_DOWN = false;
+        }
+    }
+}
+
+pub fn mouse_move(vent: MouseEvent) {
+    unsafe {
+        MOUSE_POS.x = vent.client_x() as f64;
+        MOUSE_POS.y = vent.client_y() as f64;
+    };
+}
+
+pub fn on_before_unload(vent: BeforeUnloadEvent) {
+    log("before unload triggered");
+}
+
+static mut PREV_TIME: f64 = 0.0;
+
+pub fn start(game_state: *mut c_void, game_methods: &GameMethods<OglRenderApi>) {
     let window = web_sys::window().unwrap();
+    console_error_panic_hook::set_once();
 
     // get / setup userid
     {
@@ -214,14 +256,13 @@ pub fn start() {
     fetch_game_save();
 
     let platform_api = get_platform_api();
-    console_error_panic_hook::set_once();
 
     let performance = window
         .performance()
         .expect("performance should be available");
     let document = window.document().unwrap();
 
-    let canvas = document.get_element_by_id("gengar_canvas").unwrap();
+    let canvas = document.get_element_by_id("elara_canvas").unwrap();
     let canvas: web_sys::HtmlCanvasElement =
         canvas.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
@@ -246,7 +287,6 @@ pub fn start() {
         INPUT = Some(Input::new());
 
         ENGINE_STATE = Some(elara_engine::state::State::new(resolution, &platform_api));
-        GAME_STATE = Some(game::state::State::new());
 
         elara_engine::load_resources(
             &mut ENGINE_STATE.as_mut().unwrap(),
@@ -254,8 +294,8 @@ pub fn start() {
             &platform_api,
         );
 
-        game_init(
-            GAME_STATE.as_mut().unwrap(),
+        (game_methods.init)(
+            game_state,
             ENGINE_STATE.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
             &platform_api,
@@ -263,66 +303,11 @@ pub fn start() {
 
         PREV_TIME = performance.now();
     };
+
+    log("Finished start");
 }
 
-#[wasm_bindgen]
-pub fn key_down(vent: KeyboardEvent) {
-    if vent.key().len() == 1 {
-        let c: Vec<char> = vent.key().chars().collect();
-        unsafe { CHAR_DOWN = Some(c[0]) };
-    }
-
-    if let Some(key) = to_keycode(vent.key()) {
-        KEYBOARD.lock().unwrap().insert(key, true);
-    }
-}
-
-#[wasm_bindgen]
-pub fn key_up(vent: KeyboardEvent) {
-    if let Some(key) = to_keycode(vent.key()) {
-        KEYBOARD.lock().unwrap().insert(key, false);
-    }
-}
-
-#[wasm_bindgen]
-pub fn mouse_down(vent: MouseEvent) {
-    unsafe {
-        if vent.button() == 0 {
-            MOUSE_LEFT_DOWN = true;
-        } else if vent.button() == 2 {
-            MOUSE_RIGHT_DOWN = true;
-        }
-    }
-}
-
-#[wasm_bindgen]
-pub fn mouse_up(vent: MouseEvent) {
-    unsafe {
-        if vent.button() == 0 {
-            MOUSE_LEFT_DOWN = false;
-        } else if vent.button() == 2 {
-            MOUSE_RIGHT_DOWN = false;
-        }
-    }
-}
-
-#[wasm_bindgen]
-pub fn mouse_move(vent: MouseEvent) {
-    unsafe {
-        MOUSE_POS.x = vent.client_x() as f64;
-        MOUSE_POS.y = vent.client_y() as f64;
-    };
-}
-
-#[wasm_bindgen]
-pub fn on_before_unload(vent: BeforeUnloadEvent) {
-    log("before unload triggered");
-}
-
-static mut PREV_TIME: f64 = 0.0;
-
-#[wasm_bindgen]
-pub fn main_loop() {
+pub fn update(game_state: *mut c_void, game_methods: &GameMethods<OglRenderApi>) {
     let platform_api = get_platform_api();
 
     let window = web_sys::window().unwrap();
@@ -331,7 +316,7 @@ pub fn main_loop() {
         .expect("performance should be available");
     let document = window.document().unwrap();
 
-    let canvas = document.get_element_by_id("gengar_canvas").unwrap();
+    let canvas = document.get_element_by_id("elara_canvas").unwrap();
     let canvas: web_sys::HtmlCanvasElement =
         canvas.dyn_into::<web_sys::HtmlCanvasElement>().unwrap();
 
@@ -536,9 +521,9 @@ pub fn main_loop() {
             INPUT.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
         );
-        game_loop(
+        (game_methods.update)(
             prev_frame_dur / 1000.0,
-            GAME_STATE.as_mut().unwrap(),
+            game_state,
             ENGINE_STATE.as_mut().unwrap(),
             INPUT.as_mut().unwrap(),
             RENDER_API.as_mut().unwrap(),
