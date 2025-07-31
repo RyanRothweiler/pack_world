@@ -98,6 +98,7 @@ dependencies = [
 [[package]]
 name = "elara_platform_web"
 version = "1.0.0"
+source = "git+https://github.com/RyanRothweiler/elara_platform_web.git?branch=version%2F1.0.0#fa518c65e3d7d1fa112b1353d45b3004e8203a57"
 dependencies = [
  "console_error_panic_hook",
  "elara_engine",
@@ -134,6 +135,7 @@ dependencies = [
 [[package]]
 name = "elara_renderapi_opengl_windows"
 version = "1.0.0"
+source = "git+https://github.com/RyanRothweiler/elara_renderapi_opengl_windows.git?branch=version%2F1.0.0#2ae1d8a0a56e61cac6b9a7cd5db3943dd0eba2f7"
 dependencies = [
  "elara_engine",
  "elara_render_opengl",
