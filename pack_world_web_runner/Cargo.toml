@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 elara_engine = { path = "C:/Digital Archive/Game Development/elara/elara_engine/", version = "=1.0.0" }
-elara_render_opengl = { path = "../elara_render_opengl", version = "=1.0.0" }
+elara_render_opengl = { path = "C:/Digital Archive/Game Development/elara/elara_render_opengl/" }
 elara_platform_web = { path = "C:/Digital Archive/Game Development/elara/elara_platform_web/", version = "=1.0.0" }
 pack_world_game = { path = "../pack_world_game" }
 

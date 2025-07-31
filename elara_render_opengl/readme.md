@@ -1,3 +1,0 @@
-OpenGL renderer
-Platform agnostic
-

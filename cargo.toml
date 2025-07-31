@@ -3,7 +3,6 @@
 resolver = "2"
 
 members = [
-    "elara_render_opengl",
     "elara_renderapi_opengl_windows",
 
     "pack_world_game", 
